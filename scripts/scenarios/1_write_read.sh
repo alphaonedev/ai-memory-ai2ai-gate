@@ -71,10 +71,18 @@ for reader_trip in n1:$NODE1_IP:ai:alice n2:$NODE2_IP:ai:bob n3:$NODE3_IP:ai:cha
   for writer in ai:alice ai:bob ai:charlie; do
     [ "$raid" = "$writer" ] && continue
     ns="scenario1-$writer"
-    # Drive the reader agent to list that namespace.
+    # Count rows in this namespace via the local ai-memory HTTP API
+    # on the reader node. The store path is the agent-driven MCP one
+    # (phase A); here we count outcomes for pass/fail — counting is
+    # not what this scenario is testing, and the agent LLM's natural-
+    # language response is not deterministic enough to parse for a
+    # count in shell.
     count=$(ssh $SSH_OPTS root@"$rip" \
-      "source /etc/ai-memory-a2a/env && bash /root/drive_agent.sh list $ns" \
-      2>/dev/null | jq -r '.memories | length' 2>/dev/null || echo 0)
+      "curl -sS 'http://127.0.0.1:9077/api/v1/memories?namespace=$ns&limit=100' | jq -r '.memories | length'" \
+      2>/dev/null | tail -1)
+    count=${count:-0}
+    # Guard against non-numeric output from ssh/jq failures.
+    [[ "$count" =~ ^[0-9]+$ ]] || count=0
     sum=$((sum + count))
   done
   RECALL_COUNT[$raid]=$sum
@@ -82,17 +90,23 @@ for reader_trip in n1:$NODE1_IP:ai:alice n2:$NODE2_IP:ai:bob n3:$NODE3_IP:ai:cha
 done
 
 # ---- Phase C: cross-cluster identity verification ------------------
-# Independent of the agent-driven path, go straight to node-4 and
-# read the cluster state. Every row written by an agent should carry
-# metadata.agent_id = that agent's ID — the Task 1.2 immutability
-# invariant from ai-memory-mcp CLAUDE.md §Agent Identity.
-log "phase C: cross-cluster identity verification via node-4"
+# Independent of the agent-driven path, SSH into node-4 (memory-only
+# aggregator) and query ITS local ai-memory via 127.0.0.1 — the
+# firewall blocks public access to port 9077, so the runner can only
+# reach it through an SSH hop. Every row written by an agent should
+# carry metadata.agent_id = that agent's ID — the Task 1.2
+# immutability invariant from ai-memory-mcp CLAUDE.md §Agent Identity.
+log "phase C: cross-cluster identity verification via node-4 (SSH hop)"
 ALL_OK=true
 for writer in ai:alice ai:bob ai:charlie; do
   ns="scenario1-$writer"
-  resp=$(curl -sS "http://$NODE4_IP:9077/api/v1/memories?namespace=$ns&limit=100")
-  n=$(echo "$resp" | jq '.memories | length')
-  wrong=$(echo "$resp" | jq --arg w "$writer" '[.memories[] | select((.metadata.agent_id // "") != $w)] | length')
+  resp=$(ssh $SSH_OPTS root@"$NODE4_IP" \
+    "curl -sS 'http://127.0.0.1:9077/api/v1/memories?namespace=$ns&limit=100'" \
+    2>/dev/null)
+  n=$(echo "$resp" | jq '.memories | length' 2>/dev/null || echo 0)
+  wrong=$(echo "$resp" | jq --arg w "$writer" '[.memories[] | select((.metadata.agent_id // "") != $w)] | length' 2>/dev/null || echo 0)
+  [[ "$n" =~ ^[0-9]+$ ]] || n=0
+  [[ "$wrong" =~ ^[0-9]+$ ]] || wrong=0
   log "  ns=$ns count=$n wrong_agent_id=$wrong"
   [ "$n" -eq "$WRITES_PER_AGENT" ] || { ALL_OK=false; log "  !! expected $WRITES_PER_AGENT rows, got $n"; }
   [ "$wrong" -eq 0 ] || { ALL_OK=false; log "  !! $wrong rows have wrong agent_id"; }

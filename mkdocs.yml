@@ -28,6 +28,7 @@ theme:
 
 nav:
   - Home: index.md
+  - AI NHI insights: insights.md
   - Methodology: methodology.md
   - Topology: topology.md
   - Agents:
