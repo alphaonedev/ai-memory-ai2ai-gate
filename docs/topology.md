@@ -1,114 +1,141 @@
 # Topology
 
-This page is the authoritative description of the 4-node
-infrastructure shape every A2A campaign provisions. If the
-Terraform module and this page disagree, **Terraform wins** — file
-an issue against the discrepancy.
+Authoritative description of the 4-node infrastructure every a2a-gate
+campaign provisions. If this page and the Terraform module disagree,
+Terraform wins — file an issue against the discrepancy.
 
-## Physical layout
+## Homogeneous agent groups
 
-```
-GitHub Actions runner (ubuntu-24.04, ephemeral)
-        │
-        │  SSH (public IPs, port 22)
-        ▼
- ┌──────────────────────────────────────────────────────┐
- │        DigitalOcean VPC 10.260.0.0/24 (nyc3)         │
- │                                                      │
- │  ┌────────────┐  ┌────────────┐  ┌────────────┐      │
- │  │   node-1   │  │   node-2   │  │   node-3   │      │
- │  │ s-2vcpu-4gb│  │ s-2vcpu-4gb│  │ s-2vcpu-4gb│      │
- │  │ OpenClaw   │  │  Hermes    │  │ OpenClaw   │      │
- │  │ ai:alice   │  │  ai:bob    │  │ai:charlie  │      │
- │  └─────┬──────┘  └─────┬──────┘  └─────┬──────┘      │
- │        │               │               │             │
- │        └───────────────┼───────────────┘             │
- │                        │                             │
- │                        │ MCP over stdio-to-local    │
- │                        │ + HTTP 9077 to node-4      │
- │                        ▼                             │
- │              ┌──────────────────┐                    │
- │              │     node-4       │                    │
- │              │  s-2vcpu-4gb     │                    │
- │              │  ai-memory serve │                    │
- │              │  --mcp --http    │                    │
- │              │  port 9077       │                    │
- │              └──────────────────┘                    │
- │                                                      │
- └──────────────────────────────────────────────────────┘
-```
+Each campaign exercises **one** agent framework. A complete release-
+validation cycle runs the workflow **twice**:
+
+- **OpenClaw group**: 4 fresh droplets, three OpenClaw agents + one memory node.
+  `campaign_id = a2a-openclaw-<release>-rN`.
+- **Hermes group**: 4 fresh droplets, three Hermes agents + one memory node.
+  `campaign_id = a2a-hermes-<release>-rN`.
+
+Homogeneous groups isolate framework-specific regressions. An OpenClaw-
+only campaign that fails while a Hermes-only campaign passes points at
+the OpenClaw MCP client implementation, not at ai-memory. Cross-
+framework interop is a separate campaign type, deferred to a future
+variant.
+
+## Every node runs `ai-memory serve` (4-peer federation mesh)
+
+All four droplets run `ai-memory serve` with `--quorum-writes 2
+--quorum-peers <other-three>`. A write on any node's local serve
+synchronously acknowledges on the leader plus one other peer, then
+post-quorum-fanouts to the remaining two (PR #309 detach behaviour
+from v0.6.0). Agents always talk to their **local** ai-memory at
+`http://127.0.0.1:9077` — no cross-node HTTP from an agent's
+perspective. Federation handles replication.
+
+### Why a dedicated memory-only node (node-4)?
+
+Node-4 participates in the federation quorum but doesn't host an
+agent. It's the aggregator query target for scenarios that need to
+inspect cross-cluster state independently of any agent — e.g.
+scenario 1 phase C verifies every row's `metadata.agent_id` matches
+the original writer, which must be checked OUTSIDE the agent path
+so the check isn't itself mediated by the agent framework under
+test.
+
+W=2 of N=4 means the cluster tolerates any single-node failure, so
+a node-4 crash doesn't stop the campaign.
 
 ## Droplet roles
 
-| Droplet | Public IP | Private IP | OS | Size | Role |
+| Droplet | Public | Private | Image | Size | Role |
 |---|---|---|---|---|---|
-| `node-1` | yes (SSH only) | `10.260.0.11` | Ubuntu 24.04 | `s-2vcpu-4gb` | OpenClaw agent host (`ai:alice`) |
-| `node-2` | yes (SSH only) | `10.260.0.12` | Ubuntu 24.04 | `s-2vcpu-4gb` | Hermes agent host (`ai:bob`) |
-| `node-3` | yes (SSH only) | `10.260.0.13` | Ubuntu 24.04 | `s-2vcpu-4gb` | OpenClaw agent host (`ai:charlie`) |
-| `node-4` | yes (SSH only) | `10.260.0.14` | Ubuntu 24.04 | `s-2vcpu-4gb` | `ai-memory serve` authoritative |
+| `node-1` | SSH only | `10.260.0.x` | Ubuntu 24.04 | `s-2vcpu-4gb` | agent (ai:alice) + serve peer |
+| `node-2` | SSH only | `10.260.0.x` | Ubuntu 24.04 | `s-2vcpu-4gb` | agent (ai:bob) + serve peer |
+| `node-3` | SSH only | `10.260.0.x` | Ubuntu 24.04 | `s-2vcpu-4gb` | agent (ai:charlie) + serve peer |
+| `node-4` | SSH only | `10.260.0.x` | Ubuntu 24.04 | `s-2vcpu-4gb` | memory-only (serve peer, no agent) |
 
-The private CIDR `10.260.0.0/24` is distinct from the ship-gate's
-`10.250.0.0/24` so both campaigns can run concurrently against the
-same DigitalOcean account without VPC conflicts.
+`agent_droplet_size` is a workflow input — bump to `s-4vcpu-16gb`
+for scenario 8 (Ollama auto-tagging).
 
-## Why 4 nodes and not 3
+The VPC CIDR `10.260.0.0/24` is distinct from the ship-gate's
+`10.250.0.0/24` so both campaigns can run concurrently on the same
+DigitalOcean account. VPC names bake in the agent_type, so both
+groups can execute concurrently without conflict.
 
-The ship-gate campaign uses 3 peer nodes because its goal is to
-validate **quorum replication** (W=2 of N=3). The A2A gate's goal
-is different — it validates **how agents use a shared memory
-store**. That needs:
+## Agent ↔ ai-memory wiring (MCP config)
 
-- ≥ 2 different agent hosts to demonstrate A2A handoff.
-- ≥ 3 different `agent_id` values to demonstrate contradiction
-  surfacing to an uninvolved third party.
-- 1 dedicated authoritative store so agent-side failures don't
-  muddy the memory-side measurement.
+Each agent droplet has an MCP configuration at
+`/etc/ai-memory-a2a/mcp-config/config.json`:
 
-Three agent hosts + one authoritative store = 4 droplets. Adding
-more agents is a future variant; not required for the default
-pass.
+```json
+{
+  "mcpServers": {
+    "memory": {
+      "command": "ai-memory",
+      "args": ["--db", "/var/lib/ai-memory/a2a.db", "mcp"],
+      "env": { "AI_MEMORY_AGENT_ID": "ai:alice" }
+    }
+  }
+}
+```
+
+The agent framework (OpenClaw or Hermes) loads this file. When a
+scenario prompts the agent, the agent chooses the appropriate
+`memory_*` tool and invokes it over MCP stdio against the local
+ai-memory. The `AI_MEMORY_AGENT_ID` env var stamps every store with
+the right `metadata.agent_id` so identity preservation is
+exercised end-to-end.
+
+## Driving scenarios through the agent
+
+`scripts/drive_agent.sh` is the single hand-off point at which
+scenarios talk to the agent framework. It supports:
+
+- `store <title> <content> [namespace]`
+- `recall <query> [namespace]`
+- `list [namespace]`
+
+If the framework's CLI is installed (`openclaw` or `hermes` on
+PATH), the driver uses it with `--mcp-config` pointing at the
+generated config. If not, it falls back to direct HTTP against the
+local ai-memory — same MCP tool dispatcher, just no LLM prompt
+interpretation. That fallback is explicit so scenario scripts still
+run end-to-end before the framework install commands are wired in.
 
 ## Network + firewall
 
-- **DO Cloud Firewall** allows:
-  - SSH (22) from the GitHub Actions runner's ephemeral egress
-  - HTTP 9077 inside the VPC for MCP + HTTP API traffic between
-    agents (nodes 1-3) and the authoritative store (node-4)
-  - No inbound public traffic to port 9077 — all A2A traffic is
-    VPC-private
-- **Outbound** — agents need internet to pull container images
-  / Python deps during setup; firewall leaves egress open during
-  provisioning and tightens it before scenarios start.
+- **DO Cloud Firewall** (single enforcement boundary):
+  - SSH (22) from anywhere (runner-side outbound only in practice)
+  - port 9077 from inside the VPC only (federation traffic)
+  - ICMP inside the VPC
+- **OS-tier UFW: explicitly DISABLED** at provision time. Ship-gate
+  lesson: Ubuntu 24.04's default-on UFW interferes with loopback +
+  VPC workloads.
 
-## Authentication shape
+## Authentication
 
-- **Operator → droplets**: SSH with the provisioner's ed25519 key
-  (same custody model as ship-gate).
-- **Agent → ai-memory (node-4)**: defaults to `X-API-Key` header
-  auth inside the VPC. mTLS option available; off by default for
-  A2A campaigns because cert rotation would dominate setup time.
-- **Agent identity**: every memory carries `metadata.agent_id`
-  set to one of `ai:alice` / `ai:bob` / `ai:charlie`. Immutability
-  is an invariant the scenarios check (see
-  [scenario 1](scenarios/1-write-read.md)).
+- **Runner → droplets**: SSH with the campaign ed25519 key.
+- **Agent → ai-memory**: loopback stdio MCP (no network auth).
+- **Federation ai-memory ↔ ai-memory**: HTTP on port 9077 over the
+  VPC. mTLS supported by v0.6.0 (PR #229) but not enabled for
+  a2a-gate campaigns because cert rotation would dominate setup
+  time. Production operators should enable `--tls-cert` +
+  `--mtls-allowlist`.
 
 ## Lifecycle
 
-1. GitHub Actions dispatches `a2a-gate.yml`.
+1. GitHub Actions dispatches `a2a-gate.yml` with `agent_group=openclaw`
+   OR `agent_group=hermes`.
 2. Terraform provisions the 4-node VPC.
-3. Node-4 gets `ai-memory serve` provisioned first; scripts wait
-   for health before proceeding.
-4. Nodes 1-3 get agent frameworks provisioned (OpenClaw or Hermes)
-   with MCP client configured to point at node-4's private IP.
-5. Scenarios 1-8 run in sequence, each emitting a JSON report.
-6. Aggregator produces `a2a-summary.json`.
-7. `terraform destroy` tears everything down regardless of phase
-   outcome.
-8. Dead-man switch backstop: every droplet has a `shutdown -P +480`
-   at provision so worst-case spend is bounded to 8 hours.
+3. Every node runs `setup_node.sh` — installs ai-memory, starts
+   `serve` with federation peers, and (for agent nodes) layers the
+   agent framework with MCP config pointing at local ai-memory.
+4. Scenarios run in sequence; each emits scenario-N.json.
+5. Aggregator produces a2a-summary.json.
+6. `generate_run_html.sh` renders tri-audience evidence HTML.
+7. `terraform destroy` tears down regardless of outcome.
+8. Dead-man switch backstop: `shutdown -P +480` on every droplet.
 
 ## Related
 
-- [Security](security.md) — TLS, mTLS, key custody details.
-- [Reproducing](reproducing.md) — how to run your own A2A gate
-  campaign on your own DigitalOcean account.
+- [Methodology](methodology.md) — per-scenario mechanics.
+- [Reproducing](reproducing.md) — run it yourself.
+- [OpenClaw agent](agents/openclaw.md) + [Hermes agent](agents/hermes.md).

@@ -2,99 +2,127 @@
 # Copyright 2026 AlphaOne LLC
 # SPDX-License-Identifier: Apache-2.0
 #
-# Scenario 1 — Per-agent write + read.
+# Scenario 1 — Per-agent write + read (homogeneous group).
 #
-# Each of the three agents (ai:alice on node-1, ai:bob on node-2,
-# ai:charlie on node-3) issues 10 writes in its own namespace, then
-# recalls memories written by the other two. Asserts:
-#   - every write returns 201
-#   - every recall returns >= the expected count
-#   - every recalled row's metadata.agent_id matches the ORIGINAL
-#     writer's, not the recaller's (the Task 1.2 immutability invariant)
+# Every agent in this campaign runs the SAME framework (OpenClaw or
+# Hermes). Each agent writes 10 memories into its own namespace
+# through its LOCAL ai-memory serve (which federates W=2 quorum
+# across the 4-node mesh); each agent then recalls memories written
+# by the other two agents.
 #
-# Runs on the orchestrator (GitHub runner or the chaos-client equivalent).
-# SSHes into each agent droplet and drives the ai-memory CLI's MCP path
-# against node-4.
+# Crucially, the writes + recalls are driven THROUGH the agent
+# framework — not bypassing it with curl — via scripts/drive_agent.sh.
+# That's what "MCP-configured with ai-memory" means at the scenario
+# level: the framework interprets the prompt, chooses the memory_*
+# tool, invokes it via its local MCP stdio connection to ai-memory.
+#
+# Inputs (env):
+#   NODE1_IP / NODE2_IP / NODE3_IP  — public IPs for SSH
+#   NODE4_IP                        — memory-only node (read
+#                                     aggregator for cross-cluster
+#                                     state check)
+#   AGENT_GROUP                     — openclaw | hermes (for logs)
+#
+# Emits /tmp/scenario1.json with pass/fail + per-agent detail.
 
 set -euo pipefail
 
 : "${NODE1_IP:?}"
 : "${NODE2_IP:?}"
 : "${NODE3_IP:?}"
-: "${MEMORY_NODE_IP:?}"
+: "${NODE4_IP:?}"
+: "${AGENT_GROUP:?}"
 
-log() { printf '[scenario-1] %s\n' "$*" >&2; }
+log() { printf '[scenario-1 %s] %s\n' "$AGENT_GROUP" "$*" >&2; }
 
 WRITES_PER_AGENT=10
+SSH_OPTS="-o StrictHostKeyChecking=no -o ConnectTimeout=10 -o ServerAliveInterval=5"
 
-# ---- Each agent writes 10 memories --------------------------------
-log "phase A: each agent writes $WRITES_PER_AGENT memories"
+# ---- Phase A: each agent writes through its local MCP path --------
+log "phase A: each agent writes $WRITES_PER_AGENT memories via MCP"
 for trip in a:$NODE1_IP:ai:alice b:$NODE2_IP:ai:bob c:$NODE3_IP:ai:charlie; do
   id=${trip%%:*}; rest=${trip#*:}; ip=${rest%%:*}; rest=${rest#*:}; aid=$rest
   log "  agent $aid on node-$id ($ip)"
-  ssh -o StrictHostKeyChecking=no root@"$ip" bash -s -- \
-    "$MEMORY_NODE_IP" "$aid" "$WRITES_PER_AGENT" <<'REMOTE'
+  ssh $SSH_OPTS root@"$ip" bash -s -- "$WRITES_PER_AGENT" "$aid" <<'REMOTE'
 set -e
-MEMORY_NODE_IP="$1"; AID="$2"; N="$3"
+N="$1"; AID="$2"
+source /etc/ai-memory-a2a/env
+NS="scenario1-$AID"
 for i in $(seq 1 "$N"); do
-  curl -sS -o /dev/null -w '%{http_code}\n' \
-    -H "X-Agent-Id: $AID" \
-    -H "Content-Type: application/json" \
-    -X POST "http://$MEMORY_NODE_IP:9077/api/v1/memories" \
-    -d "{\"tier\":\"mid\",\"namespace\":\"scenario1-$AID\",\"title\":\"$AID-w$i\",\"content\":\"payload from $AID write $i\",\"priority\":5,\"confidence\":1.0,\"source\":\"api\",\"metadata\":{}}"
+  bash /root/drive_agent.sh store "w$i-$AID" "scenario1 write $i from $AID" "$NS" > /dev/null
 done
 REMOTE
 done
 
-# ---- Each agent recalls the other two's memories -------------------
-log "phase B: each agent recalls the OTHER two agents' memories"
-declare -A RECALL_COUNT
-declare -A IDENTITY_OK
+# Let federation converge on the quorum mesh.
+log "settle 15s for W=2/N=4 convergence"
+sleep 15
 
-# Query the memory node directly for each (reader, writer) combo.
-# For the v0.6.0.0 scenario implementation we query from the
-# orchestrator; an end-to-end agent-driven recall per-droplet lands
-# in the follow-up PR alongside real OpenClaw/Hermes tool-invocation
-# plumbing.
-for reader in ai:alice ai:bob ai:charlie; do
+# ---- Phase B: each agent recalls the OTHER two agents' memories ---
+# Recall runs through the agent on each source droplet (via
+# drive_agent.sh) and its count is reported back. Identity check
+# also runs against the node-4 aggregator for independent verification.
+log "phase B: each agent recalls the OTHER two agents' namespaces"
+
+declare -A RECALL_COUNT
+for reader_trip in n1:$NODE1_IP:ai:alice n2:$NODE2_IP:ai:bob n3:$NODE3_IP:ai:charlie; do
+  rid=${reader_trip%%:*}; rest=${reader_trip#*:}; rip=${rest%%:*}; rest=${rest#*:}; raid=$rest
   sum=0
-  ok_identity=true
   for writer in ai:alice ai:bob ai:charlie; do
-    [ "$reader" = "$writer" ] && continue
+    [ "$raid" = "$writer" ] && continue
     ns="scenario1-$writer"
-    resp=$(curl -sS "http://$MEMORY_NODE_IP:9077/api/v1/memories?namespace=$ns&limit=100&agent_id=$writer")
-    n=$(echo "$resp" | jq '.memories | length')
-    agent_ids=$(echo "$resp" | jq -r '[.memories[] | .metadata.agent_id] | unique | join(",")')
-    sum=$((sum + n))
-    if [ "$agent_ids" != "$writer" ]; then
-      ok_identity=false
-    fi
+    # Drive the reader agent to list that namespace.
+    count=$(ssh $SSH_OPTS root@"$rip" \
+      "source /etc/ai-memory-a2a/env && bash /root/drive_agent.sh list $ns" \
+      2>/dev/null | jq -r '.memories | length' 2>/dev/null || echo 0)
+    sum=$((sum + count))
   done
-  RECALL_COUNT[$reader]=$sum
-  IDENTITY_OK[$reader]=$ok_identity
+  RECALL_COUNT[$raid]=$sum
+  log "  $raid recalled $sum rows from the other two namespaces"
 done
 
-# ---- Pass / fail ---------------------------------------------------
+# ---- Phase C: cross-cluster identity verification ------------------
+# Independent of the agent-driven path, go straight to node-4 and
+# read the cluster state. Every row written by an agent should carry
+# metadata.agent_id = that agent's ID — the Task 1.2 immutability
+# invariant from ai-memory-mcp CLAUDE.md §Agent Identity.
+log "phase C: cross-cluster identity verification via node-4"
+ALL_OK=true
+for writer in ai:alice ai:bob ai:charlie; do
+  ns="scenario1-$writer"
+  resp=$(curl -sS "http://$NODE4_IP:9077/api/v1/memories?namespace=$ns&limit=100")
+  n=$(echo "$resp" | jq '.memories | length')
+  wrong=$(echo "$resp" | jq --arg w "$writer" '[.memories[] | select((.metadata.agent_id // "") != $w)] | length')
+  log "  ns=$ns count=$n wrong_agent_id=$wrong"
+  [ "$n" -eq "$WRITES_PER_AGENT" ] || { ALL_OK=false; log "  !! expected $WRITES_PER_AGENT rows, got $n"; }
+  [ "$wrong" -eq 0 ] || { ALL_OK=false; log "  !! $wrong rows have wrong agent_id"; }
+done
+
+# ---- Pass / fail --------------------------------------------------
 PASS=true
 REASONS=()
-# Each reader should see writes from the other two agents:
-# 2 × WRITES_PER_AGENT = 20 rows.
 EXPECTED=$((2 * WRITES_PER_AGENT))
 for reader in ai:alice ai:bob ai:charlie; do
   got=${RECALL_COUNT[$reader]}
-  (( got >= EXPECTED )) || { PASS=false; REASONS+=("$reader recalled $got < $EXPECTED"); }
-  [ "${IDENTITY_OK[$reader]}" = "true" ] || { PASS=false; REASONS+=("$reader saw wrong agent_id on recalled rows"); }
+  (( got >= EXPECTED )) || { PASS=false; REASONS+=("$reader recalled $got < $EXPECTED via MCP"); }
 done
+[ "$ALL_OK" = "true" ] || { PASS=false; REASONS+=("cross-cluster identity check failed — see node-4 dump above"); }
 
 jq -n \
   --arg pass "$PASS" \
-  --argjson alice_recall  "${RECALL_COUNT[ai:alice]}" \
-  --argjson bob_recall    "${RECALL_COUNT[ai:bob]}" \
-  --argjson charlie_recall "${RECALL_COUNT[ai:charlie]}" \
+  --arg agent_group "$AGENT_GROUP" \
+  --argjson alice_recall   "${RECALL_COUNT[ai:alice]:-0}" \
+  --argjson bob_recall     "${RECALL_COUNT[ai:bob]:-0}" \
+  --argjson charlie_recall "${RECALL_COUNT[ai:charlie]:-0}" \
   --argjson expected "$EXPECTED" \
-  --argjson reasons "$(printf '%s\n' "${REASONS[@]}" | jq -R . | jq -s .)" \
-  '{scenario:1, pass:($pass=="true"), expected_per_reader:$expected,
-    per_agent:{alice:{recall:$alice_recall}, bob:{recall:$bob_recall}, charlie:{recall:$charlie_recall}},
+  --argjson reasons "$(printf '%s\n' "${REASONS[@]}" | jq -R . | jq -s 'map(select(. != ""))')" \
+  '{scenario:1, pass:($pass=="true"), agent_group:$agent_group,
+    expected_per_reader:$expected,
+    per_agent:{
+      "ai:alice":   {recall:$alice_recall},
+      "ai:bob":     {recall:$bob_recall},
+      "ai:charlie": {recall:$charlie_recall}
+    },
     reasons:$reasons}' | tee /tmp/scenario1.json
 
 $PASS || exit 1

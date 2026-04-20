@@ -1,34 +1,52 @@
 name: A2A gate campaign
 
+# One dispatch = one homogeneous agent-group campaign.
+#
+# To exercise both groups per release, dispatch this workflow twice:
+#   - once with agent_group=openclaw → campaign_id a2a-openclaw-<tag>-rN
+#   - once with agent_group=hermes   → campaign_id a2a-hermes-<tag>-rN
+#
+# Each campaign provisions its own 4-node VPC (no cross-campaign
+# contention). Evidence lands in runs/<campaign_id>/ and is rendered
+# on the Pages site at /evidence/<campaign_id>/index.html.
+
 on:
   workflow_dispatch:
     inputs:
       ai_memory_git_ref:
-        description: "ai-memory-mcp release or git ref to validate"
+        description: "ai-memory-mcp release or git ref"
         required: true
         default: "v0.6.0"
-      campaign_id:
-        description: "Campaign identifier (becomes runs/<id>/)"
+      agent_group:
+        description: "Which agent framework to run in this campaign. Every agent droplet in the campaign uses the SAME framework (homogeneous group)."
         required: true
-        default: "a2a-candidate"
+        default: "openclaw"
+        type: choice
+        options:
+          - openclaw
+          - hermes
+      campaign_id:
+        description: "Campaign identifier (becomes runs/<id>/). Suggested format: a2a-<group>-<release>-rN"
+        required: true
+        default: "a2a-openclaw-v0.6.0-r1"
       region:
         description: "DigitalOcean region"
         required: false
         default: "nyc3"
       scenarios:
-        description: "Space-separated scenario numbers to run. Default: 1 only (more land as scripts are implemented)."
+        description: "Space-separated scenario numbers. Default: 1 only (more as scripts land)."
         required: false
         default: "1"
       agent_droplet_size:
-        description: "Agent droplet size. Bump to s-4vcpu-16gb for scenario 8 (Ollama auto-tagging)."
+        description: "Agent droplet size. Bump to s-4vcpu-16gb for scenario 8 (Ollama)."
         required: false
         default: "s-2vcpu-4gb"
       openclaw_install_cmd:
-        description: "Override: shell command to install the OpenClaw agent on a droplet. Leave blank to use the placeholder scaffold."
+        description: "Shell command to install OpenClaw on a droplet. Blank = placeholder driver (ai-memory CLI stand-in)."
         required: false
         default: ""
       hermes_install_cmd:
-        description: "Override: shell command to install the Hermes agent on a droplet. Leave blank to use the placeholder scaffold."
+        description: "Shell command to install Hermes on a droplet. Blank = placeholder driver."
         required: false
         default: ""
 
@@ -38,12 +56,15 @@ permissions:
   id-token: write
 
 concurrency:
-  group: a2a-gate-campaign
+  # One campaign per group at a time; the two groups CAN run
+  # concurrently against each other because they provision distinct
+  # VPCs and distinct droplet names.
+  group: a2a-gate-${{ github.event.inputs.agent_group }}
   cancel-in-progress: false
 
 jobs:
   campaign:
-    name: "Provision + run scenarios"
+    name: "a2a-${{ github.event.inputs.agent_group }} — provision + run scenarios"
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     env:
@@ -52,10 +73,12 @@ jobs:
       TF_VAR_do_token: ${{ secrets.DIGITALOCEAN_TOKEN }}
       TF_VAR_ssh_key_fingerprint: ${{ secrets.DIGITALOCEAN_SSH_KEY_FINGERPRINT }}
       TF_VAR_campaign_id: ${{ github.event.inputs.campaign_id }}
+      TF_VAR_agent_type: ${{ github.event.inputs.agent_group }}
       TF_VAR_ai_memory_git_ref: ${{ github.event.inputs.ai_memory_git_ref }}
       TF_VAR_region: ${{ github.event.inputs.region }}
       TF_VAR_agent_droplet_size: ${{ github.event.inputs.agent_droplet_size }}
       CAMPAIGN_ID: ${{ github.event.inputs.campaign_id }}
+      AGENT_GROUP: ${{ github.event.inputs.agent_group }}
       AI_MEMORY_GIT_REF: ${{ github.event.inputs.ai_memory_git_ref }}
       OPENCLAW_INSTALL_CMD: ${{ github.event.inputs.openclaw_install_cmd }}
       HERMES_INSTALL_CMD: ${{ github.event.inputs.hermes_install_cmd }}
@@ -90,6 +113,9 @@ jobs:
           NODE1_IP=$(jq -r '.agents.value["node-1"].public' terraform-output.json)
           NODE2_IP=$(jq -r '.agents.value["node-2"].public' terraform-output.json)
           NODE3_IP=$(jq -r '.agents.value["node-3"].public' terraform-output.json)
+          NODE1_PRIV=$(jq -r '.agents.value["node-1"].private' terraform-output.json)
+          NODE2_PRIV=$(jq -r '.agents.value["node-2"].private' terraform-output.json)
+          NODE3_PRIV=$(jq -r '.agents.value["node-3"].private' terraform-output.json)
           for role in memory:$MEMORY_IP n1:$NODE1_IP n2:$NODE2_IP n3:$NODE3_IP; do
             key=${role%%:*}; ip=${role##*:}
             echo "::group::wait-for-ssh $key ($ip)"
@@ -104,38 +130,38 @@ jobs:
             echo "::endgroup::"
             [ "$ready" = true ] || { echo "::error::$key SSH never responded"; exit 1; }
           done
-          echo "memory_ip=$MEMORY_IP"       >> "$GITHUB_OUTPUT"
-          echo "memory_priv=$MEMORY_PRIV"   >> "$GITHUB_OUTPUT"
-          echo "node1_ip=$NODE1_IP"          >> "$GITHUB_OUTPUT"
-          echo "node2_ip=$NODE2_IP"          >> "$GITHUB_OUTPUT"
-          echo "node3_ip=$NODE3_IP"          >> "$GITHUB_OUTPUT"
+          echo "memory_ip=$MEMORY_IP"     >> "$GITHUB_OUTPUT"
+          echo "memory_priv=$MEMORY_PRIV" >> "$GITHUB_OUTPUT"
+          echo "node1_ip=$NODE1_IP"       >> "$GITHUB_OUTPUT"
+          echo "node2_ip=$NODE2_IP"       >> "$GITHUB_OUTPUT"
+          echo "node3_ip=$NODE3_IP"       >> "$GITHUB_OUTPUT"
+          echo "node1_priv=$NODE1_PRIV"   >> "$GITHUB_OUTPUT"
+          echo "node2_priv=$NODE2_PRIV"   >> "$GITHUB_OUTPUT"
+          echo "node3_priv=$NODE3_PRIV"   >> "$GITHUB_OUTPUT"
 
-      - name: Provision memory node (node-4)
+      - name: Provision all 4 nodes (federation mesh)
         run: |
           set -e
-          ip=${{ steps.wait.outputs.memory_ip }}
-          scp -o StrictHostKeyChecking=no scripts/setup_memory_node.sh root@$ip:/root/
-          ssh -o StrictHostKeyChecking=no root@$ip \
-            "AI_MEMORY_VERSION=0.6.0 bash /root/setup_memory_node.sh"
-
-      - name: Provision agent droplets (node-1, node-2, node-3)
-        run: |
-          set -e
-          MEM_PRIV=${{ steps.wait.outputs.memory_priv }}
-          for role in node-1:ai:alice:openclaw:${{ steps.wait.outputs.node1_ip }} \
-                      node-2:ai:bob:hermes:${{ steps.wait.outputs.node2_ip }} \
-                      node-3:ai:charlie:openclaw:${{ steps.wait.outputs.node3_ip }}; do
-            name=$(echo "$role" | cut -d: -f1)
-            aid=$(echo "$role"  | cut -d: -f2-3)
-            atype=$(echo "$role" | cut -d: -f4)
-            ip=$(echo "$role"   | cut -d: -f5)
-            echo "::group::provision $name ($atype / $aid / $ip)"
-            scp -o StrictHostKeyChecking=no scripts/setup_agent.sh root@$ip:/root/
-            ssh -o StrictHostKeyChecking=no root@$ip \
-              "AGENT_TYPE=$atype AGENT_ID=$aid MEMORY_NODE_IP=$MEM_PRIV \
-               OPENCLAW_INSTALL_CMD='${OPENCLAW_INSTALL_CMD}' \
-               HERMES_INSTALL_CMD='${HERMES_INSTALL_CMD}' \
-               bash /root/setup_agent.sh"
+          AMV=$(echo '${{ github.event.inputs.ai_memory_git_ref }}' | sed -e 's/^v//' -e 's|release/||')
+          # Compute per-node PEER_URLS: every node federates with the
+          # other 3 on port 9077 via private IPs. W=2 of N=4.
+          P1=http://${{ steps.wait.outputs.node1_priv }}:9077
+          P2=http://${{ steps.wait.outputs.node2_priv }}:9077
+          P3=http://${{ steps.wait.outputs.node3_priv }}:9077
+          P4=http://${{ steps.wait.outputs.memory_priv }}:9077
+          declare -A NODE
+          NODE[1]="${{ steps.wait.outputs.node1_ip }}|agent|ai:alice|$P2,$P3,$P4"
+          NODE[2]="${{ steps.wait.outputs.node2_ip }}|agent|ai:bob|$P1,$P3,$P4"
+          NODE[3]="${{ steps.wait.outputs.node3_ip }}|agent|ai:charlie|$P1,$P2,$P4"
+          NODE[4]="${{ steps.wait.outputs.memory_ip }}|memory-only||$P1,$P2,$P3"
+          for i in 1 2 3 4; do
+            IFS='|' read -r ip role aid peers <<< "${NODE[$i]}"
+            echo "::group::provision node-$i (role=$role, peers=$peers)"
+            scp -o StrictHostKeyChecking=no scripts/setup_node.sh scripts/drive_agent.sh root@$ip:/root/
+            chmod_cmd="chmod +x /root/setup_node.sh /root/drive_agent.sh"
+            env_cmd="NODE_INDEX=$i ROLE=$role PEER_URLS='$peers' AI_MEMORY_VERSION=$AMV"
+            [ "$role" = "agent" ] && env_cmd="$env_cmd AGENT_TYPE=${AGENT_GROUP} AGENT_ID=$aid OPENCLAW_INSTALL_CMD='${OPENCLAW_INSTALL_CMD}' HERMES_INSTALL_CMD='${HERMES_INSTALL_CMD}'"
+            ssh -o StrictHostKeyChecking=no root@$ip "$chmod_cmd && $env_cmd bash /root/setup_node.sh"
             echo "::endgroup::"
           done
 
@@ -144,35 +170,43 @@ jobs:
           set -e
           mkdir -p phase-reports
           for s in ${{ github.event.inputs.scenarios }}; do
-            script="scripts/scenarios/${s}_*.sh"
-            found=$(ls $script 2>/dev/null | head -1)
-            if [ -z "$found" ]; then
+            script=$(ls scripts/scenarios/${s}_*.sh 2>/dev/null | head -1)
+            if [ -z "$script" ]; then
               echo "::warning::scenario $s has no implementation yet — skipping"
               continue
             fi
-            echo "::group::scenario $s ($found)"
+            echo "::group::scenario $s ($script)"
             NODE1_IP=${{ steps.wait.outputs.node1_ip }} \
             NODE2_IP=${{ steps.wait.outputs.node2_ip }} \
             NODE3_IP=${{ steps.wait.outputs.node3_ip }} \
+            NODE4_IP=${{ steps.wait.outputs.memory_ip }} \
             MEMORY_NODE_IP=${{ steps.wait.outputs.memory_priv }} \
-              bash "$found" > "phase-reports/scenario-$s.json" 2>&1 || true
+            AGENT_GROUP=${AGENT_GROUP} \
+              bash "$script" > "phase-reports/scenario-$s.json" 2>&1 || true
             echo "::endgroup::"
           done
 
       - name: Aggregate campaign summary
         if: always()
         run: |
+          AGENT_GROUP=${AGENT_GROUP} \
           bash scripts/collect_reports.sh a2a-summary.json phase-reports || true
           cat a2a-summary.json 2>/dev/null || echo "no summary"
+
+      - name: Regenerate evidence HTML
+        if: always()
+        run: |
+          CAMPAIGN_DIR="runs/${{ github.event.inputs.campaign_id }}"
+          mkdir -p "$CAMPAIGN_DIR"
+          cp phase-reports/*.json "$CAMPAIGN_DIR/" 2>/dev/null || true
+          cp a2a-summary.json "$CAMPAIGN_DIR/" 2>/dev/null || true
+          bash scripts/generate_run_html.sh "$CAMPAIGN_DIR" || true
 
       - name: Commit campaign artefacts
         if: always()
         run: |
           set +e
           CAMPAIGN_DIR="runs/${{ github.event.inputs.campaign_id }}"
-          mkdir -p "$CAMPAIGN_DIR"
-          cp phase-reports/*.json "$CAMPAIGN_DIR/" 2>/dev/null || true
-          cp a2a-summary.json "$CAMPAIGN_DIR/" 2>/dev/null || true
           git config user.name "a2a-gate-bot"
           git config user.email "a2a-gate-bot@users.noreply.github.com"
           git add "$CAMPAIGN_DIR" || true

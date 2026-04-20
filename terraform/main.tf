@@ -2,16 +2,25 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # a2a-gate Terraform module — provisions a 4-node VPC on DigitalOcean
-# for the AI-to-AI integration gate:
+# for the AI-to-AI integration gate.
 #
-#   node-1: OpenClaw agent (ai:alice)
-#   node-2: Hermes agent (ai:bob)
-#   node-3: OpenClaw agent (ai:charlie)
-#   node-4: ai-memory serve (authoritative store)
+# Each campaign runs ONE homogeneous agent group: every agent droplet
+# runs the SAME framework (either all OpenClaw or all Hermes). This
+# isolates framework-specific regressions — an OpenClaw-only campaign
+# that fails while a Hermes-only campaign passes points at the
+# OpenClaw MCP client implementation, not at ai-memory.
 #
-# VPC CIDR is 10.260.0.0/24 — intentionally distinct from the
-# ship-gate's 10.250.0.0/24 so concurrent campaigns across accounts
-# don't conflict.
+# Topology per campaign (4 droplets):
+#   node-1: agent (ai:alice)   — agent_type={openclaw|hermes}
+#   node-2: agent (ai:bob)     — agent_type={openclaw|hermes}
+#   node-3: agent (ai:charlie) — agent_type={openclaw|hermes}
+#   node-4: ai-memory serve authoritative
+#
+# Two campaigns per release = 8 droplets total, two separate runs:
+#   a2a-openclaw-<release>-rN  → 4 droplets, all OpenClaw agents
+#   a2a-hermes-<release>-rN    → 4 droplets, all Hermes agents
+#
+# VPC CIDR 10.260.0.0/24 (distinct from ship-gate's 10.250.0.0/24).
 
 terraform {
   required_version = ">= 1.5.0"
@@ -31,12 +40,21 @@ variable "do_token" {
 
 variable "ssh_key_fingerprint" {
   type        = string
-  description = "SHA-256 fingerprint of the SSH key (already registered with DO) that the runner will use for control-plane access."
+  description = "SHA-256 fingerprint of the SSH key (already registered with DO)."
 }
 
 variable "campaign_id" {
   type        = string
-  description = "Unique identifier for this campaign run. Used as the droplet-name prefix."
+  description = "Unique identifier for this campaign run. Droplet names include this."
+}
+
+variable "agent_type" {
+  type        = string
+  description = "Agent framework for every agent droplet in this campaign. Must be openclaw or hermes."
+  validation {
+    condition     = contains(["openclaw", "hermes"], var.agent_type)
+    error_message = "agent_type must be either \"openclaw\" or \"hermes\"."
+  }
 }
 
 variable "region" {
@@ -47,19 +65,19 @@ variable "region" {
 variable "agent_droplet_size" {
   type        = string
   default     = "s-2vcpu-4gb"
-  description = "Size for the three agent droplets (node-1/2/3). Bump to s-4vcpu-16gb when exercising scenario 8 (auto-tagging) so Ollama + Gemma 4 E2B fit."
+  description = "Size for the three agent droplets. Bump to s-4vcpu-16gb for scenario 8 (Ollama auto-tagging)."
 }
 
 variable "memory_droplet_size" {
   type        = string
   default     = "s-2vcpu-4gb"
-  description = "Size for the authoritative ai-memory droplet (node-4)."
+  description = "Size for node-4 (ai-memory authoritative store)."
 }
 
 variable "ai_memory_git_ref" {
   type        = string
-  default     = "release/v0.6.0"
-  description = "ai-memory-mcp git ref to validate."
+  default     = "v0.6.0"
+  description = "ai-memory-mcp release to validate against."
 }
 
 provider "digitalocean" {
@@ -67,19 +85,21 @@ provider "digitalocean" {
 }
 
 resource "digitalocean_vpc" "a2a" {
-  name     = "aim-a2a-${var.campaign_id}"
+  name     = "aim-a2a-${var.agent_type}-${var.campaign_id}"
   region   = var.region
   ip_range = "10.260.0.0/24"
 }
 
+# Three agent droplets — all the same agent_type. Distinct agent_ids
+# assigned deterministically: node-1 → ai:alice, node-2 → ai:bob,
+# node-3 → ai:charlie. Three distinct IDs remain a hard requirement
+# because scenarios 6 (contradiction) and 7 (scoping) need an
+# uninvolved third party; same-framework-three-agents still
+# satisfies that.
 resource "digitalocean_droplet" "agent_node" {
-  for_each = {
-    "node-1" = { agent = "openclaw", agent_id = "ai:alice" },
-    "node-2" = { agent = "hermes", agent_id = "ai:bob" },
-    "node-3" = { agent = "openclaw", agent_id = "ai:charlie" },
-  }
+  for_each = toset(["node-1", "node-2", "node-3"])
 
-  name     = "aim-a2a-${var.campaign_id}-${each.key}"
+  name     = "aim-a2a-${var.agent_type}-${var.campaign_id}-${each.key}"
   image    = "ubuntu-24-04-x64"
   region   = var.region
   size     = var.agent_droplet_size
@@ -88,13 +108,13 @@ resource "digitalocean_droplet" "agent_node" {
 
   tags = [
     "ai-memory-a2a-gate",
+    "agent-group-${var.agent_type}",
     "campaign-${var.campaign_id}",
-    "agent-${each.value.agent}",
   ]
 }
 
 resource "digitalocean_droplet" "memory_node" {
-  name     = "aim-a2a-${var.campaign_id}-node-4"
+  name     = "aim-a2a-${var.agent_type}-${var.campaign_id}-node-4"
   image    = "ubuntu-24-04-x64"
   region   = var.region
   size     = var.memory_droplet_size
@@ -103,13 +123,14 @@ resource "digitalocean_droplet" "memory_node" {
 
   tags = [
     "ai-memory-a2a-gate",
+    "agent-group-${var.agent_type}",
     "campaign-${var.campaign_id}",
     "memory-authoritative",
   ]
 }
 
 resource "digitalocean_firewall" "a2a" {
-  name = "aim-a2a-${var.campaign_id}"
+  name = "aim-a2a-${var.agent_type}-${var.campaign_id}"
 
   droplet_ids = concat(
     [for d in digitalocean_droplet.agent_node : d.id],
@@ -122,16 +143,12 @@ resource "digitalocean_firewall" "a2a" {
     source_addresses = ["0.0.0.0/0", "::/0"]
   }
 
-  # ai-memory HTTP on port 9077 — VPC-only. Agents reach node-4
-  # across the private network; nothing outside the VPC talks to
-  # 9077.
   inbound_rule {
     protocol         = "tcp"
     port_range       = "9077"
     source_addresses = ["10.260.0.0/24"]
   }
 
-  # ICMP for diagnostics inside the VPC.
   inbound_rule {
     protocol         = "icmp"
     source_addresses = ["10.260.0.0/24"]
@@ -162,11 +179,9 @@ output "agents" {
         name == "node-2" ? "ai:bob" :
         "ai:charlie"
       )
-      agent = (
-        name == "node-2" ? "hermes" : "openclaw"
-      )
-      public  = d.ipv4_address
-      private = d.ipv4_address_private
+      agent_type = var.agent_type
+      public     = d.ipv4_address
+      private    = d.ipv4_address_private
     }
   }
 }
@@ -176,6 +191,10 @@ output "memory_node" {
     public  = digitalocean_droplet.memory_node.ipv4_address
     private = digitalocean_droplet.memory_node.ipv4_address_private
   }
+}
+
+output "agent_type" {
+  value = var.agent_type
 }
 
 output "vpc_id" {
