@@ -1,0 +1,10 @@
+{
+  "campaign_id": "a2a-hermes-v0.6.0-r1",
+  "ai_memory_git_ref": "v0.6.0",
+  "completed_at": "2026-04-20T21:41:30Z",
+  "overall_pass": false,
+  "scenarios": [],
+  "reasons": [
+    "no scenario reports found"
+  ]
+}
