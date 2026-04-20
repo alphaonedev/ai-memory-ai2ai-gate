@@ -20,7 +20,9 @@
 #   a2a-openclaw-<release>-rN  → 4 droplets, all OpenClaw agents
 #   a2a-hermes-<release>-rN    → 4 droplets, all Hermes agents
 #
-# VPC CIDR 10.260.0.0/24 (distinct from ship-gate's 10.250.0.0/24).
+# VPC CIDRs partitioned by agent_type (see local.vpc_cidr below) so
+# concurrent campaigns don't collide. All distinct from ship-gate's
+# 10.250.0.0/24.
 
 terraform {
   required_version = ">= 1.5.0"
@@ -157,12 +159,12 @@ resource "digitalocean_firewall" "a2a" {
   inbound_rule {
     protocol         = "tcp"
     port_range       = "9077"
-    source_addresses = ["10.260.0.0/24"]
+    source_addresses = [digitalocean_vpc.a2a.ip_range]
   }
 
   inbound_rule {
     protocol         = "icmp"
-    source_addresses = ["10.260.0.0/24"]
+    source_addresses = [digitalocean_vpc.a2a.ip_range]
   }
 
   outbound_rule {
