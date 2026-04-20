@@ -61,9 +61,18 @@ agent_prompt() {
         -p "$1"
       ;;
     hermes)
-      # Source xAI + model envs for this invocation.
+      # Source xAI env for this invocation (XAI_API_KEY).
       set -a; . /etc/ai-memory-a2a/hermes.env; set +a
-      "$AGENT_TYPE" -p "$1"
+      # Hermes CLI surface (hermes-agent ≥ v0.10.0):
+      #   hermes chat -q "..."     one-shot, non-interactive
+      #   -Q / --quiet             suppress banner/spinner
+      #   --provider xai           xAI native (alias grok)
+      #   --model <id>             override default model
+      # Global -p is PROFILE NAME, not prompt — that mismatch tripped r5.
+      hermes chat -Q \
+        --provider xai \
+        --model grok-4-fast-non-reasoning \
+        -q "$1"
       ;;
   esac
 }

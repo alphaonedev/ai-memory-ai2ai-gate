@@ -241,14 +241,12 @@ mcp_servers:
 EOF
     chmod 600 /root/.hermes/config.yaml
 
-    # xAI Grok via OpenAI-compatible endpoint. Hermes honours
-    # OPENAI_API_KEY / OPENAI_API_BASE for any OpenAI-compatible
-    # provider; xAI's /v1 API follows that spec.
+    # Hermes supports xAI natively via --provider xai (alias grok).
+    # It reads XAI_API_KEY from env for that provider — no
+    # OpenAI-compatible shim needed. drive_agent.sh sources this
+    # file before invoking `hermes chat`.
     cat > /etc/ai-memory-a2a/hermes.env <<EOF
-OPENAI_API_KEY=${XAI_API_KEY}
-OPENAI_API_BASE=https://api.x.ai/v1
-OPENAI_BASE_URL=https://api.x.ai/v1
-HERMES_MODEL=grok-4-fast-non-reasoning
+XAI_API_KEY=${XAI_API_KEY}
 EOF
     chmod 600 /etc/ai-memory-a2a/hermes.env
     log "hermes configured with ai-memory MCP + xAI Grok (agent_id=${AGENT_ID})"

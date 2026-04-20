@@ -156,14 +156,27 @@
   },
 
   "a2a-hermes-v0.6.0-r5": {
-    "headline": "Hermes side of the first real-provisioning run \u2014 Nous Research hermes-agent bootstrap in flight",
-    "verdict": "IN PROGRESS \u2014 Terraform green, SSH green, Provision currently running.",
-    "what_it_tested": "First genuine test of the Nous Research hermes-agent install path (official install.sh --skip-setup), YAML-based MCP config at ~/.hermes/config.yaml, and xAI routed via OpenAI-compatible endpoint (OPENAI_API_KEY / OPENAI_API_BASE).",
-    "what_it_proved": "Concurrency key works: hermes campaign is running in parallel with openclaw-r5 in a separate VPC (10.252.0.0/24 vs 10.251.0.0/24). Provisioning times will differ \u2014 Hermes pulls Python + uv + the hermes-agent Python package; grok is a single binary \u2014 but the memory substrate under both is identical.",
-    "for_non_technical": "Different agent moving into a different neighbourhood, with a different style of moving truck, but the same postal service is about to carry mail between them. This proves our memory system isn't tied to any one AI brand.",
-    "for_c_level": "Framework-independence is a first-class anti-lock-in claim. Customers using OpenClaw AND Hermes AND whatever comes next get the same memory surface. This campaign generates the concrete evidence that claim requires.",
-    "for_sme": "setup_node.sh branches on AGENT_TYPE. For hermes: curl install.sh | bash -s -- --skip-setup, then symlink /usr/local/bin/hermes \u2192 installed binary, write /root/.hermes/config.yaml (YAML, underscored mcp_servers, tier semantic, AI_MEMORY_AGENT_ID stamped in env), write /etc/ai-memory-a2a/hermes.env with OPENAI_API_KEY=$XAI_API_KEY / OPENAI_API_BASE=https://api.x.ai/v1 / HERMES_MODEL=grok-4-fast-non-reasoning. drive_agent.sh sources hermes.env before invoking `hermes -p \"...\"`.",
-    "bugs": [],
-    "next_run_change": "If green: port scenarios 2-8. If hermes -p flag surface differs from assumption: pin actual flag post-mortem."
+    "headline": "Hermes installs and runs \u2014 but `hermes -p` is PROFILE NAME, not prompt. Scenario Phase A rejected every write.",
+    "verdict": "INFRA GREEN / SCENARIO RED \u2014 27 m 34 s wall (longer than openclaw\u2019s 15 m because the hermes-agent Python install is heavier than the single-binary grok). Terraform + SSH + Provision all green. Scenario crashed on first invocation with `Error: Invalid profile name 'Store a memory: ...'. Must match [a-z0-9][a-z0-9_-]{0,63}`. Every write attempt failed identically. Zero memories stored on the Hermes side.",
+    "what_it_tested": "End-to-end Hermes provisioning + first Hermes prompt invocation from drive_agent.sh.",
+    "what_it_proved": "(1) Nous Research hermes-agent installs cleanly from the official install.sh on a fresh Ubuntu 24.04 DO droplet. (2) The MCP config at ~/.hermes/config.yaml is accepted by the agent process (no YAML schema errors). (3) The grok-CLI assumption that `-p` means prompt was WRONG for Hermes \u2014 it\u2019s a global flag for `--profile <name>`. This is the kind of framework-mismatch bug that only surfaces on a real dispatch because the docs said `hermes chat` but drive_agent.sh was calling `hermes -p`.",
+    "for_non_technical": "Good news: Hermes installed correctly on the cloud server. Bad news: we gave it the wrong kind of instruction. It was waiting for a short username, we gave it a sentence. Every memo got returned before it was even read. Same kind of bug as when a form asks for 'Last name' and you type your full sentence in the box \u2014 instant validation error. Quick fix: use the correct command.",
+    "for_c_level": "The install surface works. The invocation bug is one line in a shell driver and costs under a minute to fix; next dispatch should produce the first Hermes-side scenario data. Cost of this detection: under $0.10 of DO compute. No product correctness issue \u2014 the memory substrate was never even touched by the Hermes side in this run. Framework-independence story still intact; this is a harness bug, not a substrate bug.",
+    "for_sme": "Root cause: scripts/drive_agent.sh called `hermes -p \"<natural language prompt>\"`. Per hermes-agent v0.10.0 CLI reference, `-p` is a GLOBAL flag aliasing `--profile <name>` with strict regex [a-z0-9][a-z0-9_-]{0,63} on the argument. The one-shot prompt flag is `hermes chat -q \"<prompt>\"` or `-Q` (programmatic/quiet mode). Hermes also supports xAI natively via `--provider xai` (alias grok) so the OpenAI-compatible shim isn't needed; XAI_API_KEY env is sufficient. Fix in this commit: drive_agent.sh now invokes `hermes chat -Q --provider xai --model grok-4-fast-non-reasoning -q \"$prompt\"`, setup_node.sh writes hermes.env with XAI_API_KEY only (drops OPENAI_API_BASE and friends).",
+    "bugs": [
+      {
+        "title": "drive_agent.sh used `hermes -p` which is --profile, not --prompt",
+        "impact": "Phase A never wrote a single memory on the Hermes side; scenario crashed on first invocation.",
+        "root_cause": "Assumed grok-CLI's -p prompt flag applied to hermes-agent; it doesn't. Hermes uses `hermes chat -q` for one-shot.",
+        "fixed_in": "Follow-up commit \u2014 drive_agent.sh uses `hermes chat -Q --provider xai --model grok-4-fast-non-reasoning -q \"$1\"`."
+      },
+      {
+        "title": "hermes.env had OpenAI-compatible envs, not native XAI_API_KEY",
+        "impact": "Irrelevant here because the bug above killed the run before the provider was consulted; but would have blocked on next iteration.",
+        "root_cause": "Over-indexed on the README's mention of OpenAI-compatible providers; Hermes has first-class xAI support.",
+        "fixed_in": "Follow-up commit \u2014 hermes.env now contains XAI_API_KEY only."
+      }
+    ],
+    "next_run_change": "Dispatch r6 with correct `hermes chat -q` invocation + native xAI provider; expect Hermes Phase A to succeed and full parity with openclaw\u2019s write path."
   }
 }
