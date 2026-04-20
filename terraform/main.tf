@@ -109,7 +109,7 @@ resource "digitalocean_droplet" "agent_node" {
   tags = [
     "ai-memory-a2a-gate",
     "agent-group-${var.agent_type}",
-    "campaign-${var.campaign_id}",
+    "campaign-${replace(var.campaign_id, ".", "-")}",
   ]
 }
 
@@ -124,7 +124,7 @@ resource "digitalocean_droplet" "memory_node" {
   tags = [
     "ai-memory-a2a-gate",
     "agent-group-${var.agent_type}",
-    "campaign-${var.campaign_id}",
+    "campaign-${replace(var.campaign_id, ".", "-")}",
     "memory-authoritative",
   ]
 }

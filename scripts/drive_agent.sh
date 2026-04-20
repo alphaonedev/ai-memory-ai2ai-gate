@@ -44,12 +44,28 @@ ACTION="${1:?usage: drive_agent.sh <action> ...}"; shift
 
 agent_cli() { command -v "$AGENT_TYPE" >/dev/null 2>&1; }
 
+# openclaw = grok CLI. Flags: -p (prompt), --format json, --no-sandbox,
+# --max-tool-rounds. Picks up xAI key + ai-memory MCP from
+# /root/.grok/user-settings.json.
+#
+# hermes = Nous Research Hermes CLI. Envs: OPENAI_API_KEY/BASE,
+# HERMES_MODEL (sourced from /etc/ai-memory-a2a/hermes.env). MCP
+# servers from /root/.hermes/config.yaml.
 agent_prompt() {
-  "$AGENT_TYPE" \
-    --no-sandbox \
-    --format json \
-    --max-tool-rounds 20 \
-    -p "$1"
+  case "$AGENT_TYPE" in
+    openclaw)
+      "$AGENT_TYPE" \
+        --no-sandbox \
+        --format json \
+        --max-tool-rounds 20 \
+        -p "$1"
+      ;;
+    hermes)
+      # Source xAI + model envs for this invocation.
+      set -a; . /etc/ai-memory-a2a/hermes.env; set +a
+      "$AGENT_TYPE" -p "$1"
+      ;;
+  esac
 }
 
 openclaw_driver() {
