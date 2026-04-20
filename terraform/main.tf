@@ -87,7 +87,7 @@ provider "digitalocean" {
 resource "digitalocean_vpc" "a2a" {
   name     = "aim-a2a-${var.agent_type}-${var.campaign_id}"
   region   = var.region
-  ip_range = "10.260.0.0/24"
+  ip_range = "10.251.0.0/24"
 }
 
 # Three agent droplets — all the same agent_type. Distinct agent_ids

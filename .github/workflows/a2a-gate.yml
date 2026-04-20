@@ -82,6 +82,7 @@ jobs:
       AI_MEMORY_GIT_REF: ${{ github.event.inputs.ai_memory_git_ref }}
       OPENCLAW_INSTALL_CMD: ${{ github.event.inputs.openclaw_install_cmd }}
       HERMES_INSTALL_CMD: ${{ github.event.inputs.hermes_install_cmd }}
+      XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
 
     steps:
       - uses: actions/checkout@v5
@@ -160,7 +161,7 @@ jobs:
             scp -o StrictHostKeyChecking=no scripts/setup_node.sh scripts/drive_agent.sh root@$ip:/root/
             chmod_cmd="chmod +x /root/setup_node.sh /root/drive_agent.sh"
             env_cmd="NODE_INDEX=$i ROLE=$role PEER_URLS='$peers' AI_MEMORY_VERSION=$AMV"
-            [ "$role" = "agent" ] && env_cmd="$env_cmd AGENT_TYPE=${AGENT_GROUP} AGENT_ID=$aid OPENCLAW_INSTALL_CMD='${OPENCLAW_INSTALL_CMD}' HERMES_INSTALL_CMD='${HERMES_INSTALL_CMD}'"
+            [ "$role" = "agent" ] && env_cmd="$env_cmd AGENT_TYPE=${AGENT_GROUP} AGENT_ID=$aid XAI_API_KEY='${XAI_API_KEY}' OPENCLAW_INSTALL_CMD='${OPENCLAW_INSTALL_CMD}' HERMES_INSTALL_CMD='${HERMES_INSTALL_CMD}'"
             ssh -o StrictHostKeyChecking=no root@$ip "$chmod_cmd && $env_cmd bash /root/setup_node.sh"
             echo "::endgroup::"
           done

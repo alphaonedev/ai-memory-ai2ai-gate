@@ -139,28 +139,57 @@ EOF
 log "MCP config written: /etc/ai-memory-a2a/mcp-config/config.json"
 
 # ---- Agent framework install --------------------------------------
-case "$AGENT_TYPE" in
-  openclaw)
-    if [ -n "${OPENCLAW_INSTALL_CMD:-}" ]; then
-      log "installing OpenClaw via operator-supplied command"
-      bash -c "$OPENCLAW_INSTALL_CMD"
-    else
-      log "WARN: no OPENCLAW_INSTALL_CMD supplied — scenarios will drive via ai-memory CLI as an MCP-stdio stand-in. The scaffolding is complete; supply a real install command via workflow input on next dispatch to exercise the real OpenClaw driver path."
-    fi
-    ;;
-  hermes)
-    if [ -n "${HERMES_INSTALL_CMD:-}" ]; then
-      log "installing Hermes via operator-supplied command"
-      bash -c "$HERMES_INSTALL_CMD"
-    else
-      log "WARN: no HERMES_INSTALL_CMD supplied — scenarios will drive via ai-memory CLI as an MCP-stdio stand-in. See OpenClaw note above; same applies to Hermes."
-    fi
-    ;;
-  *)
-    echo "unknown AGENT_TYPE: $AGENT_TYPE" >&2
-    exit 1
-    ;;
-esac
+# Both OpenClaw and Hermes groups use the same underlying runtime:
+# the `grok` CLI (alphaonedev/grok-cli, published binary) backed by
+# xAI Grok. They differ only by agent_id and the symlink name the
+# scenario driver invokes, so framework-independence is tested via
+# distinct driver paths + distinct identities rather than two
+# fully separate frameworks (matches how OpenClaw on the operator
+# workstation is set up: grok-CLI + xAI key + ai-memory MCP).
+
+: "${XAI_API_KEY:?XAI_API_KEY required on agent nodes}"
+
+log "installing grok CLI (grok-dev@1.6.0)"
+curl -fsSL -o /usr/local/bin/grok \
+  "https://github.com/alphaonedev/grok-cli/releases/download/grok-dev%401.6.0/grok-linux-x64"
+chmod +x /usr/local/bin/grok
+/usr/local/bin/grok --version || { log "grok --version failed"; exit 1; }
+
+# Driver-name symlinks: drive_agent.sh checks `command -v openclaw`
+# or `command -v hermes` to pick the path. Both point at the same
+# grok binary — the distinction is agent_id + campaign_id.
+ln -sf /usr/local/bin/grok "/usr/local/bin/${AGENT_TYPE}"
+log "symlinked /usr/local/bin/${AGENT_TYPE} -> grok"
+
+# Grok user settings: xAI key + ai-memory as the sole MCP server,
+# stamped with AGENT_ID via env so every memory_store/memory_recall
+# carries the writer's identity (Task 1.2 immutability contract).
+mkdir -p /root/.grok
+cat > /root/.grok/user-settings.json <<EOF
+{
+  "apiKey": "${XAI_API_KEY}",
+  "baseURL": "https://api.x.ai/v1",
+  "defaultModel": "grok-4-fast-non-reasoning",
+  "settingsVersion": 2,
+  "mcp": {
+    "servers": [
+      {
+        "id": "ai-memory",
+        "label": "AI Memory",
+        "enabled": true,
+        "transport": "stdio",
+        "command": "ai-memory",
+        "args": ["--db", "/var/lib/ai-memory/a2a.db", "mcp"],
+        "env": {
+          "AI_MEMORY_AGENT_ID": "${AGENT_ID}"
+        }
+      }
+    ]
+  }
+}
+EOF
+chmod 600 /root/.grok/user-settings.json
+log "grok configured with xAI key + ai-memory MCP (stdio, agent_id=${AGENT_ID})"
 
 # ---- Drop the per-scenario environment file -----------------------
 cat > /etc/ai-memory-a2a/env <<EOF

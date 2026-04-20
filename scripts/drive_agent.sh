@@ -30,60 +30,67 @@ source /etc/ai-memory-a2a/env
 
 ACTION="${1:?usage: drive_agent.sh <action> ...}"; shift
 
+# grok-CLI backed drivers. setup_node.sh installed the `grok` binary
+# and symlinked /usr/local/bin/openclaw and /usr/local/bin/hermes at
+# it. Both use xAI as the inference backend and ai-memory as the MCP
+# server — config lives in /root/.grok/user-settings.json, so we
+# don't need to pass --mcp-config at invocation time.
+#
+# grok flags we rely on:
+#   -p, --prompt   headless prompt
+#   --format json  machine-readable output
+#   --no-sandbox   the droplet IS the sandbox; skip Shuru
+#   --max-tool-rounds  bound the agent loop per scenario call
+
+agent_cli() { command -v "$AGENT_TYPE" >/dev/null 2>&1; }
+
+agent_prompt() {
+  "$AGENT_TYPE" \
+    --no-sandbox \
+    --format json \
+    --max-tool-rounds 20 \
+    -p "$1"
+}
+
 openclaw_driver() {
-  if command -v openclaw >/dev/null 2>&1; then
-    # Real OpenClaw CLI path. Operator-provided install command
-    # should have put this on $PATH. The MCP config at
-    # $MCP_CONFIG wires it to the local ai-memory.
+  if agent_cli; then
     case "$ACTION" in
       store)
         title="${1:?title required}"; content="${2:?content required}"
         ns="${3:-scenario}"
-        openclaw --mcp-config="$MCP_CONFIG" \
-          prompt "Store a memory in namespace $ns titled \"$title\" with content: $content. Use the memory_store tool."
+        agent_prompt "Store a memory in namespace ${ns} titled \"${title}\" with content: ${content}. Use the ai-memory MCP memory_store tool."
         ;;
       recall)
         query="${1:?query required}"; ns="${2:-}"
-        local_filter=""
-        [ -n "$ns" ] && local_filter=" in namespace $ns"
-        openclaw --mcp-config="$MCP_CONFIG" \
-          prompt "Recall memories matching \"$query\"${local_filter}. Use the memory_recall tool. Return the JSON result."
+        agent_prompt "Recall memories matching \"${query}\"${ns:+ in namespace ${ns}} using the ai-memory MCP memory_recall tool. Return the JSON result verbatim."
         ;;
       list)
         ns="${1:-}"
-        openclaw --mcp-config="$MCP_CONFIG" \
-          prompt "List memories${ns:+ in namespace $ns}. Use the memory_list tool. Return the JSON result."
+        agent_prompt "List memories${ns:+ in namespace ${ns}} using the ai-memory MCP memory_list tool. Return the JSON result verbatim."
         ;;
       *)
         echo "unknown action: $ACTION" >&2; exit 1 ;;
     esac
     return
   fi
-  # Fallback: OpenClaw not installed. Drive via ai-memory stdio MCP
-  # path directly. Same MCP tool dispatcher, just no agent LLM in
-  # the middle — so the test still exercises the tool surface but
-  # not the agent's prompt-interpretation.
   fallback_driver
 }
 
 hermes_driver() {
-  if command -v hermes >/dev/null 2>&1; then
+  if agent_cli; then
     case "$ACTION" in
       store)
         title="${1:?title required}"; content="${2:?content required}"
         ns="${3:-scenario}"
-        hermes --mcp-config "$MCP_CONFIG" \
-          run --prompt "Store a memory: namespace=$ns title=\"$title\" content=$content via memory_store"
+        agent_prompt "Store a memory: namespace=${ns} title=\"${title}\" content=${content} via the ai-memory MCP memory_store tool."
         ;;
       recall)
         query="${1:?query required}"; ns="${2:-}"
-        hermes --mcp-config "$MCP_CONFIG" \
-          run --prompt "Recall on \"$query\"${ns:+ namespace=$ns} via memory_recall; output JSON"
+        agent_prompt "Recall on \"${query}\"${ns:+ namespace=${ns}} via the ai-memory MCP memory_recall tool; output JSON."
         ;;
       list)
         ns="${1:-}"
-        hermes --mcp-config "$MCP_CONFIG" \
-          run --prompt "List memories${ns:+ namespace=$ns} via memory_list; output JSON"
+        agent_prompt "List memories${ns:+ namespace=${ns}} via the ai-memory MCP memory_list tool; output JSON."
         ;;
       *)
         echo "unknown action: $ACTION" >&2; exit 1 ;;
