@@ -155,6 +155,25 @@
     "next_run_change": "Dispatch r6 with scenario-1 harness fixes; scenario 1 should emit a clean pass/fail summary and evidence HTML should render with tri-audience blocks populated."
   },
 
+  "a2a-hermes-v0.6.0-r6": {
+    "headline": "Hermes install missing python-dotenv — `hermes` CLI crashes at import before ever reaching the MCP path",
+    "verdict": "INFRA GREEN / SCENARIO RED — all 4 droplets provisioned, SSH landed, setup_node.sh ran to completion, but every invocation of `hermes chat -q ...` exits with `ModuleNotFoundError: No module named 'dotenv'` at import time. Zero writes landed; scenario never reached its jq emit, so the scenario-1.json produced is stderr-only (now correctly captured as scenario-1.log once we re-dispatch with the split-stream workflow).",
+    "what_it_tested": "Hermes-side end-to-end run after r5's `hermes chat -q` + native xAI provider fix. This was the first dispatch that actually invoked the hermes CLI against a real prompt.",
+    "what_it_proved": "(1) The CLI-name correction (r5→r6 fix) was necessary and is now compiling/loading far enough to expose the NEXT latent bug. (2) The next bug is a dependency-installation gap: hermes-agent's env_loader.py imports `from dotenv import load_dotenv` unconditionally at import time, and the Nous Research install.sh does not install python-dotenv into the venv it provisions. Every Hermes invocation on a clean Ubuntu 24.04 DO droplet blows up at module import before any MCP traffic happens. (3) The a2a-gate's iteration loop continues to walk one bug deeper per dispatch — classic ship-gate diagnostic chain pattern.",
+    "for_non_technical": "Hermes' front-door receptionist asked to see an ID card (dotenv) before letting anyone through. The installer forgot to give the receptionist that card. So every visitor — no matter what they're trying to do — gets turned away at the lobby. None of the actual work was attempted. One-line install fix; re-dispatch should get Hermes actually running for the first time.",
+    "for_c_level": "Another controlled, inexpensive failure that surfaces a real onboarding gap for Hermes on fresh infrastructure. The cost is under $0.10 of DO compute for this diagnostic. The fix is a single `pip install python-dotenv` line in setup_node.sh. This kind of surface-the-gap-early-and-cheap cadence is exactly what the gate is designed to deliver — and because OpenClaw and Hermes are dispatched independently, OpenClaw's parallel progress isn't blocked by the Hermes issue.",
+    "for_sme": "Root cause: scripts/setup_node.sh runs `bash /root/.hermes/install.sh` (the upstream Nous Research installer) which creates /root/.hermes/hermes-agent/ and its entrypoint shim /usr/local/bin/hermes → python3 -m hermes_cli. The install.sh does NOT run `pip install python-dotenv` (nor does hermes-agent ship a requirements.txt that includes it), yet hermes_cli/env_loader.py line 8 has a top-of-file `from dotenv import load_dotenv`. Import fails before argparse, before `chat` subcommand dispatch, before any MCP initialisation. Fix: append `python3 -m pip install --break-system-packages python-dotenv` to setup_node.sh's hermes install branch, or use pipx to install hermes-agent into an isolated env that pulls the full dep set. Tracking upstream fix request to Nous Research install.sh so future releases don't need this patch.",
+    "bugs": [
+      {
+        "title": "Missing python-dotenv — hermes-agent install.sh skips a transitive dep",
+        "impact": "Every Hermes invocation on a fresh droplet crashes at import. Scenario 1 phase A never writes a memory via Hermes.",
+        "root_cause": "Upstream install.sh doesn't install python-dotenv; env_loader.py imports it unconditionally.",
+        "fixed_in": "Follow-up commit — setup_node.sh `pip install python-dotenv` in the hermes branch + report upstream."
+      }
+    ],
+    "next_run_change": "Dispatch r7-hermes after dotenv patch lands. Expect Phase A to succeed on Hermes and — because scenario-1 now reaches Phase B/C — the SAME MCP-stdio-bypasses-federation substrate finding that openclaw-r6 surfaced will also appear on the Hermes side. That parity will be diagnostic evidence that the substrate gap is framework-independent."
+  },
+
   "a2a-openclaw-v0.6.0-r6": {
     "headline": "First harness-clean run — substrate finding: MCP stdio writes bypass federation fanout",
     "verdict": "INFRA GREEN / SCENARIO RED — all 30 agent-driven writes landed to LOCAL sqlite on each node; 0 rows replicated to peers. Phase B recall from other agents' namespaces returned 0; Phase C at node-4 memory-only aggregator returned 0 across all three namespaces. This is a real substrate-level interaction gap, not a harness bug — the scoreboard is honest.",

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Campaign a2a-hermes-v0.6.0-r1 — ai-memory A2A gate</title>
+  <title>Campaign a2a-hermes-v0.6.0-r6 — ai-memory A2A gate</title>
   <style>
     :root { --fg:#1a1a1a; --bg:#fff; --muted:#666; --pass:#1a8b3c; --fail:#b32222; --warn:#b36b00; --pass-bg:#e6f6ea; --fail-bg:#fceaea; --warn-bg:#fdf3e0; --border:#e0e0e0; --code-bg:#f7f7f9; --accent:#3952c8; --accent-bg:#eef1fd; }
     @media (prefers-color-scheme: dark) { :root { --fg:#eaeaea; --bg:#181818; --muted:#a0a0a0; --pass:#4adc76; --fail:#ff6a6a; --warn:#ffb74d; --pass-bg:#153d23; --fail-bg:#401818; --warn-bg:#3a2d10; --border:#2a2a2a; --code-bg:#202028; --accent:#8da3ff; --accent-bg:#1c2140; } }
@@ -50,13 +50,13 @@
   <main>
     <header>
       <p class="crumb"><a href="../">../ runs index</a></p>
-      <h1>Campaign a2a-hermes-v0.6.0-r1 <span class="badge fail">FAIL</span></h1>
+      <h1>Campaign a2a-hermes-v0.6.0-r6 <span class="badge fail">FAIL</span></h1>
       <dl class="meta">
         <dt>Agent group</dt><dd><code>hermes</code> (homogeneous)</dd>
         <dt>ai-memory ref</dt><dd><code>v0.6.0</code></dd>
-        <dt>Completed at</dt><dd>2026-04-20T23:44:44Z</dd>
+        <dt>Completed at</dt><dd>2026-04-20T23:44:51Z</dd>
         <dt>Overall pass</dt><dd>false</dd>
-        <dt>Skipped reports</dt><dd>0</dd>
+        <dt>Skipped reports</dt><dd>1</dd>
       </dl>
     </header>
       <section class="infra">
@@ -73,15 +73,48 @@
         </dl>
         <p class="muted"><em>Back-filled by scripts/backfill_legacy_runs.sh — historical run predates campaign.meta.json emission.</em></p>
       </section>
+      <section class="run-focus">
+        <p class="label">Run focus</p>
+        <h2>Hermes install missing python-dotenv — `hermes` CLI crashes at import before ever reaching the MCP path</h2>
+        <p><strong>What this campaign tested:</strong> Hermes-side end-to-end run after r5's `hermes chat -q` + native xAI provider fix. This was the first dispatch that actually invoked the hermes CLI against a real prompt.</p>
+        <p><strong>What it demonstrated:</strong> (1) The CLI-name correction (r5→r6 fix) was necessary and is now compiling/loading far enough to expose the NEXT latent bug. (2) The next bug is a dependency-installation gap: hermes-agent's env_loader.py imports `from dotenv import load_dotenv` unconditionally at import time, and the Nous Research install.sh does not install python-dotenv into the venv it provisions. Every Hermes invocation on a clean Ubuntu 24.04 DO droplet blows up at module import before any MCP traffic happens. (3) The a2a-gate's iteration loop continues to walk one bug deeper per dispatch — classic ship-gate diagnostic chain pattern.</p>
+      </section>
       <section class="ai-insight">
-        <h2>AI NHI analysis</h2>
-        <p class="muted">No per-campaign narrative recorded yet. Append to <code>analysis/run-insights.json</code> after the run completes; the dashboard will refresh on next push.</p>
+        <p class="tag">AI NHI analysis &middot; Claude Opus 4.7</p>
+        <h2>Hermes install missing python-dotenv — `hermes` CLI crashes at import before ever reaching the MCP path</h2>
+        <p class="verdict">INFRA GREEN / SCENARIO RED — all 4 droplets provisioned, SSH landed, setup_node.sh ran to completion, but every invocation of `hermes chat -q ...` exits with `ModuleNotFoundError: No module named 'dotenv'` at import time. Zero writes landed; scenario never reached its jq emit, so the scenario-1.json produced is stderr-only (now correctly captured as scenario-1.log once we re-dispatch with the split-stream workflow).</p>
+        <h3>For three audiences</h3>
+        <div class="audiences">
+          <article><h4>Non-technical end users</h4><p>Hermes' front-door receptionist asked to see an ID card (dotenv) before letting anyone through. The installer forgot to give the receptionist that card. So every visitor — no matter what they're trying to do — gets turned away at the lobby. None of the actual work was attempted. One-line install fix; re-dispatch should get Hermes actually running for the first time.</p></article>
+          <article><h4>C-level decision makers</h4><p>Another controlled, inexpensive failure that surfaces a real onboarding gap for Hermes on fresh infrastructure. The cost is under $0.10 of DO compute for this diagnostic. The fix is a single `pip install python-dotenv` line in setup_node.sh. This kind of surface-the-gap-early-and-cheap cadence is exactly what the gate is designed to deliver — and because OpenClaw and Hermes are dispatched independently, OpenClaw's parallel progress isn't blocked by the Hermes issue.</p></article>
+          <article><h4>Engineers &amp; architects</h4><p>Root cause: scripts/setup_node.sh runs `bash /root/.hermes/install.sh` (the upstream Nous Research installer) which creates /root/.hermes/hermes-agent/ and its entrypoint shim /usr/local/bin/hermes → python3 -m hermes_cli. The install.sh does NOT run `pip install python-dotenv` (nor does hermes-agent ship a requirements.txt that includes it), yet hermes_cli/env_loader.py line 8 has a top-of-file `from dotenv import load_dotenv`. Import fails before argparse, before `chat` subcommand dispatch, before any MCP initialisation. Fix: append `python3 -m pip install --break-system-packages python-dotenv` to setup_node.sh's hermes install branch, or use pipx to install hermes-agent into an isolated env that pulls the full dep set. Tracking upstream fix request to Nous Research install.sh so future releases don't need this patch.</p></article>
+        </div>
+        <h3>What changes going into the next campaign</h3>
+        <p>Dispatch r7-hermes after dotenv patch lands. Expect Phase A to succeed on Hermes and — because scenario-1 now reaches Phase B/C — the SAME MCP-stdio-bypasses-federation substrate finding that openclaw-r6 surfaced will also appear on the Hermes side. That parity will be diagnostic evidence that the substrate gap is framework-independent.</p>
+      </section>
+      <section class="phase">
+        <h2>Scenario 1 — Per-agent write + read <span class="badge warn">UNKNOWN</span></h2>
+        <details><summary>scenario-1.json (report)</summary>
+          <pre>[scenario-1 hermes] phase A: each agent writes 10 memories via MCP
+[scenario-1 hermes]   agent ai:alice on node-a (174.138.62.197)
+Traceback (most recent call last):
+  File "/usr/local/bin/hermes", line 10, in &lt;module&gt;
+    from hermes_cli.main import main
+  File "/root/.hermes/hermes-agent/hermes_cli/main.py", line 152, in &lt;module&gt;
+    from hermes_cli.env_loader import load_hermes_dotenv
+  File "/root/.hermes/hermes-agent/hermes_cli/env_loader.py", line 8, in &lt;module&gt;
+    from dotenv import load_dotenv
+ModuleNotFoundError: No module named 'dotenv'
+</pre>
+          <p><a href="./scenario-1.json">raw file</a></p>
+        </details>
       </section>
     <section>
       <h2>All artefacts</h2>
       <ul>
         <li><a href="./a2a-summary.json">a2a-summary.json</a></li>
         <li><a href="./campaign.meta.json">campaign.meta.json</a></li>
+        <li><a href="./scenario-1.json">scenario-1.json</a></li>
       </ul>
     </section>
     <footer>
