@@ -202,6 +202,17 @@ EOF
     curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh \
       | bash -s -- --skip-setup
 
+    # Upstream install.sh (as of 2026-04-20) doesn't install
+    # python-dotenv, yet hermes_cli/env_loader.py imports it at
+    # module-top. Every `hermes` invocation dies with
+    # ModuleNotFoundError at argparse time until we install it.
+    # Surfaced by a2a-hermes-v0.6.0-r6. Track upstream; until then,
+    # patch it here. --break-system-packages is required on Ubuntu
+    # 24.04 because the Python is PEP 668-externally-managed.
+    log "installing python-dotenv (upstream gap in hermes install.sh)"
+    python3 -m pip install --break-system-packages --quiet python-dotenv || \
+      log "WARN: python-dotenv pip install returned non-zero — hermes may still fail at import"
+
     # Ensure `hermes` is on PATH for subsequent SSH sessions the
     # scenarios run. The installer may drop it under
     # $HOME/.hermes/hermes-agent — symlink into /usr/local/bin so
