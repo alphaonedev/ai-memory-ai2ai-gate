@@ -1,0 +1,10 @@
+[scenario-1 hermes] phase A: each agent writes 10 memories via MCP
+[scenario-1 hermes]   agent ai:alice on node-a (174.138.62.197)
+Traceback (most recent call last):
+  File "/usr/local/bin/hermes", line 10, in <module>
+    from hermes_cli.main import main
+  File "/root/.hermes/hermes-agent/hermes_cli/main.py", line 152, in <module>
+    from hermes_cli.env_loader import load_hermes_dotenv
+  File "/root/.hermes/hermes-agent/hermes_cli/env_loader.py", line 8, in <module>
+    from dotenv import load_dotenv
+ModuleNotFoundError: No module named 'dotenv'
