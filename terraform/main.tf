@@ -84,10 +84,21 @@ provider "digitalocean" {
   token = var.do_token
 }
 
+locals {
+  # Per-group VPC CIDR. DO requires distinct CIDRs across
+  # concurrently-provisioned VPCs, so the two homogeneous campaigns
+  # (openclaw, hermes) use adjacent /24s that don't overlap the
+  # ship-gate's 10.250.0.0/24.
+  vpc_cidr = {
+    openclaw = "10.251.0.0/24"
+    hermes   = "10.252.0.0/24"
+  }
+}
+
 resource "digitalocean_vpc" "a2a" {
   name     = "aim-a2a-${var.agent_type}-${var.campaign_id}"
   region   = var.region
-  ip_range = "10.251.0.0/24"
+  ip_range = lookup(local.vpc_cidr, var.agent_type, "10.251.0.0/24")
 }
 
 # Three agent droplets — all the same agent_type. Distinct agent_ids
