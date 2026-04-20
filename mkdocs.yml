@@ -1,0 +1,56 @@
+site_name: ai-memory A2A gate
+site_description: >-
+  AI-to-AI integration gate for ai-memory-mcp. 4-node DigitalOcean
+  harness exercising the full memory surface through OpenClaw and
+  Hermes agents. Runs after ai-memory-ship-gate Phases 1-4 pass.
+site_url: https://alphaonedev.github.io/ai-memory-ai2ai-gate/
+repo_url: https://github.com/alphaonedev/ai-memory-ai2ai-gate
+repo_name: alphaonedev/ai-memory-ai2ai-gate
+copyright: "Copyright &copy; 2026 AlphaOne LLC. Apache-2.0."
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.instant
+    - navigation.sections
+    - navigation.indexes
+    - toc.integrate
+    - content.code.copy
+    - content.code.annotate
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+
+nav:
+  - Home: index.md
+  - Methodology: methodology.md
+  - Topology: topology.md
+  - Agents:
+      - OpenClaw: agents/openclaw.md
+      - Hermes: agents/hermes.md
+  - Scenarios:
+      - 1. Per-agent write + read: scenarios/1-write-read.md
+      - 2. Shared-context handoff: scenarios/2-handoff.md
+      - 3. Targeted share: scenarios/3-targeted-share.md
+      - 4. Federation-aware agents: scenarios/4-federation.md
+      - 5. Consolidation + curation: scenarios/5-consolidation.md
+      - 6. Contradiction detection: scenarios/6-contradiction.md
+      - 7. Scoping visibility: scenarios/7-scoping.md
+      - 8. Auto-tagging: scenarios/8-auto-tagging.md
+  - Campaign runs: runs/
+  - Reproducing: reproducing.md
+  - Security: security.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - toc:
+      permalink: true

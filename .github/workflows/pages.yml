@@ -1,0 +1,95 @@
+name: Publish GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "runs/**"
+      - "analysis/**"
+      - "mkdocs.yml"
+      - ".github/workflows/pages.yml"
+  workflow_run:
+    workflows: ["A2A gate campaign"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Install mkdocs-material
+        run: pip install mkdocs-material mkdocs-macros-plugin
+
+      - name: Build a landing page for runs/
+        run: |
+          set -euo pipefail
+          mkdir -p docs/runs
+          {
+            echo "# Campaign runs"
+            echo
+            echo "Every A2A campaign run commits its scenario artifacts +"
+            echo "generated evidence HTML here. Each row carries per-scenario"
+            echo "PASS/FAIL status so the Phase 2/3 vs Phase 4 story visible"
+            echo "in the ship-gate's dashboard holds up at scenario granularity."
+            echo
+            echo "| Campaign | Overall | Scenarios | Completed | ai-memory ref | Evidence |"
+            echo "|---|---|---|---|---|---|"
+          } > docs/runs/index.md
+          found_any=false
+          for dir in $(ls -1d runs/*/ 2>/dev/null | sort -r); do
+            found_any=true
+            name=$(basename "$dir")
+            summary="$dir/a2a-summary.json"
+            [ -f "$summary" ] || continue
+            ref=$(jq -r '.ai_memory_git_ref // "?"' "$summary")
+            completed=$(jq -r '.completed_at // "?"' "$summary")
+            pass=$(jq -r '.overall_pass // false' "$summary")
+            outcome=$([ "$pass" = "true" ] && echo "PASS" || echo "FAIL")
+            scenarios=$(jq -r '[.scenarios[]? | select(.pass == true)] | length' "$summary")
+            total=$(jq -r '.scenarios | length' "$summary" 2>/dev/null || echo "?")
+            evidence="[offline HTML](../evidence/${name}/index.html)"
+            echo "| [${name}](./${name}.md) | ${outcome} | ${scenarios}/${total} | ${completed} | ${ref} | ${evidence} |" >> docs/runs/index.md
+          done
+          if [ "$found_any" = "false" ]; then
+            echo >> docs/runs/index.md
+            echo "*No campaign runs landed yet. Dispatch the first one via Actions tab or* \`gh workflow run a2a-gate.yml\`." >> docs/runs/index.md
+          fi
+
+      - name: Build site
+        run: mkdocs build
+
+      - name: Mirror runs/ to site/evidence/
+        run: |
+          set -euo pipefail
+          mkdir -p site/evidence
+          if [ -d runs ] && [ "$(ls -A runs 2>/dev/null)" ]; then
+            cp -r runs/. site/evidence/
+          fi
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v4
+        id: deployment

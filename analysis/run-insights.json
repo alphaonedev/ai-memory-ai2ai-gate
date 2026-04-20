@@ -1,0 +1,13 @@
+{
+  "__schema__": "Per-campaign narrative + bug-to-fix lineage. Authored by AI NHI. When a new campaign lands, append a block. Fields: headline, verdict, what_it_tested, what_it_proved, for_non_technical, for_c_level, for_sme, bugs[{title, impact, root_cause, fixed_in}], next_run_change.",
+  "__links__": {
+    "ai_memory_mcp": "https://github.com/alphaonedev/ai-memory-mcp",
+    "ship_gate": "https://github.com/alphaonedev/ai-memory-ship-gate",
+    "a2a_gate": "https://github.com/alphaonedev/ai-memory-ai2ai-gate"
+  },
+  "__audience_framing__": {
+    "non_technical": "Plain language analogies. What the run means for someone who relies on AI agents working together through ai-memory but doesn't read code.",
+    "c_level": "Risk, cost, compliance, audit, velocity. What business outcome does this run buy down or expose? What decision should leadership make?",
+    "sme": "Invariants proven, file paths, specific mechanisms, why the test measured what it measured. No hand-waving."
+  }
+}
