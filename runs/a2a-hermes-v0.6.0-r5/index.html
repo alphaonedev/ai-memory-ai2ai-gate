@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Campaign a2a-hermes-v0.6.0-r2 — ai-memory A2A gate</title>
+  <title>Campaign a2a-hermes-v0.6.0-r5 — ai-memory A2A gate</title>
   <style>
     :root { --fg:#1a1a1a; --bg:#fff; --muted:#666; --pass:#1a8b3c; --fail:#b32222; --warn:#b36b00; --pass-bg:#e6f6ea; --fail-bg:#fceaea; --warn-bg:#fdf3e0; --border:#e0e0e0; --code-bg:#f7f7f9; --accent:#3952c8; --accent-bg:#eef1fd; }
     @media (prefers-color-scheme: dark) { :root { --fg:#eaeaea; --bg:#181818; --muted:#a0a0a0; --pass:#4adc76; --fail:#ff6a6a; --warn:#ffb74d; --pass-bg:#153d23; --fail-bg:#401818; --warn-bg:#3a2d10; --border:#2a2a2a; --code-bg:#202028; --accent:#8da3ff; --accent-bg:#1c2140; } }
@@ -50,13 +50,13 @@
   <main>
     <header>
       <p class="crumb"><a href="../">../ runs index</a></p>
-      <h1>Campaign a2a-hermes-v0.6.0-r2 <span class="badge fail">FAIL</span></h1>
+      <h1>Campaign a2a-hermes-v0.6.0-r5 <span class="badge fail">FAIL</span></h1>
       <dl class="meta">
         <dt>Agent group</dt><dd><code>hermes</code> (homogeneous)</dd>
         <dt>ai-memory ref</dt><dd><code>v0.6.0</code></dd>
-        <dt>Completed at</dt><dd>2026-04-20T23:41:06Z</dd>
+        <dt>Completed at</dt><dd>2026-04-20T23:41:11Z</dd>
         <dt>Overall pass</dt><dd>false</dd>
-        <dt>Skipped reports</dt><dd>0</dd>
+        <dt>Skipped reports</dt><dd>1</dd>
       </dl>
     </header>
       <section class="infra">
@@ -75,28 +75,39 @@
       </section>
       <section class="run-focus">
         <p class="label">Run focus</p>
-        <h2>Hermes group hit the same CIDR blocker — identical failure mode, identical fix</h2>
-        <p><strong>What this campaign tested:</strong> Hermes campaign dispatched concurrently with openclaw-r2 to confirm the two-VPC concurrent-dispatch model.</p>
-        <p><strong>What it demonstrated:</strong> Workflow concurrency key (group=a2a-gate-${agent_group}) correctly scoped — both campaigns executed in parallel. Both failed identically on the same CIDR, so the blocker is in the shared terraform module, not in anything agent-group-specific.</p>
+        <h2>Hermes installs and runs — but `hermes -p` is PROFILE NAME, not prompt. Scenario Phase A rejected every write.</h2>
+        <p><strong>What this campaign tested:</strong> End-to-end Hermes provisioning + first Hermes prompt invocation from drive_agent.sh.</p>
+        <p><strong>What it demonstrated:</strong> (1) Nous Research hermes-agent installs cleanly from the official install.sh on a fresh Ubuntu 24.04 DO droplet. (2) The MCP config at ~/.hermes/config.yaml is accepted by the agent process (no YAML schema errors). (3) The grok-CLI assumption that `-p` means prompt was WRONG for Hermes — it’s a global flag for `--profile &lt;name&gt;`. This is the kind of framework-mismatch bug that only surfaces on a real dispatch because the docs said `hermes chat` but drive_agent.sh was calling `hermes -p`.</p>
       </section>
       <section class="ai-insight">
         <p class="tag">AI NHI analysis &middot; Claude Opus 4.7</p>
-        <h2>Hermes group hit the same CIDR blocker — identical failure mode, identical fix</h2>
-        <p class="verdict">RED at Terraform init + apply in 13 s.</p>
+        <h2>Hermes installs and runs — but `hermes -p` is PROFILE NAME, not prompt. Scenario Phase A rejected every write.</h2>
+        <p class="verdict">INFRA GREEN / SCENARIO RED — 27 m 34 s wall (longer than openclaw’s 15 m because the hermes-agent Python install is heavier than the single-binary grok). Terraform + SSH + Provision all green. Scenario crashed on first invocation with `Error: Invalid profile name 'Store a memory: ...'. Must match [a-z0-9][a-z0-9_-]{0,63}`. Every write attempt failed identically. Zero memories stored on the Hermes side.</p>
         <h3>For three audiences</h3>
         <div class="audiences">
-          <article><h4>Non-technical end users</h4><p>Same bad address, same returned envelope, but on the Hermes delivery truck this time. The mail system is fair — it rejects both identically.</p></article>
-          <article><h4>C-level decision makers</h4><p>Confirms cross-campaign fault isolation: a bug in shared infra breaks both groups in the same way, so we see the whole shape of the problem in one dispatch rather than discovering it later with one group already green.</p></article>
-          <article><h4>Engineers &amp; architects</h4><p>Same root cause as r2-openclaw (ip_range 10.260.0.0/24). The DO-side error surfaced at VPC create, not firewall — different from r3-hermes where the VPC succeeded but firewall failed, confirming DO validates each resource in isolation rather than doing a global pre-flight.</p></article>
+          <article><h4>Non-technical end users</h4><p>Good news: Hermes installed correctly on the cloud server. Bad news: we gave it the wrong kind of instruction. It was waiting for a short username, we gave it a sentence. Every memo got returned before it was even read. Same kind of bug as when a form asks for 'Last name' and you type your full sentence in the box — instant validation error. Quick fix: use the correct command.</p></article>
+          <article><h4>C-level decision makers</h4><p>The install surface works. The invocation bug is one line in a shell driver and costs under a minute to fix; next dispatch should produce the first Hermes-side scenario data. Cost of this detection: under $0.10 of DO compute. No product correctness issue — the memory substrate was never even touched by the Hermes side in this run. Framework-independence story still intact; this is a harness bug, not a substrate bug.</p></article>
+          <article><h4>Engineers &amp; architects</h4><p>Root cause: scripts/drive_agent.sh called `hermes -p "&lt;natural language prompt&gt;"`. Per hermes-agent v0.10.0 CLI reference, `-p` is a GLOBAL flag aliasing `--profile &lt;name&gt;` with strict regex [a-z0-9][a-z0-9_-]{0,63} on the argument. The one-shot prompt flag is `hermes chat -q "&lt;prompt&gt;"` or `-Q` (programmatic/quiet mode). Hermes also supports xAI natively via `--provider xai` (alias grok) so the OpenAI-compatible shim isn't needed; XAI_API_KEY env is sufficient. Fix in this commit: drive_agent.sh now invokes `hermes chat -Q --provider xai --model grok-4-fast-non-reasoning -q "$prompt"`, setup_node.sh writes hermes.env with XAI_API_KEY only (drops OPENAI_API_BASE and friends).</p></article>
         </div>
         <h3>What changes going into the next campaign</h3>
-        <p>Dispatch r3 with CIDR fix.</p>
+        <p>Dispatch r6 with correct `hermes chat -q` invocation + native xAI provider; expect Hermes Phase A to succeed and full parity with openclaw’s write path.</p>
+      </section>
+      <section class="phase">
+        <h2>Scenario 1 — Per-agent write + read <span class="badge warn">UNKNOWN</span></h2>
+        <details><summary>scenario-1.json (report)</summary>
+          <pre>[scenario-1 hermes] phase A: each agent writes 10 memories via MCP
+[scenario-1 hermes]   agent ai:alice on node-a (165.22.33.174)
+Error: Invalid profile name 'Store a memory: namespace=scenario1-ai:alice title="w1-ai:alice" content=scenario1 write 1 from ai:alice via the ai-memory MCP memory_store tool.'. Must match [a-z0-9][a-z0-9_-]{0,63}
+</pre>
+          <p><a href="./scenario-1.json">raw file</a></p>
+        </details>
       </section>
     <section>
       <h2>All artefacts</h2>
       <ul>
         <li><a href="./a2a-summary.json">a2a-summary.json</a></li>
         <li><a href="./campaign.meta.json">campaign.meta.json</a></li>
+        <li><a href="./scenario-1.json">scenario-1.json</a></li>
       </ul>
     </section>
     <footer>

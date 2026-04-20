@@ -41,33 +41,61 @@ jobs:
           {
             echo "# Campaign runs"
             echo
-            echo "Every A2A campaign run commits its scenario artifacts +"
-            echo "generated evidence HTML here. Each row carries per-scenario"
-            echo "PASS/FAIL status so the Phase 2/3 vs Phase 4 story visible"
-            echo "in the ship-gate's dashboard holds up at scenario granularity."
+            echo "Every A2A campaign run commits its scenario artefacts +"
+            echo "generated evidence HTML here. Rows sort newest first by campaign"
+            echo "id (version-aware, so r10 > r9). \`PASS\` / \`FAIL\` reflect"
+            echo "\`overall_pass\` from \`a2a-summary.json\`; \`NO SUMMARY\` means the"
+            echo "campaign ran but the aggregator couldn't recover any scenario"
+            echo "JSON (legacy artefact format or pipeline failure — open the"
+            echo "evidence page for the raw trace)."
             echo
-            echo "| Campaign | Overall | Scenarios | Completed | ai-memory ref | Evidence |"
-            echo "|---|---|---|---|---|---|"
+            echo "| Campaign | Verdict | Scenarios | Group | ai-memory ref | Completed | Dispatched by | Evidence |"
+            echo "|---|---|---|---|---|---|---|---|"
           } > docs/runs/index.md
           found_any=false
-          for dir in $(ls -1d runs/*/ 2>/dev/null | sort -r); do
+          for dir in $(ls -1d runs/*/ 2>/dev/null | sort -Vr); do
             found_any=true
             name=$(basename "$dir")
             summary="$dir/a2a-summary.json"
-            [ -f "$summary" ] || continue
-            ref=$(jq -r '.ai_memory_git_ref // "?"' "$summary")
-            completed=$(jq -r '.completed_at // "?"' "$summary")
-            pass=$(jq -r '.overall_pass // false' "$summary")
-            outcome=$([ "$pass" = "true" ] && echo "PASS" || echo "FAIL")
-            scenarios=$(jq -r '[.scenarios[]? | select(.pass == true)] | length' "$summary")
-            total=$(jq -r '.scenarios | length' "$summary" 2>/dev/null || echo "?")
+            meta="$dir/campaign.meta.json"
+            if [ -f "$summary" ]; then
+              ref=$(jq -r '.ai_memory_git_ref // "?"' "$summary")
+              completed=$(jq -r '.completed_at // "?"' "$summary")
+              pass=$(jq -r '.overall_pass // false' "$summary")
+              group=$(jq -r '.agent_group // (.scenarios[0].agent_group // "?")' "$summary")
+              if [ "$pass" = "true" ]; then outcome="✅ PASS"; else outcome="❌ FAIL"; fi
+              scen_pass=$(jq -r '[.scenarios[]? | select(.pass == true)] | length' "$summary")
+              scen_total=$(jq -r '.scenarios | length' "$summary" 2>/dev/null || echo "?")
+              scen_cell="${scen_pass}/${scen_total}"
+            else
+              ref="?"; completed="?"; group="?"; outcome="⚠️ NO SUMMARY"
+              scen_json_count=$(ls "$dir"/scenario-*.json 2>/dev/null | wc -l | tr -d ' ')
+              scen_cell="—/${scen_json_count}"
+            fi
+            if [ -f "$meta" ]; then
+              actor=$(jq -r '.ci.actor // "?"' "$meta")
+              wurl=$(jq -r '.ci.workflow_url // ""' "$meta")
+              ref=$(jq -r '.ai_memory_git_ref // "?"' "$meta")
+              group=$(jq -r '.agent_group // "?"' "$meta")
+            else
+              actor="—"; wurl=""
+            fi
+            actor_cell=$([ -n "$wurl" ] && echo "[${actor}](${wurl})" || echo "$actor")
             evidence="[offline HTML](../evidence/${name}/index.html)"
-            echo "| [${name}](./${name}.md) | ${outcome} | ${scenarios}/${total} | ${completed} | ${ref} | ${evidence} |" >> docs/runs/index.md
+            echo "| ${name} | ${outcome} | ${scen_cell} | ${group} | ${ref} | ${completed} | ${actor_cell} | ${evidence} |" >> docs/runs/index.md
           done
           if [ "$found_any" = "false" ]; then
             echo >> docs/runs/index.md
             echo "*No campaign runs landed yet. Dispatch the first one via Actions tab or* \`gh workflow run a2a-gate.yml\`." >> docs/runs/index.md
           fi
+
+      - name: Regenerate per-run index.html (pick up generator upgrades)
+        run: |
+          set -euo pipefail
+          for dir in runs/*/; do
+            [ -d "$dir" ] || continue
+            bash scripts/generate_run_html.sh "$dir" || true
+          done
 
       - name: Build site
         run: mkdocs build

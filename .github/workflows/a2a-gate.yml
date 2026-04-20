@@ -167,9 +167,13 @@ jobs:
           done
 
       - name: Run scenarios
+        id: scenarios
         run: |
           set -e
           mkdir -p phase-reports
+          START_TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          echo "start_ts=$START_TS" >> "$GITHUB_OUTPUT"
+          SCENARIOS_RUN=()
           for s in ${{ github.event.inputs.scenarios }}; do
             script=$(ls scripts/scenarios/${s}_*.sh 2>/dev/null | head -1)
             if [ -z "$script" ]; then
@@ -177,15 +181,79 @@ jobs:
               continue
             fi
             echo "::group::scenario $s ($script)"
+            # Split streams: stdout = final JSON report; stderr = console
+            # trace (log() lines). Mixing them corrupts the JSON contract
+            # the aggregator depends on and breaks the dashboard rollup.
+            SCN_START=$(date -u +%Y-%m-%dT%H:%M:%SZ)
             NODE1_IP=${{ steps.wait.outputs.node1_ip }} \
             NODE2_IP=${{ steps.wait.outputs.node2_ip }} \
             NODE3_IP=${{ steps.wait.outputs.node3_ip }} \
             NODE4_IP=${{ steps.wait.outputs.memory_ip }} \
             MEMORY_NODE_IP=${{ steps.wait.outputs.memory_priv }} \
             AGENT_GROUP=${AGENT_GROUP} \
-              bash "$script" > "phase-reports/scenario-$s.json" 2>&1 || true
+              bash "$script" \
+                > "phase-reports/scenario-${s}.json" \
+                2> "phase-reports/scenario-${s}.log" || true
+            SCN_END=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+            SCENARIOS_RUN+=("${s}:${SCN_START}:${SCN_END}")
+            # Echo the log to the job output so CI viewers see it too.
+            sed 's|^|[scenario-'"$s"' log] |' "phase-reports/scenario-${s}.log" || true
             echo "::endgroup::"
           done
+          printf '%s\n' "${SCENARIOS_RUN[@]}" > phase-reports/scenario-timings.txt
+          echo "end_ts=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+
+      - name: Emit campaign.meta.json
+        if: always()
+        run: |
+          set -e
+          jq -n \
+            --arg campaign_id    "${{ github.event.inputs.campaign_id }}" \
+            --arg agent_group    "${AGENT_GROUP}" \
+            --arg ai_memory_ref  "${AI_MEMORY_GIT_REF}" \
+            --arg region         "${{ github.event.inputs.region }}" \
+            --arg droplet_size   "${{ github.event.inputs.agent_droplet_size }}" \
+            --arg scenarios_req  "${{ github.event.inputs.scenarios }}" \
+            --arg started_at     "${{ steps.scenarios.outputs.start_ts }}" \
+            --arg ended_at       "${{ steps.scenarios.outputs.end_ts }}" \
+            --arg actor          "${{ github.actor }}" \
+            --arg workflow_url   "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            --arg harness_sha    "${{ github.sha }}" \
+            --arg runner_os      "${RUNNER_OS:-ubuntu-24.04}" \
+            --arg node1_public   "${{ steps.wait.outputs.node1_ip }}" \
+            --arg node1_private  "${{ steps.wait.outputs.node1_priv }}" \
+            --arg node2_public   "${{ steps.wait.outputs.node2_ip }}" \
+            --arg node2_private  "${{ steps.wait.outputs.node2_priv }}" \
+            --arg node3_public   "${{ steps.wait.outputs.node3_ip }}" \
+            --arg node3_private  "${{ steps.wait.outputs.node3_priv }}" \
+            --arg node4_public   "${{ steps.wait.outputs.memory_ip }}" \
+            --arg node4_private  "${{ steps.wait.outputs.memory_priv }}" \
+            '{
+              campaign_id: $campaign_id,
+              agent_group: $agent_group,
+              ai_memory_git_ref: $ai_memory_ref,
+              infra: {
+                provider: "digitalocean",
+                region: $region,
+                droplet_size: $droplet_size,
+                topology: "4-node federation mesh (W=2/N=4)",
+                nodes: [
+                  {index:1, role:"agent",       agent_id:"ai:alice",   public_ip:$node1_public, private_ip:$node1_private},
+                  {index:2, role:"agent",       agent_id:"ai:bob",     public_ip:$node2_public, private_ip:$node2_private},
+                  {index:3, role:"agent",       agent_id:"ai:charlie", public_ip:$node3_public, private_ip:$node3_private},
+                  {index:4, role:"memory-only", agent_id:null,         public_ip:$node4_public, private_ip:$node4_private}
+                ]
+              },
+              scenarios_requested: ($scenarios_req | split(" ")),
+              timing: { started_at: $started_at, ended_at: $ended_at },
+              ci: {
+                actor: $actor,
+                workflow_url: $workflow_url,
+                harness_sha: $harness_sha,
+                runner_os: $runner_os
+              }
+            }' > phase-reports/campaign.meta.json
+          cat phase-reports/campaign.meta.json
 
       - name: Aggregate campaign summary
         if: always()
@@ -200,6 +268,7 @@ jobs:
           CAMPAIGN_DIR="runs/${{ github.event.inputs.campaign_id }}"
           mkdir -p "$CAMPAIGN_DIR"
           cp phase-reports/*.json "$CAMPAIGN_DIR/" 2>/dev/null || true
+          cp phase-reports/*.log  "$CAMPAIGN_DIR/" 2>/dev/null || true
           cp a2a-summary.json "$CAMPAIGN_DIR/" 2>/dev/null || true
           bash scripts/generate_run_html.sh "$CAMPAIGN_DIR" || true
 

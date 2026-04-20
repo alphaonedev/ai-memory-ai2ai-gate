@@ -1,0 +1,56 @@
+{
+  "campaign_id": "a2a-openclaw-v0.6.0-r6",
+  "agent_group": "openclaw",
+  "ai_memory_git_ref": "v0.6.0",
+  "completed_at": "2026-04-20T23:41:20Z",
+  "overall_pass": false,
+  "scenarios": [
+    {
+      "scenario": 1,
+      "pass": false,
+      "agent_group": "openclaw",
+      "expected_per_reader": 20,
+      "per_agent": {
+        "ai:alice": {
+          "recall": 0
+        },
+        "ai:bob": {
+          "recall": 0
+        },
+        "ai:charlie": {
+          "recall": 0
+        }
+      },
+      "reasons": [
+        "ai:alice recalled 0 < 20 via MCP",
+        "ai:bob recalled 0 < 20 via MCP",
+        "ai:charlie recalled 0 < 20 via MCP",
+        "cross-cluster identity check failed — see node-4 dump above"
+      ]
+    }
+  ],
+  "reasons": [
+    "ai:alice recalled 0 < 20 via MCP",
+    "ai:bob recalled 0 < 20 via MCP",
+    "ai:charlie recalled 0 < 20 via MCP",
+    "cross-cluster identity check failed — see node-4 dump above"
+  ],
+  "meta": {
+    "campaign_id": "a2a-openclaw-v0.6.0-r6",
+    "agent_group": "openclaw",
+    "ai_memory_git_ref": "v0.6.0",
+    "infra": null,
+    "scenarios_requested": [
+      "1"
+    ],
+    "timing": null,
+    "ci": {
+      "actor": "a2a-gate-bot",
+      "workflow_url": null,
+      "harness_sha": null,
+      "runner_os": "ubuntu-24.04"
+    },
+    "notes": "Back-filled by scripts/backfill_legacy_runs.sh — historical run predates campaign.meta.json emission."
+  },
+  "skipped_reports": []
+}

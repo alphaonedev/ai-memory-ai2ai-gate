@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Campaign a2a-openclaw-v0.6.0-r4 — ai-memory A2A gate</title>
   <style>
-    :root { --fg:#1a1a1a; --bg:#fff; --muted:#666; --pass:#1a8b3c; --fail:#b32222; --pass-bg:#e6f6ea; --fail-bg:#fceaea; --border:#e0e0e0; --code-bg:#f7f7f9; --accent:#3952c8; --accent-bg:#eef1fd; }
-    @media (prefers-color-scheme: dark) { :root { --fg:#eaeaea; --bg:#181818; --muted:#a0a0a0; --pass:#4adc76; --fail:#ff6a6a; --pass-bg:#153d23; --fail-bg:#401818; --border:#2a2a2a; --code-bg:#202028; --accent:#8da3ff; --accent-bg:#1c2140; } }
+    :root { --fg:#1a1a1a; --bg:#fff; --muted:#666; --pass:#1a8b3c; --fail:#b32222; --warn:#b36b00; --pass-bg:#e6f6ea; --fail-bg:#fceaea; --warn-bg:#fdf3e0; --border:#e0e0e0; --code-bg:#f7f7f9; --accent:#3952c8; --accent-bg:#eef1fd; }
+    @media (prefers-color-scheme: dark) { :root { --fg:#eaeaea; --bg:#181818; --muted:#a0a0a0; --pass:#4adc76; --fail:#ff6a6a; --warn:#ffb74d; --pass-bg:#153d23; --fail-bg:#401818; --warn-bg:#3a2d10; --border:#2a2a2a; --code-bg:#202028; --accent:#8da3ff; --accent-bg:#1c2140; } }
     * { box-sizing:border-box; }
     body { font:15px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; color:var(--fg); background:var(--bg); margin:0; }
     main { max-width:960px; margin:0 auto; padding:2rem 1.25rem 4rem; }
@@ -19,9 +19,13 @@
     dl.meta { display:grid; grid-template-columns:max-content 1fr; gap:.35rem 1rem; margin:0; }
     dl.meta dt { color:var(--muted); }
     dl.meta dd { margin:0; }
+    table.nodes { width:100%; border-collapse:collapse; margin-top:.5rem; font-size:14px; }
+    table.nodes th, table.nodes td { border:1px solid var(--border); padding:.35rem .6rem; text-align:left; }
+    table.nodes th { background:var(--code-bg); font-weight:600; }
     .badge { display:inline-block; padding:.15rem .55rem; border-radius:999px; font-size:12px; font-weight:600; letter-spacing:.03em; text-transform:uppercase; margin-left:.4rem; vertical-align:middle; }
     .badge.pass { color:var(--pass); background:var(--pass-bg); }
     .badge.fail { color:var(--fail); background:var(--fail-bg); }
+    .badge.warn { color:var(--warn); background:var(--warn-bg); }
     .run-focus { background:var(--code-bg); border-left:4px solid var(--accent); padding:1rem 1.25rem; margin:1.5rem 0; border-radius:0 6px 6px 0; }
     .run-focus h2 { border:none; margin:0 0 .5rem; padding:0; font-size:1.1rem; }
     .run-focus p.label { color:var(--accent); font-size:12px; text-transform:uppercase; letter-spacing:.06em; font-weight:600; margin:0 0 .25rem; }
@@ -35,7 +39,8 @@
     .audiences article h4 { margin-top:0; color:var(--accent); font-size:14px; }
     details { border:1px solid var(--border); border-radius:6px; padding:.25rem .75rem; margin:.5rem 0; }
     summary { cursor:pointer; padding:.45rem 0; font-weight:500; }
-    pre { background:var(--code-bg); padding:.75rem; border-radius:6px; overflow-x:auto; font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace; margin:.5rem 0; }
+    pre { background:var(--code-bg); padding:.75rem; border-radius:6px; overflow-x:auto; font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace; margin:.5rem 0; max-height:480px; }
+    pre.log { max-height:640px; }
     a { color:var(--accent); } a:hover { text-decoration:underline; }
     .muted { color:var(--muted); font-size:14px; }
     footer { color:var(--muted); font-size:12px; border-top:1px solid var(--border); padding-top:1rem; margin-top:3rem; }
@@ -47,20 +52,51 @@
       <p class="crumb"><a href="../">../ runs index</a></p>
       <h1>Campaign a2a-openclaw-v0.6.0-r4 <span class="badge fail">FAIL</span></h1>
       <dl class="meta">
-        <dt>Agent group</dt><dd><code>?</code> (homogeneous)</dd>
+        <dt>Agent group</dt><dd><code>openclaw</code> (homogeneous)</dd>
         <dt>ai-memory ref</dt><dd><code>v0.6.0</code></dd>
-        <dt>Completed at</dt><dd>2026-04-20T22:23:48Z</dd>
+        <dt>Completed at</dt><dd>2026-04-20T23:41:17Z</dd>
         <dt>Overall pass</dt><dd>false</dd>
+        <dt>Skipped reports</dt><dd>0</dd>
       </dl>
     </header>
+      <section class="infra">
+        <h2>Infrastructure</h2>
+        <dl class="meta">
+          <dt>Provider</dt><dd><code>?</code></dd>
+          <dt>Region</dt><dd><code>?</code></dd>
+          <dt>Droplet size</dt><dd><code>?</code></dd>
+          <dt>Topology</dt><dd>?</dd>
+          <dt>Scenarios started</dt><dd>?</dd>
+          <dt>Scenarios ended</dt><dd>?</dd>
+          <dt>Dispatched by</dt><dd><code>a2a-gate-bot</code></dd>
+          <dt>Harness SHA</dt><dd><code>?</code></dd>
+        </dl>
+        <p class="muted"><em>Back-filled by scripts/backfill_legacy_runs.sh — historical run predates campaign.meta.json emission.</em></p>
+      </section>
+      <section class="run-focus">
+        <p class="label">Run focus</p>
+        <h2>Droplets booted but SSH auth silently failed — wrong private-key half in the secret</h2>
+        <p><strong>What this campaign tested:</strong> First campaign where all 4 droplets actually booted with a valid firewall. SSH auth was the next untested surface.</p>
+        <p><strong>What it demonstrated:</strong> Terraform is fully green. All four droplets provisioned, public IPs assigned, firewall rules accepted inbound 22. The blocker moved one step deeper into the provisioning flow. Teardown cleanly destroyed all 6 resources (4 droplets + VPC + firewall), confirming the if: always() teardown guard works even when a mid-run step fails.</p>
+      </section>
       <section class="ai-insight">
-        <h2>AI NHI analysis</h2>
-        <p class="muted">No per-campaign narrative recorded yet. Append to <code>analysis/run-insights.json</code> after the run completes; the dashboard will refresh on next push.</p>
+        <p class="tag">AI NHI analysis &middot; Claude Opus 4.7</p>
+        <h2>Droplets booted but SSH auth silently failed — wrong private-key half in the secret</h2>
+        <p class="verdict">RED at Wait for SSH after 2 m 44 s of retries against the memory-only node.</p>
+        <h3>For three audiences</h3>
+        <div class="audiences">
+          <article><h4>Non-technical end users</h4><p>The building got built, the front door got installed, the keypad got mounted — but the building manager handed the wrong spare key to the cleaning crew. They stood at the door for two and a half minutes trying their key, gave up, and left. Nothing broken, just can't get in.</p></article>
+          <article><h4>C-level decision makers</h4><p>Mature failure: infrastructure costs were paid (~2 minutes of droplet compute, well under $0.05 total for both campaigns), teardown ran automatically, and the diagnostic message was precise enough to root-cause in one step. The iteration loop continues to burn down one bug per dispatch.</p></article>
+          <article><h4>Engineers &amp; architects</h4><p>ssh -o BatchMode=yes -o ConnectTimeout=3 failed silently for 30x5s on node-4 (memory-only, first in the wait loop). Root cause: the /root/.ssh/id_ed25519.pub file on the operator workstation was out of sync with its own private key. `ssh-keygen -y -f /root/.ssh/id_ed25519` derived a DIFFERENT public key than what /root/.ssh/id_ed25519.pub claimed. The claimed .pub matched DO-registered key 'AO1' (fingerprint b5:bf:33:9d:...), so DO installed AO1's public half on every droplet. But the actual private key on disk (and therefore in the uploaded DIGITALOCEAN_SSH_PRIVATE_KEY secret) derives to fingerprint bf:0b:e1:92:... — unregistered at DO. Fix: derive actual pub, register at DO via POST /v2/account/keys, update DIGITALOCEAN_SSH_KEY_FINGERPRINT secret to the new fingerprint.</p></article>
+        </div>
+        <h3>What changes going into the next campaign</h3>
+        <p>Redispatch r5 with corrected fingerprint — SSH should now succeed and the run should reach Provision for the first time.</p>
       </section>
     <section>
       <h2>All artefacts</h2>
       <ul>
         <li><a href="./a2a-summary.json">a2a-summary.json</a></li>
+        <li><a href="./campaign.meta.json">campaign.meta.json</a></li>
       </ul>
     </section>
     <footer>

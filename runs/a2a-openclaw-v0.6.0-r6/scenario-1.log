@@ -1,0 +1,223 @@
+[scenario-1 openclaw] phase A: each agent writes 10 memories via MCP
+[scenario-1 openclaw]   agent ai:alice on node-a (165.227.187.55)
+ai-memory: loaded config from /root/.config/ai-memory/config.toml
+ai-memory: requested tier = semantic
+ai-memory: embedder loaded (all-MiniLM-L6-v2 (384-dim, local))
+ai-memory: no embeddings for HNSW index, using linear scan
+ai-memory MCP server started (stdio, tier=semantic)
+ai-memory MCP server stopped
+ai-memory: loaded config from /root/.config/ai-memory/config.toml
+ai-memory: requested tier = semantic
+ai-memory: embedder loaded (all-MiniLM-L6-v2 (384-dim, local))
+ai-memory: building HNSW index (1 vectors)...
+ai-memory: HNSW index ready (1 entries)
+ai-memory MCP server started (stdio, tier=semantic)
+ai-memory MCP server stopped
+ai-memory: loaded config from /root/.config/ai-memory/config.toml
+ai-memory: requested tier = semantic
+ai-memory: embedder loaded (all-MiniLM-L6-v2 (384-dim, local))
+ai-memory: building HNSW index (2 vectors)...
+ai-memory: HNSW index ready (2 entries)
+ai-memory MCP server started (stdio, tier=semantic)
+ai-memory MCP server stopped
+ai-memory: loaded config from /root/.config/ai-memory/config.toml
+ai-memory: requested tier = semantic
+ai-memory: embedder loaded (all-MiniLM-L6-v2 (384-dim, local))
+ai-memory: building HNSW index (3 vectors)...
+ai-memory: HNSW index ready (3 entries)
+ai-memory MCP server started (stdio, tier=semantic)
+ai-memory MCP server stopped
+ai-memory: loaded config from /root/.config/ai-memory/config.toml
+ai-memory: requested tier = semantic
+ai-memory: embedder loaded (all-MiniLM-L6-v2 (384-dim, local))
+ai-memory: building HNSW index (4 vectors)...
+ai-memory: HNSW index ready (4 entries)
+ai-memory MCP server started (stdio, tier=semantic)
+ai-memory MCP server stopped
+ai-memory: loaded config from /root/.config/ai-memory/config.toml
+ai-memory: requested tier = semantic
+ai-memory: embedder loaded (all-MiniLM-L6-v2 (384-dim, local))
+ai-memory: building HNSW index (5 vectors)...
+ai-memory: HNSW index ready (5 entries)
+ai-memory MCP server started (stdio, tier=semantic)
+ai-memory MCP server stopped
+ai-memory: loaded config from /root/.config/ai-memory/config.toml
+ai-memory: requested tier = semantic
+ai-memory: embedder loaded (all-MiniLM-L6-v2 (384-dim, local))
+ai-memory: building HNSW index (6 vectors)...
+ai-memory: HNSW index ready (6 entries)
+ai-memory MCP server started (stdio, tier=semantic)
+ai-memory MCP server stopped
+ai-memory: loaded config from /root/.config/ai-memory/config.toml
+ai-memory: requested tier = semantic
+ai-memory: embedder loaded (all-MiniLM-L6-v2 (384-dim, local))
+ai-memory: building HNSW index (7 vectors)...
+ai-memory: HNSW index ready (7 entries)
+ai-memory MCP server started (stdio, tier=semantic)
+ai-memory MCP server stopped
+ai-memory: loaded config from /root/.config/ai-memory/config.toml
+ai-memory: requested tier = semantic
+ai-memory: embedder loaded (all-MiniLM-L6-v2 (384-dim, local))
+ai-memory: building HNSW index (8 vectors)...
+ai-memory: HNSW index ready (8 entries)
+ai-memory MCP server started (stdio, tier=semantic)
+ai-memory MCP server stopped
+ai-memory: loaded config from /root/.config/ai-memory/config.toml
+ai-memory: requested tier = semantic
+ai-memory: embedder loaded (all-MiniLM-L6-v2 (384-dim, local))
+ai-memory: building HNSW index (9 vectors)...
+ai-memory: HNSW index ready (9 entries)
+ai-memory MCP server started (stdio, tier=semantic)
+ai-memory MCP server stopped
+[scenario-1 openclaw]   agent ai:bob on node-b (138.197.127.195)
+ai-memory: loaded config from /root/.config/ai-memory/config.toml
+ai-memory: requested tier = semantic
+ai-memory: embedder loaded (all-MiniLM-L6-v2 (384-dim, local))
+ai-memory: no embeddings for HNSW index, using linear scan
+ai-memory MCP server started (stdio, tier=semantic)
+ai-memory MCP server stopped
+ai-memory: loaded config from /root/.config/ai-memory/config.toml
+ai-memory: requested tier = semantic
+ai-memory: embedder loaded (all-MiniLM-L6-v2 (384-dim, local))
+ai-memory: building HNSW index (1 vectors)...
+ai-memory: HNSW index ready (1 entries)
+ai-memory MCP server started (stdio, tier=semantic)
+ai-memory MCP server stopped
+ai-memory: loaded config from /root/.config/ai-memory/config.toml
+ai-memory: requested tier = semantic
+ai-memory: embedder loaded (all-MiniLM-L6-v2 (384-dim, local))
+ai-memory: building HNSW index (2 vectors)...
+ai-memory: HNSW index ready (2 entries)
+ai-memory MCP server started (stdio, tier=semantic)
+ai-memory MCP server stopped
+ai-memory: loaded config from /root/.config/ai-memory/config.toml
+ai-memory: requested tier = semantic
+ai-memory: embedder loaded (all-MiniLM-L6-v2 (384-dim, local))
+ai-memory: building HNSW index (3 vectors)...
+ai-memory: HNSW index ready (3 entries)
+ai-memory MCP server started (stdio, tier=semantic)
+ai-memory MCP server stopped
+ai-memory: loaded config from /root/.config/ai-memory/config.toml
+ai-memory: requested tier = semantic
+ai-memory: embedder loaded (all-MiniLM-L6-v2 (384-dim, local))
+ai-memory: building HNSW index (4 vectors)...
+ai-memory: HNSW index ready (4 entries)
+ai-memory MCP server started (stdio, tier=semantic)
+ai-memory MCP server stopped
+ai-memory: loaded config from /root/.config/ai-memory/config.toml
+ai-memory: requested tier = semantic
+ai-memory: embedder loaded (all-MiniLM-L6-v2 (384-dim, local))
+ai-memory: building HNSW index (5 vectors)...
+ai-memory: HNSW index ready (5 entries)
+ai-memory MCP server started (stdio, tier=semantic)
+ai-memory MCP server stopped
+ai-memory: loaded config from /root/.config/ai-memory/config.toml
+ai-memory: requested tier = semantic
+ai-memory: embedder loaded (all-MiniLM-L6-v2 (384-dim, local))
+ai-memory: building HNSW index (6 vectors)...
+ai-memory: HNSW index ready (6 entries)
+ai-memory MCP server started (stdio, tier=semantic)
+ai-memory MCP server stopped
+ai-memory: loaded config from /root/.config/ai-memory/config.toml
+ai-memory: requested tier = semantic
+ai-memory: embedder loaded (all-MiniLM-L6-v2 (384-dim, local))
+ai-memory: building HNSW index (7 vectors)...
+ai-memory: HNSW index ready (7 entries)
+ai-memory MCP server started (stdio, tier=semantic)
+ai-memory MCP server stopped
+ai-memory: loaded config from /root/.config/ai-memory/config.toml
+ai-memory: requested tier = semantic
+ai-memory: embedder loaded (all-MiniLM-L6-v2 (384-dim, local))
+ai-memory: building HNSW index (8 vectors)...
+ai-memory: HNSW index ready (8 entries)
+ai-memory MCP server started (stdio, tier=semantic)
+ai-memory MCP server stopped
+ai-memory: loaded config from /root/.config/ai-memory/config.toml
+ai-memory: requested tier = semantic
+ai-memory: embedder loaded (all-MiniLM-L6-v2 (384-dim, local))
+ai-memory: building HNSW index (9 vectors)...
+ai-memory: HNSW index ready (9 entries)
+ai-memory MCP server started (stdio, tier=semantic)
+ai-memory MCP server stopped
+[scenario-1 openclaw]   agent ai:charlie on node-c (167.99.62.222)
+ai-memory: loaded config from /root/.config/ai-memory/config.toml
+ai-memory: requested tier = semantic
+ai-memory: embedder loaded (all-MiniLM-L6-v2 (384-dim, local))
+ai-memory: no embeddings for HNSW index, using linear scan
+ai-memory MCP server started (stdio, tier=semantic)
+ai-memory MCP server stopped
+ai-memory: loaded config from /root/.config/ai-memory/config.toml
+ai-memory: requested tier = semantic
+ai-memory: embedder loaded (all-MiniLM-L6-v2 (384-dim, local))
+ai-memory: building HNSW index (1 vectors)...
+ai-memory: HNSW index ready (1 entries)
+ai-memory MCP server started (stdio, tier=semantic)
+ai-memory MCP server stopped
+ai-memory: loaded config from /root/.config/ai-memory/config.toml
+ai-memory: requested tier = semantic
+ai-memory: embedder loaded (all-MiniLM-L6-v2 (384-dim, local))
+ai-memory: building HNSW index (2 vectors)...
+ai-memory: HNSW index ready (2 entries)
+ai-memory MCP server started (stdio, tier=semantic)
+ai-memory MCP server stopped
+ai-memory: loaded config from /root/.config/ai-memory/config.toml
+ai-memory: requested tier = semantic
+ai-memory: embedder loaded (all-MiniLM-L6-v2 (384-dim, local))
+ai-memory: building HNSW index (3 vectors)...
+ai-memory: HNSW index ready (3 entries)
+ai-memory MCP server started (stdio, tier=semantic)
+ai-memory MCP server stopped
+ai-memory: loaded config from /root/.config/ai-memory/config.toml
+ai-memory: requested tier = semantic
+ai-memory: embedder loaded (all-MiniLM-L6-v2 (384-dim, local))
+ai-memory: building HNSW index (4 vectors)...
+ai-memory: HNSW index ready (4 entries)
+ai-memory MCP server started (stdio, tier=semantic)
+ai-memory MCP server stopped
+ai-memory: loaded config from /root/.config/ai-memory/config.toml
+ai-memory: requested tier = semantic
+ai-memory: embedder loaded (all-MiniLM-L6-v2 (384-dim, local))
+ai-memory: building HNSW index (5 vectors)...
+ai-memory: HNSW index ready (5 entries)
+ai-memory MCP server started (stdio, tier=semantic)
+ai-memory MCP server stopped
+ai-memory: loaded config from /root/.config/ai-memory/config.toml
+ai-memory: requested tier = semantic
+ai-memory: embedder loaded (all-MiniLM-L6-v2 (384-dim, local))
+ai-memory: building HNSW index (6 vectors)...
+ai-memory: HNSW index ready (6 entries)
+ai-memory MCP server started (stdio, tier=semantic)
+ai-memory MCP server stopped
+ai-memory: loaded config from /root/.config/ai-memory/config.toml
+ai-memory: requested tier = semantic
+ai-memory: embedder loaded (all-MiniLM-L6-v2 (384-dim, local))
+ai-memory: building HNSW index (7 vectors)...
+ai-memory: HNSW index ready (7 entries)
+ai-memory MCP server started (stdio, tier=semantic)
+ai-memory MCP server stopped
+ai-memory: loaded config from /root/.config/ai-memory/config.toml
+ai-memory: requested tier = semantic
+ai-memory: embedder loaded (all-MiniLM-L6-v2 (384-dim, local))
+ai-memory: building HNSW index (8 vectors)...
+ai-memory: HNSW index ready (8 entries)
+ai-memory MCP server started (stdio, tier=semantic)
+ai-memory MCP server stopped
+ai-memory: loaded config from /root/.config/ai-memory/config.toml
+ai-memory: requested tier = semantic
+ai-memory: embedder loaded (all-MiniLM-L6-v2 (384-dim, local))
+ai-memory: building HNSW index (9 vectors)...
+ai-memory: HNSW index ready (9 entries)
+ai-memory MCP server started (stdio, tier=semantic)
+ai-memory MCP server stopped
+[scenario-1 openclaw] settle 15s for W=2/N=4 convergence
+[scenario-1 openclaw] phase B: each agent recalls the OTHER two agents' namespaces
+[scenario-1 openclaw]   ai:alice recalled 0 rows from the other two namespaces
+[scenario-1 openclaw]   ai:bob recalled 0 rows from the other two namespaces
+[scenario-1 openclaw]   ai:charlie recalled 0 rows from the other two namespaces
+[scenario-1 openclaw] phase C: cross-cluster identity verification via node-4 (SSH hop)
+[scenario-1 openclaw]   ns=scenario1-ai:alice count=0 wrong_agent_id=0
+[scenario-1 openclaw]   !! expected 10 rows, got 0
+[scenario-1 openclaw]   ns=scenario1-ai:bob count=0 wrong_agent_id=0
+[scenario-1 openclaw]   !! expected 10 rows, got 0
+[scenario-1 openclaw]   ns=scenario1-ai:charlie count=0 wrong_agent_id=0
+[scenario-1 openclaw]   !! expected 10 rows, got 0

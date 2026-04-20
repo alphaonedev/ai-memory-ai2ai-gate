@@ -1,15 +1,15 @@
 {
-  "campaign_id": "a2a-hermes-v0.6.0-r1",
+  "campaign_id": "a2a-hermes-v0.6.0-r5",
   "agent_group": "hermes",
   "ai_memory_git_ref": "v0.6.0",
-  "completed_at": "2026-04-20T23:41:05Z",
+  "completed_at": "2026-04-20T23:41:11Z",
   "overall_pass": false,
   "scenarios": [],
   "reasons": [
     "no scenario reports recovered"
   ],
   "meta": {
-    "campaign_id": "a2a-hermes-v0.6.0-r1",
+    "campaign_id": "a2a-hermes-v0.6.0-r5",
     "agent_group": "hermes",
     "ai_memory_git_ref": "v0.6.0",
     "infra": null,
@@ -25,5 +25,7 @@
     },
     "notes": "Back-filled by scripts/backfill_legacy_runs.sh — historical run predates campaign.meta.json emission."
   },
-  "skipped_reports": []
+  "skipped_reports": [
+    "scenario-1.json:unparseable"
+  ]
 }

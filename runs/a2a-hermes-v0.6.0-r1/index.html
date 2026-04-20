@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Campaign a2a-hermes-v0.6.0-r1 — ai-memory A2A gate</title>
   <style>
-    :root { --fg:#1a1a1a; --bg:#fff; --muted:#666; --pass:#1a8b3c; --fail:#b32222; --pass-bg:#e6f6ea; --fail-bg:#fceaea; --border:#e0e0e0; --code-bg:#f7f7f9; --accent:#3952c8; --accent-bg:#eef1fd; }
-    @media (prefers-color-scheme: dark) { :root { --fg:#eaeaea; --bg:#181818; --muted:#a0a0a0; --pass:#4adc76; --fail:#ff6a6a; --pass-bg:#153d23; --fail-bg:#401818; --border:#2a2a2a; --code-bg:#202028; --accent:#8da3ff; --accent-bg:#1c2140; } }
+    :root { --fg:#1a1a1a; --bg:#fff; --muted:#666; --pass:#1a8b3c; --fail:#b32222; --warn:#b36b00; --pass-bg:#e6f6ea; --fail-bg:#fceaea; --warn-bg:#fdf3e0; --border:#e0e0e0; --code-bg:#f7f7f9; --accent:#3952c8; --accent-bg:#eef1fd; }
+    @media (prefers-color-scheme: dark) { :root { --fg:#eaeaea; --bg:#181818; --muted:#a0a0a0; --pass:#4adc76; --fail:#ff6a6a; --warn:#ffb74d; --pass-bg:#153d23; --fail-bg:#401818; --warn-bg:#3a2d10; --border:#2a2a2a; --code-bg:#202028; --accent:#8da3ff; --accent-bg:#1c2140; } }
     * { box-sizing:border-box; }
     body { font:15px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; color:var(--fg); background:var(--bg); margin:0; }
     main { max-width:960px; margin:0 auto; padding:2rem 1.25rem 4rem; }
@@ -19,9 +19,13 @@
     dl.meta { display:grid; grid-template-columns:max-content 1fr; gap:.35rem 1rem; margin:0; }
     dl.meta dt { color:var(--muted); }
     dl.meta dd { margin:0; }
+    table.nodes { width:100%; border-collapse:collapse; margin-top:.5rem; font-size:14px; }
+    table.nodes th, table.nodes td { border:1px solid var(--border); padding:.35rem .6rem; text-align:left; }
+    table.nodes th { background:var(--code-bg); font-weight:600; }
     .badge { display:inline-block; padding:.15rem .55rem; border-radius:999px; font-size:12px; font-weight:600; letter-spacing:.03em; text-transform:uppercase; margin-left:.4rem; vertical-align:middle; }
     .badge.pass { color:var(--pass); background:var(--pass-bg); }
     .badge.fail { color:var(--fail); background:var(--fail-bg); }
+    .badge.warn { color:var(--warn); background:var(--warn-bg); }
     .run-focus { background:var(--code-bg); border-left:4px solid var(--accent); padding:1rem 1.25rem; margin:1.5rem 0; border-radius:0 6px 6px 0; }
     .run-focus h2 { border:none; margin:0 0 .5rem; padding:0; font-size:1.1rem; }
     .run-focus p.label { color:var(--accent); font-size:12px; text-transform:uppercase; letter-spacing:.06em; font-weight:600; margin:0 0 .25rem; }
@@ -35,7 +39,8 @@
     .audiences article h4 { margin-top:0; color:var(--accent); font-size:14px; }
     details { border:1px solid var(--border); border-radius:6px; padding:.25rem .75rem; margin:.5rem 0; }
     summary { cursor:pointer; padding:.45rem 0; font-weight:500; }
-    pre { background:var(--code-bg); padding:.75rem; border-radius:6px; overflow-x:auto; font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace; margin:.5rem 0; }
+    pre { background:var(--code-bg); padding:.75rem; border-radius:6px; overflow-x:auto; font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace; margin:.5rem 0; max-height:480px; }
+    pre.log { max-height:640px; }
     a { color:var(--accent); } a:hover { text-decoration:underline; }
     .muted { color:var(--muted); font-size:14px; }
     footer { color:var(--muted); font-size:12px; border-top:1px solid var(--border); padding-top:1rem; margin-top:3rem; }
@@ -47,12 +52,27 @@
       <p class="crumb"><a href="../">../ runs index</a></p>
       <h1>Campaign a2a-hermes-v0.6.0-r1 <span class="badge fail">FAIL</span></h1>
       <dl class="meta">
-        <dt>Agent group</dt><dd><code>?</code> (homogeneous)</dd>
+        <dt>Agent group</dt><dd><code>hermes</code> (homogeneous)</dd>
         <dt>ai-memory ref</dt><dd><code>v0.6.0</code></dd>
-        <dt>Completed at</dt><dd>2026-04-20T21:41:30Z</dd>
+        <dt>Completed at</dt><dd>2026-04-20T23:41:05Z</dd>
         <dt>Overall pass</dt><dd>false</dd>
+        <dt>Skipped reports</dt><dd>0</dd>
       </dl>
     </header>
+      <section class="infra">
+        <h2>Infrastructure</h2>
+        <dl class="meta">
+          <dt>Provider</dt><dd><code>?</code></dd>
+          <dt>Region</dt><dd><code>?</code></dd>
+          <dt>Droplet size</dt><dd><code>?</code></dd>
+          <dt>Topology</dt><dd>?</dd>
+          <dt>Scenarios started</dt><dd>?</dd>
+          <dt>Scenarios ended</dt><dd>?</dd>
+          <dt>Dispatched by</dt><dd><code>a2a-gate-bot</code></dd>
+          <dt>Harness SHA</dt><dd><code>?</code></dd>
+        </dl>
+        <p class="muted"><em>Back-filled by scripts/backfill_legacy_runs.sh — historical run predates campaign.meta.json emission.</em></p>
+      </section>
       <section class="ai-insight">
         <h2>AI NHI analysis</h2>
         <p class="muted">No per-campaign narrative recorded yet. Append to <code>analysis/run-insights.json</code> after the run completes; the dashboard will refresh on next push.</p>
@@ -61,6 +81,7 @@
       <h2>All artefacts</h2>
       <ul>
         <li><a href="./a2a-summary.json">a2a-summary.json</a></li>
+        <li><a href="./campaign.meta.json">campaign.meta.json</a></li>
       </ul>
     </section>
     <footer>
