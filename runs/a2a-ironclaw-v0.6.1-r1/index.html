@@ -54,7 +54,7 @@
       <dl class="meta">
         <dt>Agent group</dt><dd><code>ironclaw</code> (homogeneous)</dd>
         <dt>ai-memory ref</dt><dd><code>v0.6.1</code></dd>
-        <dt>Completed at</dt><dd>2026-04-21T17:19:09Z</dd>
+        <dt>Completed at</dt><dd>2026-04-21T17:28:30Z</dd>
         <dt>Overall pass</dt><dd>false</dd>
         <dt>Skipped reports</dt><dd>0</dd>
       </dl>
@@ -69,19 +69,39 @@
           <dt>Scenarios started</dt><dd></dd>
           <dt>Scenarios ended</dt><dd></dd>
           <dt>Dispatched by</dt><dd><code>alphaonedev</code></dd>
-          <dt>Harness SHA</dt><dd><code>577b510d880a</code></dd>
-          <dt>Workflow run</dt><dd><a href="https://github.com/alphaonedev/ai-memory-ai2ai-gate/actions/runs/24736339563">https://github.com/alphaonedev/ai-memory-ai2ai-gate/actions/runs/24736339563</a></dd>
+          <dt>Harness SHA</dt><dd><code>f2ae153d37a3</code></dd>
+          <dt>Workflow run</dt><dd><a href="https://github.com/alphaonedev/ai-memory-ai2ai-gate/actions/runs/24736559618">https://github.com/alphaonedev/ai-memory-ai2ai-gate/actions/runs/24736559618</a></dd>
         </dl>
         <h3>Node roster</h3>
         <table class="nodes">
           <thead><tr><th>#</th><th>Role</th><th>Agent ID</th><th>Public IP</th><th>Private IP</th></tr></thead>
           <tbody>
-<tr><td>1</td><td>agent</td><td><code>ai:alice</code></td><td><code></code></td><td><code></code></td></tr>
-<tr><td>2</td><td>agent</td><td><code>ai:bob</code></td><td><code></code></td><td><code></code></td></tr>
-<tr><td>3</td><td>agent</td><td><code>ai:charlie</code></td><td><code></code></td><td><code></code></td></tr>
-<tr><td>4</td><td>memory-only</td><td><code>—</code></td><td><code></code></td><td><code></code></td></tr>
+<tr><td>1</td><td>agent</td><td><code>ai:alice</code></td><td><code>45.55.153.199</code></td><td><code>10.251.0.2</code></td></tr>
+<tr><td>2</td><td>agent</td><td><code>ai:bob</code></td><td><code>174.138.59.135</code></td><td><code>10.251.0.3</code></td></tr>
+<tr><td>3</td><td>agent</td><td><code>ai:charlie</code></td><td><code>165.22.40.195</code></td><td><code>10.251.0.5</code></td></tr>
+<tr><td>4</td><td>memory-only</td><td><code>—</code></td><td><code>64.225.16.88</code></td><td><code>10.251.0.4</code></td></tr>
           </tbody>
         </table>
+      </section>
+      <section class="baseline">
+        <h2>Baseline attestation <span class="badge fail">BASELINE VIOLATION</span></h2>
+        <p class="muted">Per the <a href="../baseline/">authoritative baseline spec</a>, every agent node must emit a self-attestation before any scenario is permitted to run. This run's attestation:</p>
+        <p class="muted">Spec version: <code>1.0.0</code> — see <a href="../baseline/">authoritative baseline</a>.</p>
+        <table class="nodes">
+          <thead><tr><th>Node</th><th>Agent</th><th>Framework</th><th>Authentic</th><th>MCP ai-memory</th><th>xAI cfg</th><th>xAI default</th><th>Agent ID</th><th>Federation</th><th>UFW off</th><th>iptables</th><th>dead-man</th><th>F1 xAI</th><th>F2a substrate</th><th>F2b agent (non-gating)</th><th>Config SHA</th><th>Pass</th></tr></thead>
+          <tbody>
+          </tbody>
+        </table>
+        <details><summary>a2a-baseline.json</summary>
+          <pre>
+{
+	"baseline_pass": false,
+	"per_node": [],
+	"failure_mode": "baseline-violation"
+}
+</pre>
+          <p><a href="./a2a-baseline.json">raw file</a></p>
+        </details>
       </section>
       <section class="ai-insight">
         <h2>AI NHI analysis</h2>
@@ -90,6 +110,7 @@
     <section>
       <h2>All artefacts</h2>
       <ul>
+        <li><a href="./a2a-baseline.json">a2a-baseline.json</a></li>
         <li><a href="./a2a-summary.json">a2a-summary.json</a></li>
         <li><a href="./campaign.meta.json">campaign.meta.json</a></li>
       </ul>

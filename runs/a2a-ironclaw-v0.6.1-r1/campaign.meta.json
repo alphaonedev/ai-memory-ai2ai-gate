@@ -12,29 +12,29 @@
         "index": 1,
         "role": "agent",
         "agent_id": "ai:alice",
-        "public_ip": "",
-        "private_ip": ""
+        "public_ip": "45.55.153.199",
+        "private_ip": "10.251.0.2"
       },
       {
         "index": 2,
         "role": "agent",
         "agent_id": "ai:bob",
-        "public_ip": "",
-        "private_ip": ""
+        "public_ip": "174.138.59.135",
+        "private_ip": "10.251.0.3"
       },
       {
         "index": 3,
         "role": "agent",
         "agent_id": "ai:charlie",
-        "public_ip": "",
-        "private_ip": ""
+        "public_ip": "165.22.40.195",
+        "private_ip": "10.251.0.5"
       },
       {
         "index": 4,
         "role": "memory-only",
         "agent_id": null,
-        "public_ip": "",
-        "private_ip": ""
+        "public_ip": "64.225.16.88",
+        "private_ip": "10.251.0.4"
       }
     ]
   },
@@ -62,8 +62,8 @@
   },
   "ci": {
     "actor": "alphaonedev",
-    "workflow_url": "https://github.com/alphaonedev/ai-memory-ai2ai-gate/actions/runs/24736339563",
-    "harness_sha": "577b510d880a302d6f599a5ff94b0991c7a45996",
+    "workflow_url": "https://github.com/alphaonedev/ai-memory-ai2ai-gate/actions/runs/24736559618",
+    "harness_sha": "f2ae153d37a34e8720a0023c6337e19e590394af",
     "runner_os": "Linux"
   }
 }
