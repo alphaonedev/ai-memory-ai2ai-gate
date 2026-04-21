@@ -1,0 +1,6 @@
+[scenario-16 ironclaw] alice writes M1 tier=short on node-1
+[scenario-16 ironclaw]   M1 id=8b8d3efb-cb30-4844-b8dd-061236598959
+[scenario-16 ironclaw] alice promotes M1 to tier=long
+[scenario-16 ironclaw]   promote returned HTTP 200
+[scenario-16 ironclaw] bob reads M1 on node-2 and checks tier
+[scenario-16 ironclaw]   bob sees tier=long (expected long)

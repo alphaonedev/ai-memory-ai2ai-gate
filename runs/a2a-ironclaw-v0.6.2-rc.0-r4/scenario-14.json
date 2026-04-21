@@ -1,0 +1,9 @@
+{
+  "scenario": "14",
+  "pass": true,
+  "agent_group": "ironclaw",
+  "partition_target": "node-3",
+  "expected_post_recovery": 20,
+  "node3_saw": 20,
+  "reasons": []
+}

@@ -1,0 +1,6 @@
+[scenario-18 ironclaw] alice writes A on node-1
+[scenario-18 ironclaw] bob writes B on node-2
+[scenario-18 ironclaw] settle 15s for fanout + index rebuild
+[scenario-18 ironclaw] charlie queries on node-3 with semantically-related prompt
+[scenario-18 ironclaw]   charlie sees alice's memory: 0 (expected >=1)
+[scenario-18 ironclaw]   charlie sees bob's memory: 0 (expected >=1)

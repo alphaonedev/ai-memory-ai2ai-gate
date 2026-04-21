@@ -1,0 +1,17 @@
+{
+  "scenario": "2",
+  "pass": true,
+  "agent_group": "ironclaw",
+  "path": "serve-http",
+  "per_agent": {
+    "ai:bob": {
+      "sees_handoff": 1
+    },
+    "ai:alice": {
+      "sees_ack": 1
+    }
+  },
+  "handoff_uuid": "143df795-d2dd-4ee8-bfec-4c5b1d61d93f",
+  "ack_uuid": "c87a29f1-69b1-40df-bb28-f3e9d8cc2ae9",
+  "reasons": []
+}

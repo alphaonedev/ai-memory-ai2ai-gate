@@ -1,0 +1,18 @@
+{
+  "scenario": "13",
+  "pass": true,
+  "agent_group": "ironclaw",
+  "m1_id": "03b432e6-da24-47d1-939c-e8001add85b3",
+  "submitted": {
+    "v0": "6dcf7774-cc22-4e80-8bb5-0f40895a4983",
+    "vA_alice": "bf722001-ce97-43f2-970c-cb19d2a0fa4a",
+    "vB_bob": "08990d70-fddb-463c-8dc7-4faa5379d447"
+  },
+  "peer_view": {
+    "node_1": "08990d70-fddb-463c-8dc7-4faa5379d447",
+    "node_2": "08990d70-fddb-463c-8dc7-4faa5379d447",
+    "node_3": "08990d70-fddb-463c-8dc7-4faa5379d447",
+    "node_4": "08990d70-fddb-463c-8dc7-4faa5379d447"
+  },
+  "reasons": []
+}

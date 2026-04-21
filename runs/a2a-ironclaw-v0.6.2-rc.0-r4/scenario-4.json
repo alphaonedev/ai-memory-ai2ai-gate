@@ -1,0 +1,21 @@
+{
+  "scenario": "4",
+  "pass": true,
+  "agent_group": "ironclaw",
+  "expected_per_agent": 30,
+  "per_agent": {
+    "ai:alice": {
+      "count": 30,
+      "wrong_agent_id": 0
+    },
+    "ai:bob": {
+      "count": 30,
+      "wrong_agent_id": 0
+    },
+    "ai:charlie": {
+      "count": 30,
+      "wrong_agent_id": 0
+    }
+  },
+  "reasons": []
+}

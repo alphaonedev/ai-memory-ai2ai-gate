@@ -1,0 +1,8 @@
+[scenario-13 ironclaw] alice writes M1 content=v0 on node-1
+[scenario-13 ironclaw]   M1 id=03b432e6-da24-47d1-939c-e8001add85b3
+[scenario-13 ironclaw] alice + bob issue concurrent PUTs (vA=bf722001-ce97-43f2-970c-cb19d2a0fa4a from alice, vB=08990d70-fddb-463c-8dc7-4faa5379d447 from bob)
+[scenario-13 ironclaw] settle 10s for quorum convergence
+[scenario-13 ironclaw]   node-1 sees content=08990d70-fddb-463c-8dc7-4faa5379d447
+[scenario-13 ironclaw]   node-2 sees content=08990d70-fddb-463c-8dc7-4faa5379d447
+[scenario-13 ironclaw]   node-3 sees content=08990d70-fddb-463c-8dc7-4faa5379d447
+[scenario-13 ironclaw]   node-4 sees content=08990d70-fddb-463c-8dc7-4faa5379d447

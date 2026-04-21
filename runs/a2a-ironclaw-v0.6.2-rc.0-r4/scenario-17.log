@@ -1,0 +1,10 @@
+[scenario-17 ironclaw] phase A: each of 3 agents writes 5 memories to scenario17-stats
+[scenario-17 ironclaw]   ai:alice on 138.197.80.46
+[scenario-17 ironclaw]   ai:bob on 45.55.52.119
+[scenario-17 ironclaw]   ai:charlie on 138.197.66.236
+[scenario-17 ironclaw] settle 15s for W=2 fanout
+[scenario-17 ironclaw] phase B: querying count on every peer
+[scenario-17 ironclaw]   node-1 count=15 (expected 15)
+[scenario-17 ironclaw]   node-2 count=15 (expected 15)
+[scenario-17 ironclaw]   node-3 count=15 (expected 15)
+[scenario-17 ironclaw]   node-4 count=15 (expected 15)

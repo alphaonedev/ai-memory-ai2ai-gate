@@ -1,0 +1,9 @@
+{
+  "scenario": "16",
+  "pass": true,
+  "agent_group": "ironclaw",
+  "m1_id": "8b8d3efb-cb30-4844-b8dd-061236598959",
+  "promote_http_code": "200",
+  "bob_sees_tier": "long",
+  "reasons": []
+}

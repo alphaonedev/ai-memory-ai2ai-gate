@@ -1,0 +1,7 @@
+[scenario-11 ironclaw] alice writes M1 on node-1
+[scenario-11 ironclaw] bob writes M2 on node-2
+[scenario-11 ironclaw]   M1=08d46ce1-5896-4afc-8c61-b12fa9dc0468 M2=b2b7a8e0-a61f-4bd5-9e0b-09eb6c02a11c
+[scenario-11 ironclaw] alice links M1 -> M2 with relation=related_to
+[scenario-11 ironclaw]   link POST returned HTTP 201
+[scenario-11 ironclaw] charlie queries links of M1 on node-3
+[scenario-11 ironclaw]   charlie sees M1->M2 link: 1 (expected >=1)

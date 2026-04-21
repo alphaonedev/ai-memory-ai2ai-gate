@@ -1,0 +1,6 @@
+[scenario-6 ironclaw] alice writes claim: "sky-color-fef4114f is blue" on node-1
+[scenario-6 ironclaw] bob writes contradicting claim: "sky-color-fef4114f is red" on node-2
+[scenario-6 ironclaw]   alice.id=7eb417da-27e0-4d61-bdf0-b71780a05c83 bob.id=0b46e6a1-bf2c-47ca-96c2-5b3d41b4c2f1
+[scenario-6 ironclaw] charlie queries memory_detect_contradiction on node-3
+[scenario-6 ironclaw]   HTTP 200; body length=1117
+[scenario-6 ironclaw]   sees both memories: 1; sees contradicts link: 1

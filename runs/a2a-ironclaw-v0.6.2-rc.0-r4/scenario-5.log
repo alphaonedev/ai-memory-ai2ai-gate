@@ -1,0 +1,10 @@
+[scenario-5 ironclaw] phase A: each agent writes 3 related memories
+[scenario-5 ironclaw]   ai:alice on 138.197.80.46
+[scenario-5 ironclaw]   ai:bob on 45.55.52.119
+[scenario-5 ironclaw]   ai:charlie on 138.197.66.236
+[scenario-5 ironclaw] phase B: collect source memory IDs on node-1, then trigger consolidate
+[scenario-5 ironclaw]   source ids: ["cbe100e8-4752-4c94-a2b6-a7bbf0ab38bc","fb805a44-9551-4ecf-9e9d-b97d7578a0bf","1b274f6e-b061-4e29-bc66-c18bcbb7a45d","dcce036f-01e6-4f86-ba57-4601dd06fbb7","ce9366bb-b935-4cbf-a063-e67f5afb11b3","abf319ce-af15-43ec-8cc7-00067b410429","3d065ee6-bef4-4a29-a34c-275d1149d288","117213cd-2cdc-4e88-86c9-6217936cee1c","b6b9ff8b-bd33-4200-acc8-c49b0fa3889a"]
+[scenario-5 ironclaw]   consolidate returned HTTP 201
+[scenario-5 ironclaw]   consolidated memory id=aa42b666-9a3a-41fc-881f-93e8f9179cee
+[scenario-5 ironclaw] phase C: verifying consolidated_from_agents on node-4
+[scenario-5 ironclaw]   consolidated_from_agents=["ai:charlie","ai:bob","ai:alice"]

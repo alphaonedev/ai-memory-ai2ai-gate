@@ -1,0 +1,8 @@
+[scenario-2 ironclaw] phase A: ai:alice writes handoff to ai:bob (uuid=143df795-d2dd-4ee8-bfec-4c5b1d61d93f)
+[scenario-2 ironclaw] settle 8s for quorum fanout
+[scenario-2 ironclaw] phase B: ai:bob reads handoff on node-2
+[scenario-2 ironclaw]   ai:bob sees 1 handoff memories from ai:alice
+[scenario-2 ironclaw] phase C: ai:bob writes acknowledgement (uuid=c87a29f1-69b1-40df-bb28-f3e9d8cc2ae9)
+[scenario-2 ironclaw] settle 8s for reverse-direction fanout
+[scenario-2 ironclaw] phase D: ai:alice reads ack on node-1
+[scenario-2 ironclaw]   ai:alice sees 1 ack memories from ai:bob

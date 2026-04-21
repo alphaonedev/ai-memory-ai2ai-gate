@@ -1,0 +1,6 @@
+[scenario-9 ironclaw] alice writes M1 content=5e46c314-6b96-4fdf-84ec-321dfc9fdc61 on node-1
+[scenario-9 ironclaw]   created memory id=7c721f89-cde9-4ea8-bfcf-06bcf82d9588
+[scenario-9 ironclaw] bob updates M1 content=5af1fbef-3d45-44d7-a6db-57e967b39643 on node-2 via PUT
+[scenario-9 ironclaw]   PUT returned HTTP 200
+[scenario-9 ironclaw] charlie reads M1 on node-3 and checks content + provenance
+[scenario-9 ironclaw]   charlie sees content="5af1fbef-3d45-44d7-a6db-57e967b39643" agent_id="ai:alice"

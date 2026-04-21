@@ -1,0 +1,11 @@
+{
+  "scenario": "10",
+  "pass": true,
+  "agent_group": "ironclaw",
+  "m1_id": "dc68a4a2-84ce-42e4-b66a-eeb5493b0a35",
+  "uuid": "7668a290-2236-4d29-b79a-4d8a6e9f07e7",
+  "delete_http_code": "200",
+  "pre_delete_visible_peers": 3,
+  "post_delete_still_visible_peers": 0,
+  "reasons": []
+}

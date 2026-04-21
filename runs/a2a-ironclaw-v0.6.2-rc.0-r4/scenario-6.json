@@ -1,0 +1,12 @@
+{
+  "scenario": "6",
+  "pass": true,
+  "agent_group": "ironclaw",
+  "topic": "sky-color-fef4114f",
+  "alice_id": "7eb417da-27e0-4d61-bdf0-b71780a05c83",
+  "bob_id": "0b46e6a1-bf2c-47ca-96c2-5b3d41b4c2f1",
+  "detect_http_code": "200",
+  "charlie_sees_both_memories": 1,
+  "charlie_sees_contradicts_link": 1,
+  "reasons": []
+}

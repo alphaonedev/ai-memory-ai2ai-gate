@@ -1,0 +1,13 @@
+{
+  "scenario": "17",
+  "pass": true,
+  "agent_group": "ironclaw",
+  "expected_count": 15,
+  "per_peer": {
+    "node_1": 15,
+    "node_2": 15,
+    "node_3": 15,
+    "node_4": 15
+  },
+  "reasons": []
+}

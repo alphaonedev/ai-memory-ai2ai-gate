@@ -1,0 +1,2 @@
+[scenario-12 ironclaw] alice registers new agent ai:dave-probe-66e4cb04 on node-1
+[scenario-12 ironclaw]   POST /api/v1/agents returned HTTP 422

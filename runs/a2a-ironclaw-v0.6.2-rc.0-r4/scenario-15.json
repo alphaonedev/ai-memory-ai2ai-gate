@@ -1,0 +1,8 @@
+{
+  "scenario": "15",
+  "pass": true,
+  "agent_group": "ironclaw",
+  "uuid": "d7893797-d130-4f08-b3e4-62868204090f",
+  "writer_sees_own_write": 1,
+  "reasons": []
+}

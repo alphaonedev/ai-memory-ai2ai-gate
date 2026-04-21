@@ -1,0 +1,279 @@
+{
+  "campaign_id": "a2a-ironclaw-v0.6.2-rc.0-r4",
+  "agent_group": "ironclaw",
+  "ai_memory_git_ref": "v0.6.2-rc.0",
+  "completed_at": "2026-04-21T21:30:16Z",
+  "overall_pass": false,
+  "scenarios": [
+    {
+      "scenario": "10",
+      "pass": true,
+      "agent_group": "ironclaw",
+      "m1_id": "dc68a4a2-84ce-42e4-b66a-eeb5493b0a35",
+      "uuid": "7668a290-2236-4d29-b79a-4d8a6e9f07e7",
+      "delete_http_code": "200",
+      "pre_delete_visible_peers": 3,
+      "post_delete_still_visible_peers": 0,
+      "reasons": []
+    },
+    {
+      "scenario": "11",
+      "pass": true,
+      "agent_group": "ironclaw",
+      "m1_id": "08d46ce1-5896-4afc-8c61-b12fa9dc0468",
+      "m2_id": "b2b7a8e0-a61f-4bd5-9e0b-09eb6c02a11c",
+      "relation": "related_to",
+      "link_http_code": "201",
+      "charlie_sees_link": 1,
+      "reasons": []
+    },
+    {
+      "scenario": "13",
+      "pass": true,
+      "agent_group": "ironclaw",
+      "m1_id": "03b432e6-da24-47d1-939c-e8001add85b3",
+      "submitted": {
+        "v0": "6dcf7774-cc22-4e80-8bb5-0f40895a4983",
+        "vA_alice": "bf722001-ce97-43f2-970c-cb19d2a0fa4a",
+        "vB_bob": "08990d70-fddb-463c-8dc7-4faa5379d447"
+      },
+      "peer_view": {
+        "node_1": "08990d70-fddb-463c-8dc7-4faa5379d447",
+        "node_2": "08990d70-fddb-463c-8dc7-4faa5379d447",
+        "node_3": "08990d70-fddb-463c-8dc7-4faa5379d447",
+        "node_4": "08990d70-fddb-463c-8dc7-4faa5379d447"
+      },
+      "reasons": []
+    },
+    {
+      "scenario": "14",
+      "pass": true,
+      "agent_group": "ironclaw",
+      "partition_target": "node-3",
+      "expected_post_recovery": 20,
+      "node3_saw": 20,
+      "reasons": []
+    },
+    {
+      "scenario": "15",
+      "pass": true,
+      "agent_group": "ironclaw",
+      "uuid": "d7893797-d130-4f08-b3e4-62868204090f",
+      "writer_sees_own_write": 1,
+      "reasons": []
+    },
+    {
+      "scenario": "16",
+      "pass": true,
+      "agent_group": "ironclaw",
+      "m1_id": "8b8d3efb-cb30-4844-b8dd-061236598959",
+      "promote_http_code": "200",
+      "bob_sees_tier": "long",
+      "reasons": []
+    },
+    {
+      "scenario": "17",
+      "pass": true,
+      "agent_group": "ironclaw",
+      "expected_count": 15,
+      "per_peer": {
+        "node_1": 15,
+        "node_2": 15,
+        "node_3": 15,
+        "node_4": 15
+      },
+      "reasons": []
+    },
+    {
+      "scenario": "18",
+      "pass": false,
+      "agent_group": "ironclaw",
+      "query": "morning outdoor exercise routine",
+      "writers": [
+        {
+          "agent": "ai:alice",
+          "marker": "alice-sunrise-a409336a-dfa7-4d98-8a55-f62d3d42e335",
+          "seen_by_charlie": 0
+        },
+        {
+          "agent": "ai:bob",
+          "marker": "bob-daybreak-b2885bd8-406d-41d6-b0c6-5416ec3e6616",
+          "seen_by_charlie": 0
+        }
+      ],
+      "reasons": [
+        "semantic query did not surface alice's memory",
+        "semantic query did not surface bob's memory"
+      ]
+    },
+    {
+      "scenario": "1b",
+      "pass": true,
+      "agent_group": "ironclaw",
+      "path": "serve-http",
+      "expected_per_reader": 20,
+      "per_agent": {
+        "ai:alice": {
+          "recall": 20
+        },
+        "ai:bob": {
+          "recall": 20
+        },
+        "ai:charlie": {
+          "recall": 20
+        }
+      },
+      "reasons": []
+    },
+    {
+      "scenario": "2",
+      "pass": true,
+      "agent_group": "ironclaw",
+      "path": "serve-http",
+      "per_agent": {
+        "ai:bob": {
+          "sees_handoff": 1
+        },
+        "ai:alice": {
+          "sees_ack": 1
+        }
+      },
+      "handoff_uuid": "143df795-d2dd-4ee8-bfec-4c5b1d61d93f",
+      "ack_uuid": "c87a29f1-69b1-40df-bb28-f3e9d8cc2ae9",
+      "reasons": []
+    },
+    {
+      "scenario": "4",
+      "pass": true,
+      "agent_group": "ironclaw",
+      "expected_per_agent": 30,
+      "per_agent": {
+        "ai:alice": {
+          "count": 30,
+          "wrong_agent_id": 0
+        },
+        "ai:bob": {
+          "count": 30,
+          "wrong_agent_id": 0
+        },
+        "ai:charlie": {
+          "count": 30,
+          "wrong_agent_id": 0
+        }
+      },
+      "reasons": []
+    },
+    {
+      "scenario": "5",
+      "pass": true,
+      "agent_group": "ironclaw",
+      "consolidated_id": "aa42b666-9a3a-41fc-881f-93e8f9179cee",
+      "consolidate_http_code": "201",
+      "consolidated_from_agents": "[\"ai:charlie\",\"ai:bob\",\"ai:alice\"]",
+      "reasons": []
+    },
+    {
+      "scenario": "6",
+      "pass": true,
+      "agent_group": "ironclaw",
+      "topic": "sky-color-fef4114f",
+      "alice_id": "7eb417da-27e0-4d61-bdf0-b71780a05c83",
+      "bob_id": "0b46e6a1-bf2c-47ca-96c2-5b3d41b4c2f1",
+      "detect_http_code": "200",
+      "charlie_sees_both_memories": 1,
+      "charlie_sees_contradicts_link": 1,
+      "reasons": []
+    },
+    {
+      "scenario": "9",
+      "pass": true,
+      "agent_group": "ironclaw",
+      "m1_id": "7c721f89-cde9-4ea8-bfcf-06bcf82d9588",
+      "v1_uuid": "5e46c314-6b96-4fdf-84ec-321dfc9fdc61",
+      "v2_uuid": "5af1fbef-3d45-44d7-a6db-57e967b39643",
+      "put_http_code": "200",
+      "charlie_view": {
+        "content": "5af1fbef-3d45-44d7-a6db-57e967b39643",
+        "agent_id": "ai:alice"
+      },
+      "reasons": []
+    }
+  ],
+  "reasons": [
+    "semantic query did not surface alice's memory",
+    "semantic query did not surface bob's memory"
+  ],
+  "meta": {
+    "campaign_id": "a2a-ironclaw-v0.6.2-rc.0-r4",
+    "agent_group": "ironclaw",
+    "ai_memory_git_ref": "v0.6.2-rc.0",
+    "infra": {
+      "provider": "digitalocean",
+      "region": "nyc3",
+      "droplet_size": "s-2vcpu-4gb",
+      "topology": "4-node federation mesh (W=2/N=4)",
+      "nodes": [
+        {
+          "index": 1,
+          "role": "agent",
+          "agent_id": "ai:alice",
+          "public_ip": "138.197.80.46",
+          "private_ip": "10.251.0.3"
+        },
+        {
+          "index": 2,
+          "role": "agent",
+          "agent_id": "ai:bob",
+          "public_ip": "45.55.52.119",
+          "private_ip": "10.251.0.4"
+        },
+        {
+          "index": 3,
+          "role": "agent",
+          "agent_id": "ai:charlie",
+          "public_ip": "138.197.66.236",
+          "private_ip": "10.251.0.2"
+        },
+        {
+          "index": 4,
+          "role": "memory-only",
+          "agent_id": null,
+          "public_ip": "134.209.37.183",
+          "private_ip": "10.251.0.5"
+        }
+      ]
+    },
+    "scenarios_requested": [
+      "1",
+      "1b",
+      "2",
+      "4",
+      "5",
+      "6",
+      "9",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14",
+      "15",
+      "16",
+      "17",
+      "18"
+    ],
+    "timing": {
+      "started_at": "2026-04-21T21:21:17Z",
+      "ended_at": "2026-04-21T21:30:16Z"
+    },
+    "ci": {
+      "actor": "alphaonedev",
+      "workflow_url": "https://github.com/alphaonedev/ai-memory-ai2ai-gate/actions/runs/24746836346",
+      "harness_sha": "4c34fb036794f69f54838a91867ac32db1bde707",
+      "runner_os": "Linux"
+    }
+  },
+  "skipped_reports": [
+    "scenario-1.json:unparseable",
+    "scenario-12.json:unparseable"
+  ]
+}

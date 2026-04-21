@@ -1,0 +1,6 @@
+[scenario-4 ironclaw] phase A: launching concurrent 30-row bursts from 3 agents
+[scenario-4 ironclaw] all 3 bursts complete; settle 20s for W=2 fanout convergence
+[scenario-4 ironclaw] phase B: querying node-4 aggregator for per-agent counts
+[scenario-4 ironclaw]   ai:alice: count=30 (expected 30) wrong_agent_id=0
+[scenario-4 ironclaw]   ai:bob: count=30 (expected 30) wrong_agent_id=0
+[scenario-4 ironclaw]   ai:charlie: count=30 (expected 30) wrong_agent_id=0

@@ -1,0 +1,13 @@
+[scenario-1b ironclaw] phase A: each agent POSTs 10 memories to local serve
+[scenario-1b ironclaw]   agent ai:alice on node-a (138.197.80.46)
+[scenario-1b ironclaw]   agent ai:bob on node-b (45.55.52.119)
+[scenario-1b ironclaw]   agent ai:charlie on node-c (138.197.66.236)
+[scenario-1b ironclaw] settle 15s for W=2/N=4 convergence
+[scenario-1b ironclaw] phase B: each reader counts rows in the OTHER two namespaces via local serve
+[scenario-1b ironclaw]   ai:alice sees 20 rows from the other two namespaces
+[scenario-1b ironclaw]   ai:bob sees 20 rows from the other two namespaces
+[scenario-1b ironclaw]   ai:charlie sees 20 rows from the other two namespaces
+[scenario-1b ironclaw] phase C: cross-cluster identity verification via node-4
+[scenario-1b ironclaw]   ns=scenario1b-ai:alice count=10 wrong_agent_id=0
+[scenario-1b ironclaw]   ns=scenario1b-ai:bob count=10 wrong_agent_id=0
+[scenario-1b ironclaw]   ns=scenario1b-ai:charlie count=10 wrong_agent_id=0
