@@ -141,6 +141,7 @@ jobs:
           echo "node3_priv=$NODE3_PRIV"   >> "$GITHUB_OUTPUT"
 
       - name: Provision all 4 nodes (federation mesh)
+        timeout-minutes: 25
         run: |
           set -e
           AMV=$(echo '${{ github.event.inputs.ai_memory_git_ref }}' | sed -e 's/^v//' -e 's|release/||')
@@ -155,16 +156,43 @@ jobs:
           NODE[2]="${{ steps.wait.outputs.node2_ip }}|agent|ai:bob|$P1,$P3,$P4"
           NODE[3]="${{ steps.wait.outputs.node3_ip }}|agent|ai:charlie|$P1,$P2,$P4"
           NODE[4]="${{ steps.wait.outputs.memory_ip }}|memory-only||$P1,$P2,$P3"
+          # PARALLEL provisioning — 4× cost reduction. Sequential was
+          # 4×~10min = 40min+ (r12/r13 hit 60-min job timeout).
+          # Parallel: ~10min wall for 4 nodes.
+          mkdir -p /tmp/provision-logs
+          PIDS=()
           for i in 1 2 3 4; do
             IFS='|' read -r ip role aid peers <<< "${NODE[$i]}"
-            echo "::group::provision node-$i (role=$role, peers=$peers)"
-            scp -o StrictHostKeyChecking=no scripts/setup_node.sh scripts/drive_agent.sh root@$ip:/root/
-            chmod_cmd="chmod +x /root/setup_node.sh /root/drive_agent.sh"
-            env_cmd="NODE_INDEX=$i ROLE=$role PEER_URLS='$peers' AI_MEMORY_VERSION=$AMV"
-            [ "$role" = "agent" ] && env_cmd="$env_cmd AGENT_TYPE=${AGENT_GROUP} AGENT_ID=$aid XAI_API_KEY='${XAI_API_KEY}' OPENCLAW_INSTALL_CMD='${OPENCLAW_INSTALL_CMD}' HERMES_INSTALL_CMD='${HERMES_INSTALL_CMD}'"
-            ssh -o StrictHostKeyChecking=no root@$ip "$chmod_cmd && $env_cmd bash /root/setup_node.sh"
+            (
+              {
+                echo "::group::provision node-$i (role=$role, peers=$peers)"
+                scp -o StrictHostKeyChecking=no scripts/setup_node.sh scripts/drive_agent.sh root@$ip:/root/
+                chmod_cmd="chmod +x /root/setup_node.sh /root/drive_agent.sh"
+                env_cmd="NODE_INDEX=$i ROLE=$role PEER_URLS='$peers' AI_MEMORY_VERSION=$AMV"
+                [ "$role" = "agent" ] && env_cmd="$env_cmd AGENT_TYPE=${AGENT_GROUP} AGENT_ID=$aid XAI_API_KEY='${XAI_API_KEY}' OPENCLAW_INSTALL_CMD='${OPENCLAW_INSTALL_CMD}' HERMES_INSTALL_CMD='${HERMES_INSTALL_CMD}'"
+                ssh -o StrictHostKeyChecking=no root@$ip "$chmod_cmd && $env_cmd bash /root/setup_node.sh"
+                echo "::endgroup::"
+              } > /tmp/provision-logs/node-$i.log 2>&1
+              echo "[provision] node-$i EXIT=$?"
+            ) &
+            PIDS+=($!)
+          done
+          # Wait for all 4 provisioning jobs; record per-node exit code.
+          FAIL=0
+          for i in "${!PIDS[@]}"; do
+            if ! wait "${PIDS[$i]}"; then
+              echo "::error::provision node-$((i+1)) failed"
+              FAIL=1
+            fi
+          done
+          # Dump each node's log into the Actions log with visible
+          # grouping so failures are localizable.
+          for i in 1 2 3 4; do
+            echo "::group::===== node-$i log ====="
+            cat /tmp/provision-logs/node-$i.log || true
             echo "::endgroup::"
           done
+          [ "$FAIL" = "0" ] || { echo "::error::one or more nodes failed to provision"; exit 1; }
 
       - name: Collect + enforce BASELINE on every agent node
         id: baseline

@@ -240,11 +240,11 @@ case "$AGENT_TYPE" in
     # is ~1.5GB which is usually fine, but openclaw pulls many deps
     # with native builds that can spike allocations.
     export NODE_OPTIONS="--max-old-space-size=2048"
-    if timeout "$TIMEOUT_NPM" npm install -g openclaw 2>&1 | sed 's/^/[npm-openclaw] /'; then
+    if timeout -k 30 "$TIMEOUT_NPM" npm install -g openclaw 2>&1 | sed 's/^/[npm-openclaw] /'; then
       log "openclaw installed via npm"
     else
       log "npm install failed — trying install.sh fallback (timeout ${TIMEOUT_INSTALL_SH}s)"
-      timeout "$TIMEOUT_INSTALL_SH" bash -c '
+      timeout -k 30 "$TIMEOUT_INSTALL_SH" bash -c '
         curl -fsSL --max-time 60 https://openclaw.ai/install.sh | bash -s -- --install-method git 2>&1
       ' | sed 's/^/[openclaw-install] /' || log "openclaw install.sh also returned non-zero (benign) — continuing to presence check"
     fi
@@ -360,7 +360,7 @@ EOF
     # python-dotenv patch below.
     HERMES_INSTALL_REF="${HERMES_INSTALL_REF:-main}"
     log "installing Nous Research Hermes Agent from ref=${HERMES_INSTALL_REF} (timeout ${TIMEOUT_INSTALL_SH}s)"
-    timeout "$TIMEOUT_INSTALL_SH" bash -c "
+    timeout -k 30 "$TIMEOUT_INSTALL_SH" bash -c "
       curl -fsSL --max-time 60 'https://raw.githubusercontent.com/NousResearch/hermes-agent/${HERMES_INSTALL_REF}/scripts/install.sh' \
         | bash -s -- --skip-setup 2>&1
     " | sed 's/^/[hermes-install] /' || {
@@ -374,7 +374,7 @@ EOF
     # PEP 668 on Ubuntu 24.04 requires --break-system-packages.
     PYTHON_DOTENV_PIN="${PYTHON_DOTENV_PIN:-1.0.1}"
     log "installing python-dotenv==${PYTHON_DOTENV_PIN} (pinned, timeout ${TIMEOUT_PIP}s)"
-    timeout "$TIMEOUT_PIP" python3 -m pip install --break-system-packages --quiet "python-dotenv==${PYTHON_DOTENV_PIN}" || {
+    timeout -k 30 "$TIMEOUT_PIP" python3 -m pip install --break-system-packages --quiet "python-dotenv==${PYTHON_DOTENV_PIN}" || {
       log "FATAL: python-dotenv==${PYTHON_DOTENV_PIN} pip install timed out or failed"
       exit 1
     }
@@ -682,12 +682,12 @@ F2B_PROMPT="Use the ai-memory MCP memory_store tool to save a memory with namesp
 log "  F2b: invoking $AGENT_TYPE with timeout ${TIMEOUT_AGENT_CLI}s"
 case "$AGENT_TYPE" in
   openclaw)
-    timeout "$TIMEOUT_AGENT_CLI" openclaw run --non-interactive --format json --max-tool-rounds 10 -p "$F2B_PROMPT" > /tmp/canary-openclaw.log 2>&1 || \
+    timeout -k 10 "$TIMEOUT_AGENT_CLI" openclaw run --non-interactive --format json --max-tool-rounds 10 -p "$F2B_PROMPT" > /tmp/canary-openclaw.log 2>&1 || \
       log "  F2b: openclaw returned non-zero or timed out (${TIMEOUT_AGENT_CLI}s) — proceeding"
     ;;
   hermes)
     set -a; . /etc/ai-memory-a2a/hermes.env; set +a
-    timeout "$TIMEOUT_AGENT_CLI" hermes chat -Q --provider xai --model grok-4-fast-non-reasoning -q "$F2B_PROMPT" > /tmp/canary-hermes.log 2>&1 || \
+    timeout -k 10 "$TIMEOUT_AGENT_CLI" hermes chat -Q --provider xai --model grok-4-fast-non-reasoning -q "$F2B_PROMPT" > /tmp/canary-hermes.log 2>&1 || \
       log "  F2b: hermes returned non-zero or timed out (${TIMEOUT_AGENT_CLI}s) — proceeding"
     ;;
 esac
