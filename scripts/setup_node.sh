@@ -484,15 +484,20 @@ EOF
     ironclaw config set a2a_gate_profile_version 1.0.0      2>/dev/null || true
 
     # ---- Register ai-memory MCP (stdio transport) --------------------
-    # Per src/cli/mcp.rs: `ironclaw mcp add <name> --transport stdio
-    # --command <cmd> --arg <a> --arg <b> --env KEY=VALUE`. Repeatable.
+    # IronClaw's `mcp add` uses a positional NAME + flags, with
+    # command arguments passed AFTER a `--` separator (clap idiom
+    # when arg values themselves start with `--`). r3 dispatch
+    # 24738251537 confirmed the error tip: "to pass '--db' as a value,
+    # use '-- --db'".
+    #
+    # Structure: `ironclaw mcp add <NAME> [URL] --transport stdio
+    # --command <cmd> --env KEY=VAL [--env KEY=VAL ...] -- <cmd args>`
     ironclaw mcp add memory \
       --transport stdio \
       --command ai-memory \
-      --arg --db --arg /var/lib/ai-memory/a2a.db \
-      --arg mcp --arg --tier --arg semantic \
       --env "AI_MEMORY_AGENT_ID=${AGENT_ID}" \
-      --description "Shared-memory A2A via ai-memory (a2a-gate)" 2>&1 \
+      --description "Shared-memory A2A via ai-memory (a2a-gate)" \
+      -- --db /var/lib/ai-memory/a2a.db mcp --tier semantic 2>&1 \
       | sed 's/^/[ironclaw-mcp-add] /' \
       || log "ironclaw mcp add returned non-zero; may already be registered"
 
