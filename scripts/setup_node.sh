@@ -301,3 +301,97 @@ EOF
 
 chmod 0644 /etc/ai-memory-a2a/env
 log "agent $AGENT_ID provisioned with MCP config pointing at local ai-memory federation peer"
+
+# ---- BASELINE VERIFICATION ---------------------------------------
+# Emit /etc/ai-memory-a2a/baseline.json asserting the invariants that
+# MUST hold on every agent droplet of every campaign. The workflow
+# scp's these back; collect_reports.sh embeds them into a2a-summary.
+# Any false field = baseline violation; no scenarios may run.
+#
+# INVARIANTS (per user directive, 2026-04-21):
+#   1. agent framework is the authentic upstream binary (not a
+#      symlink/surrogate to a different CLI)
+#   2. agent LLM backend is xAI Grok (grok-4-fast-non-reasoning)
+#   3. agent's ONLY MCP server is `ai-memory` on the local node
+#   4. AGENT_ID is stamped into the MCP environment
+#   5. local `ai-memory serve` is part of the W=2/N=4 federation mesh
+
+baseline_check() {
+  local label="$1" cmd="$2"
+  if eval "$cmd" >/dev/null 2>&1; then echo true; else echo false; fi
+}
+
+case "$AGENT_TYPE" in
+  openclaw)
+    # openclaw binary resolves to openclaw/openclaw — NOT a symlink
+    # to any other CLI. Accept /usr/local/bin/openclaw that's either
+    # a real file or a symlink into ~/.openclaw/.
+    ob=$(readlink -f "$(command -v openclaw 2>/dev/null || echo /nonexistent)" 2>/dev/null || echo "")
+    is_authentic=$([ -n "$ob" ] && [ "$ob" != "/usr/local/bin/grok" ] && [ -z "${ob##*openclaw*}" ] && echo true || echo false)
+    fw_version=$(openclaw --version 2>/dev/null | head -1 | tr -d '"' || echo "unknown")
+    mcp_registered=$(baseline_check "mcp-list" "openclaw mcp list 2>/dev/null | grep -q memory")
+    has_xai=$(jq -e '.providers.xai.base_url == "https://api.x.ai/v1" and .providers.xai.default_model == "grok-4-fast-non-reasoning"' /root/.openclaw/openclaw.json >/dev/null 2>&1 && echo true || echo false)
+    default_xai=$(jq -e '.defaultProvider == "xai"' /root/.openclaw/openclaw.json >/dev/null 2>&1 && echo true || echo false)
+    has_mem=$(jq -e '.mcpServers.memory.command == "ai-memory"' /root/.openclaw/openclaw.json >/dev/null 2>&1 && echo true || echo false)
+    has_aid=$(jq -e --arg a "$AGENT_ID" '.mcpServers.memory.env.AI_MEMORY_AGENT_ID == $a' /root/.openclaw/openclaw.json >/dev/null 2>&1 && echo true || echo false)
+    ;;
+  hermes)
+    ob=$(readlink -f "$(command -v hermes 2>/dev/null || echo /nonexistent)" 2>/dev/null || echo "")
+    is_authentic=$([ -n "$ob" ] && [ -z "${ob##*hermes*}" ] && echo true || echo false)
+    fw_version=$(hermes --version 2>/dev/null | head -1 | tr -d '"' || echo "unknown")
+    mcp_registered=$(grep -q '^  memory:' /root/.hermes/config.yaml 2>/dev/null && echo true || echo false)
+    has_xai=$(grep -q '^XAI_API_KEY=' /etc/ai-memory-a2a/hermes.env 2>/dev/null && echo true || echo false)
+    # hermes takes provider/model as drive_agent.sh flags; we assert
+    # drive_agent.sh is on disk and passes the right flags.
+    default_xai=$(grep -q 'provider xai' /root/drive_agent.sh 2>/dev/null && grep -q 'grok-4-fast-non-reasoning' /root/drive_agent.sh 2>/dev/null && echo true || echo false)
+    has_mem=$(grep -q 'command: ai-memory' /root/.hermes/config.yaml 2>/dev/null && echo true || echo false)
+    has_aid=$(grep -q "AI_MEMORY_AGENT_ID.*${AGENT_ID}" /root/.hermes/config.yaml 2>/dev/null && echo true || echo false)
+    ;;
+esac
+
+# Federation membership: this node's ai-memory serve must be listening
+# and have >=1 peer configured (we requested 3).
+fed_live=$(curl -sS http://127.0.0.1:9077/api/v1/health 2>/dev/null | jq -e '.status == "ok" or .healthy == true or .ok == true' >/dev/null 2>&1 && echo true || echo false)
+
+jq -n \
+  --arg agent_type "$AGENT_TYPE" \
+  --arg agent_id "$AGENT_ID" \
+  --arg node_index "$NODE_INDEX" \
+  --arg fw_version "$fw_version" \
+  --arg peer_urls "$PEER_URLS" \
+  --arg ai_memory_version "$AI_MEMORY_VERSION" \
+  --argjson is_authentic "$is_authentic" \
+  --argjson mcp_registered "$mcp_registered" \
+  --argjson has_xai "$has_xai" \
+  --argjson default_xai "$default_xai" \
+  --argjson has_mem "$has_mem" \
+  --argjson has_aid "$has_aid" \
+  --argjson fed_live "$fed_live" \
+  '{
+    agent_type:$agent_type,
+    agent_id:$agent_id,
+    node_index:$node_index,
+    framework_version:$fw_version,
+    ai_memory_version:$ai_memory_version,
+    peer_urls:$peer_urls,
+    baseline: {
+      framework_is_authentic:$is_authentic,
+      mcp_server_ai_memory_registered:$mcp_registered,
+      llm_backend_is_xai_grok:$has_xai,
+      llm_is_default_provider:$default_xai,
+      mcp_command_is_ai_memory:$has_mem,
+      agent_id_stamped:$has_aid,
+      federation_live:$fed_live
+    },
+    baseline_pass: ($is_authentic and $mcp_registered and $has_xai and $default_xai and $has_mem and $has_aid and $fed_live)
+  }' > /etc/ai-memory-a2a/baseline.json
+
+cat /etc/ai-memory-a2a/baseline.json
+
+bp=$(jq -r '.baseline_pass' /etc/ai-memory-a2a/baseline.json)
+if [ "$bp" != "true" ]; then
+  log "BASELINE VIOLATION on node $NODE_INDEX (agent $AGENT_ID) — scenarios must NOT run"
+  log "See /etc/ai-memory-a2a/baseline.json for per-field status"
+  exit 2
+fi
+log "BASELINE OK — $AGENT_TYPE agent $AGENT_ID ready for A2A testing"

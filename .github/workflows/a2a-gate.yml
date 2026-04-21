@@ -166,7 +166,34 @@ jobs:
             echo "::endgroup::"
           done
 
+      - name: Collect + enforce BASELINE on every agent node
+        id: baseline
+        run: |
+          set -e
+          mkdir -p phase-reports/baselines
+          BASELINE_OK=true
+          for role_trip in 1:${{ steps.wait.outputs.node1_ip }}:ai:alice 2:${{ steps.wait.outputs.node2_ip }}:ai:bob 3:${{ steps.wait.outputs.node3_ip }}:ai:charlie; do
+            n=${role_trip%%:*}; rest=${role_trip#*:}; ip=${rest%%:*}
+            out="phase-reports/baselines/node-${n}.baseline.json"
+            scp -o StrictHostKeyChecking=no root@$ip:/etc/ai-memory-a2a/baseline.json "$out" || { echo "::error::no baseline.json on node $n"; BASELINE_OK=false; continue; }
+            pass=$(jq -r '.baseline_pass' "$out")
+            echo "::notice::node-$n baseline_pass=$pass"
+            jq . "$out"
+            [ "$pass" = "true" ] || BASELINE_OK=false
+          done
+          if [ "$BASELINE_OK" != "true" ]; then
+            echo "::error::BASELINE VIOLATION — at least one agent node failed baseline verification. Scenarios will NOT run."
+            echo "baseline_ok=false" >> "$GITHUB_OUTPUT"
+            # Aggregate the violation into a summary the dashboard can render.
+            jq -s '{baseline_pass:false, per_node:., failure_mode:"baseline-violation"}' phase-reports/baselines/*.json > phase-reports/a2a-baseline.json
+          else
+            echo "baseline_ok=true" >> "$GITHUB_OUTPUT"
+            jq -s '{baseline_pass:true, per_node:.}' phase-reports/baselines/*.json > phase-reports/a2a-baseline.json
+            echo "::notice::BASELINE OK — all agent nodes verified; scenarios may run"
+          fi
+
       - name: Run scenarios
+        if: steps.baseline.outputs.baseline_ok == 'true'
         id: scenarios
         run: |
           set -e

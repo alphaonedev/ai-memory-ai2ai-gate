@@ -307,6 +307,41 @@ cat <<EOF
 EOF
 
 render_infra
+render_baseline() {
+  local bfile="$DIR/a2a-baseline.json"
+  [ -f "$bfile" ] || return 0
+  local pass
+  pass=$(jq -r '.baseline_pass' "$bfile" 2>/dev/null || echo unknown)
+  local badge_class badge_text
+  case "$pass" in
+    true)  badge_class="pass"; badge_text="BASELINE OK" ;;
+    false) badge_class="fail"; badge_text="BASELINE VIOLATION" ;;
+    *)     badge_class="warn"; badge_text="BASELINE UNKNOWN" ;;
+  esac
+  cat <<HERE
+      <section class="baseline">
+        <h2>Baseline attestation <span class="badge ${badge_class}">${badge_text}</span></h2>
+        <p class="muted">Per the <a href="../baseline/">authoritative baseline spec</a>, every agent node must emit a self-attestation before any scenario is permitted to run. This run's attestation:</p>
+        <table class="nodes">
+          <thead><tr><th>Node</th><th>Agent</th><th>Framework</th><th>Authentic</th><th>MCP ai-memory</th><th>xAI Grok</th><th>xAI default</th><th>Agent ID</th><th>Federation</th><th>Pass</th></tr></thead>
+          <tbody>
+HERE
+  jq -r '.per_node[]? | "<tr><td>node-\(.node_index)</td><td><code>\(.agent_id)</code></td><td><code>\(.agent_type) \(.framework_version // "?")</code></td><td>\(if .baseline.framework_is_authentic then "✅" else "❌" end)</td><td>\(if .baseline.mcp_server_ai_memory_registered and .baseline.mcp_command_is_ai_memory then "✅" else "❌" end)</td><td>\(if .baseline.llm_backend_is_xai_grok then "✅" else "❌" end)</td><td>\(if .baseline.llm_is_default_provider then "✅" else "❌" end)</td><td>\(if .baseline.agent_id_stamped then "✅" else "❌" end)</td><td>\(if .baseline.federation_live then "✅" else "❌" end)</td><td>\(if .baseline_pass then "<strong>PASS</strong>" else "<strong>FAIL</strong>" end)</td></tr>"' "$bfile"
+  cat <<HERE
+          </tbody>
+        </table>
+        <details><summary>a2a-baseline.json</summary>
+          <pre>
+HERE
+  jq --tab . "$bfile" 2>/dev/null | html_escape
+  cat <<HERE
+</pre>
+          <p><a href="./a2a-baseline.json">raw file</a></p>
+        </details>
+      </section>
+HERE
+}
+render_baseline
 render_insights
 scenario_block 1 "Per-agent write + read"
 scenario_block 2 "Shared-context handoff"

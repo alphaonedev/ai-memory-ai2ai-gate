@@ -49,8 +49,8 @@ jobs:
             echo "JSON (legacy artefact format or pipeline failure — open the"
             echo "evidence page for the raw trace)."
             echo
-            echo "| Campaign | Verdict | Scenarios | Group | ai-memory ref | Completed | Dispatched by | Evidence |"
-            echo "|---|---|---|---|---|---|---|---|"
+            echo "| Campaign | Verdict | Baseline | Scenarios | Group | ai-memory ref | Completed | Dispatched by | Evidence |"
+            echo "|---|---|---|---|---|---|---|---|---|"
           } > docs/runs/index.md
           found_any=false
           for dir in $(ls -1d runs/*/ 2>/dev/null | sort -Vr); do
@@ -81,8 +81,15 @@ jobs:
               actor="—"; wurl=""
             fi
             actor_cell=$([ -n "$wurl" ] && echo "[${actor}](${wurl})" || echo "$actor")
+            baseline="$dir/a2a-baseline.json"
+            if [ -f "$baseline" ]; then
+              bp=$(jq -r '.baseline_pass' "$baseline")
+              if [ "$bp" = "true" ]; then base_cell="✅ OK"; else base_cell="❌ VIOLATION"; fi
+            else
+              base_cell="—"
+            fi
             evidence="[offline HTML](../evidence/${name}/index.html)"
-            echo "| ${name} | ${outcome} | ${scen_cell} | ${group} | ${ref} | ${completed} | ${actor_cell} | ${evidence} |" >> docs/runs/index.md
+            echo "| ${name} | ${outcome} | ${base_cell} | ${scen_cell} | ${group} | ${ref} | ${completed} | ${actor_cell} | ${evidence} |" >> docs/runs/index.md
           done
           if [ "$found_any" = "false" ]; then
             echo >> docs/runs/index.md
