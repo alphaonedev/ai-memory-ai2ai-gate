@@ -717,6 +717,73 @@ canary_functional=$f2a_functional
 CANARY_UUID=$F2A_UUID
 CANARY_NS=$F2A_NS
 
+# Probe F4 — DIRECTIONAL MESH CONNECTIVITY. Closes the Phase-2 baseline
+# gap called out in ai-memory-ai2ai-gate#5 and AlphaOne RCA Standard v1.
+# Prior baseline attested local serve health + local F2a write; it did
+# NOT verify that THIS node can reach EVERY peer's 9077 port over the
+# private VPC network. A partial-mesh failure (e.g., node-3 → node-1
+# dark while every other direction works) would have been invisible to
+# baseline_pass and surfaced only as scenario-level red, tempting
+# code-level RCA into mis-attribution.
+#
+# This probe runs N-1 directed reachability checks from THIS node to
+# each configured peer. Per-node result is edges_ok/edges_total. The
+# aggregator (collect_reports.sh) ANDs across the 4 nodes to confirm
+# full 12-edge bidirectional reachability (N=4 → N*(N-1)=12 edges).
+#
+# We probe with BOTH GET /api/v1/health (cheap, proves port-reachable +
+# serve-live) AND POST /api/v1/sync/push with dry_run=true (proves the
+# same verb/path peers will use during scenarios, catches mTLS/auth
+# failures a bare GET would miss). Each peer edge must pass BOTH.
+log "PROBE F4: directional mesh connectivity to each peer"
+f4_edges_ok=0
+f4_edges_total=0
+f4_edges_detail=()
+IFS=',' read -ra F4_PEER_ARR <<< "$PEER_URLS"
+for peer_url in "${F4_PEER_ARR[@]}"; do
+  [ -z "$peer_url" ] && continue
+  f4_edges_total=$((f4_edges_total + 1))
+  peer_label="${peer_url#http://}"
+  peer_label="${peer_label%/}"
+
+  # Leg 1: GET /health
+  h_ok=false
+  if curl -sS --max-time 5 "${peer_url%/}/api/v1/health" 2>/dev/null \
+       | jq -e '.status == "ok" or .healthy == true or .ok == true' >/dev/null 2>&1; then
+    h_ok=true
+  fi
+
+  # Leg 2: POST /api/v1/sync/push dry_run — same verb/path scenarios use.
+  # dry_run=true so no row state is perturbed on the peer. Empty memories
+  # array keeps the body valid per the v0.6.0 schema.
+  p_ok=false
+  p_resp=$(curl -sS --max-time 5 \
+    -X POST "${peer_url%/}/api/v1/sync/push" \
+    -H 'Content-Type: application/json' \
+    -d "{\"sender_agent_id\":\"${AGENT_ID}\",\"sender_clock\":{\"entries\":{}},\"memories\":[],\"dry_run\":true}" \
+    2>/dev/null || echo '')
+  if echo "$p_resp" | jq -e '.applied == 0 and .dry_run == true' >/dev/null 2>&1; then
+    p_ok=true
+  fi
+
+  if $h_ok && $p_ok; then
+    f4_edges_ok=$((f4_edges_ok + 1))
+    f4_edges_detail+=("${peer_label}:OK")
+    log "  PROBE F4 ${peer_label}: OK (health + sync_push dry_run)"
+  else
+    f4_edges_detail+=("${peer_label}:FAIL(health=$h_ok,sync=$p_ok)")
+    log "  PROBE F4 ${peer_label}: FAIL (health=$h_ok, sync_push=$p_ok)"
+  fi
+done
+if [ "$f4_edges_ok" -eq "$f4_edges_total" ] && [ "$f4_edges_total" -gt 0 ]; then
+  f4_functional=true
+  log "  PROBE F4 OK — all ${f4_edges_ok}/${f4_edges_total} outbound mesh edges reachable"
+else
+  f4_functional=false
+  log "  PROBE F4 FAIL — ${f4_edges_ok}/${f4_edges_total} outbound mesh edges reachable"
+fi
+f4_edges_detail_csv=$(IFS=,; echo "${f4_edges_detail[*]:-}")
+
 jq -n \
   --arg agent_type "$AGENT_TYPE" \
   --arg agent_id "$AGENT_ID" \
@@ -746,6 +813,10 @@ jq -n \
   --argjson profile_locked "$profile_locked" \
   --argjson f2a_functional "$f2a_functional" \
   --argjson f2b_functional "$f2b_functional" \
+  --argjson f4_functional "$f4_functional" \
+  --argjson f4_edges_ok "$f4_edges_ok" \
+  --argjson f4_edges_total "$f4_edges_total" \
+  --arg f4_edges_detail "$f4_edges_detail_csv" \
   --arg f2a_uuid "$F2A_UUID" \
   --arg f2b_uuid "$F2B_UUID" \
   --arg config_sha256 "$config_sha256" \
@@ -787,6 +858,11 @@ jq -n \
       agent_mcp_canary_uuid:           $f2b_uuid,
       agent_canary_response_head:      $canary_response,
       _f2b_note:                       "F2b is LLM-dependent and non-blocking. F2a (deterministic HTTP substrate) gates baseline_pass.",
+      mesh_connectivity_f4:            $f4_functional,
+      mesh_edges_ok:                   $f4_edges_ok,
+      mesh_edges_total:                $f4_edges_total,
+      mesh_edges_detail:               $f4_edges_detail,
+      _f4_note:                        "F4 verifies this local nodes N-1 OUTBOUND mesh edges to every peer via both GET health and POST sync_push dry_run. Aggregator ANDs across N nodes to confirm full N*(N-1) bidirectional reachability. Gates baseline_pass.",
       agent_mcp_ai_memory_canary:      $f2a_functional,
       canary_uuid:                     $f2a_uuid,
       canary_namespace:                "_baseline_canary_f2a"
@@ -798,7 +874,7 @@ jq -n \
       $ufw_disabled and $iptables_flushed and $dead_man_switch_scheduled and
       $a2a_master_off and $no_sessions_tools and $no_chat_channels and
       $tools_are_memory_only and $profile_locked and
-      $xai_functional and $f2a_functional
+      $xai_functional and $f2a_functional and $f4_functional
     )
   }' > /etc/ai-memory-a2a/baseline.json
 
