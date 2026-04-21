@@ -11,22 +11,22 @@ Per-group, matching the documented testbook defaults:
 ```sh
 FORK=alphaonedev/ai-memory-ai2ai-gate   # or your fork
 
-# OpenClaw campaign
+# IronClaw campaign (primary Rust agent — default since 2026-04-21)
 gh workflow run a2a-gate.yml -R "$FORK" \
-  -f ai_memory_git_ref=v0.6.0 \
-  -f agent_group=openclaw \
-  -f campaign_id="a2a-openclaw-v0.6.0-r$(date +%s)" \
+  -f ai_memory_git_ref=v0.6.1 \
+  -f agent_group=ironclaw \
+  -f campaign_id="a2a-ironclaw-v0.6.1-r$(date +%s)" \
   -f scenarios="1 1b 2 4 9 10 15 17"
 
 # Hermes campaign
 gh workflow run a2a-gate.yml -R "$FORK" \
-  -f ai_memory_git_ref=v0.6.0 \
+  -f ai_memory_git_ref=v0.6.1 \
   -f agent_group=hermes \
-  -f campaign_id="a2a-hermes-v0.6.0-r$(date +%s)" \
+  -f campaign_id="a2a-hermes-v0.6.1-r$(date +%s)" \
   -f scenarios="1 1b 2 4 9 10 15 17"
 ```
 
-Both can run concurrently — they provision distinct VPCs (`10.251/24` openclaw vs `10.252/24` hermes).
+Both can run concurrently — they provision distinct VPCs (`10.251/24` ironclaw vs `10.252/24` hermes). Legacy openclaw dispatches remain accepted (`agent_group=openclaw`) but require a 16GB droplet slug override + DO account-tier upgrade — see [agents/ironclaw.md](agents/ironclaw.md) for the switch rationale.
 
 ---
 
