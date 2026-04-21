@@ -395,12 +395,28 @@ EOF
       | sed 's/^/[pgvector] /' || log "pgvector extension unavailable; ironclaw may fall back"
 
     # ---- IronClaw binary --------------------------------------------
-    log "installing ironclaw via official installer (timeout ${TIMEOUT_INSTALL_SH}s)"
-    timeout -k 30 "$TIMEOUT_INSTALL_SH" bash -c '
-      curl --proto "=https" --tlsv1.2 -LsSf --max-time 60 \
-        https://github.com/nearai/ironclaw/releases/latest/download/ironclaw-installer.sh | sh 2>&1
-    ' | sed 's/^/[ironclaw-install] /' \
-      || log "installer returned non-zero — falling through to presence check"
+    # NEAR AI's ironclaw-installer.sh has a platform-detection bug on
+    # x86_64-unknown-linux-gnu (r1 dispatch 24736559618) — it claims
+    # "there isn't a download for your platform" despite the
+    # ironclaw-x86_64-unknown-linux-gnu.tar.gz asset being present.
+    # Bypass the installer: download the tarball directly from the
+    # latest release and extract into /usr/local/bin.
+    IRONCLAW_TRIPLE="x86_64-unknown-linux-gnu"
+    IRONCLAW_URL="https://github.com/nearai/ironclaw/releases/latest/download/ironclaw-${IRONCLAW_TRIPLE}.tar.gz"
+    log "installing ironclaw direct tarball (${IRONCLAW_URL}) (timeout ${TIMEOUT_INSTALL_SH}s)"
+    mkdir -p /tmp/ironclaw-extract
+    timeout -k 30 "$TIMEOUT_INSTALL_SH" bash -c "
+      curl --proto '=https' --tlsv1.2 -fsSL --max-time 120 '$IRONCLAW_URL' \
+        | tar xz -C /tmp/ironclaw-extract 2>&1
+    " | sed 's/^/[ironclaw-install] /' \
+      || log "ironclaw tarball download/extract returned non-zero — falling through to presence check"
+    # Tarball extracts to ironclaw-<triple>/ironclaw (standard cargo-dist layout).
+    # Find and install the binary.
+    IC_EXTRACTED=$(find /tmp/ironclaw-extract -maxdepth 3 -type f -executable -name ironclaw 2>/dev/null | head -1)
+    if [ -n "$IC_EXTRACTED" ] && [ -x "$IC_EXTRACTED" ]; then
+      install -m 0755 "$IC_EXTRACTED" /usr/local/bin/ironclaw
+      log "installed /usr/local/bin/ironclaw from $IC_EXTRACTED"
+    fi
 
     # Symlink to /usr/local/bin for deterministic PATH across SSH sessions.
     if ! command -v ironclaw >/dev/null 2>&1 || [ ! -x /usr/local/bin/ironclaw ]; then
