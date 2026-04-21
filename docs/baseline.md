@@ -98,9 +98,41 @@ The SHA-256 of every generated config file is committed in `baseline.json.config
 
 ## 4. Agent framework install — authentic upstream binaries
 
-No surrogates. No symlinks to another CLI. If we claim to test OpenClaw, the binary must be `openclaw/openclaw`. If we claim to test Hermes, the binary must be `NousResearch/hermes-agent`.
+No surrogates. No symlinks to another CLI. If we claim to test IronClaw, the binary must be `alphaonedev/ironclaw`. If we claim to test Hermes, the binary must be `NousResearch/hermes-agent`. If we claim to test OpenClaw, the binary must be `openclaw/openclaw`.
 
-### OpenClaw
+As of 2026-04-21, **IronClaw** (Rust, AlphaOne) is the primary a2a-gate agent and replaces OpenClaw for active campaigns. **Hermes** is the second active agent (cross-stack comparison). **OpenClaw** is retained in legacy mode — kept for historical dispatch reproduction (see `docs/incidents.md` for the r9/r22 chain) and for future regression testing — but is no longer run in per-release campaigns.
+
+### IronClaw
+
+```bash
+# Install via the official AlphaOne installer (pinned ref, headless)
+IRONCLAW_INSTALL_REF="${IRONCLAW_INSTALL_REF:-main}"   # pin via workflow_dispatch input
+curl -fsSL --max-time 120 \
+  "https://raw.githubusercontent.com/alphaonedev/ironclaw/${IRONCLAW_INSTALL_REF}/scripts/install.sh" \
+  | bash -s -- --yes
+
+# Symlink onto PATH for downstream SSH sessions (installer may drop
+# the binary under ~/.ironclaw or ~/.cargo/bin depending on path).
+IC_BIN=$(command -v ironclaw || find /root/.ironclaw /root/.cargo/bin /usr/local -maxdepth 6 -name ironclaw -type f -executable | head -1)
+[ -n "$IC_BIN" ] && ln -sf "$IC_BIN" /usr/local/bin/ironclaw
+
+# Verify authentic binary
+ironclaw --version
+```
+
+### Hermes
+
+```bash
+# Install via Nous Research's official installer
+curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh \
+  | bash -s -- --skip-setup
+
+# Upstream install.sh (as of 2026-04-21) doesn't install python-dotenv
+# yet hermes_cli/env_loader.py imports it unconditionally. Patch:
+python3 -m pip install --break-system-packages --quiet python-dotenv==1.0.1
+```
+
+### OpenClaw (legacy — retained for historical dispatch reproduction)
 
 ```bash
 # Install via the official one-liner (git install method, headless --yes)
@@ -113,23 +145,55 @@ npm install -g openclaw
 openclaw --version
 ```
 
-### Hermes
-
-```bash
-# Install via Nous Research's official installer
-curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh \
-  | bash -s -- --skip-setup
-
-# Upstream install.sh (as of 2026-04-21) doesn't install python-dotenv
-# yet hermes_cli/env_loader.py imports it unconditionally. Patch:
-python3 -m pip install --break-system-packages --quiet python-dotenv
-```
-
 ---
 
-## 5. LLM backend — xAI Grok for both frameworks
+## 5. LLM backend — xAI Grok for all frameworks
 
-**Both frameworks reason with xAI Grok, model `grok-4-fast-non-reasoning`.** Holding the LLM constant is what makes framework-vs-framework comparison meaningful.
+**All three frameworks reason with xAI Grok, model `grok-4-fast-non-reasoning`.** Holding the LLM constant is what makes framework-vs-framework comparison meaningful.
+
+### IronClaw configuration (`~/.ironclaw/.env` + `ironclaw config` + `ironclaw mcp add`)
+
+IronClaw has no single config file; state is split between `.env` (read before the DB bootstraps) and the SQLite-backed config (written by `ironclaw config set`). The a2a-gate lays down:
+
+```bash
+# ~/.ironclaw/.env — pre-DB settings (bootstrap order: env > DB > default)
+DATABASE_URL=postgres://ironclaw:ironclaw@127.0.0.1:5432/ironclaw?sslmode=disable
+LLM_BACKEND=openai_compatible
+LLM_BASE_URL=https://api.x.ai/v1
+LLM_API_KEY=${XAI_API_KEY}
+LLM_MODEL=grok-4-fast-non-reasoning
+HTTP_PORT=8081
+# Persisted so baseline checks can verify agent_id stamping independently
+# of ironclaw's DB-backed config introspection (CLI output format differs
+# between ironclaw versions — grepping our own file is deterministic).
+AI_MEMORY_AGENT_ID=ai:alice
+```
+
+```bash
+# Thesis-integrity lockdowns — pinned via `ironclaw config set`
+ironclaw config set channels.telegram.enabled false
+ironclaw config set channels.discord.enabled  false
+ironclaw config set channels.slack.enabled    false
+ironclaw config set gateway.mode              local
+ironclaw config set a2a_gate_profile          shared-memory-only
+ironclaw config set a2a_gate_profile_version  1.0.0
+```
+
+```bash
+# Register ai-memory MCP (stdio). `--arg=--flag` syntax required for
+# values starting with `--` (clap derive doesn't trailing-var-arg).
+ironclaw mcp add memory \
+  --transport stdio \
+  --command ai-memory \
+  --env "AI_MEMORY_DB=/var/lib/ai-memory/a2a.db" \
+  --env "AI_MEMORY_AGENT_ID=ai:alice" \
+  --arg mcp \
+  --arg=--tier \
+  --arg semantic \
+  --description "Shared-memory A2A via ai-memory (a2a-gate)"
+```
+
+Resolves at spawn time to: `AI_MEMORY_DB=/var/lib/ai-memory/a2a.db AI_MEMORY_AGENT_ID=ai:alice ai-memory mcp --tier semantic`.
 
 ### OpenClaw configuration (`~/.openclaw/openclaw.json`)
 
@@ -188,17 +252,18 @@ Hermes takes the LLM as invocation flags rather than config:
 hermes chat -Q --provider xai --model grok-4-fast-non-reasoning -q "<prompt>"
 ```
 
-### Why both have the same shape
+### Why all three have the same shape
 
-Both frameworks express the same baseline through their own idiomatic config formats. Same substrate, same model, different reasoning scaffolds — **that's the A2A comparison.**
+All three frameworks express the same baseline through their own idiomatic config formats. Same substrate, same model, different reasoning scaffolds — **that's the A2A comparison.**
 
-| Aspect | OpenClaw | Hermes |
-|---|---|---|
-| Config file | `~/.openclaw/openclaw.json` | `~/.hermes/config.yaml` |
-| Config format | JSON | YAML |
-| LLM location | In-file (`providers.xai`) | CLI flag + env file |
-| MCP key spelling | `mcpServers` (camelCase) | `mcp_servers` (snake_case) |
-| Headless invocation | `openclaw run --non-interactive -p "..."` | `hermes chat -Q --provider xai --model ... -q "..."` |
+| Aspect | IronClaw | Hermes | OpenClaw (legacy) |
+|---|---|---|---|
+| Config location | `~/.ironclaw/.env` + `ironclaw config set` (SQLite-backed) | `~/.hermes/config.yaml` | `~/.openclaw/openclaw.json` |
+| Config format | `.env` + CLI | YAML | JSON |
+| LLM location | `.env` (`LLM_*` vars) | CLI flag + env file | In-file (`providers.xai`) |
+| MCP registration | `ironclaw mcp add` (CLI, persists to SQLite) | `mcp_servers` YAML block | `mcpServers` JSON block |
+| MCP key spelling | N/A (CLI-driven) | `mcp_servers` (snake_case) | `mcpServers` (camelCase) |
+| Headless invocation | `ironclaw chat -p "..."` (via drive_agent.sh) | `hermes chat -Q --provider xai --model ... -q "..."` | `openclaw run --non-interactive -p "..."` |
 
 ---
 
@@ -259,7 +324,23 @@ Every step is evidence-producing:
 - Peer's DB row → includes `metadata.agent_id = "ai:alice"` (Task 1.2 immutability)
 - Node-4 aggregator query → independent cross-cluster verification
 
-### 6b.2 Explicitly negated paths — OpenClaw
+### 6b.2 Explicitly negated paths — IronClaw
+
+IronClaw has no first-class tool allowlist concept — tools are exposed to the LLM only via registered MCP servers. The a2a-gate asserts the negative invariants through a mix of `ironclaw config set` lockdowns, provisioning control (exactly one `mcp add memory` call), and the F5 runtime handshake probe.
+
+| IronClaw feature | Enforcement | Why disabled |
+|---|---|---|
+| A2A protocol | ironclaw has no A2A protocol out of the box | No direct agent-to-agent RPC |
+| sessions_spawn / sub-agent family | No such tools registered | Forces every coordination through memory tools |
+| Telegram channel | `ironclaw config set channels.telegram.enabled false` | No messaging-platform bridge |
+| Discord channel | `ironclaw config set channels.discord.enabled false` | No messaging-platform bridge |
+| Slack channel | `ironclaw config set channels.slack.enabled false` | No messaging-platform bridge |
+| Remote gateway | `ironclaw config set gateway.mode local` | Each node's gateway is local-only |
+| Tool allowlist (memory-only) | Only `memory` MCP registered via `ironclaw mcp add`; raw `ironclaw mcp list` persisted to `/etc/ai-memory-a2a/ironclaw-mcp-list.raw` for forensic audit | Every action the agent can take goes through ai-memory |
+
+Config marker: `ironclaw config set a2a_gate_profile shared-memory-only` + `a2a_gate_profile_version 1.0.0`.
+
+### 6b.3 Explicitly negated paths — OpenClaw
 
 Every alternative A2A channel OpenClaw natively supports is disabled in `~/.openclaw/openclaw.json`:
 
@@ -281,7 +362,7 @@ Every alternative A2A channel OpenClaw natively supports is disabled in `~/.open
 
 Config marker: `a2aGateProfile: "shared-memory-only"` + `a2aGateProfileVersion: "1.0.0"` — cryptographically non-unique but operationally unambiguous.
 
-### 6b.3 Explicitly negated paths — Hermes
+### 6b.4 Explicitly negated paths — Hermes
 
 Every alternative A2A channel Hermes natively supports is disabled in `~/.hermes/config.yaml`:
 
@@ -299,7 +380,7 @@ Every alternative A2A channel Hermes natively supports is disabled in `~/.hermes
 
 Config marker: `a2a_gate_profile: shared-memory-only` + `a2a_gate_profile_version: "1.0.0"`.
 
-### 6b.4 Network-level enforcement
+### 6b.5 Network-level enforcement
 
 Two distinct DigitalOcean resources, plus the Ubuntu-level policy:
 
@@ -313,11 +394,11 @@ Two distinct DigitalOcean resources, plus the Ubuntu-level policy:
 
 The config lockdown (§6b.2 + §6b.3) closes the application-level A2A paths; the DO Cloud Firewall closes the network-level inbound paths; UFW is kept off so neither of those enforcement points is undermined by the OS. Defense-in-depth without interference.
 
-### 6b.5 Cross-framework communication (future scenario)
+### 6b.6 Cross-framework communication (future scenario)
 
-Current campaigns are **homogeneous** (all openclaw or all hermes). Cross-framework (OpenClaw ↔ Hermes on the same VPC) is not in the current scenarios, but is enabled by design: because both frameworks use the same ai-memory substrate with the same schema and the same `agent_id` provenance, any memory written by an OpenClaw agent is readable by a Hermes agent without translation. A `mixed` campaign is the next natural evolution.
+Current campaigns are **homogeneous** (all ironclaw or all hermes; openclaw is legacy). Cross-framework (IronClaw ↔ Hermes, or either ↔ legacy OpenClaw on the same VPC) is not in the current scenarios, but is enabled by design: because all frameworks use the same ai-memory substrate with the same schema and the same `agent_id` provenance, any memory written by an agent of one framework is readable by an agent of another without translation. A `mixed` campaign is the next natural evolution.
 
-### 6b.6 Attestation
+### 6b.7 Attestation
 
 Each agent node writes the negative invariants into `/etc/ai-memory-a2a/baseline.json` under `negative_invariants` (schema in §8). `baseline_pass` requires all negatives to be true. If any alternative channel is enabled on any node, the workflow halts before scenarios run. No overrides.
 
