@@ -32,6 +32,7 @@ nav:
   - Home: index.md
   - AI NHI insights: insights.md
   - Baseline configuration: baseline.md
+  - Infrastructure versions: infrastructure.md
   - Test book: testbook.md
   - Architecture: architecture.md
   - Runbook: runbook.md
