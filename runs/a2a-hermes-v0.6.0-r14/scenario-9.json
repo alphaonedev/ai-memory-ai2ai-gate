@@ -1,0 +1,17 @@
+{
+  "scenario": "9",
+  "pass": false,
+  "agent_group": "hermes",
+  "m1_id": "a529116a-8f3d-4a64-9117-6a80dbf6ff7a",
+  "v1_uuid": "b444df51-0306-460d-ab52-1b038ec03618",
+  "v2_uuid": "601ba75b-2873-4b81-ac9d-aab507640133",
+  "patch_http_code": "405",
+  "charlie_view": {
+    "content": "",
+    "agent_id": ""
+  },
+  "reasons": [
+    "charlie expected content=601ba75b-2873-4b81-ac9d-aab507640133 got \"\" (update didn't propagate or PATCH unsupported)",
+    "metadata.agent_id changed from ai:alice to \"\" — Task 1.2 immutability breach"
+  ]
+}

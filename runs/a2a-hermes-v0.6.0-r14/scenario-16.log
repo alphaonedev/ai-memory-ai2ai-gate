@@ -1,0 +1,6 @@
+[scenario-16 hermes] alice writes M1 tier=short on node-1
+[scenario-16 hermes]   M1 id=bf433251-c3c3-4efc-8576-62dc38d0a99c
+[scenario-16 hermes] alice promotes M1 to tier=long
+[scenario-16 hermes]   promote returned HTTP 200
+[scenario-16 hermes] bob reads M1 on node-2 and checks tier
+[scenario-16 hermes]   bob sees tier=(missing) (expected long)

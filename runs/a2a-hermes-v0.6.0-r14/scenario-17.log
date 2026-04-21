@@ -1,0 +1,10 @@
+[scenario-17 hermes] phase A: each of 3 agents writes 5 memories to scenario17-stats
+[scenario-17 hermes]   ai:alice on 157.245.219.205
+[scenario-17 hermes]   ai:bob on 167.172.234.175
+[scenario-17 hermes]   ai:charlie on 68.183.145.110
+[scenario-17 hermes] settle 15s for W=2 fanout
+[scenario-17 hermes] phase B: querying count on every peer
+[scenario-17 hermes]   node-1 count=5 (expected 15)
+[scenario-17 hermes]   node-2 count=5 (expected 15)
+[scenario-17 hermes]   node-3 count=5 (expected 15)
+[scenario-17 hermes]   node-4 count=5 (expected 15)

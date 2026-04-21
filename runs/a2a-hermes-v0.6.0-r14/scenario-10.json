@@ -1,0 +1,13 @@
+{
+  "scenario": "10",
+  "pass": false,
+  "agent_group": "hermes",
+  "m1_id": "3ac9d19f-c921-484f-bfc7-a6b203594820",
+  "uuid": "e8078d3b-9f1c-4c8d-9506-c0231ba82a62",
+  "delete_http_code": "200",
+  "pre_delete_visible_peers": 3,
+  "post_delete_still_visible_peers": 3,
+  "reasons": [
+    "3/3 peers still see M1 after delete — tombstone not propagated"
+  ]
+}

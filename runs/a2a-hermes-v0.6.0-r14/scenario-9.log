@@ -1,0 +1,6 @@
+[scenario-9 hermes] alice writes M1 content=b444df51-0306-460d-ab52-1b038ec03618 on node-1
+[scenario-9 hermes]   created memory id=a529116a-8f3d-4a64-9117-6a80dbf6ff7a
+[scenario-9 hermes] bob updates M1 content=601ba75b-2873-4b81-ac9d-aab507640133 on node-2
+[scenario-9 hermes]   PATCH returned HTTP 405
+[scenario-9 hermes] charlie reads M1 on node-3 and checks content + provenance
+[scenario-9 hermes]   charlie sees content="" agent_id=""

@@ -1,0 +1,11 @@
+{
+  "scenario": "16",
+  "pass": false,
+  "agent_group": "hermes",
+  "m1_id": "bf433251-c3c3-4efc-8576-62dc38d0a99c",
+  "promote_http_code": "200",
+  "bob_sees_tier": "(missing)",
+  "reasons": [
+    "bob sees tier=\"(missing)\", expected \"long\""
+  ]
+}

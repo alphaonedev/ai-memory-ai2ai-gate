@@ -1,0 +1,44 @@
+{
+  "spec_version": "1.2.0",
+  "agent_type": "hermes",
+  "agent_id": "ai:bob",
+  "node_index": "2",
+  "framework_version": "Hermes Agent v0.10.0 (2026.4.16)",
+  "ai_memory_version": "0.6.0",
+  "peer_urls": "http://10.252.0.5:9077,http://10.252.0.4:9077,http://10.252.0.3:9077",
+  "config_file_sha256": "21635cf6364057fd2a004d28aac89abf8438671d85f9fd2ed1e654d812d23ff1",
+  "config_attestation": {
+    "framework_is_authentic": true,
+    "mcp_server_ai_memory_registered": true,
+    "llm_backend_is_xai_grok": true,
+    "llm_is_default_provider": true,
+    "mcp_command_is_ai_memory": true,
+    "agent_id_stamped": true,
+    "federation_live": true,
+    "ufw_disabled": true,
+    "iptables_flushed": true,
+    "dead_man_switch_scheduled": true
+  },
+  "negative_invariants": {
+    "_description": "Alternative A2A channels must be OFF so a passing scenario is only passing via ai-memory shared memory. Any true here = thesis-preserving.",
+    "a2a_protocol_off": true,
+    "sub_agent_or_sessions_spawn_off": true,
+    "alternative_channels_off": true,
+    "tool_allowlist_is_memory_only": true,
+    "a2a_gate_profile_locked": true
+  },
+  "functional_probes": {
+    "xai_grok_chat_reachable": true,
+    "xai_grok_sample_reply": "READY",
+    "substrate_http_canary_f2a": true,
+    "substrate_http_canary_uuid": "903fb38f-b04c-44df-bc52-82f54d57880b",
+    "agent_mcp_canary_f2b": false,
+    "agent_mcp_canary_uuid": "85411d61-9049-475a-bbc3-8c3d3fdcbdfc",
+    "agent_canary_response_head": "Traceback (most recent call last):   File \"/usr/local/bin/hermes\", line 11, in <module>     main()   File \"/root/.hermes/hermes-agent/hermes_cli/main.py\", line 8487, in main     args.func(args)   File \"/root/.hermes/hermes-agent/hermes_cli/main.py\", line 1071, in cmd_chat     if not _has_any_provider_configured():            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^   File \"/root/.hermes/hermes-agent/hermes_cli/main.py\", line 209, in _has_any_provider_configured     from hermes_cli.auth import get_auth_sta",
+    "_f2b_note": "F2b is LLM-dependent and non-blocking. F2a (deterministic HTTP substrate) gates baseline_pass.",
+    "agent_mcp_ai_memory_canary": true,
+    "canary_uuid": "903fb38f-b04c-44df-bc52-82f54d57880b",
+    "canary_namespace": "_baseline_canary_f2a"
+  },
+  "baseline_pass": true
+}

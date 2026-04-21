@@ -1,0 +1,16 @@
+{
+  "scenario": "6",
+  "pass": false,
+  "agent_group": "hermes",
+  "topic": "sky-color-0e2fdf4c",
+  "alice_id": "2be31495-67c1-4d76-b691-a3ce44210c94",
+  "bob_id": "2be31495-67c1-4d76-b691-a3ce44210c94",
+  "detect_http_code": "404",
+  "charlie_sees_both_memories": 0,
+  "charlie_sees_contradicts_link": 0,
+  "reasons": [
+    "detect_contradiction endpoint returned HTTP 404 — may not exist in this ai-memory version",
+    "response did not include both memories",
+    "response did not include a contradicts relation"
+  ]
+}

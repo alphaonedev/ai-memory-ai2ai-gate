@@ -1,0 +1,12 @@
+{
+  "scenario": "5",
+  "pass": false,
+  "agent_group": "hermes",
+  "consolidated_id": "",
+  "consolidate_http_code": "405",
+  "consolidated_from_agents": "",
+  "reasons": [
+    "consolidate endpoint returned HTTP 405 — may not exist in this ai-memory version",
+    "consolidate did not return a new memory id"
+  ]
+}

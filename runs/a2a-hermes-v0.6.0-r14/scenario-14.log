@@ -1,0 +1,6 @@
+[scenario-14 hermes] suspending ai-memory on node-3 (SIGSTOP)
+[scenario-14 hermes] writing 10 memories each from alice + bob during node-3 outage
+[scenario-14 hermes] resuming ai-memory on node-3 (SIGCONT)
+[scenario-14 hermes] settle 20s for post-partition catchup
+[scenario-14 hermes] checking node-3 caught up
+[scenario-14 hermes]   node-3 sees 2 memories in scenario14-partition (expected 20)

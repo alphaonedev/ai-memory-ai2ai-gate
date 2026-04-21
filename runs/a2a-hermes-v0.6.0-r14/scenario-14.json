@@ -1,0 +1,11 @@
+{
+  "scenario": "14",
+  "pass": false,
+  "agent_group": "hermes",
+  "partition_target": "node-3",
+  "expected_post_recovery": 20,
+  "node3_saw": 2,
+  "reasons": [
+    "node-3 only saw 2/20 writes after partition recovery — catchup failed or W=2 wasn't satisfied during outage"
+  ]
+}

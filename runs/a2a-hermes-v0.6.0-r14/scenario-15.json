@@ -1,0 +1,8 @@
+{
+  "scenario": "15",
+  "pass": true,
+  "agent_group": "hermes",
+  "uuid": "52f404cc-35d5-4148-94eb-7f9f9dd48cb3",
+  "writer_sees_own_write": 1,
+  "reasons": []
+}

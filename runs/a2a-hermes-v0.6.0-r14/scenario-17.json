@@ -1,0 +1,18 @@
+{
+  "scenario": "17",
+  "pass": false,
+  "agent_group": "hermes",
+  "expected_count": 15,
+  "per_peer": {
+    "node_1": 5,
+    "node_2": 5,
+    "node_3": 5,
+    "node_4": 5
+  },
+  "reasons": [
+    "node-1 count=5 != expected 15",
+    "node-2 count=5 != expected 15",
+    "node-3 count=5 != expected 15",
+    "node-4 count=5 != expected 15"
+  ]
+}

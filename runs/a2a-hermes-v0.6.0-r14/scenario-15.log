@@ -1,0 +1,2 @@
+[scenario-15 hermes] alice writes + immediately reads M1 on node-1 (uuid=52f404cc-35d5-4148-94eb-7f9f9dd48cb3)
+[scenario-15 hermes]   alice sees 1 (expected 1) immediately after write

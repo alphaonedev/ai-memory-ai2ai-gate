@@ -1,0 +1,20 @@
+{
+  "scenario": "13",
+  "pass": false,
+  "agent_group": "hermes",
+  "m1_id": "2b58b0f7-0d7f-425e-9685-52e2e83957a0",
+  "submitted": {
+    "v0": "8c2af31f-427f-4b8b-92e3-671ec11a4c9c",
+    "vA_alice": "11835b27-bb8c-4614-841f-e927accc847f",
+    "vB_bob": "8c67014c-b589-47f7-90f5-362d5af8b178"
+  },
+  "peer_view": {
+    "node_1": "(none)",
+    "node_2": "(none)",
+    "node_3": "(none)",
+    "node_4": "(none)"
+  },
+  "reasons": [
+    "winning content is not one of the submitted PATCH values: got \"(none)\""
+  ]
+}
