@@ -1,8 +1,10 @@
 site_name: ai-memory A2A gate
 site_description: >-
   AI-to-AI integration gate for ai-memory-mcp. 4-node DigitalOcean
-  harness exercising the full memory surface through OpenClaw and
-  Hermes agents. Runs after ai-memory-ship-gate Phases 1-4 pass.
+  harness exercising the full memory surface through IronClaw (Rust)
+  and Hermes (Python) agents. OpenClaw legacy support retained for
+  historical dispatch reproduction. Runs after ai-memory-ship-gate
+  Phases 1-4 pass.
 site_url: https://alphaonedev.github.io/ai-memory-ai2ai-gate/
 repo_url: https://github.com/alphaonedev/ai-memory-ai2ai-gate
 repo_name: alphaonedev/ai-memory-ai2ai-gate
@@ -37,8 +39,9 @@ nav:
   - Methodology: methodology.md
   - Topology: topology.md
   - Agents:
-      - OpenClaw: agents/openclaw.md
+      - IronClaw: agents/ironclaw.md
       - Hermes: agents/hermes.md
+      - OpenClaw (legacy): agents/openclaw.md
   - Scenarios:
       - 1. Per-agent write + read: scenarios/1-write-read.md
       - 2. Shared-context handoff: scenarios/2-handoff.md

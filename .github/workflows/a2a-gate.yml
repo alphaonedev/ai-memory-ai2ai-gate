@@ -18,17 +18,18 @@ on:
         required: true
         default: "v0.6.0"
       agent_group:
-        description: "Which agent framework to run in this campaign. Every agent droplet in the campaign uses the SAME framework (homogeneous group)."
+        description: "Which agent framework to run in this campaign. Every agent droplet in the campaign uses the SAME framework (homogeneous group). ironclaw (Rust, 4GB) and hermes (Python, 4GB) are the supported groups; openclaw (Python, 16GB+) is LEGACY and being retired — kept for historical dispatch reproduction only."
         required: true
-        default: "openclaw"
+        default: "ironclaw"
         type: choice
         options:
-          - openclaw
+          - ironclaw
           - hermes
+          - openclaw
       campaign_id:
         description: "Campaign identifier (becomes runs/<id>/). Suggested format: a2a-<group>-<release>-rN"
         required: true
-        default: "a2a-openclaw-v0.6.0-r1"
+        default: "a2a-ironclaw-v0.6.1-r1"
       region:
         description: "DigitalOcean region"
         required: false
@@ -38,11 +39,15 @@ on:
         required: false
         default: "1 1b 2 4 5 6 9 10 11 12 13 14 15 16 17 18"
       agent_droplet_size:
-        description: "Agent droplet size. Default s-4vcpu-16gb-intel (Basic Intel 16GB; openclaw install.sh consumes >8GB per r18 OOM). For hermes-only campaigns override to s-2vcpu-4gb to save ~30%. History: the legacy Basic s-4vcpu-16gb was retired (422 invalid size, #8 r15/r18/r19). g-4vcpu-16gb General Purpose is account-tier-restricted on this org (422 r20). Basic -intel/-amd variants are available at all paid tiers."
+        description: "Agent droplet size. Default s-2vcpu-4gb (Basic 4GB). Sufficient for ironclaw (Rust, ~500MB) AND hermes (Python, ~1GB). Only override for legacy openclaw dispatches (needs >8GB, DO tier upgrade required). Basic-tier only; -intel/-amd suffix variants are NOT needed at 4GB."
         required: false
-        default: "s-4vcpu-16gb-intel"
+        default: "s-2vcpu-4gb"
+      ironclaw_install_cmd:
+        description: "Shell command to install IronClaw on a droplet. Blank = default (official installer script from github.com/nearai/ironclaw releases)."
+        required: false
+        default: ""
       openclaw_install_cmd:
-        description: "Shell command to install OpenClaw on a droplet. Blank = placeholder driver (ai-memory CLI stand-in)."
+        description: "Shell command to install OpenClaw on a droplet. Blank = placeholder driver (ai-memory CLI stand-in). LEGACY: openclaw is being retired in favor of ironclaw."
         required: false
         default: ""
       hermes_install_cmd:
@@ -84,6 +89,7 @@ jobs:
       CAMPAIGN_ID: ${{ github.event.inputs.campaign_id }}
       AGENT_GROUP: ${{ github.event.inputs.agent_group }}
       AI_MEMORY_GIT_REF: ${{ github.event.inputs.ai_memory_git_ref }}
+      IRONCLAW_INSTALL_CMD: ${{ github.event.inputs.ironclaw_install_cmd }}
       OPENCLAW_INSTALL_CMD: ${{ github.event.inputs.openclaw_install_cmd }}
       HERMES_INSTALL_CMD: ${{ github.event.inputs.hermes_install_cmd }}
       XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
@@ -175,7 +181,7 @@ jobs:
               scp -o StrictHostKeyChecking=no scripts/setup_node.sh scripts/drive_agent.sh root@$ip:/root/ 2>&1 | sed "s/^/[n$i scp] /"
               chmod_cmd="chmod +x /root/setup_node.sh /root/drive_agent.sh"
               env_cmd="NODE_INDEX=$i ROLE=$role PEER_URLS='$peers' AI_MEMORY_VERSION=$AMV"
-              [ "$role" = "agent" ] && env_cmd="$env_cmd AGENT_TYPE=${AGENT_GROUP} AGENT_ID=$aid XAI_API_KEY='${XAI_API_KEY}' A2A_GATE_LLM_MODEL='${A2A_GATE_LLM_MODEL}' OPENCLAW_INSTALL_CMD='${OPENCLAW_INSTALL_CMD}' HERMES_INSTALL_CMD='${HERMES_INSTALL_CMD}'"
+              [ "$role" = "agent" ] && env_cmd="$env_cmd AGENT_TYPE=${AGENT_GROUP} AGENT_ID=$aid XAI_API_KEY='${XAI_API_KEY}' A2A_GATE_LLM_MODEL='${A2A_GATE_LLM_MODEL}' IRONCLAW_INSTALL_CMD='${IRONCLAW_INSTALL_CMD}' OPENCLAW_INSTALL_CMD='${OPENCLAW_INSTALL_CMD}' HERMES_INSTALL_CMD='${HERMES_INSTALL_CMD}'"
               # stdbuf -oL forces line-buffered stdout on the ssh side
               # so `sed` gets each log line promptly — without it the
               # remote bash may buffer up big chunks before flushing.

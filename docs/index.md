@@ -5,14 +5,17 @@ Reproducible AI-to-AI integration testing for
 [ai-memory-ship-gate](https://github.com/alphaonedev/ai-memory-ship-gate)
 validates the memory system itself, **this repository validates what
 happens when real AI agents use ai-memory to communicate with each
-other** — OpenClaw agents and Hermes agents running on separate
-DigitalOcean droplets, sharing context through a central ai-memory
-authoritative store.
+other** — **IronClaw (Rust)** agents and **Hermes (Python)** agents
+running on separate DigitalOcean droplets, sharing context through a
+central ai-memory authoritative store. (OpenClaw retained as a
+legacy group for historical reproduction; see the
+[switchover rationale](agents/ironclaw.md) for the 2026-04-21
+migration.)
 
 - **[Baseline configuration](baseline.md)** · the hard-gated standard every agent droplet must satisfy before any scenario runs — authentic frameworks, xAI Grok, ai-memory MCP, UFW off, functional probes
 - [Methodology](methodology.md) · every invariant this campaign defends
 - [Topology](topology.md) · 4-node VPC architecture
-- [Agents](agents/openclaw.md) · OpenClaw and Hermes integration details
+- [Agents](agents/ironclaw.md) · IronClaw (primary), Hermes, and OpenClaw (legacy) integration details
 - [Scenarios](scenarios/1-write-read.md) · 8 test groups covering the full memory surface
 - [Campaign runs](runs/) · live evidence dashboard
 - [Reproducing](reproducing.md) · run it yourself on your own DO account
@@ -26,10 +29,10 @@ ai-memory on its own is a persistent memory store. Its value lands
 only when agents actually use it to maintain context, hand off tasks,
 and share knowledge. The ship-gate campaign proves the substrate
 works under load, under chaos, under migration. The A2A gate proves
-that two heterogeneous AI agent frameworks — OpenClaw and Hermes —
-can use that substrate to talk to each other without private
-channels, without dedicated orchestration layers, without any
-shared code except the ai-memory MCP interface.
+that two heterogeneous AI agent frameworks — **IronClaw** (Rust)
+and **Hermes** (Python) — can use that substrate to talk to each
+other without private channels, without dedicated orchestration
+layers, without any shared code except the ai-memory MCP interface.
 
 Every scenario in this campaign is either a concrete inter-agent
 use case or a safety invariant that protects those use cases. A
@@ -45,8 +48,9 @@ a slide deck — it runs every day on real droplets under real load.
     **Why should you trust that your AI agents can actually talk to
     each other through ai-memory?**
 
-    Because every few hours, three real AI agents — two OpenClaw,
-    one Hermes — spin up on fresh cloud servers, write memories,
+    Because on every release, three real AI agents — two IronClaw,
+    one Hermes (or vice versa on the cross-framework campaign) —
+    spin up on fresh cloud servers, write memories,
     read each other's memories, hand off tasks, detect
     contradictions, and propagate context exactly the way a real
     deployment would. Every handoff is measured. Every recall is

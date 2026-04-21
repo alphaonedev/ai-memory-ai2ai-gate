@@ -1,4 +1,14 @@
-# OpenClaw agent
+# OpenClaw agent (LEGACY — replaced by IronClaw 2026-04-21)
+
+!!! warning "Retired as default agent group"
+    OpenClaw is retained only for historical dispatch reproduction.
+    New campaigns should use **[IronClaw](ironclaw.md)** — the Rust
+    reimplementation with ~10× smaller resource footprint. OpenClaw's
+    install-time memory demand (>8 GB) forced the harness onto DO
+    account-tier-restricted 16 GB droplets. IronClaw fits on the
+    Basic-tier `s-2vcpu-4gb` slug at ~$0.03 per campaign vs openclaw's
+    ~$0.36. See the [IronClaw agent page](ironclaw.md) for the
+    rationale and switch history.
 
 The A2A gate hosts two OpenClaw agent instances (on `node-1` and
 `node-3`) to demonstrate that ai-memory's A2A semantics work with

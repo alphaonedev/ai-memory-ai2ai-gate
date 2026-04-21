@@ -59,7 +59,7 @@ underlying infrastructure passes its own gates.
     ▼              ▼              ▼
  ┌────────┐    ┌────────┐    ┌────────┐
  │ Node 1 │    │ Node 2 │    │ Node 3 │
- │OpenClaw│    │ Hermes │    │OpenClaw│
+ │IronClaw│    │ Hermes │    │IronClaw│
  │ Agent  │    │ Agent  │    │ Agent  │
  │ alice  │    │  bob   │    │charlie │
  └────┬───┘    └────┬───┘    └────┬───┘
@@ -75,10 +75,18 @@ Four droplets:
 
 | Droplet | Role | Agent | Size |
 |---|---|---|---|
-| `node-1` | Agent host | OpenClaw — `ai:alice` | `s-2vcpu-4gb` |
+| `node-1` | Agent host | IronClaw — `ai:alice` | `s-2vcpu-4gb` |
 | `node-2` | Agent host | Hermes — `ai:bob` | `s-2vcpu-4gb` |
-| `node-3` | Agent host | OpenClaw — `ai:charlie` | `s-2vcpu-4gb` |
+| `node-3` | Agent host | IronClaw — `ai:charlie` | `s-2vcpu-4gb` |
 | `node-4` | ai-memory authoritative | `ai-memory serve --mcp --http` | `s-2vcpu-4gb` |
+
+> **IronClaw replaces OpenClaw** as the primary Rust-stack agent as of
+> 2026-04-21. OpenClaw is retained only in legacy mode for historical
+> dispatch reproduction — its >8 GB install-time memory requirement
+> forced DO account-tier-restricted droplet sizes. IronClaw (~500 MB
+> steady-state) fits on Basic-tier `s-2vcpu-4gb`. See
+> [docs/agents/ironclaw.md](docs/agents/ironclaw.md) for the full
+> rationale.
 
 All four in a DigitalOcean VPC. Agents reach ai-memory via the MCP
 stdio transport plus `/api/v1/` HTTP for batch operations. Between
