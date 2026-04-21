@@ -31,15 +31,15 @@ m1_id=$(ssh $SSH_OPTS root@"$NODE1_IP" \
 log "  M1 id=$m1_id"
 sleep 5
 
-# Concurrent PATCH from alice and bob.
-log "alice + bob issue concurrent PATCHes (vA=$VA_UUID from alice, vB=$VB_UUID from bob)"
+# Concurrent PUT from alice and bob.
+log "alice + bob issue concurrent PUTs (vA=$VA_UUID from alice, vB=$VB_UUID from bob)"
 (
   ssh $SSH_OPTS root@"$NODE1_IP" \
-    "curl -sS -X PATCH 'http://127.0.0.1:9077/api/v1/memories/$m1_id' \
+    "curl -sS -X PUT 'http://127.0.0.1:9077/api/v1/memories/$m1_id' \
       -H 'X-Agent-Id: ai:alice' -H 'Content-Type: application/json' \
       -d '{\"content\":\"$VA_UUID\"}' >/dev/null" &
   ssh $SSH_OPTS root@"$NODE2_IP" \
-    "curl -sS -X PATCH 'http://127.0.0.1:9077/api/v1/memories/$m1_id' \
+    "curl -sS -X PUT 'http://127.0.0.1:9077/api/v1/memories/$m1_id' \
       -H 'X-Agent-Id: ai:bob' -H 'Content-Type: application/json' \
       -d '{\"content\":\"$VB_UUID\"}' >/dev/null" &
   wait
@@ -53,7 +53,7 @@ for trip in node-1:$NODE1_IP node-2:$NODE2_IP node-3:$NODE3_IP node-4:$NODE4_IP;
   name=${trip%%:*}; ip=${trip##*:}
   c=$(ssh $SSH_OPTS root@"$ip" \
     "curl -sS 'http://127.0.0.1:9077/api/v1/memories/$m1_id' \
-      | jq -r '.content // \"(none)\"'" 2>/dev/null | tail -1)
+      | jq -r '.memory.content // \"(none)\"'" 2>/dev/null | tail -1)
   CONTENTS[$name]=$c
   log "  $name sees content=$c"
 done
@@ -70,7 +70,7 @@ fi
 winning="${CONTENTS[node-1]:-}"
 if [ "$winning" = "$V0_UUID" ] || [ -z "$winning" ] || [ "$winning" = "(none)" ]; then
   PASS=false
-  REASONS+=("winning content is not one of the submitted PATCH values: got \"$winning\"")
+  REASONS+=("winning content is not one of the submitted PUT values: got \"$winning\"")
 fi
 
 jq -n \

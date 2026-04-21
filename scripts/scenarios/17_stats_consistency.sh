@@ -28,9 +28,11 @@ set -e
 AID="$1"; NS="$2"; N="$3"
 for i in $(seq 1 "$N"); do
   u="stats-$AID-$i-$(cat /proc/sys/kernel/random/uuid)"
+  # Title must include AID so UPSERT on (title, namespace) doesn't dedup
+  # cross-agent writes to the same stats-N slot.
   curl -sS -X POST 'http://127.0.0.1:9077/api/v1/memories' \
     -H "X-Agent-Id: $AID" -H 'Content-Type: application/json' \
-    -d "{\"tier\":\"mid\",\"namespace\":\"$NS\",\"title\":\"stats-$i\",\"content\":\"$u\",\"priority\":5,\"confidence\":1.0,\"source\":\"api\",\"metadata\":{\"agent_id\":\"$AID\",\"scenario\":\"17\"}}" \
+    -d "{\"tier\":\"mid\",\"namespace\":\"$NS\",\"title\":\"stats-$AID-$i\",\"content\":\"$u\",\"priority\":5,\"confidence\":1.0,\"source\":\"api\",\"metadata\":{\"agent_id\":\"$AID\",\"scenario\":\"17\"}}" \
     >/dev/null
 done
 REMOTE
