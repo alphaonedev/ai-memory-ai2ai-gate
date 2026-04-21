@@ -1,0 +1,61 @@
+{
+  "campaign_id": "a2a-openclaw-v0.6.0-r12",
+  "agent_group": "openclaw",
+  "ai_memory_git_ref": "v0.6.0",
+  "infra": {
+    "provider": "digitalocean",
+    "region": "nyc3",
+    "droplet_size": "s-2vcpu-4gb",
+    "topology": "4-node federation mesh (W=2/N=4)",
+    "nodes": [
+      {
+        "index": 1,
+        "role": "agent",
+        "agent_id": "ai:alice",
+        "public_ip": "64.225.25.73",
+        "private_ip": "10.251.0.3"
+      },
+      {
+        "index": 2,
+        "role": "agent",
+        "agent_id": "ai:bob",
+        "public_ip": "161.35.190.29",
+        "private_ip": "10.251.0.5"
+      },
+      {
+        "index": 3,
+        "role": "agent",
+        "agent_id": "ai:charlie",
+        "public_ip": "157.245.12.246",
+        "private_ip": "10.251.0.2"
+      },
+      {
+        "index": 4,
+        "role": "memory-only",
+        "agent_id": null,
+        "public_ip": "165.227.191.250",
+        "private_ip": "10.251.0.4"
+      }
+    ]
+  },
+  "scenarios_requested": [
+    "1",
+    "1b",
+    "2",
+    "4",
+    "9",
+    "10",
+    "15",
+    "17"
+  ],
+  "timing": {
+    "started_at": "",
+    "ended_at": ""
+  },
+  "ci": {
+    "actor": "alphaonedev",
+    "workflow_url": "https://github.com/alphaonedev/ai-memory-ai2ai-gate/actions/runs/24699794895",
+    "harness_sha": "ce9c704f1aad8a6f575737ef1a9469d6aa994dd3",
+    "runner_os": "Linux"
+  }
+}
