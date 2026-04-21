@@ -141,12 +141,10 @@ jobs:
           echo "node3_priv=$NODE3_PRIV"   >> "$GITHUB_OUTPUT"
 
       - name: Provision all 4 nodes (federation mesh)
-        timeout-minutes: 25
+        timeout-minutes: 35
         run: |
           set -e
           AMV=$(echo '${{ github.event.inputs.ai_memory_git_ref }}' | sed -e 's/^v//' -e 's|release/||')
-          # Compute per-node PEER_URLS: every node federates with the
-          # other 3 on port 9077 via private IPs. W=2 of N=4.
           P1=http://${{ steps.wait.outputs.node1_priv }}:9077
           P2=http://${{ steps.wait.outputs.node2_priv }}:9077
           P3=http://${{ steps.wait.outputs.node3_priv }}:9077
@@ -156,41 +154,43 @@ jobs:
           NODE[2]="${{ steps.wait.outputs.node2_ip }}|agent|ai:bob|$P1,$P3,$P4"
           NODE[3]="${{ steps.wait.outputs.node3_ip }}|agent|ai:charlie|$P1,$P2,$P4"
           NODE[4]="${{ steps.wait.outputs.memory_ip }}|memory-only||$P1,$P2,$P3"
-          # PARALLEL provisioning — 4× cost reduction. Sequential was
-          # 4×~10min = 40min+ (r12/r13 hit 60-min job timeout).
-          # Parallel: ~10min wall for 4 nodes.
+          # PARALLEL provisioning with LIVE OUTPUT. Each node's ssh
+          # stdout+stderr streams to this step's stdout with an [nN]
+          # prefix, AND to /tmp/provision-logs/node-N.log. So we see
+          # real-time progress even when step timeout fires (r14-r17
+          # kept hitting timeout with no visibility into which node
+          # hung on which command).
           mkdir -p /tmp/provision-logs
           PIDS=()
+          declare -A PID_TO_NODE
           for i in 1 2 3 4; do
             IFS='|' read -r ip role aid peers <<< "${NODE[$i]}"
             (
-              {
-                echo "::group::provision node-$i (role=$role, peers=$peers)"
-                scp -o StrictHostKeyChecking=no scripts/setup_node.sh scripts/drive_agent.sh root@$ip:/root/
-                chmod_cmd="chmod +x /root/setup_node.sh /root/drive_agent.sh"
-                env_cmd="NODE_INDEX=$i ROLE=$role PEER_URLS='$peers' AI_MEMORY_VERSION=$AMV"
-                [ "$role" = "agent" ] && env_cmd="$env_cmd AGENT_TYPE=${AGENT_GROUP} AGENT_ID=$aid XAI_API_KEY='${XAI_API_KEY}' OPENCLAW_INSTALL_CMD='${OPENCLAW_INSTALL_CMD}' HERMES_INSTALL_CMD='${HERMES_INSTALL_CMD}'"
-                ssh -o StrictHostKeyChecking=no root@$ip "$chmod_cmd && $env_cmd bash /root/setup_node.sh"
-                echo "::endgroup::"
-              } > /tmp/provision-logs/node-$i.log 2>&1
-              echo "[provision] node-$i EXIT=$?"
-            ) &
+              echo "[n$i] === BEGIN provision node-$i role=$role ip=$ip peers=$peers ==="
+              scp -o StrictHostKeyChecking=no scripts/setup_node.sh scripts/drive_agent.sh root@$ip:/root/ 2>&1 | sed "s/^/[n$i scp] /"
+              chmod_cmd="chmod +x /root/setup_node.sh /root/drive_agent.sh"
+              env_cmd="NODE_INDEX=$i ROLE=$role PEER_URLS='$peers' AI_MEMORY_VERSION=$AMV"
+              [ "$role" = "agent" ] && env_cmd="$env_cmd AGENT_TYPE=${AGENT_GROUP} AGENT_ID=$aid XAI_API_KEY='${XAI_API_KEY}' OPENCLAW_INSTALL_CMD='${OPENCLAW_INSTALL_CMD}' HERMES_INSTALL_CMD='${HERMES_INSTALL_CMD}'"
+              # stdbuf -oL forces line-buffered stdout on the ssh side
+              # so `sed` gets each log line promptly — without it the
+              # remote bash may buffer up big chunks before flushing.
+              stdbuf -oL ssh -o StrictHostKeyChecking=no root@$ip "$chmod_cmd && $env_cmd bash /root/setup_node.sh" 2>&1 \
+                | stdbuf -oL sed "s/^/[n$i] /"
+              EC=${PIPESTATUS[0]}
+              echo "[n$i] === EXIT $EC ==="
+              exit $EC
+            ) 2>&1 | tee "/tmp/provision-logs/node-$i.log" &
             PIDS+=($!)
+            PID_TO_NODE[$!]=$i
           done
-          # Wait for all 4 provisioning jobs; record per-node exit code.
+          # Wait for all 4; track per-node exit code.
           FAIL=0
-          for i in "${!PIDS[@]}"; do
-            if ! wait "${PIDS[$i]}"; then
-              echo "::error::provision node-$((i+1)) failed"
+          for pid in "${PIDS[@]}"; do
+            if ! wait "$pid"; then
+              n=${PID_TO_NODE[$pid]}
+              echo "::error::provision node-$n failed"
               FAIL=1
             fi
-          done
-          # Dump each node's log into the Actions log with visible
-          # grouping so failures are localizable.
-          for i in 1 2 3 4; do
-            echo "::group::===== node-$i log ====="
-            cat /tmp/provision-logs/node-$i.log || true
-            echo "::endgroup::"
           done
           [ "$FAIL" = "0" ] || { echo "::error::one or more nodes failed to provision"; exit 1; }
 
