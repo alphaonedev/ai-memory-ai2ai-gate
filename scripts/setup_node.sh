@@ -23,11 +23,12 @@
 #   ROLE          — "agent" or "memory-only"
 #
 # Agent-only env (when ROLE=agent):
-#   AGENT_TYPE    — "openclaw" or "hermes"
+#   AGENT_TYPE    — "ironclaw" or "hermes" ("openclaw" legacy, being retired)
 #   AGENT_ID      — "ai:alice" / "ai:bob" / "ai:charlie"
 #
 # Optional env:
 #   AI_MEMORY_VERSION       — default 0.6.0
+#   IRONCLAW_INSTALL_CMD    — operator-supplied install one-liner
 #   OPENCLAW_INSTALL_CMD    — operator-supplied install one-liner
 #   HERMES_INSTALL_CMD      — operator-supplied install one-liner
 
@@ -362,6 +363,115 @@ EOF
     log "openclaw configured with xAI Grok + ai-memory MCP (agent_id=${AGENT_ID})"
     ;;
 
+  ironclaw)
+    # IronClaw is NEAR AI's Rust reimplementation of OpenClaw. Same
+    # agentic-loops + tool-use category, much smaller resource footprint:
+    # Rust binary baseline ~50-500MB vs OpenClaw's >8GB install-time
+    # memory (r18 OOM on s-4vcpu-8gb). IronClaw fits on s-2vcpu-4gb
+    # Basic-tier droplets — no DO account-tier upgrade required.
+    #
+    # Upstream: https://github.com/nearai/ironclaw
+    # Dep: PostgreSQL 15+ with pgvector (ironclaw's own memory; does
+    # NOT affect ai-memory substrate which stays SQLite-backed).
+
+    # ---- PostgreSQL + pgvector ---------------------------------------
+    log "installing PostgreSQL + pgvector for ironclaw"
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+      postgresql postgresql-contrib postgresql-15-pgvector 2>&1 \
+      | sed 's/^/[pg-install] /' \
+      || DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+           postgresql postgresql-contrib 2>&1 | sed 's/^/[pg-install-fallback] /' \
+      || log "postgres install returned non-zero; continuing"
+    systemctl start postgresql 2>&1 | sed 's/^/[pg-start] /' || true
+    systemctl enable postgresql >/dev/null 2>&1 || true
+    # Wait for postgres to accept connections (cold start can take ~3s).
+    for attempt in $(seq 1 10); do
+      sudo -u postgres psql -c 'SELECT 1' >/dev/null 2>&1 && break
+      sleep 1
+    done
+    sudo -u postgres psql -c "CREATE USER ironclaw WITH PASSWORD 'ironclaw' SUPERUSER;" >/dev/null 2>&1 || true
+    sudo -u postgres createdb -O ironclaw ironclaw 2>/dev/null || log "ironclaw db already exists"
+    sudo -u postgres psql -d ironclaw -c "CREATE EXTENSION IF NOT EXISTS vector;" 2>&1 \
+      | sed 's/^/[pgvector] /' || log "pgvector extension unavailable; ironclaw may fall back"
+
+    # ---- IronClaw binary --------------------------------------------
+    log "installing ironclaw via official installer (timeout ${TIMEOUT_INSTALL_SH}s)"
+    timeout -k 30 "$TIMEOUT_INSTALL_SH" bash -c '
+      curl --proto "=https" --tlsv1.2 -LsSf --max-time 60 \
+        https://github.com/nearai/ironclaw/releases/latest/download/ironclaw-installer.sh | sh 2>&1
+    ' | sed 's/^/[ironclaw-install] /' \
+      || log "installer returned non-zero — falling through to presence check"
+
+    # Symlink to /usr/local/bin for deterministic PATH across SSH sessions.
+    if ! command -v ironclaw >/dev/null 2>&1 || [ ! -x /usr/local/bin/ironclaw ]; then
+      IC_BIN=$(command -v ironclaw || find /root/.ironclaw /root/.cargo/bin /usr/local -maxdepth 6 -name ironclaw -type f -executable 2>/dev/null | head -1)
+      if [ -n "$IC_BIN" ] && [ -x "$IC_BIN" ]; then
+        ln -sf "$IC_BIN" /usr/local/bin/ironclaw
+        log "symlinked /usr/local/bin/ironclaw -> $IC_BIN"
+      fi
+    fi
+    if ! command -v ironclaw >/dev/null 2>&1; then
+      log "FATAL: ironclaw not on PATH after install"
+      exit 1
+    fi
+    ic_version_out=$(ironclaw --version 2>&1 || true)
+    if [ -z "$ic_version_out" ]; then
+      log "ironclaw --version returned empty — install truly incomplete"
+      exit 1
+    fi
+    log "ironclaw version: $(echo "$ic_version_out" | head -1)"
+
+    # ---- Bootstrap .env (DATABASE_URL + LLM via OpenAI-compat xAI) ---
+    # IronClaw's bootstrap honours env > DB > default, and `.env` is
+    # where pre-DB settings go (per src/bootstrap.rs).
+    mkdir -p /root/.ironclaw
+    cat > /root/.ironclaw/.env <<EOF
+DATABASE_URL=postgres://ironclaw:ironclaw@127.0.0.1:5432/ironclaw
+LLM_BACKEND=openai_compatible
+LLM_BASE_URL=https://api.x.ai/v1
+LLM_API_KEY=${XAI_API_KEY}
+LLM_MODEL=${A2A_GATE_LLM_MODEL}
+HTTP_PORT=8081
+EOF
+    chmod 600 /root/.ironclaw/.env
+
+    # ---- Init config.toml (default scaffold; best-effort) ------------
+    ironclaw config init --force 2>&1 | sed 's/^/[ironclaw-config-init] /' \
+      || log "ironclaw config init non-zero; defaults applied in-memory"
+
+    # ---- Thesis-integrity lockdowns (shared-memory-only profile) -----
+    # The gate's thesis ("shared-memory A2A works via ai-memory") is
+    # only falsifiable when no OTHER A2A channel is available. Disable
+    # all messaging channels, pin gateway to local, tag the profile.
+    ironclaw config set channels.telegram.enabled false 2>/dev/null || true
+    ironclaw config set channels.discord.enabled  false 2>/dev/null || true
+    ironclaw config set channels.slack.enabled    false 2>/dev/null || true
+    ironclaw config set gateway.mode local               2>/dev/null || true
+    ironclaw config set a2a_gate_profile shared-memory-only 2>/dev/null || true
+    ironclaw config set a2a_gate_profile_version 1.0.0      2>/dev/null || true
+
+    # ---- Register ai-memory MCP (stdio transport) --------------------
+    # Per src/cli/mcp.rs: `ironclaw mcp add <name> --transport stdio
+    # --command <cmd> --arg <a> --arg <b> --env KEY=VALUE`. Repeatable.
+    ironclaw mcp add memory \
+      --transport stdio \
+      --command ai-memory \
+      --arg --db --arg /var/lib/ai-memory/a2a.db \
+      --arg mcp --arg --tier --arg semantic \
+      --env "AI_MEMORY_AGENT_ID=${AGENT_ID}" \
+      --description "Shared-memory A2A via ai-memory (a2a-gate)" 2>&1 \
+      | sed 's/^/[ironclaw-mcp-add] /' \
+      || log "ironclaw mcp add returned non-zero; may already be registered"
+
+    # Verify MCP landed.
+    if ! ironclaw mcp list 2>/dev/null | grep -q memory; then
+      log "FATAL: ai-memory MCP not registered with ironclaw after mcp add"
+      exit 1
+    fi
+
+    log "ironclaw configured with xAI Grok + ai-memory MCP (agent_id=${AGENT_ID})"
+    ;;
+
   hermes)
     # PINNED REF — repeatability requirement. Bump via semver change-
     # control (docs/baseline.md §12). Verified 2026-04-20 to work with
@@ -530,6 +640,17 @@ case "$AGENT_TYPE" in
     has_mem=$(jq -e '.mcpServers.memory.command == "ai-memory"' /root/.openclaw/openclaw.json >/dev/null 2>&1 && echo true || echo false)
     has_aid=$(jq -e --arg a "$AGENT_ID" '.mcpServers.memory.env.AI_MEMORY_AGENT_ID == $a' /root/.openclaw/openclaw.json >/dev/null 2>&1 && echo true || echo false)
     ;;
+  ironclaw)
+    ob=$(readlink -f "$(command -v ironclaw 2>/dev/null || echo /nonexistent)" 2>/dev/null || echo "")
+    is_authentic=$([ -n "$ob" ] && [ -z "${ob##*ironclaw*}" ] && echo true || echo false)
+    fw_version=$(ironclaw --version 2>/dev/null | head -1 | tr -d '"' || echo "unknown")
+    mcp_registered=$(baseline_check "mcp-list" "ironclaw mcp list 2>/dev/null | grep -q memory")
+    has_xai=$(grep -qE '^LLM_BASE_URL=https://api\.x\.ai/v1' /root/.ironclaw/.env 2>/dev/null && \
+              grep -qF "LLM_MODEL=${A2A_GATE_LLM_MODEL}" /root/.ironclaw/.env 2>/dev/null && echo true || echo false)
+    default_xai=$(grep -qE '^LLM_BACKEND=openai_compatible' /root/.ironclaw/.env 2>/dev/null && echo true || echo false)
+    has_mem=$(ironclaw mcp list --verbose 2>/dev/null | grep -qE '(command.*ai-memory|ai-memory)' && echo true || echo false)
+    has_aid=$(ironclaw mcp list --verbose 2>/dev/null | grep -qF "AI_MEMORY_AGENT_ID=${AGENT_ID}" && echo true || echo false)
+    ;;
   hermes)
     ob=$(readlink -f "$(command -v hermes 2>/dev/null || echo /nonexistent)" 2>/dev/null || echo "")
     is_authentic=$([ -n "$ob" ] && [ -z "${ob##*hermes*}" ] && echo true || echo false)
@@ -574,6 +695,7 @@ fi
 # but is repeatable across runs for the same (AGENT_TYPE, AGENT_ID) pair.
 case "$AGENT_TYPE" in
   openclaw) config_sha256=$(sha256sum /root/.openclaw/openclaw.json 2>/dev/null | awk '{print $1}') ;;
+  ironclaw) config_sha256=$(sha256sum /root/.ironclaw/.env          2>/dev/null | awk '{print $1}') ;;
   hermes)   config_sha256=$(sha256sum /root/.hermes/config.yaml     2>/dev/null | awk '{print $1}') ;;
   *)        config_sha256="" ;;
 esac
@@ -599,6 +721,25 @@ case "$AGENT_TYPE" in
     ' /root/.openclaw/openclaw.json >/dev/null 2>&1 && echo true || echo false)
     tools_are_memory_only=$(jq -e '[.toolAllowlist[] | select(startswith("memory_") | not)] | length == 0' /root/.openclaw/openclaw.json >/dev/null 2>&1 && echo true || echo false)
     profile_locked=$(jq -e '.a2aGateProfile == "shared-memory-only"' /root/.openclaw/openclaw.json >/dev/null 2>&1 && echo true || echo false)
+    ;;
+  ironclaw)
+    # IronClaw has no cross-channel A2A by default (REPL-oriented Rust
+    # agent). Channels/gateway are the config surface; we pinned them
+    # off in the install block. Thesis-integrity = enumerated-off attest.
+    a2a_master_off=$(ironclaw config get gateway.mode 2>/dev/null | grep -q local && echo true || echo false)
+    # IronClaw has no "sub-agent sessions" tool family; always true.
+    no_sessions_tools=true
+    no_chat_channels=$(
+      tg=$(ironclaw config get channels.telegram.enabled 2>/dev/null)
+      di=$(ironclaw config get channels.discord.enabled  2>/dev/null)
+      sl=$(ironclaw config get channels.slack.enabled    2>/dev/null)
+      [ "$tg" = "false" ] && [ "$di" = "false" ] && [ "$sl" = "false" ] && echo true || echo false
+    )
+    # Tool allowlist happens at MCP registration time (only ai-memory
+    # registered). Verify exactly one MCP server is configured.
+    mcp_count=$(ironclaw mcp list 2>/dev/null | grep -cE '^[^[:space:]]' || echo 0)
+    tools_are_memory_only=$([ "$mcp_count" = "1" ] && ironclaw mcp list 2>/dev/null | grep -q memory && echo true || echo false)
+    profile_locked=$(ironclaw config get a2a_gate_profile 2>/dev/null | grep -q shared-memory-only && echo true || echo false)
     ;;
   hermes)
     # YAML — use python3 for robust parsing.
