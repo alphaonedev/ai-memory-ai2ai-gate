@@ -14,9 +14,9 @@ on:
   workflow_dispatch:
     inputs:
       ai_memory_git_ref:
-        description: "ai-memory-mcp release or git ref"
+        description: "ai-memory-mcp release or pre-release tag (v0.6.2-rc.N for consistency-gate testing; v0.6.2 for final). The setup_node.sh binary download URL uses this verbatim."
         required: true
-        default: "v0.6.0"
+        default: "v0.6.2-rc.0"
       agent_group:
         description: "Which agent framework to run in this campaign. Every agent droplet in the campaign uses the SAME framework (homogeneous group). ironclaw (Rust, 4GB) and hermes (Python, 4GB) are the supported groups; openclaw (Python, 16GB+) is LEGACY and being retired — kept for historical dispatch reproduction only."
         required: true
@@ -29,7 +29,7 @@ on:
       campaign_id:
         description: "Campaign identifier (becomes runs/<id>/). Suggested format: a2a-<group>-<release>-rN"
         required: true
-        default: "a2a-ironclaw-v0.6.1-r1"
+        default: "a2a-ironclaw-v0.6.2-rc.0-r1"
       region:
         description: "DigitalOcean region"
         required: false
