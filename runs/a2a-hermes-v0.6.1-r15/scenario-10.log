@@ -1,0 +1,12 @@
+[scenario-10 hermes] alice writes M1 content=a92304de-17cc-4a44-ad67-3afac35003c1 on node-1
+[scenario-10 hermes]   created memory id=003312f1-6c2a-4d39-9f89-16fe21f03383
+[scenario-10 hermes] pre-delete: verifying M1 is visible on all peers
+[scenario-10 hermes]   pre-delete node-2 sees 1
+[scenario-10 hermes]   pre-delete node-3 sees 1
+[scenario-10 hermes]   pre-delete node-4 sees 1
+[scenario-10 hermes] alice deletes M1 on node-1
+[scenario-10 hermes]   DELETE returned HTTP 200
+[scenario-10 hermes] post-delete: verifying M1 is GONE from all peers
+[scenario-10 hermes]   post-delete node-2 sees 0 (expected 0)
+[scenario-10 hermes]   post-delete node-3 sees 0 (expected 0)
+[scenario-10 hermes]   post-delete node-4 sees 0 (expected 0)

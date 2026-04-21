@@ -1,0 +1,14 @@
+{
+  "scenario": "9",
+  "pass": true,
+  "agent_group": "hermes",
+  "m1_id": "fc43b876-75e7-4958-b653-0ce189ccd591",
+  "v1_uuid": "5e4212aa-9cf2-4a77-b928-632238525db2",
+  "v2_uuid": "f1ef8d05-cbc6-4c57-ae8c-2adab77dd630",
+  "put_http_code": "200",
+  "charlie_view": {
+    "content": "f1ef8d05-cbc6-4c57-ae8c-2adab77dd630",
+    "agent_id": "ai:alice"
+  },
+  "reasons": []
+}

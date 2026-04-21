@@ -1,0 +1,9 @@
+{
+  "probe": "F3",
+  "name": "peer-a2a-via-shared-memory",
+  "description": "Writer agent posts a canary via local ai-memory HTTP on node-1; verifies the row propagates to the 3 peer nodes (W=2/N=4 quorum) before scenarios run.",
+  "canary_uuid": "8fd35a4a-6ae4-4401-b149-6af2de99f565",
+  "canary_namespace": "_baseline_peer_canary",
+  "writer_agent": "ai:alice",
+  "pass": true
+}

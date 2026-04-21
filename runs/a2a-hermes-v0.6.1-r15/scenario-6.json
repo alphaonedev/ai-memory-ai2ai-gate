@@ -1,0 +1,12 @@
+{
+  "scenario": "6",
+  "pass": true,
+  "agent_group": "hermes",
+  "topic": "sky-color-2ff89578",
+  "alice_id": "2f0496b6-d07c-4f4a-987f-669520e9ff2d",
+  "bob_id": "a69c953c-6669-49bf-9de8-31af2c914392",
+  "detect_http_code": "200",
+  "charlie_sees_both_memories": 1,
+  "charlie_sees_contradicts_link": 1,
+  "reasons": []
+}

@@ -1,0 +1,10 @@
+[scenario-5 hermes] phase A: each agent writes 3 related memories
+[scenario-5 hermes]   ai:alice on 104.131.175.180
+[scenario-5 hermes]   ai:bob on 45.55.150.191
+[scenario-5 hermes]   ai:charlie on 134.122.4.163
+[scenario-5 hermes] phase B: collect source memory IDs on node-1, then trigger consolidate
+[scenario-5 hermes]   source ids: ["b3fd777e-f801-4416-b9dd-8bd315c0dab2","c5776512-0ecb-4acd-9dc0-9c7efcb82b91","af393bb1-b29b-47bc-bfc0-85f3a6409d24","abf15e33-2318-4486-86e0-d75ef77452e1","7d65ea36-546c-4020-acbe-16bd9484526c","43f9b2be-01ad-48f6-ab1e-e20d4169e8b4","d86bcf69-249b-4fdd-9108-23d1ea815a95","a1076dbd-d839-4e40-bda6-1241e85ca145","fd847582-d0dc-4751-a206-da5f2c2a8f0f"]
+[scenario-5 hermes]   consolidate returned HTTP 201
+[scenario-5 hermes]   consolidated memory id=0bbdaf10-6764-4a13-a565-f429718548f6
+[scenario-5 hermes] phase C: verifying consolidated_from_agents on node-4
+[scenario-5 hermes]   consolidated_from_agents=[]

@@ -5,36 +5,36 @@
   "infra": {
     "provider": "digitalocean",
     "region": "nyc3",
-    "droplet_size": "s-4vcpu-16gb",
+    "droplet_size": "s-2vcpu-4gb",
     "topology": "4-node federation mesh (W=2/N=4)",
     "nodes": [
       {
         "index": 1,
         "role": "agent",
         "agent_id": "ai:alice",
-        "public_ip": "",
-        "private_ip": ""
+        "public_ip": "104.131.175.180",
+        "private_ip": "10.252.0.3"
       },
       {
         "index": 2,
         "role": "agent",
         "agent_id": "ai:bob",
-        "public_ip": "",
-        "private_ip": ""
+        "public_ip": "45.55.150.191",
+        "private_ip": "10.252.0.2"
       },
       {
         "index": 3,
         "role": "agent",
         "agent_id": "ai:charlie",
-        "public_ip": "",
-        "private_ip": ""
+        "public_ip": "134.122.4.163",
+        "private_ip": "10.252.0.4"
       },
       {
         "index": 4,
         "role": "memory-only",
         "agent_id": null,
-        "public_ip": "",
-        "private_ip": ""
+        "public_ip": "134.122.12.244",
+        "private_ip": "10.252.0.5"
       }
     ]
   },
@@ -57,13 +57,13 @@
     "18"
   ],
   "timing": {
-    "started_at": "",
-    "ended_at": ""
+    "started_at": "2026-04-21T14:13:00Z",
+    "ended_at": "2026-04-21T14:22:49Z"
   },
   "ci": {
     "actor": "alphaonedev",
-    "workflow_url": "https://github.com/alphaonedev/ai-memory-ai2ai-gate/actions/runs/24726502902",
-    "harness_sha": "894ab758865616475157234248947d543d0cc648",
+    "workflow_url": "https://github.com/alphaonedev/ai-memory-ai2ai-gate/actions/runs/24726728164",
+    "harness_sha": "c7e59b74dce003b3d8b9bc9bc0d2ba2bf489d045",
     "runner_os": "Linux"
   }
 }

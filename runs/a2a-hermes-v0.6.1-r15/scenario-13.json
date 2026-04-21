@@ -1,0 +1,18 @@
+{
+  "scenario": "13",
+  "pass": true,
+  "agent_group": "hermes",
+  "m1_id": "bcc7e6f3-7447-45bb-b8ae-e36b9257f546",
+  "submitted": {
+    "v0": "22d7afd0-8b21-4387-8045-a299d3b2fc82",
+    "vA_alice": "243edee5-13a0-4581-9731-c7de788a54aa",
+    "vB_bob": "2b24cd3f-35b9-46a1-9165-a97b4f8c2107"
+  },
+  "peer_view": {
+    "node_1": "243edee5-13a0-4581-9731-c7de788a54aa",
+    "node_2": "243edee5-13a0-4581-9731-c7de788a54aa",
+    "node_3": "243edee5-13a0-4581-9731-c7de788a54aa",
+    "node_4": "243edee5-13a0-4581-9731-c7de788a54aa"
+  },
+  "reasons": []
+}

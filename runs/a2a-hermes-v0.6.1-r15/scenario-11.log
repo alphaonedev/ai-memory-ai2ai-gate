@@ -1,0 +1,7 @@
+[scenario-11 hermes] alice writes M1 on node-1
+[scenario-11 hermes] bob writes M2 on node-2
+[scenario-11 hermes]   M1=61e00dff-a951-47bc-80b4-0f5566de762a M2=790a3c8f-f6ca-4ad6-a1f2-59fa33172fbc
+[scenario-11 hermes] alice links M1 -> M2 with relation=related_to
+[scenario-11 hermes]   link POST returned HTTP 201
+[scenario-11 hermes] charlie queries links of M1 on node-3
+[scenario-11 hermes]   charlie sees M1->M2 link: 0 (expected >=1)
