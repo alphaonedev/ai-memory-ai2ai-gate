@@ -1,0 +1,5 @@
+{
+  "baseline_pass": false,
+  "per_node": [],
+  "failure_mode": "baseline-violation"
+}
