@@ -375,9 +375,26 @@ EOF
     # NOT affect ai-memory substrate which stays SQLite-backed).
 
     # ---- PostgreSQL + pgvector ---------------------------------------
-    log "installing PostgreSQL + pgvector for ironclaw"
+    # Ubuntu 24.04 noble DO droplets don't ship postgresql-15-pgvector in
+    # the default apt sources (r1 fallback to postgresql-16 without
+    # pgvector). Add the PostgreSQL Global Development Group (PGDG) apt
+    # repository via the postgresql-common helper — this is the canonical
+    # way to get pgvector + version-pinned Postgres on Ubuntu.
+    log "adding PGDG apt repository"
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-      postgresql postgresql-contrib postgresql-15-pgvector 2>&1 \
+      postgresql-common curl ca-certificates 2>&1 | sed 's/^/[pg-common] /' \
+      || log "postgresql-common install non-zero; continuing"
+    if [ -x /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh ]; then
+      /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y 2>&1 \
+        | sed 's/^/[pgdg-setup] /' \
+        || log "pgdg-setup non-zero; continuing"
+    else
+      log "pgdg helper absent; falling back to default apt"
+    fi
+    log "installing PostgreSQL 15 + pgvector for ironclaw"
+    DEBIAN_FRONTEND=noninteractive apt-get update 2>&1 | sed 's/^/[pg-apt-update] /' || true
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+      postgresql-15 postgresql-15-pgvector postgresql-contrib-15 2>&1 \
       | sed 's/^/[pg-install] /' \
       || DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
            postgresql postgresql-contrib 2>&1 | sed 's/^/[pg-install-fallback] /' \
