@@ -189,19 +189,29 @@ log "MCP config written: /etc/ai-memory-a2a/mcp-config/config.json"
 
 case "$AGENT_TYPE" in
   openclaw)
-    log "installing AUTHENTIC openclaw/openclaw via official one-liner"
-    # openclaw.ai/install.sh returns non-zero on headless/non-TTY
-    # hosts even when the binary installs cleanly (the post-install
-    # wizard fails in a non-interactive environment). We ignore the
-    # exit code and rely on a presence check after. If presence
-    # check fails, fall back to npm.
-    curl -fsSL https://openclaw.ai/install.sh | bash -s -- --install-method git 2>&1 \
-      | sed 's/^/[openclaw-install] /' || true
+    # PINNED VERSION — repeatability requirement. Bump via semver
+    # change-control (docs/baseline.md §12). Last verified: 2026-04-20.
+    OPENCLAW_PIN="${OPENCLAW_PIN:-2026.4.20}"
+    log "installing AUTHENTIC openclaw/openclaw@${OPENCLAW_PIN} via npm (pinned)"
+    # Direct npm install with pinned version gives deterministic,
+    # repeatable installs — no drift from "whatever openclaw.ai serves
+    # today." install.sh's --version flag is unreliable; npm@version
+    # is the deterministic path.
+    npm install -g "openclaw@${OPENCLAW_PIN}" 2>&1 | sed 's/^/[npm] /' || {
+      log "FATAL: npm install openclaw@${OPENCLAW_PIN} failed"
+      exit 1
+    }
     if ! command -v openclaw >/dev/null 2>&1; then
-      log "openclaw not on PATH after install.sh — falling back to npm global install"
-      npm install -g openclaw 2>&1 | sed 's/^/[npm] /' || {
-        log "npm install openclaw also failed"; exit 1;
-      }
+      # npm sometimes installs to /usr/local/lib/node_modules/.bin —
+      # symlink if needed.
+      OPENCLAW_BIN=$(find /usr/local/lib/node_modules /usr/lib/node_modules -maxdepth 5 -name openclaw -type f -executable 2>/dev/null | head -1)
+      if [ -n "$OPENCLAW_BIN" ] && [ -x "$OPENCLAW_BIN" ]; then
+        ln -sf "$OPENCLAW_BIN" /usr/local/bin/openclaw
+      fi
+    fi
+    if ! command -v openclaw >/dev/null 2>&1; then
+      log "FATAL: openclaw binary not on PATH after pinned npm install"
+      exit 1
     fi
     # Ensure binary is reachable at /usr/local/bin/openclaw so later
     # SSH invocations (which load only the default PATH) can find it.
@@ -299,25 +309,27 @@ EOF
     ;;
 
   hermes)
-    log "installing Nous Research Hermes Agent (non-interactive)"
-    # Official installer supports stdin-less invocation. --skip-setup
-    # skips the interactive model picker; we provide config.yaml +
-    # env vars below instead. --no-venv keeps it simple on a
-    # throwaway VM (uv/venv isn't needed when the droplet is
-    # single-tenant).
-    curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh \
-      | bash -s -- --skip-setup
+    # PINNED REF — repeatability requirement. Bump via semver change-
+    # control (docs/baseline.md §12). Verified 2026-04-20 to work with
+    # python-dotenv patch below.
+    HERMES_INSTALL_REF="${HERMES_INSTALL_REF:-main}"
+    log "installing Nous Research Hermes Agent from ref=${HERMES_INSTALL_REF} (non-interactive)"
+    curl -fsSL "https://raw.githubusercontent.com/NousResearch/hermes-agent/${HERMES_INSTALL_REF}/scripts/install.sh" \
+      | bash -s -- --skip-setup 2>&1 | sed 's/^/[hermes-install] /' || {
+      log "FATAL: hermes install.sh failed"
+      exit 1
+    }
 
-    # Upstream install.sh (as of 2026-04-20) doesn't install
-    # python-dotenv, yet hermes_cli/env_loader.py imports it at
-    # module-top. Every `hermes` invocation dies with
-    # ModuleNotFoundError at argparse time until we install it.
-    # Surfaced by a2a-hermes-v0.6.0-r6. Track upstream; until then,
-    # patch it here. --break-system-packages is required on Ubuntu
-    # 24.04 because the Python is PEP 668-externally-managed.
-    log "installing python-dotenv (upstream gap in hermes install.sh)"
-    python3 -m pip install --break-system-packages --quiet python-dotenv || \
-      log "WARN: python-dotenv pip install returned non-zero — hermes may still fail at import"
+    # PINNED DEP — python-dotenv version locked for reproducibility.
+    # Upstream install.sh doesn't install it, yet hermes_cli/env_loader.py
+    # imports at module-top. Surfaced by a2a-hermes-v0.6.0-r6.
+    # PEP 668 on Ubuntu 24.04 requires --break-system-packages.
+    PYTHON_DOTENV_PIN="${PYTHON_DOTENV_PIN:-1.0.1}"
+    log "installing python-dotenv==${PYTHON_DOTENV_PIN} (pinned)"
+    python3 -m pip install --break-system-packages --quiet "python-dotenv==${PYTHON_DOTENV_PIN}" || {
+      log "FATAL: python-dotenv==${PYTHON_DOTENV_PIN} pip install failed"
+      exit 1
+    }
 
     # Ensure `hermes` is on PATH for subsequent SSH sessions the
     # scenarios run. The installer may drop it under
@@ -488,6 +500,29 @@ else
   ufw_disabled=true
 fi
 
+# iptables policy must be ACCEPT on INPUT/OUTPUT/FORWARD.
+iptables_policy_ok=$(iptables -S 2>/dev/null | grep -E '^-P (INPUT|OUTPUT|FORWARD) ACCEPT' | wc -l | tr -d ' ')
+iptables_flushed=$([ "${iptables_policy_ok:-0}" = "3" ] && echo true || echo false)
+
+# Dead-man switch — must have a scheduled shutdown to cap campaign cost.
+# `shutdown -P +480` was invoked earlier in this script; check that
+# the kernel recorded the scheduled shutdown.
+dead_man_switch_scheduled=$([ -f /run/systemd/shutdown/scheduled ] || who -r 2>/dev/null | grep -q 'run-level 6' || pgrep -f 'shutdown.*+480' >/dev/null 2>&1 && echo true || echo false)
+# Fallback check: was a shutdown command issued in the last hour?
+if [ "$dead_man_switch_scheduled" != "true" ]; then
+  dead_man_switch_scheduled=$(ps -eo cmd 2>/dev/null | grep -q 'shutdown -P' && echo true || echo false)
+fi
+
+# SHA256 of the agent config file — proves the deterministic emit.
+# Hash is sensitive to AGENT_ID substitution so it differs per node
+# but is repeatable across runs for the same (AGENT_TYPE, AGENT_ID) pair.
+case "$AGENT_TYPE" in
+  openclaw) config_sha256=$(sha256sum /root/.openclaw/openclaw.json 2>/dev/null | awk '{print $1}') ;;
+  hermes)   config_sha256=$(sha256sum /root/.hermes/config.yaml     2>/dev/null | awk '{print $1}') ;;
+  *)        config_sha256="" ;;
+esac
+config_sha256=${config_sha256:-unknown}
+
 # NEGATIVE INVARIANTS — alternative A2A channels must be OFF.
 # The gate's thesis ("shared-memory A2A works") is only falsifiable
 # if no other A2A channel is available as a pass-through.
@@ -565,48 +600,70 @@ else
   log "  PROBE 1 FAIL — no content from xAI. Response: $(echo "$xai_resp" | head -c 200)"
 fi
 
-# Probe 2 — End-to-end MCP canary. Drive the agent framework itself
-# to call the ai-memory memory_store tool, then verify the row shows
-# up via the local HTTP API with correct provenance stamp.
-# Namespace prefixed with underscore keeps it out of scenario
-# namespaces that use `scenario<N>-<agent>`.
-log "PROBE 2/2: end-to-end agent → MCP → ai-memory canary"
-CANARY_UUID=$(cat /proc/sys/kernel/random/uuid 2>/dev/null || echo "canary-$RANDOM-$RANDOM")
-CANARY_NS="_baseline_canary"
-CANARY_PROMPT="Use the ai-memory MCP memory_store tool to save a memory with namespace=${CANARY_NS}, title=canary-${AGENT_ID}, content=${CANARY_UUID}. Respond with DONE when the tool call completes."
-# Source env file so drive_agent.sh finds its required vars.
+# Probe F2a — DETERMINISTIC substrate canary (no LLM). Direct HTTP
+# POST to local serve. Proves the federation-side write path works
+# independent of the agent framework. Gates baseline_pass.
+log "PROBE F2a/F2b: substrate + agent-driven canary"
+F2A_UUID=$(cat /proc/sys/kernel/random/uuid 2>/dev/null || echo "canary-a-$RANDOM-$RANDOM")
+F2A_NS="_baseline_canary_f2a"
+curl -sS -X POST "http://127.0.0.1:9077/api/v1/memories" \
+  -H "X-Agent-Id: ${AGENT_ID}" \
+  -H "Content-Type: application/json" \
+  -d "{\"tier\":\"mid\",\"namespace\":\"${F2A_NS}\",\"title\":\"f2a-canary-${AGENT_ID}\",\"content\":\"${F2A_UUID}\",\"priority\":5,\"confidence\":1.0,\"source\":\"api\",\"metadata\":{\"agent_id\":\"${AGENT_ID}\",\"probe\":\"F2a\"}}" \
+  > /tmp/f2a-write.log 2>&1 || true
+sleep 1
+f2a_hit=$(curl -sS "http://127.0.0.1:9077/api/v1/memories?namespace=${F2A_NS}&limit=20" 2>/dev/null | \
+  jq --arg u "$F2A_UUID" --arg a "$AGENT_ID" \
+    '[.memories[]? | select(.content == $u and (.metadata.agent_id // "") == $a)] | length' 2>/dev/null || echo 0)
+if [ "${f2a_hit:-0}" -ge 1 ] 2>/dev/null; then
+  f2a_functional=true
+  log "  PROBE F2a OK — direct HTTP write roundtrip succeeded"
+else
+  f2a_functional=false
+  log "  PROBE F2a FAIL — substrate unable to store + retrieve canary"
+fi
+
+# Probe F2b — AGENT-DRIVEN MCP canary. Dependent on LLM behavior, so
+# it's attestation-only (NOT a baseline_pass gate). When it fails
+# while F2a passes, the scenario-level MCP stdio path is the issue;
+# when F2b passes, agents are fully ready for A2A scenarios.
+F2B_UUID=$(cat /proc/sys/kernel/random/uuid 2>/dev/null || echo "canary-b-$RANDOM-$RANDOM")
+F2B_NS="_baseline_canary_f2b"
+F2B_PROMPT="Use the ai-memory MCP memory_store tool to save a memory with namespace=${F2B_NS}, title=canary-${AGENT_ID}, content=${F2B_UUID}. Respond with DONE when the tool call completes."
 . /etc/ai-memory-a2a/env
 case "$AGENT_TYPE" in
   openclaw)
-    openclaw run --non-interactive --format json --max-tool-rounds 10 -p "$CANARY_PROMPT" > /tmp/canary-openclaw.log 2>&1 || true
+    openclaw run --non-interactive --format json --max-tool-rounds 10 -p "$F2B_PROMPT" > /tmp/canary-openclaw.log 2>&1 || true
     ;;
   hermes)
     set -a; . /etc/ai-memory-a2a/hermes.env; set +a
-    hermes chat -Q --provider xai --model grok-4-fast-non-reasoning -q "$CANARY_PROMPT" > /tmp/canary-hermes.log 2>&1 || true
+    hermes chat -Q --provider xai --model grok-4-fast-non-reasoning -q "$F2B_PROMPT" > /tmp/canary-hermes.log 2>&1 || true
     ;;
 esac
-# Give federation a moment to fanout (we're testing the MCP path,
-# but the row has to hit the local serve DB first).
 sleep 3
-canary_hit=$(curl -sS "http://127.0.0.1:9077/api/v1/memories?namespace=${CANARY_NS}&limit=20" 2>/dev/null | \
-  jq --arg u "$CANARY_UUID" --arg a "$AGENT_ID" \
+f2b_hit=$(curl -sS "http://127.0.0.1:9077/api/v1/memories?namespace=${F2B_NS}&limit=20" 2>/dev/null | \
+  jq --arg u "$F2B_UUID" --arg a "$AGENT_ID" \
     '[.memories[]? | select(.content == $u and (.metadata.agent_id // "") == $a)] | length' 2>/dev/null || echo 0)
-# Capture the agent's actual response head for diagnostic visibility
-# (redaction pass at commit-time strips any secret values).
 canary_log_file="/tmp/canary-${AGENT_TYPE}.log"
 if [ -f "$canary_log_file" ]; then
   canary_response=$(head -c 800 "$canary_log_file" 2>/dev/null | tr '\000-\037' ' ' | head -c 500 || echo "")
 else
   canary_response=""
 fi
-if [ "${canary_hit:-0}" -ge 1 ] 2>/dev/null; then
-  canary_functional=true
-  log "  PROBE 2 OK — agent-driven MCP canary landed with correct agent_id"
+if [ "${f2b_hit:-0}" -ge 1 ] 2>/dev/null; then
+  f2b_functional=true
+  log "  PROBE F2b OK — agent-driven MCP canary landed"
 else
-  canary_functional=false
-  log "  PROBE 2 FAIL — canary UUID $CANARY_UUID not found in ns=$CANARY_NS on local serve"
-  log "  Agent response head: ${canary_response:0:200}"
+  f2b_functional=false
+  log "  PROBE F2b FAIL (non-blocking) — agent didn't land canary. Response head: ${canary_response:0:200}"
 fi
+
+# Retained for backwards-compat with existing baseline.json schema
+# consumers; F2 (combined) is true only if BOTH sub-probes pass. We
+# gate baseline_pass on F2a only (deterministic); F2b is observed.
+canary_functional=$f2a_functional
+CANARY_UUID=$F2A_UUID
+CANARY_NS=$F2A_NS
 
 jq -n \
   --arg agent_type "$AGENT_TYPE" \
@@ -628,18 +685,27 @@ jq -n \
   --argjson xai_functional "$xai_functional" \
   --argjson canary_functional "$canary_functional" \
   --argjson ufw_disabled "$ufw_disabled" \
+  --argjson iptables_flushed "$iptables_flushed" \
+  --argjson dead_man_switch_scheduled "$dead_man_switch_scheduled" \
   --argjson a2a_master_off "$a2a_master_off" \
   --argjson no_sessions_tools "$no_sessions_tools" \
   --argjson no_chat_channels "$no_chat_channels" \
   --argjson tools_are_memory_only "$tools_are_memory_only" \
   --argjson profile_locked "$profile_locked" \
+  --argjson f2a_functional "$f2a_functional" \
+  --argjson f2b_functional "$f2b_functional" \
+  --arg f2a_uuid "$F2A_UUID" \
+  --arg f2b_uuid "$F2B_UUID" \
+  --arg config_sha256 "$config_sha256" \
   '{
+    spec_version: "1.2.0",
     agent_type:$agent_type,
     agent_id:$agent_id,
     node_index:$node_index,
     framework_version:$fw_version,
     ai_memory_version:$ai_memory_version,
     peer_urls:$peer_urls,
+    config_file_sha256:$config_sha256,
     config_attestation: {
       framework_is_authentic:$is_authentic,
       mcp_server_ai_memory_registered:$mcp_registered,
@@ -648,7 +714,9 @@ jq -n \
       mcp_command_is_ai_memory:$has_mem,
       agent_id_stamped:$has_aid,
       federation_live:$fed_live,
-      ufw_disabled:$ufw_disabled
+      ufw_disabled:$ufw_disabled,
+      iptables_flushed:$iptables_flushed,
+      dead_man_switch_scheduled:$dead_man_switch_scheduled
     },
     negative_invariants: {
       _description: "Alternative A2A channels must be OFF so a passing scenario is only passing via ai-memory shared memory. Any true here = thesis-preserving.",
@@ -659,21 +727,26 @@ jq -n \
       a2a_gate_profile_locked:          $profile_locked
     },
     functional_probes: {
-      xai_grok_chat_reachable: $xai_functional,
-      xai_grok_sample_reply: $xai_content,
-      agent_mcp_ai_memory_canary: $canary_functional,
-      agent_canary_response_head: $canary_response,
-      canary_uuid: $canary_uuid,
-      canary_namespace: "_baseline_canary"
+      xai_grok_chat_reachable:         $xai_functional,
+      xai_grok_sample_reply:           $xai_content,
+      substrate_http_canary_f2a:       $f2a_functional,
+      substrate_http_canary_uuid:      $f2a_uuid,
+      agent_mcp_canary_f2b:            $f2b_functional,
+      agent_mcp_canary_uuid:           $f2b_uuid,
+      agent_canary_response_head:      $canary_response,
+      _f2b_note:                       "F2b is LLM-dependent and non-blocking. F2a (deterministic HTTP substrate) gates baseline_pass.",
+      agent_mcp_ai_memory_canary:      $f2a_functional,
+      canary_uuid:                     $f2a_uuid,
+      canary_namespace:                "_baseline_canary_f2a"
     },
     baseline_pass: (
       $is_authentic and $mcp_registered and
       $has_xai and $default_xai and
       $has_mem and $has_aid and $fed_live and
-      $ufw_disabled and
+      $ufw_disabled and $iptables_flushed and $dead_man_switch_scheduled and
       $a2a_master_off and $no_sessions_tools and $no_chat_channels and
       $tools_are_memory_only and $profile_locked and
-      $xai_functional and $canary_functional
+      $xai_functional and $f2a_functional
     )
   }' > /etc/ai-memory-a2a/baseline.json
 

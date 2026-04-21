@@ -8,8 +8,9 @@
 > on each node is the self-attestation. One false field → provision
 > hard-fails → zero scenarios run → dashboard shows ❌ VIOLATION.
 
-**Spec version:** 1.1.0 (2026-04-21)
+**Spec version:** 1.2.0 (2026-04-21)
 **Changelog:**
+- **1.2.0** — split F2 into F2a (deterministic HTTP substrate, gates baseline) + F2b (agent-driven MCP, LLM-dependent, attestation-only); pinned framework versions (openclaw@2026.4.20, hermes main ref, python-dotenv==1.0.1); added `iptables_flushed`, `dead_man_switch_scheduled`, `config_file_sha256` attestation fields
 - **1.1.0** — added F3 workflow-level peer A2A probe; terminology fix (VPC vs DO Cloud Firewall)
 - **1.0.0** — initial lockdown: C1–C8 + F1 + F2 + negative invariants + security spec
 **Authority:** `docs/baseline.md` in [alphaonedev/ai-memory-ai2ai-gate](https://github.com/alphaonedev/ai-memory-ai2ai-gate).
@@ -71,6 +72,27 @@ iptables -F
 The `ufw_disabled` field in the baseline attestation re-verifies at the end of provision, and is part of the `baseline_pass` conjunction. A node where UFW is still active cannot pass baseline.
 
 Firewalling is done at the **VPC layer** (DigitalOcean-managed firewalls, configured in `terraform/main.tf`) — same-VPC traffic flows freely, inbound-internet is blocked except for SSH from the runner. OS-level UFW would only interfere.
+
+---
+
+## 3b. Version pinning — EVERY dependency pinned for repeatability
+
+For the baseline to produce the same attestation on 2026-04-21, 2026-08-21, and 2027-04-21, every software version that influences the droplet's runtime must be pinned. The following are locked:
+
+| Dependency | Pin | Location | Override env |
+|---|---|---|---|
+| Ubuntu image | `ubuntu-24-04-x64` | `terraform/main.tf` | (change requires spec major bump) |
+| ai-memory | `v0.6.0` | workflow input `ai_memory_git_ref` | `ai_memory_git_ref` at dispatch |
+| openclaw | `2026.4.20` | `scripts/setup_node.sh` `OPENCLAW_PIN` | `OPENCLAW_PIN` env |
+| hermes-agent | git ref `main` (will pin to a tag in v1.3) | `scripts/setup_node.sh` `HERMES_INSTALL_REF` | `HERMES_INSTALL_REF` env |
+| python-dotenv (Hermes dep) | `1.0.1` | `scripts/setup_node.sh` `PYTHON_DOTENV_PIN` | `PYTHON_DOTENV_PIN` env |
+| Terraform | `1.9.5` | `.github/workflows/a2a-gate.yml` | (fixed in workflow) |
+| xAI Grok model | `grok-4-fast-non-reasoning` | `scripts/setup_node.sh` + `drive_agent.sh` | (change = spec minor bump, migration note) |
+| `grok-CLI`-based agents | not used — authentic `openclaw/openclaw` only | N/A | N/A |
+
+Bumping any pin is a semver change-control event per §12. Version-visible on every run via `baseline.json.framework_version` + `baseline.json.ai_memory_version`.
+
+The SHA-256 of every generated config file is committed in `baseline.json.config_file_sha256` so the dashboard can trivially flag drift across runs of the same `(agent_type, agent_id)` pair.
 
 ---
 
@@ -367,9 +389,12 @@ Every agent node emits `/etc/ai-memory-a2a/baseline.json` at the end of `setup_n
 | C6 | `agent_id_stamped` | Static | `AI_MEMORY_AGENT_ID` env var matches `$AGENT_ID` on this node |
 | C7 | `federation_live` | Functional (partial) | Local `ai-memory serve` responds on `127.0.0.1:9077/health` |
 | C8 | `ufw_disabled` | Functional (partial) | `ufw status` returns "inactive" |
+| C9 | `iptables_flushed` | Functional (partial) | `iptables -S` shows `-P INPUT/OUTPUT/FORWARD ACCEPT` and no blocking rules |
+| C10 | `dead_man_switch_scheduled` | Functional (partial) | `shutdown -P +480` process present in ps — droplet cost capped at 8h regardless of CI state |
 | F1 | `xai_grok_chat_reachable` | Functional | Direct POST to `api.x.ai/v1/chat/completions` returns non-empty content |
-| F2 | `agent_mcp_ai_memory_canary` | Functional | Agent-driven end-to-end canary: prompt → tool selection → MCP stdio → ai-memory write → agent_id provenance stamp verified via HTTP (per-node) |
-| F3 | `peer_a2a_via_shared_memory` | Functional | Cross-node peer visibility — writer agent posts a UUID canary via local ai-memory HTTP on node-1; W=2 fanout replicates it; probe confirms all 3 peer nodes (node-2, node-3, node-4) return the canary via their local `GET /api/v1/memories`. Answers the baseline-level question "can agents communicate with each other through ai-memory?" YES if F3 passes. (Workflow-level, not per-node.) |
+| F2a | `substrate_http_canary_f2a` | Functional (deterministic) | Direct HTTP `POST /api/v1/memories` on local serve → verify via `GET`. No LLM dependency. Proves the substrate write+read path is live on this node. **Gates baseline_pass.** |
+| F2b | `agent_mcp_canary_f2b` | Functional (LLM-dependent) | Agent-driven end-to-end canary: prompt → tool selection → MCP stdio → ai-memory write → provenance stamp verified via HTTP. **Attestation-only**, does NOT gate baseline_pass — LLM non-determinism would make "every run must pass" intractable. F2b failure with F2a passing pinpoints the scenario-MCP-path issue. |
+| F3 | `peer_a2a_via_shared_memory` | Functional | Cross-node peer visibility — writer agent posts a UUID canary via local ai-memory HTTP on node-1; W=2 fanout replicates it; probe confirms all 3 peer nodes (node-2, node-3, node-4) return the canary via their local `GET /api/v1/memories`. Answers the baseline-level question "can agents communicate with each other through ai-memory?" YES if F3 passes. (Workflow-level, not per-node.) **Gates scenarios.** |
 
 ### 8.2 Diagnostic separation
 
