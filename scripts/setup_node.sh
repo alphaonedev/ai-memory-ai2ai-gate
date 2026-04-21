@@ -190,27 +190,33 @@ log "MCP config written: /etc/ai-memory-a2a/mcp-config/config.json"
 case "$AGENT_TYPE" in
   openclaw)
     log "installing AUTHENTIC openclaw/openclaw via official one-liner"
-    # Node is required by the installer. Ship-gate lesson: pre-install
-    # a reasonable Node to skip the installer's own npm pull.
-    curl -fsSL https://openclaw.ai/install.sh | bash -s -- --install-method git --yes || {
-      log "openclaw install.sh returned non-zero — falling back to npm install"
-      npm install -g openclaw || { log "openclaw install failed"; exit 1; }
-    }
-    command -v openclaw >/dev/null 2>&1 || {
-      # The installer drops the CLI somewhere under ~/.openclaw; link it.
-      OPENCLAW_BIN=$(find /root/.openclaw /usr/local/lib/node_modules -maxdepth 5 -name openclaw -type f -executable 2>/dev/null | head -1)
+    # openclaw.ai/install.sh returns non-zero on headless/non-TTY
+    # hosts even when the binary installs cleanly (the post-install
+    # wizard fails in a non-interactive environment). We ignore the
+    # exit code and rely on a presence check after. If presence
+    # check fails, fall back to npm.
+    curl -fsSL https://openclaw.ai/install.sh | bash -s -- --install-method git 2>&1 \
+      | sed 's/^/[openclaw-install] /' || true
+    if ! command -v openclaw >/dev/null 2>&1; then
+      log "openclaw not on PATH after install.sh — falling back to npm global install"
+      npm install -g openclaw 2>&1 | sed 's/^/[npm] /' || {
+        log "npm install openclaw also failed"; exit 1;
+      }
+    fi
+    # Ensure binary is reachable at /usr/local/bin/openclaw so later
+    # SSH invocations (which load only the default PATH) can find it.
+    if [ ! -x /usr/local/bin/openclaw ]; then
+      OPENCLAW_BIN=$(command -v openclaw || find /root/.openclaw /usr/local/lib/node_modules -maxdepth 5 -name openclaw -type f -executable 2>/dev/null | head -1)
       if [ -n "$OPENCLAW_BIN" ] && [ -x "$OPENCLAW_BIN" ]; then
         ln -sf "$OPENCLAW_BIN" /usr/local/bin/openclaw
         log "symlinked /usr/local/bin/openclaw -> $OPENCLAW_BIN"
       fi
-    }
-    # `head -1` can SIGPIPE openclaw if the version output is more
-    # than a single line — with `set -o pipefail` that propagates as
-    # non-zero even when the underlying command succeeded. Capture
-    # the output to a variable instead, then log first line.
+    fi
+    # `head -1` can SIGPIPE openclaw under `set -o pipefail`; capture
+    # to a variable first.
     oc_version_out=$(openclaw --version 2>&1 || true)
     if [ -z "$oc_version_out" ]; then
-      log "openclaw --version returned empty output — install may be incomplete"
+      log "openclaw --version returned empty — install truly incomplete"
       exit 1
     fi
     log "openclaw version: $(echo "$oc_version_out" | head -1)"
