@@ -66,8 +66,11 @@ gh run watch -R "$FORK" <run-id>
 Typical timing:
 - Terraform apply: ~60s
 - SSH wait + provision: ~8-12 min (openclaw) / ~15-25 min (hermes — heavier Python install)
-- **Baseline enforcement: ~5s** (any node failing = scenarios skipped, job fails at that step)
+- Per-node functional probes F1 + F2 (xAI chat + agent-driven MCP canary): part of provision, ~6s each
+- **Baseline enforcement (per-node attestation): ~5s** (any node failing = scenarios skipped, job fails at that step)
+- **F3 peer A2A probe: ~12s** (write + 8s settle + 3-peer verify)
 - Scenarios: ~90s each
+- Redaction pass: ~1s (fails build if any secret value leaks to artefacts)
 - Terraform destroy: ~30s (runs via `if: always()`)
 
 ### A.5 Find the evidence
@@ -75,15 +78,16 @@ Typical timing:
 ```sh
 git pull
 ls runs/a2a-*-v0.6.0-rN/
-#   a2a-baseline.json       ← per-node baseline attestation union
-#   a2a-summary.json        ← scenario rollup + overall_pass
-#   baselines/node-N.json   ← raw attestation from each node
-#   campaign.meta.json      ← DO region, node IPs, actor, workflow URL
-#   scenario-1.json         ← scenario 1 (MCP-native) verdict
-#   scenario-1.log          ← scenario 1 full console trace (redacted)
-#   scenario-1b.json        ← scenario 1b (serve-HTTP) verdict
-#   scenario-1b.log         ← scenario 1b full console trace (redacted)
-#   index.html              ← human-readable dashboard page
+#   a2a-baseline.json          ← per-node C1-C8 + F1 + F2 + negative invariants
+#   f3-peer-a2a.json           ← F3 cross-node peer A2A probe verdict
+#   a2a-summary.json           ← scenario rollup + overall_pass
+#   baselines/node-N.json      ← raw attestation from each node
+#   campaign.meta.json         ← DO region, node IPs, actor, workflow URL
+#   scenario-1.json            ← scenario 1 (MCP-native) verdict
+#   scenario-1.log             ← scenario 1 full console trace (redacted)
+#   scenario-1b.json           ← scenario 1b (serve-HTTP) verdict
+#   scenario-1b.log            ← scenario 1b full console trace (redacted)
+#   index.html                 ← human-readable dashboard page
 ```
 
 Dashboard (after the pages workflow completes):
@@ -135,10 +139,12 @@ The script will:
 6. Start `ai-memory serve` in federation mode on `0.0.0.0:9077`
 7. Install the agent framework (authentic upstream — `openclaw/openclaw` OR `NousResearch/hermes-agent`)
 8. Write framework config with full baseline lock-down — xAI Grok as the only LLM, ai-memory as the only MCP server, every alternative A2A channel disabled
-9. **PROBE 1** — xAI Grok reachability (direct `POST /v1/chat/completions`)
-10. **PROBE 2** — end-to-end agent → MCP → ai-memory canary
+9. **PROBE F1** — xAI Grok reachability + auth (direct `POST /v1/chat/completions`, expects non-empty content)
+10. **PROBE F2** — end-to-end agent → MCP → ai-memory canary (agent invokes `memory_store`, probe verifies via local HTTP + `metadata.agent_id`)
 11. Emit `/etc/ai-memory-a2a/baseline.json` with config_attestation + negative_invariants + functional_probes + baseline_pass
 12. Exit 2 if `baseline_pass` is false
+
+**Note:** `setup_node.sh` covers the per-node side of the baseline (C1–C8 + F1 + F2). The workflow-level probe **F3 — peer A2A via shared memory** requires coordination across multiple nodes and runs from the GitHub Actions runner in the `a2a-gate.yml` step named "Functional probe F3". On a single local host you can skip F3, but no campaign scenario will ever run without F3 green.
 
 ### B.4 Verify
 

@@ -342,6 +342,32 @@ HERE
 HERE
 }
 render_baseline
+render_f3() {
+  local ffile="$DIR/f3-peer-a2a.json"
+  [ -f "$ffile" ] || return 0
+  local pass uuid ns writer
+  pass=$(jq -r '.pass // false' "$ffile")
+  uuid=$(jq -r '.canary_uuid' "$ffile")
+  ns=$(jq -r '.canary_namespace' "$ffile")
+  writer=$(jq -r '.writer_agent' "$ffile")
+  local badge_class badge_text
+  if [ "$pass" = "true" ]; then badge_class=pass; badge_text="F3 OK"; else badge_class=fail; badge_text="F3 FAIL"; fi
+  cat <<HERE
+      <section class="f3">
+        <h2>F3 — peer A2A via shared memory <span class="badge ${badge_class}">${badge_text}</span></h2>
+        <p class="muted">Workflow-level probe answering "can agents communicate through ai-memory?". Writer <code>${writer}</code> posted canary UUID <code>${uuid}</code> to namespace <code>${ns}</code> via node-1's local <code>ai-memory</code> serve HTTP. After W=2 fanout settle, probe confirmed the canary on each of the 3 peer nodes via their local <code>GET /api/v1/memories</code>.</p>
+        <details><summary>f3-peer-a2a.json</summary>
+          <pre>
+HERE
+  jq --tab . "$ffile" 2>/dev/null | html_escape
+  cat <<HERE
+</pre>
+          <p><a href="./f3-peer-a2a.json">raw file</a></p>
+        </details>
+      </section>
+HERE
+}
+render_f3
 render_insights
 scenario_block 1 "Per-agent write + read"
 scenario_block 2 "Shared-context handoff"

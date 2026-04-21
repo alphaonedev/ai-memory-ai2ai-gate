@@ -8,7 +8,10 @@
 > on each node is the self-attestation. One false field → provision
 > hard-fails → zero scenarios run → dashboard shows ❌ VIOLATION.
 
-**Spec version:** 1.0.0 (locked 2026-04-21)
+**Spec version:** 1.1.0 (2026-04-21)
+**Changelog:**
+- **1.1.0** — added F3 workflow-level peer A2A probe; terminology fix (VPC vs DO Cloud Firewall)
+- **1.0.0** — initial lockdown: C1–C8 + F1 + F2 + negative invariants + security spec
 **Authority:** `docs/baseline.md` in [alphaonedev/ai-memory-ai2ai-gate](https://github.com/alphaonedev/ai-memory-ai2ai-gate).
 Any rendered copy (GitHub Pages, PDFs, internal mirrors) is a *copy*; the file in the repository wins.
 
@@ -318,7 +321,7 @@ The `federation_live` baseline field confirms this daemon is responding on every
 
 ## 8. Baseline attestation schema
 
-Every agent node emits `/etc/ai-memory-a2a/baseline.json` at the end of `setup_node.sh`. The workflow scp's these back, aggregates into `runs/<campaign-id>/a2a-baseline.json`, and gates `Run scenarios` on every node passing.
+Every agent node emits `/etc/ai-memory-a2a/baseline.json` at the end of `setup_node.sh`. The workflow scp's these back, aggregates into `runs/<campaign-id>/a2a-baseline.json`, runs the F3 cross-node probe into `runs/<campaign-id>/f3-peer-a2a.json`, and gates `Run scenarios` on every node's `baseline_pass` being true AND F3 being green.
 
 ```json
 {
@@ -376,6 +379,64 @@ The split into config attestation vs. functional probes is intentional and diagn
 - **C1–C8 pass, F1 passes, F2 fails** → Agent reasoning or MCP dispatch broken. xAI works, but the agent didn't select the right tool or the MCP stdio pipe failed.
 - **F1 + F2 pass** → Full stack is live. Scenarios proceed.
 - **Any C field false** → config is wrong; dashboard flags specific invariant so the human knows which file to fix.
+
+---
+
+## 8b. The gate sequence — precise order of operations
+
+The workflow runs these steps in order. Every one of them is a gate; the next step only executes if the previous returned green.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ 1. Terraform apply                                              │
+│    Provisions 4 droplets, VPC, DO Cloud Firewall.               │
+│    Gate: all resources created.                                 │
+├─────────────────────────────────────────────────────────────────┤
+│ 2. Wait for SSH                                                 │
+│    Loops each droplet with ed25519 key until uname -a replies.  │
+│    Gate: all 4 SSH-reachable.                                   │
+├─────────────────────────────────────────────────────────────────┤
+│ 3. Provision all 4 nodes (runs setup_node.sh on each)           │
+│    Per node:                                                    │
+│      • apt base packages                                        │
+│      • UFW disable + reset + disable + verify — EXIT 3 if not   │
+│      • iptables flush to ACCEPT                                 │
+│      • ai-memory install + serve with federation peers          │
+│      • Agent framework install (openclaw OR hermes)             │
+│      • Config lockdown (positive + negative invariants)         │
+│      • PROBE F1 — direct xAI Grok chat completion               │
+│      • PROBE F2 — agent-driven MCP canary (local)               │
+│      • Emit /etc/ai-memory-a2a/baseline.json                    │
+│      • EXIT 2 if baseline_pass is false                         │
+│    Gate: all 4 nodes exit 0.                                    │
+├─────────────────────────────────────────────────────────────────┤
+│ 4. Collect + enforce BASELINE                                   │
+│    scp baseline.json from each of 3 agent nodes.                │
+│    Aggregate into phase-reports/a2a-baseline.json.              │
+│    Gate: every node's baseline_pass must be true.               │
+│    Output: steps.baseline.outputs.baseline_ok                   │
+├─────────────────────────────────────────────────────────────────┤
+│ 5. Functional probe F3 — peer A2A via shared memory             │
+│    Writer canary (UUID) posted on node-1 via local serve HTTP.  │
+│    Sleep 8s for W=2 fanout.                                     │
+│    Verify canary present on node-2, node-3, node-4 (local HTTP).│
+│    Gate: all 3 peers see the canary — else EXIT 5.              │
+│    Output: steps.probe_f3.outputs.f3_ok                         │
+├─────────────────────────────────────────────────────────────────┤
+│ 6. Run scenarios                                                │
+│    if: baseline_ok == 'true' && f3_ok == 'true'                 │
+│    Scenarios emit scenario-N.json + scenario-N.log.             │
+├─────────────────────────────────────────────────────────────────┤
+│ 7. Emit campaign.meta.json (always)                             │
+│ 8. Aggregate campaign summary (always)                          │
+│ 9. Regenerate evidence HTML (always)                            │
+│ 10. Redact secrets (always) — EXIT 4 if any known secret leaks  │
+│ 11. Commit campaign artefacts (always)                          │
+│ 12. Tear down infrastructure (always)                           │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+Legend: **EXIT N** = hard fail. **Gate** = the subsequent step is skipped if this one fails. **(always)** = the step runs even if prior steps failed, ensuring evidence is captured for every run.
 
 ---
 

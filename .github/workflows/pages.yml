@@ -49,8 +49,8 @@ jobs:
             echo "JSON (legacy artefact format or pipeline failure — open the"
             echo "evidence page for the raw trace)."
             echo
-            echo "| Campaign | Verdict | Baseline | Scenarios | Group | ai-memory ref | Completed | Dispatched by | Evidence |"
-            echo "|---|---|---|---|---|---|---|---|---|"
+            echo "| Campaign | Verdict | Baseline | F3 peer A2A | Scenarios | Group | ai-memory ref | Completed | Dispatched by | Evidence |"
+            echo "|---|---|---|---|---|---|---|---|---|---|"
           } > docs/runs/index.md
           found_any=false
           for dir in $(ls -1d runs/*/ 2>/dev/null | sort -Vr); do
@@ -88,8 +88,15 @@ jobs:
             else
               base_cell="—"
             fi
+            f3="$dir/f3-peer-a2a.json"
+            if [ -f "$f3" ]; then
+              fp=$(jq -r '.pass' "$f3")
+              if [ "$fp" = "true" ]; then f3_cell="✅ OK"; else f3_cell="❌ FAIL"; fi
+            else
+              f3_cell="—"
+            fi
             evidence="[offline HTML](../evidence/${name}/index.html)"
-            echo "| ${name} | ${outcome} | ${base_cell} | ${scen_cell} | ${group} | ${ref} | ${completed} | ${actor_cell} | ${evidence} |" >> docs/runs/index.md
+            echo "| ${name} | ${outcome} | ${base_cell} | ${f3_cell} | ${scen_cell} | ${group} | ${ref} | ${completed} | ${actor_cell} | ${evidence} |" >> docs/runs/index.md
           done
           if [ "$found_any" = "false" ]; then
             echo >> docs/runs/index.md
