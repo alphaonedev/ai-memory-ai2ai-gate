@@ -38,9 +38,9 @@ on:
         required: false
         default: "1 1b 2 4 5 6 9 10 11 12 13 14 15 16 17 18"
       agent_droplet_size:
-        description: "Agent droplet size. Default s-4vcpu-16gb (openclaw install.sh consumes >8GB; r18 OOMd 4.5min into install with Broken pipe)."
+        description: "Agent droplet size. Default g-4vcpu-16gb (DO General Purpose, 16GB; openclaw install.sh consumes >8GB per r18 OOM). For hermes-only campaigns override to s-2vcpu-4gb to save ~30%. The former Basic s-4vcpu-16gb slug was retired by DO (422 invalid size, issue #8) — Basic now requires -intel/-amd suffix."
         required: false
-        default: "s-4vcpu-16gb"
+        default: "g-4vcpu-16gb"
       openclaw_install_cmd:
         description: "Shell command to install OpenClaw on a droplet. Blank = placeholder driver (ai-memory CLI stand-in)."
         required: false
