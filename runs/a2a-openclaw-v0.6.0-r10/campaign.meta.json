@@ -1,0 +1,55 @@
+{
+  "campaign_id": "a2a-openclaw-v0.6.0-r10",
+  "agent_group": "openclaw",
+  "ai_memory_git_ref": "v0.6.0",
+  "infra": {
+    "provider": "digitalocean",
+    "region": "nyc3",
+    "droplet_size": "s-2vcpu-4gb",
+    "topology": "4-node federation mesh (W=2/N=4)",
+    "nodes": [
+      {
+        "index": 1,
+        "role": "agent",
+        "agent_id": "ai:alice",
+        "public_ip": "138.197.37.185",
+        "private_ip": "10.251.0.4"
+      },
+      {
+        "index": 2,
+        "role": "agent",
+        "agent_id": "ai:bob",
+        "public_ip": "138.197.20.30",
+        "private_ip": "10.251.0.3"
+      },
+      {
+        "index": 3,
+        "role": "agent",
+        "agent_id": "ai:charlie",
+        "public_ip": "167.172.18.120",
+        "private_ip": "10.251.0.2"
+      },
+      {
+        "index": 4,
+        "role": "memory-only",
+        "agent_id": null,
+        "public_ip": "138.197.65.21",
+        "private_ip": "10.251.0.5"
+      }
+    ]
+  },
+  "scenarios_requested": [
+    "1",
+    "1b"
+  ],
+  "timing": {
+    "started_at": "",
+    "ended_at": ""
+  },
+  "ci": {
+    "actor": "alphaonedev",
+    "workflow_url": "https://github.com/alphaonedev/ai-memory-ai2ai-gate/actions/runs/24698295287",
+    "harness_sha": "bc5f0259eac86ee144a5edb26f35b7b08f96c90c",
+    "runner_os": "Linux"
+  }
+}
