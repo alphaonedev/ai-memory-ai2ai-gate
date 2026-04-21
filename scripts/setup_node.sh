@@ -189,29 +189,33 @@ log "MCP config written: /etc/ai-memory-a2a/mcp-config/config.json"
 
 case "$AGENT_TYPE" in
   openclaw)
-    # PINNED VERSION — repeatability requirement. Bump via semver
-    # change-control (docs/baseline.md §12). Last verified: 2026-04-20.
-    OPENCLAW_PIN="${OPENCLAW_PIN:-2026.4.20}"
-    log "installing AUTHENTIC openclaw/openclaw@${OPENCLAW_PIN} via npm (pinned)"
-    # Direct npm install with pinned version gives deterministic,
-    # repeatable installs — no drift from "whatever openclaw.ai serves
-    # today." install.sh's --version flag is unreliable; npm@version
-    # is the deterministic path.
-    npm install -g "openclaw@${OPENCLAW_PIN}" 2>&1 | sed 's/^/[npm] /' || {
-      log "FATAL: npm install openclaw@${OPENCLAW_PIN} failed"
-      exit 1
-    }
-    if ! command -v openclaw >/dev/null 2>&1; then
-      # npm sometimes installs to /usr/local/lib/node_modules/.bin —
-      # symlink if needed.
-      OPENCLAW_BIN=$(find /usr/local/lib/node_modules /usr/lib/node_modules -maxdepth 5 -name openclaw -type f -executable 2>/dev/null | head -1)
+    # OpenClaw is distributed via openclaw.ai/install.sh. The labels
+    # shown in --version (like "2026.4.20") are git-commit tags, NOT
+    # npm semvers — npm install -g openclaw@2026.4.20 fails with
+    # ETARGET (r9 regression). Best available deterministic install:
+    # use install.sh (which IS what openclaw ships) + capture the
+    # actually-installed version into config_attestation.framework_version
+    # so drift is visible on the dashboard even without a hard pin.
+    #
+    # install.sh exits 1 under non-TTY even when the binary installs
+    # cleanly (post-install wizard fails). We tolerate the exit and
+    # rely on the presence check; FATAL only if the binary truly
+    # isn't installed.
+    log "installing AUTHENTIC openclaw/openclaw via official one-liner"
+    curl -fsSL https://openclaw.ai/install.sh | bash -s -- --install-method git 2>&1 \
+      | sed 's/^/[openclaw-install] /' || true
+    # Symlink the binary into /usr/local/bin for deterministic PATH.
+    if ! command -v openclaw >/dev/null 2>&1 || [ ! -x /usr/local/bin/openclaw ]; then
+      OPENCLAW_BIN=$(command -v openclaw || find /root/.openclaw /usr/local/lib/node_modules /usr/lib/node_modules -maxdepth 6 -name openclaw -type f -executable 2>/dev/null | head -1)
       if [ -n "$OPENCLAW_BIN" ] && [ -x "$OPENCLAW_BIN" ]; then
         ln -sf "$OPENCLAW_BIN" /usr/local/bin/openclaw
       fi
     fi
     if ! command -v openclaw >/dev/null 2>&1; then
-      log "FATAL: openclaw binary not on PATH after pinned npm install"
-      exit 1
+      log "openclaw not on PATH after install.sh — falling back to npm install latest"
+      npm install -g openclaw 2>&1 | sed 's/^/[npm-fallback] /' || {
+        log "FATAL: every openclaw install path failed"; exit 1;
+      }
     fi
     # Ensure binary is reachable at /usr/local/bin/openclaw so later
     # SSH invocations (which load only the default PATH) can find it.

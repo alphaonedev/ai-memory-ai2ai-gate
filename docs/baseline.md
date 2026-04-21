@@ -83,7 +83,7 @@ For the baseline to produce the same attestation on 2026-04-21, 2026-08-21, and 
 |---|---|---|---|
 | Ubuntu image | `ubuntu-24-04-x64` | `terraform/main.tf` | (change requires spec major bump) |
 | ai-memory | `v0.6.0` | workflow input `ai_memory_git_ref` | `ai_memory_git_ref` at dispatch |
-| openclaw | `2026.4.20` | `scripts/setup_node.sh` `OPENCLAW_PIN` | `OPENCLAW_PIN` env |
+| openclaw | latest from `openclaw.ai/install.sh` (npm semver ≠ display version; hard pin not yet available upstream) — captured per-run in `baseline.json.framework_version` for drift visibility | `scripts/setup_node.sh` | N/A (upstream gap) |
 | hermes-agent | git ref `main` (will pin to a tag in v1.3) | `scripts/setup_node.sh` `HERMES_INSTALL_REF` | `HERMES_INSTALL_REF` env |
 | python-dotenv (Hermes dep) | `1.0.1` | `scripts/setup_node.sh` `PYTHON_DOTENV_PIN` | `PYTHON_DOTENV_PIN` env |
 | Terraform | `1.9.5` | `.github/workflows/a2a-gate.yml` | (fixed in workflow) |
