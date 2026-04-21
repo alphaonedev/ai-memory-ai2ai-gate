@@ -12,7 +12,7 @@
 # scenario still exercises the full MCP tool-dispatch surface.
 #
 # Required env (sourced from /etc/ai-memory-a2a/env on the agent node):
-#   AGENT_TYPE      — openclaw | hermes
+#   AGENT_TYPE      — ironclaw | hermes | openclaw (legacy)
 #   AGENT_ID        — ai:alice / ai:bob / ai:charlie
 #   LOCAL_MEMORY_URL — http://127.0.0.1:9077 (the node's local ai-memory)
 #   MCP_CONFIG      — path to the MCP config JSON
@@ -68,6 +68,14 @@ agent_prompt() {
         --provider xai \
         --model "$A2A_GATE_LLM_MODEL" \
         -q "$1"
+      ;;
+    ironclaw)
+      # ironclaw headless prompt. xAI OpenAI-compatible backend is
+      # configured in ~/.ironclaw/.env; LLM_BACKEND=openai_compatible
+      # + LLM_BASE_URL=https://api.x.ai/v1 + LLM_MODEL make this a
+      # single-flag invocation. If a future ironclaw version renames
+      # chat -> run or changes the prompt flag, update here.
+      ironclaw chat -p "$1"
       ;;
   esac
 }
@@ -150,8 +158,33 @@ fallback_driver() {
   esac
 }
 
+ironclaw_driver() {
+  if agent_cli; then
+    case "$ACTION" in
+      store)
+        title="${1:?title required}"; content="${2:?content required}"
+        ns="${3:-scenario}"
+        agent_prompt "Store a memory: namespace=${ns} title=\"${title}\" content=${content} via the ai-memory MCP memory_store tool."
+        ;;
+      recall)
+        query="${1:?query required}"; ns="${2:-}"
+        agent_prompt "Recall on \"${query}\"${ns:+ namespace=${ns}} via the ai-memory MCP memory_recall tool; output JSON."
+        ;;
+      list)
+        ns="${1:-}"
+        agent_prompt "List memories${ns:+ namespace=${ns}} via the ai-memory MCP memory_list tool; output JSON."
+        ;;
+      *)
+        echo "unknown action: $ACTION" >&2; exit 1 ;;
+    esac
+    return
+  fi
+  fallback_driver
+}
+
 case "$AGENT_TYPE" in
+  ironclaw) ironclaw_driver "$@" ;;
+  hermes)   hermes_driver   "$@" ;;
   openclaw) openclaw_driver "$@" ;;
-  hermes)   hermes_driver "$@" ;;
   *)        echo "unknown AGENT_TYPE: $AGENT_TYPE" >&2; exit 1 ;;
 esac

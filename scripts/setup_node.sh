@@ -538,9 +538,14 @@ EOF
     # imports at module-top. Surfaced by a2a-hermes-v0.6.0-r6.
     # PEP 668 on Ubuntu 24.04 requires --break-system-packages.
     PYTHON_DOTENV_PIN="${PYTHON_DOTENV_PIN:-1.0.1}"
-    log "installing python-dotenv==${PYTHON_DOTENV_PIN} (pinned, timeout ${TIMEOUT_PIP}s)"
-    timeout -k 30 "$TIMEOUT_PIP" python3 -m pip install --break-system-packages --quiet "python-dotenv==${PYTHON_DOTENV_PIN}" || {
-      log "FATAL: python-dotenv==${PYTHON_DOTENV_PIN} pip install timed out or failed"
+    # httpx is ALSO imported unconditionally at hermes_cli/auth.py:38 and not
+    # in upstream install.sh. Surfaced by a2a-hermes-v0.6.2-rc.0-r3 scenario-1
+    # (hermes chat → ModuleNotFoundError: No module named 'httpx').
+    HTTPX_PIN="${HTTPX_PIN:-0.27.2}"
+    log "installing python-dotenv==${PYTHON_DOTENV_PIN} + httpx==${HTTPX_PIN} (pinned, timeout ${TIMEOUT_PIP}s)"
+    timeout -k 30 "$TIMEOUT_PIP" python3 -m pip install --break-system-packages --quiet \
+      "python-dotenv==${PYTHON_DOTENV_PIN}" "httpx==${HTTPX_PIN}" || {
+      log "FATAL: hermes python dep install timed out or failed"
       exit 1
     }
 
@@ -976,6 +981,10 @@ case "$AGENT_TYPE" in
     set -a; . /etc/ai-memory-a2a/hermes.env; set +a
     timeout -k 10 "$TIMEOUT_AGENT_CLI" hermes chat -Q --provider xai --model "$A2A_GATE_LLM_MODEL" -q "$F2B_PROMPT" > /tmp/canary-hermes.log 2>&1 || \
       log "  F2b: hermes returned non-zero or timed out (${TIMEOUT_AGENT_CLI}s) — proceeding"
+    ;;
+  ironclaw)
+    timeout -k 10 "$TIMEOUT_AGENT_CLI" ironclaw chat -p "$F2B_PROMPT" > /tmp/canary-ironclaw.log 2>&1 || \
+      log "  F2b: ironclaw returned non-zero or timed out (${TIMEOUT_AGENT_CLI}s) — proceeding"
     ;;
 esac
 sleep 3

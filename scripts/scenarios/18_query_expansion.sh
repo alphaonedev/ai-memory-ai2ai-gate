@@ -28,25 +28,34 @@ CONTENT_B="Before dawn Lyra enjoys brisk uphill strides along the ridge line tra
 QUERY="morning outdoor exercise routine"
 
 log "alice writes A on node-1"
+# Storage tier is one of {short, mid, long} in ai-memory (see CLAUDE.md
+# §Architecture). The prior "semantic" value is a FEATURE tier (keyword/
+# semantic/smart/autonomous — a recall-pipeline config, not a storage
+# tier). ai-memory silently defaults unknown tier strings to Mid, but
+# sending "long" here is explicit + keeps the memory past the default
+# mid-tier TTL through the settle + query phases.
 ssh $SSH_OPTS root@"$NODE1_IP" \
   "curl -sS -X POST 'http://127.0.0.1:9077/api/v1/memories' \
     -H 'X-Agent-Id: ai:alice' -H 'Content-Type: application/json' \
-    -d '{\"tier\":\"semantic\",\"namespace\":\"$NS\",\"title\":\"dawn-walk\",\"content\":\"$CONTENT_A\",\"priority\":5,\"confidence\":1.0,\"source\":\"api\",\"metadata\":{\"agent_id\":\"ai:alice\",\"scenario\":\"18\"}}'" \
+    -d '{\"tier\":\"long\",\"namespace\":\"$NS\",\"title\":\"dawn-walk\",\"content\":\"$CONTENT_A\",\"priority\":5,\"confidence\":1.0,\"source\":\"api\",\"metadata\":{\"agent_id\":\"ai:alice\",\"scenario\":\"18\"}}'" \
   >/dev/null
 
 log "bob writes B on node-2"
 ssh $SSH_OPTS root@"$NODE2_IP" \
   "curl -sS -X POST 'http://127.0.0.1:9077/api/v1/memories' \
     -H 'X-Agent-Id: ai:bob' -H 'Content-Type: application/json' \
-    -d '{\"tier\":\"semantic\",\"namespace\":\"$NS\",\"title\":\"ridge-strides\",\"content\":\"$CONTENT_B\",\"priority\":5,\"confidence\":1.0,\"source\":\"api\",\"metadata\":{\"agent_id\":\"ai:bob\",\"scenario\":\"18\"}}'" \
+    -d '{\"tier\":\"long\",\"namespace\":\"$NS\",\"title\":\"ridge-strides\",\"content\":\"$CONTENT_B\",\"priority\":5,\"confidence\":1.0,\"source\":\"api\",\"metadata\":{\"agent_id\":\"ai:bob\",\"scenario\":\"18\"}}'" \
   >/dev/null
 
 log "settle 15s for fanout + index rebuild"
 sleep 15
 
-# charlie issues a semantic recall.
+# charlie issues a semantic recall. RecallQuery reads the query string
+# as `?context=<text>` (ai-memory-mcp src/models.rs:210); the prior `?q=`
+# silently left context=None → HTTP 400 "context is required" → empty
+# .memories[] → both markers counted as unseen → false negative.
 log "charlie queries on node-3 with semantically-related prompt"
-query_url="http://127.0.0.1:9077/api/v1/recall?q=$(python3 -c "import urllib.parse,sys;print(urllib.parse.quote(sys.argv[1]))" "$QUERY")&namespace=$NS&limit=20"
+query_url="http://127.0.0.1:9077/api/v1/recall?context=$(python3 -c "import urllib.parse,sys;print(urllib.parse.quote(sys.argv[1]))" "$QUERY")&namespace=$NS&limit=20"
 resp=$(ssh $SSH_OPTS root@"$NODE3_IP" \
   "curl -sS '$query_url'" 2>/dev/null)
 # Count the markers — both TAG_A and TAG_B should appear in the top results.

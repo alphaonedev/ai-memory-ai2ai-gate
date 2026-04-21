@@ -22,10 +22,15 @@ DAVE_ID="ai:dave-probe-$(cat /proc/sys/kernel/random/uuid 2>/dev/null | cut -c1-
 DAVE_NS="_agent_registry_test"
 
 log "alice registers new agent $DAVE_ID on node-1"
+# RegisterAgentBody schema (ai-memory-mcp src/handlers.rs:407):
+# required: agent_id (String), agent_type (String)
+# optional: capabilities (Vec<String>)
+# `namespace` and `scope` are NOT part of this endpoint — prior scenario
+# versions sent them and got HTTP 422 Unprocessable Entity.
 register_result=$(ssh $SSH_OPTS root@"$NODE1_IP" \
   "curl -sS -X POST 'http://127.0.0.1:9077/api/v1/agents' \
     -H 'X-Agent-Id: ai:alice' -H 'Content-Type: application/json' \
-    -d '{\"agent_id\":\"$DAVE_ID\",\"namespace\":\"$DAVE_NS\",\"scope\":\"team\"}' \
+    -d '{\"agent_id\":\"$DAVE_ID\",\"agent_type\":\"probe\",\"capabilities\":[\"memory_store\",\"memory_recall\"]}' \
     -w '\\n%{http_code}'" 2>/dev/null)
 register_code=$(echo "$register_result" | tail -1)
 log "  POST /api/v1/agents returned HTTP $register_code"
