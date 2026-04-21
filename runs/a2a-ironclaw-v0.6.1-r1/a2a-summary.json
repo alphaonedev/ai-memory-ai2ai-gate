@@ -1,0 +1,81 @@
+{
+  "campaign_id": "a2a-ironclaw-v0.6.1-r1",
+  "agent_group": "ironclaw",
+  "ai_memory_git_ref": "v0.6.1",
+  "completed_at": "2026-04-21T17:19:09Z",
+  "overall_pass": false,
+  "scenarios": [],
+  "reasons": [
+    "no scenario reports recovered"
+  ],
+  "meta": {
+    "campaign_id": "a2a-ironclaw-v0.6.1-r1",
+    "agent_group": "ironclaw",
+    "ai_memory_git_ref": "v0.6.1",
+    "infra": {
+      "provider": "digitalocean",
+      "region": "nyc3",
+      "droplet_size": "s-2vcpu-4gb",
+      "topology": "4-node federation mesh (W=2/N=4)",
+      "nodes": [
+        {
+          "index": 1,
+          "role": "agent",
+          "agent_id": "ai:alice",
+          "public_ip": "",
+          "private_ip": ""
+        },
+        {
+          "index": 2,
+          "role": "agent",
+          "agent_id": "ai:bob",
+          "public_ip": "",
+          "private_ip": ""
+        },
+        {
+          "index": 3,
+          "role": "agent",
+          "agent_id": "ai:charlie",
+          "public_ip": "",
+          "private_ip": ""
+        },
+        {
+          "index": 4,
+          "role": "memory-only",
+          "agent_id": null,
+          "public_ip": "",
+          "private_ip": ""
+        }
+      ]
+    },
+    "scenarios_requested": [
+      "1",
+      "1b",
+      "2",
+      "4",
+      "5",
+      "6",
+      "9",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14",
+      "15",
+      "16",
+      "17",
+      "18"
+    ],
+    "timing": {
+      "started_at": "",
+      "ended_at": ""
+    },
+    "ci": {
+      "actor": "alphaonedev",
+      "workflow_url": "https://github.com/alphaonedev/ai-memory-ai2ai-gate/actions/runs/24736339563",
+      "harness_sha": "577b510d880a302d6f599a5ff94b0991c7a45996",
+      "runner_os": "Linux"
+    }
+  },
+  "skipped_reports": []
+}
