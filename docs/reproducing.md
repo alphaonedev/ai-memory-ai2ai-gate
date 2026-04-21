@@ -35,7 +35,7 @@ gh secret set DIGITALOCEAN_SSH_KEY_FINGERPRINT  -R "$FORK"  # paste the DO-regis
 gh secret set XAI_API_KEY                       -R "$FORK"  # paste xAI key
 ```
 
-**None of these values touch the repository.** They live in GitHub's encrypted secret store. The workflow consumes them at dispatch time. The commit-pass redaction step blocks any that leak into artefacts — see [baseline.md §9b](baseline.md#9b-security--secrets--pii-handling).
+**None of these values touch the repository.** They live in GitHub's encrypted secret store. The workflow consumes them at dispatch time. The commit-pass redaction step blocks any that leak into artifacts — see [baseline.md §9b](baseline.md#9b-security--secrets--pii-handling).
 
 ### A.3 Dispatch a campaign
 
@@ -70,7 +70,7 @@ Typical timing:
 - **Baseline enforcement (per-node attestation): ~5s** (any node failing = scenarios skipped, job fails at that step)
 - **F3 peer A2A probe: ~12s** (write + 8s settle + 3-peer verify)
 - Scenarios: ~90s each
-- Redaction pass: ~1s (fails build if any secret value leaks to artefacts)
+- Redaction pass: ~1s (fails build if any secret value leaks to artifacts)
 - Terraform destroy: ~30s (runs via `if: always()`)
 
 ### A.5 Find the evidence

@@ -8,7 +8,7 @@ bug-to-fix lineage and tri-audience framing.
 !!! info "Where the raw data lives"
     Every entry here traces back to a file in the repository.
 
-    - Per-run artefacts: [`runs/<campaign_id>/`](https://github.com/alphaonedev/ai-memory-ai2ai-gate/tree/main/runs)
+    - Per-run artifacts: [`runs/<campaign_id>/`](https://github.com/alphaonedev/ai-memory-ai2ai-gate/tree/main/runs)
     - Raw insight schema: [`analysis/run-insights.json`](https://github.com/alphaonedev/ai-memory-ai2ai-gate/blob/main/analysis/run-insights.json)
     - Workflow logs: [Actions tab](https://github.com/alphaonedev/ai-memory-ai2ai-gate/actions)
     - Commit lineage: `git log --oneline main` in the repo
@@ -97,7 +97,7 @@ resource touched.
 
     4. **Audit posture is strong.** Every dispatch has a
        corresponding Actions run, every commit is signed and
-       dated, every artefact (including this analysis) is in the
+       dated, every artifact (including this analysis) is in the
        public repo. A reviewer asking "how do you know multi-agent
        memory works on real infrastructure?" gets the evidence,
        not a slide.
@@ -218,4 +218,4 @@ via [`scripts/generate_run_html.sh`](https://github.com/alphaonedev/ai-memory-ai
 
 New iteration → new entry in `run-insights.json` → pages workflow
 redeploys → both this page and the per-run evidence pages refresh.
-No hand-waving. Every claim traces to an artefact.
+No hand-waving. Every claim traces to an artifact.

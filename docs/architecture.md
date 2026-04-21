@@ -115,7 +115,7 @@ This lock-down makes the A2A gate's thesis — "agents can coordinate through sh
 | 10 | Aggregate campaign summary (always) | `collect_reports.sh` → `a2a-summary.json` | soft error |
 | 11 | Regenerate evidence HTML (always) | `generate_run_html.sh` → `index.html` | soft error |
 | 12 | Redact secrets (always) | sed pass + grep verify; **exit 4 if any known secret leaks** | workflow fail |
-| 13 | Commit campaign artefacts (always) | git add + commit + push with 5-retry rebase loop | soft error |
+| 13 | Commit campaign artifacts (always) | git add + commit + push with 5-retry rebase loop | soft error |
 | 14 | Tear down (`if: always()`) | `terraform destroy -auto-approve` | soft error (dead-man switch is backstop) |
 
 **Every long-running subprocess inside setup_node.sh has a timeout** (since commit `6face55` after r11 hang):
@@ -163,7 +163,7 @@ The **pages workflow** (`.github/workflows/pages.yml`) then:
 4. Builds the `mkdocs-material` site
 5. Deploys to GitHub Pages
 
-Both the raw JSON artefacts and the rendered HTML land at `https://alphaonedev.github.io/ai-memory-ai2ai-gate/evidence/<campaign-id>/`. The runs landing is at `https://alphaonedev.github.io/ai-memory-ai2ai-gate/runs/`.
+Both the raw JSON artifacts and the rendered HTML land at `https://alphaonedev.github.io/ai-memory-ai2ai-gate/evidence/<campaign-id>/`. The runs landing is at `https://alphaonedev.github.io/ai-memory-ai2ai-gate/runs/`.
 
 ---
 

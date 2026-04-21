@@ -8,7 +8,7 @@
 #   2. Infrastructure — DO region, droplet sizes, node roster, workflow URL
 #   3. AI NHI tri-audience analysis from analysis/run-insights.json
 #   4. Per-scenario PASS/FAIL with reasons, collapsible JSON + log
-#   5. All-artefacts link list
+#   5. All-artifacts link list
 #
 # Never exits early — if the summary is missing we still render what
 # we have, so the dashboard reflects that the run actually ran.
@@ -74,7 +74,7 @@ render_infra() {
     cat <<HERE
       <section class="infra">
         <h2>Infrastructure</h2>
-        <p class="muted">No <code>campaign.meta.json</code> captured for this run (pre-upgrade artefact format). Infrastructure details recoverable from the workflow run logs.</p>
+        <p class="muted">No <code>campaign.meta.json</code> captured for this run (pre-upgrade artifact format). Infrastructure details recoverable from the workflow run logs.</p>
       </section>
 HERE
     return 0
@@ -381,7 +381,7 @@ scenario_block 8 "Auto-tagging (opt-in)"
 
 cat <<EOF
     <section>
-      <h2>All artefacts</h2>
+      <h2>All artifacts</h2>
       <ul>
 EOF
 for f in "$DIR"/*.json "$DIR"/*.log; do

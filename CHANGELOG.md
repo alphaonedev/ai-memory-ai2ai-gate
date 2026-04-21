@@ -19,7 +19,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Baseline spec 
 - Config attestation for iptables, dead-man switch, config file SHA-256
 - Negative invariants — explicit disable of every alternative A2A channel per framework
 - Baseline attestation schema with versioning
-- Redaction pass on committed artefacts with post-redaction grep verify
+- Redaction pass on committed artifacts with post-redaction grep verify
 - Timeout hardening on every long-running subprocess in `setup_node.sh`
 - ERR trap with line number logging
 - Timestamp-prefixed log lines for wall-clock diagnosis

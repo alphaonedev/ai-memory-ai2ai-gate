@@ -145,7 +145,7 @@ jobs:
           {
             echo "# Campaign runs"
             echo
-            echo "Every A2A campaign run commits its scenario artefacts +"
+            echo "Every A2A campaign run commits its scenario artifacts +"
             echo "generated evidence HTML here. Rows sort newest-first by"
             echo "\`completed_at\` from \`a2a-summary.json\` (absent/legacy"
             echo "runs fall back to the directory mtime). \`PASS\` / \`FAIL\`"

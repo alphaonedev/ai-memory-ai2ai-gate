@@ -212,7 +212,7 @@ The redaction pass (see [baseline.md §9b](baseline.md#9b-security--secrets--pii
 ## 12. Investigate a past run
 
 ```sh
-# Every artefact is in git history
+# Every artifact is in git history
 git log -- runs/a2a-openclaw-v0.6.0-r7/
 git show <commit-sha> -- runs/a2a-openclaw-v0.6.0-r7/a2a-summary.json
 ```

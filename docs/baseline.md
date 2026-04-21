@@ -537,7 +537,7 @@ The workflow runs these steps in order. Every one of them is a gate; the next st
 │ 8. Aggregate campaign summary (always)                          │
 │ 9. Regenerate evidence HTML (always)                            │
 │ 10. Redact secrets (always) — EXIT 4 if any known secret leaks  │
-│ 11. Commit campaign artefacts (always)                          │
+│ 11. Commit campaign artifacts (always)                          │
 │ 12. Tear down infrastructure (always)                           │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -557,7 +557,7 @@ Legend: **EXIT N** = hard fail. **Gate** = the subsequent step is skipped if thi
 5. **Run scenarios** — `if: steps.baseline.outputs.baseline_ok == 'true'` — skipped entirely if baseline failed.
 6. **Emit campaign.meta.json** — DO region, droplet size, node roster, workflow URL, dispatching actor.
 7. **Aggregate campaign summary** + **Regenerate evidence HTML**.
-8. **Commit campaign artefacts** to `runs/<campaign-id>/`.
+8. **Commit campaign artifacts** to `runs/<campaign-id>/`.
 9. **Tear down infrastructure** — always runs, even on failure.
 
 The gate closes at step 4. No scenarios run without a clean baseline.
@@ -574,7 +574,7 @@ The campaign handles three classes of sensitive data. All three are subject to a
 |---|---|---|---|---|
 | `XAI_API_KEY` | GitHub repo secret | `openclaw.json` on the droplet + `hermes.env` on the droplet | **never** | Pre-commit sed redaction + post-redaction grep; `exit 4` if any match |
 | `DIGITALOCEAN_TOKEN` | GitHub repo secret | Terraform env on the runner | **never** | Same redaction pass |
-| `DIGITALOCEAN_SSH_PRIVATE_KEY` | GitHub repo secret | `~/.ssh/id_ed25519` on the runner | **never** | SSH private keys don't touch droplets or artefacts |
+| `DIGITALOCEAN_SSH_PRIVATE_KEY` | GitHub repo secret | `~/.ssh/id_ed25519` on the runner | **never** | SSH private keys don't touch droplets or artifacts |
 | Droplet **public** IPs | Terraform output | `campaign.meta.json` | ✅ **yes**, intentionally | Droplets are destroyed by `terraform destroy` at workflow end — ephemeral. No long-term exposure. Useful for audit linkage. |
 | Droplet **private** IPs | Terraform output | `campaign.meta.json` | ✅ **yes**, intentionally | VPC-private; reachable only from within the destroyed VPC. Harmless post-destroy. |
 | Dispatching GitHub actor handle | `${{ github.actor }}` | `campaign.meta.json` | ✅ yes | Public GitHub username; not PII in our model. |

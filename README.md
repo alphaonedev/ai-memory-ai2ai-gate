@@ -202,7 +202,7 @@ will add:
 4. `scripts/setup_hermes_agent.sh` — same for Hermes
 5. `scripts/scenarios/` — one file per test group above
 6. `docs/` — methodology, per-group pass criteria, reproducing
-7. `runs/` — per-campaign artefacts (mirrors ship-gate convention)
+7. `runs/` — per-campaign artifacts (mirrors ship-gate convention)
 
 ---
 
