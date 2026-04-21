@@ -30,6 +30,7 @@ nav:
   - Home: index.md
   - AI NHI insights: insights.md
   - Baseline configuration: baseline.md
+  - Test book: testbook.md
   - Methodology: methodology.md
   - Topology: topology.md
   - Agents:

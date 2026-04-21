@@ -34,9 +34,9 @@ on:
         required: false
         default: "nyc3"
       scenarios:
-        description: "Space-separated scenario ids. Default: 1 + 1b (MCP-native + HTTP-federation). More as scripts land."
+        description: "Space-separated scenario ids. Default: 1 1b 2 4 9 10 15 17 (full spectrum; see docs/testbook.md)."
         required: false
-        default: "1 1b"
+        default: "1 1b 2 4 9 10 15 17"
       agent_droplet_size:
         description: "Agent droplet size. Bump to s-4vcpu-16gb for scenario 8 (Ollama)."
         required: false
