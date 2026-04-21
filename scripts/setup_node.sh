@@ -47,9 +47,42 @@ DEBIAN_FRONTEND=noninteractive apt-get update -y
 DEBIAN_FRONTEND=noninteractive apt-get install -y \
   curl jq git python3 python3-pip nodejs npm sqlite3
 
-# OS-tier firewall off (ship-gate lesson from r21/r23 hangs).
+# OS-tier firewall OFF on every node. Ship-gate r21/r23 lesson:
+# UFW on Ubuntu 24.04 default-on blocks loopback mesh traffic in
+# subtle ways. Disable explicitly AND verify.
+log "disabling UFW + verifying"
 if command -v ufw >/dev/null 2>&1; then
-  ufw --force disable || true
+  ufw --force disable 2>&1 | sed 's/^/[ufw] /' || true
+  # Also reset to default-deny-nothing to be extra safe, then
+  # re-disable (reset re-enables on some ufw builds).
+  ufw --force reset 2>&1 | sed 's/^/[ufw] /' || true
+  ufw --force disable 2>&1 | sed 's/^/[ufw] /' || true
+  # Verify — hard fail the provision if UFW is still active on any
+  # node (agent or memory-only). Non-negotiable per user directive
+  # 2026-04-21: "make sure Ubuntu firewalls are disabled for all
+  # testing."
+  ufw_status=$(ufw status 2>&1 | head -1 || echo "ufw status failed")
+  log "UFW status: $ufw_status"
+  case "$ufw_status" in
+    *inactive*|*disabled*)
+      log "UFW confirmed disabled"
+      ;;
+    *)
+      log "FATAL: UFW still active on node $NODE_INDEX — halting provision. ufw status: $ufw_status"
+      exit 3
+      ;;
+  esac
+else
+  log "ufw not present on this image — nothing to disable"
+fi
+# Flush iptables too (belt-and-suspenders; Docker-prepped images
+# sometimes have residual DROP policies that UFW doesn't manage).
+if command -v iptables >/dev/null 2>&1; then
+  iptables -P INPUT ACCEPT 2>/dev/null || true
+  iptables -P OUTPUT ACCEPT 2>/dev/null || true
+  iptables -P FORWARD ACCEPT 2>/dev/null || true
+  iptables -F 2>/dev/null || true
+  log "iptables policies set ACCEPT + rules flushed"
 fi
 
 # Dead-man switch: every droplet self-destructs at 8h regardless.
@@ -353,6 +386,71 @@ esac
 # and have >=1 peer configured (we requested 3).
 fed_live=$(curl -sS http://127.0.0.1:9077/api/v1/health 2>/dev/null | jq -e '.status == "ok" or .healthy == true or .ok == true' >/dev/null 2>&1 && echo true || echo false)
 
+# UFW must be disabled — ship-gate lesson, explicit baseline invariant.
+if command -v ufw >/dev/null 2>&1; then
+  ufw_disabled=$(ufw status 2>/dev/null | head -1 | grep -qiE 'inactive|disabled' && echo true || echo false)
+else
+  # No UFW on the image = effectively disabled for our purposes.
+  ufw_disabled=true
+fi
+
+# ---- FUNCTIONAL PROBES --------------------------------------------
+# Static config attestation is necessary but not sufficient. These
+# probes exercise the live surfaces the agent will use.
+
+# Probe 1 — xAI reachability + auth. Direct HTTPS call, parse
+# message content. max_tokens=10 keeps the probe cheap (~fractions
+# of a cent per dispatch, <1s wall).
+log "PROBE 1/2: xAI Grok reachability + auth"
+xai_resp=$(curl -sS --max-time 20 \
+  -X POST https://api.x.ai/v1/chat/completions \
+  -H "Authorization: Bearer $XAI_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"grok-4-fast-non-reasoning","messages":[{"role":"user","content":"Reply with the single word READY and nothing else."}],"max_tokens":10,"temperature":0}' \
+  2>/dev/null || echo '{}')
+xai_content=$(echo "$xai_resp" | jq -r '.choices[0].message.content // empty' 2>/dev/null | tr -d '[:space:]')
+if [ -n "$xai_content" ]; then
+  xai_functional=true
+  log "  PROBE 1 OK — xAI responded: \"$xai_content\""
+else
+  xai_functional=false
+  log "  PROBE 1 FAIL — no content from xAI. Response: $(echo "$xai_resp" | head -c 200)"
+fi
+
+# Probe 2 — End-to-end MCP canary. Drive the agent framework itself
+# to call the ai-memory memory_store tool, then verify the row shows
+# up via the local HTTP API with correct provenance stamp.
+# Namespace prefixed with underscore keeps it out of scenario
+# namespaces that use `scenario<N>-<agent>`.
+log "PROBE 2/2: end-to-end agent → MCP → ai-memory canary"
+CANARY_UUID=$(cat /proc/sys/kernel/random/uuid 2>/dev/null || echo "canary-$RANDOM-$RANDOM")
+CANARY_NS="_baseline_canary"
+CANARY_PROMPT="Use the ai-memory MCP memory_store tool to save a memory with namespace=${CANARY_NS}, title=canary-${AGENT_ID}, content=${CANARY_UUID}. Respond with DONE when the tool call completes."
+# Source env file so drive_agent.sh finds its required vars.
+. /etc/ai-memory-a2a/env
+case "$AGENT_TYPE" in
+  openclaw)
+    openclaw run --non-interactive --format json --max-tool-rounds 10 -p "$CANARY_PROMPT" > /tmp/canary-openclaw.log 2>&1 || true
+    ;;
+  hermes)
+    set -a; . /etc/ai-memory-a2a/hermes.env; set +a
+    hermes chat -Q --provider xai --model grok-4-fast-non-reasoning -q "$CANARY_PROMPT" > /tmp/canary-hermes.log 2>&1 || true
+    ;;
+esac
+# Give federation a moment to fanout (we're testing the MCP path,
+# but the row has to hit the local serve DB first).
+sleep 3
+canary_hit=$(curl -sS "http://127.0.0.1:9077/api/v1/memories?namespace=${CANARY_NS}&limit=20" 2>/dev/null | \
+  jq --arg u "$CANARY_UUID" --arg a "$AGENT_ID" \
+    '[.memories[]? | select(.content == $u and (.metadata.agent_id // "") == $a)] | length' 2>/dev/null || echo 0)
+if [ "${canary_hit:-0}" -ge 1 ] 2>/dev/null; then
+  canary_functional=true
+  log "  PROBE 2 OK — agent-driven MCP canary landed with correct agent_id"
+else
+  canary_functional=false
+  log "  PROBE 2 FAIL — canary UUID $CANARY_UUID not found in ns=$CANARY_NS on local serve"
+fi
+
 jq -n \
   --arg agent_type "$AGENT_TYPE" \
   --arg agent_id "$AGENT_ID" \
@@ -360,6 +458,8 @@ jq -n \
   --arg fw_version "$fw_version" \
   --arg peer_urls "$PEER_URLS" \
   --arg ai_memory_version "$AI_MEMORY_VERSION" \
+  --arg xai_content "$xai_content" \
+  --arg canary_uuid "$CANARY_UUID" \
   --argjson is_authentic "$is_authentic" \
   --argjson mcp_registered "$mcp_registered" \
   --argjson has_xai "$has_xai" \
@@ -367,6 +467,9 @@ jq -n \
   --argjson has_mem "$has_mem" \
   --argjson has_aid "$has_aid" \
   --argjson fed_live "$fed_live" \
+  --argjson xai_functional "$xai_functional" \
+  --argjson canary_functional "$canary_functional" \
+  --argjson ufw_disabled "$ufw_disabled" \
   '{
     agent_type:$agent_type,
     agent_id:$agent_id,
@@ -374,16 +477,30 @@ jq -n \
     framework_version:$fw_version,
     ai_memory_version:$ai_memory_version,
     peer_urls:$peer_urls,
-    baseline: {
+    config_attestation: {
       framework_is_authentic:$is_authentic,
       mcp_server_ai_memory_registered:$mcp_registered,
       llm_backend_is_xai_grok:$has_xai,
       llm_is_default_provider:$default_xai,
       mcp_command_is_ai_memory:$has_mem,
       agent_id_stamped:$has_aid,
-      federation_live:$fed_live
+      federation_live:$fed_live,
+      ufw_disabled:$ufw_disabled
     },
-    baseline_pass: ($is_authentic and $mcp_registered and $has_xai and $default_xai and $has_mem and $has_aid and $fed_live)
+    functional_probes: {
+      xai_grok_chat_reachable: $xai_functional,
+      xai_grok_sample_reply: $xai_content,
+      agent_mcp_ai_memory_canary: $canary_functional,
+      canary_uuid: $canary_uuid,
+      canary_namespace: "_baseline_canary"
+    },
+    baseline_pass: (
+      $is_authentic and $mcp_registered and
+      $has_xai and $default_xai and
+      $has_mem and $has_aid and $fed_live and
+      $ufw_disabled and
+      $xai_functional and $canary_functional
+    )
   }' > /etc/ai-memory-a2a/baseline.json
 
 cat /etc/ai-memory-a2a/baseline.json

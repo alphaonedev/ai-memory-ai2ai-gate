@@ -22,14 +22,36 @@ federation-membership field.
 
 ## The invariants
 
+Two classes: **config attestation** (static: "the intent is set") and
+**functional probes** (dynamic: "the intent works on the live wire").
+Both must pass. Neither alone is sufficient.
+
+### Config attestation (static)
+
 | # | Invariant | Why it matters |
 |---|---|---|
-| 1 | Agent framework is the authentic upstream binary | No surrogates, no symlinks to another CLI. If we claim to test OpenClaw, the binary must be `openclaw/openclaw`. |
-| 2 | Agent's LLM backend is xAI Grok (model `grok-4-fast-non-reasoning`) | Framework-vs-framework comparison is only meaningful when the reasoning model is held constant. Same model in both groups; only the agent scaffolding differs. |
-| 3 | Agent's ONLY MCP server is `ai-memory` on the local node | Substrate isolation. Any result is attributable to one product, not a mixture of tools. |
-| 4 | Agent ID is stamped into the MCP environment (`AI_MEMORY_AGENT_ID`) | Task 1.2 immutability contract from `ai-memory-mcp` — provenance of every memory write must survive through the MCP stdio path. |
-| 5 | Local `ai-memory serve` is a member of the 4-node W=2/N=4 federation mesh | The substrate under test. Scenarios assume quorum semantics hold; they can't if the daemon isn't live and peered. |
-| 6 | The full baseline is asserted by `/etc/ai-memory-a2a/baseline.json` on the node itself, **before** any scenario executes | A self-attesting node. The workflow collects the attestation; the dashboard renders it per campaign. |
+| C1 | Agent framework is the authentic upstream binary | No surrogates, no symlinks to another CLI. If we claim to test OpenClaw, the binary must be `openclaw/openclaw`. |
+| C2 | Agent's LLM backend is xAI Grok (model `grok-4-fast-non-reasoning`) | Framework-vs-framework comparison is only meaningful when the reasoning model is held constant. Same model in both groups; only the agent scaffolding differs. |
+| C3 | Agent's ONLY MCP server is `ai-memory` on the local node | Substrate isolation. Any result is attributable to one product, not a mixture of tools. |
+| C4 | Agent ID is stamped into the MCP environment (`AI_MEMORY_AGENT_ID`) | Task 1.2 immutability contract from `ai-memory-mcp` — provenance of every memory write must survive through the MCP stdio path. |
+| C5 | Local `ai-memory serve` is a member of the 4-node W=2/N=4 federation mesh | The substrate under test. Scenarios assume quorum semantics hold; they can't if the daemon isn't live and peered. |
+| C6 | Ubuntu UFW firewall is DISABLED on every node (agent and memory-only) | Ship-gate r21/r23 lesson: UFW on 24.04 blocks loopback/intra-VPC traffic in subtle ways. Every `setup_node.sh` runs `ufw --force reset && ufw --force disable` and verifies; provision **hard-fails** (exit 3) if UFW is still active. |
+
+### Functional probes (dynamic, run BEFORE any scenario)
+
+| # | Invariant | What the probe actually does |
+|---|---|---|
+| F1 | xAI Grok is reachable and the API key authenticates | Direct `POST https://api.x.ai/v1/chat/completions` with model `grok-4-fast-non-reasoning`, trivial prompt (`max_tokens=10`). Passes if response has non-empty `.choices[0].message.content`. Independent of the agent framework — tests the raw LLM layer. |
+| F2 | Agent → MCP → ai-memory canary succeeds end-to-end | Drive the agent (via `openclaw run --non-interactive -p` or `hermes chat -Q -q`) with a prompt: *"Use the ai-memory MCP memory_store tool to save title=canary-<id>, content=<uuid>, namespace=`_baseline_canary`"*. Then `GET /api/v1/memories?namespace=_baseline_canary` on local serve and confirm the uuid is there with `metadata.agent_id == AGENT_ID`. Proves: agent reasoning → tool selection → MCP stdio → ai-memory write → provenance stamp. |
+
+**Diagnostic separation:** If F1 fails but config attestation passes, the LLM is broken (bad key, network, xAI outage). If F2 fails but F1 passes, the MCP dispatch or agent tool-selection is broken. If F1 passes and F2 passes, the full stack is live and scenarios will run.
+
+### Gate
+
+| # | Invariant | Why it matters |
+|---|---|---|
+| G1 | The full baseline is asserted by `/etc/ai-memory-a2a/baseline.json` on the node itself, **before** any scenario executes | A self-attesting node. The workflow collects the attestation; the dashboard renders it per campaign. |
+| G2 | `baseline_pass = conjunction(all of C1..C6, F1, F2)` | One false → job halts → zero scenarios run → dashboard shows `⚠️ BASELINE VIOLATION`. |
 
 ## Per-framework configuration surfaces
 
