@@ -113,7 +113,8 @@ if [ ! -f /swapfile ]; then
   chmod 600 /swapfile
   mkswap /swapfile >/dev/null 2>&1
   swapon /swapfile
-  log "swap enabled: $(free -m | awk '/^Swap/ {print $2\" MB\"}')"
+  swap_mb=$(free -m | awk '/^Swap/ {print $2}')
+  log "swap enabled: ${swap_mb} MB"
 fi
 
 # ---- ai-memory install + serve with federation --------------------

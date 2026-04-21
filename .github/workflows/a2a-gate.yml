@@ -38,9 +38,9 @@ on:
         required: false
         default: "1 1b 2 4 5 6 9 10 11 12 13 14 15 16 17 18"
       agent_droplet_size:
-        description: "Agent droplet size. Default s-4vcpu-8gb (openclaw install thrashes on 4GB; DO skips s-2vcpu-8gb tier). Bump to s-4vcpu-16gb for scenario 8 (Ollama)."
+        description: "Agent droplet size. Default s-4vcpu-16gb (openclaw install.sh consumes >8GB; r18 OOMd 4.5min into install with Broken pipe)."
         required: false
-        default: "s-4vcpu-8gb"
+        default: "s-4vcpu-16gb"
       openclaw_install_cmd:
         description: "Shell command to install OpenClaw on a droplet. Blank = placeholder driver (ai-memory CLI stand-in)."
         required: false
@@ -174,7 +174,9 @@ jobs:
               # stdbuf -oL forces line-buffered stdout on the ssh side
               # so `sed` gets each log line promptly — without it the
               # remote bash may buffer up big chunks before flushing.
-              stdbuf -oL ssh -o StrictHostKeyChecking=no root@$ip "$chmod_cmd && $env_cmd bash /root/setup_node.sh" 2>&1 \
+              stdbuf -oL ssh -o StrictHostKeyChecking=no \
+                -o ServerAliveInterval=30 -o ServerAliveCountMax=20 -o TCPKeepAlive=yes \
+                root@$ip "$chmod_cmd && $env_cmd bash /root/setup_node.sh" 2>&1 \
                 | stdbuf -oL sed "s/^/[n$i] /"
               EC=${PIPESTATUS[0]}
               echo "[n$i] === EXIT $EC ==="
