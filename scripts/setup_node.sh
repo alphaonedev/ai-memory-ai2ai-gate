@@ -922,20 +922,32 @@ case "$AGENT_TYPE" in
     ;;
 esac
 rm -f "$F5_REQUEST_FILE"
-# Parse: each stdout line is a JSON-RPC envelope. Initialize reply has
-# .result.serverInfo; tools/list reply has .result.tools[] with .name.
-f5_init_ok=$(jq -e 'select(.id == 1) | .result.serverInfo.name' "$F5_RESPONSE_FILE" 2>/dev/null && echo true || echo false)
-# jq's slurp-mode over line-delimited JSON is fragile; read line-wise.
+# Parse each stdout line as a separate JSON-RPC envelope. Don't chain
+# jq exit codes with `&& echo true` — jq prints its filter output to
+# stdout, which `$(...)` captures alongside the echo, yielding a multi-
+# line value that jq --argjson then rejects as invalid JSON.
+f5_init_ok=false
 f5_tools_ok=false
 f5_tools_found=""
 if [ -s "$F5_RESPONSE_FILE" ]; then
-  f5_tools_found=$(jq -rs '[.[] | select(.id == 2) | .result.tools[]?.name] | sort | unique | join(",")' "$F5_RESPONSE_FILE" 2>/dev/null || echo "")
-  # Baseline-gate tools: the three scenarios exercise most heavily.
-  if echo ",$f5_tools_found," | grep -q ',memory_store,' && \
-     echo ",$f5_tools_found," | grep -q ',memory_recall,' && \
-     echo ",$f5_tools_found," | grep -q ',memory_list,'; then
-    f5_tools_ok=true
-  fi
+  while IFS= read -r line; do
+    [ -z "$line" ] && continue
+    id=$(printf '%s' "$line" | jq -r '.id // empty' 2>/dev/null)
+    case "$id" in
+      1)
+        name=$(printf '%s' "$line" | jq -r '.result.serverInfo.name // empty' 2>/dev/null)
+        [ -n "$name" ] && f5_init_ok=true
+        ;;
+      2)
+        f5_tools_found=$(printf '%s' "$line" | jq -r '[.result.tools[]?.name] | sort | join(",")' 2>/dev/null || echo "")
+        if echo ",$f5_tools_found," | grep -q ',memory_store,' && \
+           echo ",$f5_tools_found," | grep -q ',memory_recall,' && \
+           echo ",$f5_tools_found," | grep -q ',memory_list,'; then
+          f5_tools_ok=true
+        fi
+        ;;
+    esac
+  done < "$F5_RESPONSE_FILE"
 fi
 if [ "$f5_init_ok" = "true" ] && [ "$f5_tools_ok" = "true" ]; then
   f5_functional=true
