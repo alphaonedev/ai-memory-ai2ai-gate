@@ -32,20 +32,20 @@ log "  created memory id=$m1_id"
 sleep 5
 
 # bob issues update against M1 setting content=v2.
-log "bob updates M1 content=$V2_UUID on node-2"
+log "bob updates M1 content=$V2_UUID on node-2 via PUT"
 update_result=$(ssh $SSH_OPTS root@"$NODE2_IP" \
-  "curl -sS -X PATCH 'http://127.0.0.1:9077/api/v1/memories/$m1_id' \
+  "curl -sS -X PUT 'http://127.0.0.1:9077/api/v1/memories/$m1_id' \
     -H 'X-Agent-Id: ai:bob' -H 'Content-Type: application/json' \
     -d '{\"content\":\"$V2_UUID\"}' -w '\\n%{http_code}'" 2>/dev/null)
 update_code=$(echo "$update_result" | tail -1)
-log "  PATCH returned HTTP $update_code"
+log "  PUT returned HTTP $update_code"
 sleep 8
 
 # charlie reads M1 on node-3.
 log "charlie reads M1 on node-3 and checks content + provenance"
 charlie_view=$(ssh $SSH_OPTS root@"$NODE3_IP" \
   "curl -sS 'http://127.0.0.1:9077/api/v1/memories/$m1_id' \
-    | jq -c '{content:.content, agent_id:(.metadata.agent_id // \"\")}'" 2>/dev/null | tail -1)
+    | jq -c '{content:(.memory.content // \"\"), agent_id:(.memory.metadata.agent_id // \"\")}'" 2>/dev/null | tail -1)
 charlie_content=$(echo "$charlie_view" | jq -r '.content // ""')
 charlie_agent_id=$(echo "$charlie_view" | jq -r '.agent_id // ""')
 log "  charlie sees content=\"$charlie_content\" agent_id=\"$charlie_agent_id\""
@@ -55,7 +55,7 @@ PASS=true
 REASONS=()
 if [ "$charlie_content" != "$V2_UUID" ]; then
   PASS=false
-  REASONS+=("charlie expected content=$V2_UUID got \"$charlie_content\" (update didn't propagate or PATCH unsupported)")
+  REASONS+=("charlie expected content=$V2_UUID got \"$charlie_content\" (update didn't propagate)")
 fi
 if [ "$charlie_agent_id" != "ai:alice" ]; then
   PASS=false
@@ -74,7 +74,7 @@ jq -n \
   --argjson reasons "$(printf '%s\n' "${REASONS[@]:-}" | jq -R . | jq -s 'map(select(. != ""))')" \
   '{scenario:"9", pass:($pass=="true"), agent_group:$agent_group,
     m1_id:$m1_id, v1_uuid:$v1_uuid, v2_uuid:$v2_uuid,
-    patch_http_code:$update_code,
+    put_http_code:$update_code,
     charlie_view:{content:$charlie_content, agent_id:$charlie_agent_id},
     reasons:$reasons}'
 

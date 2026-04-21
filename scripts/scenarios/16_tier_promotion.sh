@@ -39,7 +39,7 @@ sleep 8
 log "bob reads M1 on node-2 and checks tier"
 bob_tier=$(ssh $SSH_OPTS root@"$NODE2_IP" \
   "curl -sS 'http://127.0.0.1:9077/api/v1/memories/$m1_id' \
-    | jq -r '.tier // \"(missing)\"'" 2>/dev/null | tail -1)
+    | jq -r '.memory.tier // \"(missing)\"'" 2>/dev/null | tail -1)
 log "  bob sees tier=$bob_tier (expected long)"
 
 # Verdict.

@@ -34,11 +34,15 @@ done
 sleep 8
 
 # Trigger consolidation via HTTP.
-log "phase B: trigger memory_consolidate on node-1"
+log "phase B: collect source memory IDs on node-1, then trigger consolidate"
+ids_json=$(ssh $SSH_OPTS root@"$NODE1_IP" \
+  "curl -sS 'http://127.0.0.1:9077/api/v1/memories?namespace=$NS&limit=100' \
+    | jq -c '[.memories[].id]'" 2>/dev/null | tail -1)
+log "  source ids: $ids_json"
 consolidate_result=$(ssh $SSH_OPTS root@"$NODE1_IP" \
-  "curl -sS -X POST 'http://127.0.0.1:9077/api/v1/memories/consolidate' \
+  "curl -sS -X POST 'http://127.0.0.1:9077/api/v1/consolidate' \
     -H 'X-Agent-Id: ai:alice' -H 'Content-Type: application/json' \
-    -d '{\"namespace\":\"$NS\"}' -w '\\n%{http_code}'" 2>/dev/null)
+    -d '{\"ids\":$ids_json,\"title\":\"c-consolidated\",\"summary\":\"scenario-5 consolidation across alice, bob, charlie\",\"namespace\":\"$NS\"}' -w '\\n%{http_code}'" 2>/dev/null)
 cons_code=$(echo "$consolidate_result" | tail -1)
 cons_body=$(echo "$consolidate_result" | head -n -1)
 log "  consolidate returned HTTP $cons_code"
@@ -52,7 +56,7 @@ agents_field=''
 if [ -n "$consolidated_id" ]; then
   agents_field=$(ssh $SSH_OPTS root@"$NODE4_IP" \
     "curl -sS 'http://127.0.0.1:9077/api/v1/memories/$consolidated_id' \
-      | jq -c '.metadata.consolidated_from_agents // .metadata.consolidated_from // []'" \
+      | jq -c '.memory.metadata.consolidated_from_agents // .memory.metadata.consolidated_from // []'" \
     2>/dev/null | tail -1)
 fi
 log "  consolidated_from_agents=$agents_field"

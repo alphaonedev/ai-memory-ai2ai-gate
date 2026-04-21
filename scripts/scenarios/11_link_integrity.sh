@@ -38,9 +38,9 @@ sleep 5
 # alice creates link M1 -> M2.
 log "alice links M1 -> M2 with relation=related_to"
 link_result=$(ssh $SSH_OPTS root@"$NODE1_IP" \
-  "curl -sS -X POST 'http://127.0.0.1:9077/api/v1/memories/$m1_id/links' \
+  "curl -sS -X POST 'http://127.0.0.1:9077/api/v1/links' \
     -H 'X-Agent-Id: ai:alice' -H 'Content-Type: application/json' \
-    -d '{\"to\":\"$m2_id\",\"relation\":\"related_to\"}' -w '\\n%{http_code}'" 2>/dev/null)
+    -d '{\"source_id\":\"$m1_id\",\"target_id\":\"$m2_id\",\"relation\":\"related_to\"}' -w '\\n%{http_code}'" 2>/dev/null)
 link_code=$(echo "$link_result" | tail -1)
 log "  link POST returned HTTP $link_code"
 sleep 8
@@ -48,8 +48,8 @@ sleep 8
 # charlie queries links of M1 on node-3.
 log "charlie queries links of M1 on node-3"
 links_resp=$(ssh $SSH_OPTS root@"$NODE3_IP" \
-  "curl -sS 'http://127.0.0.1:9077/api/v1/memories/$m1_id/links'" 2>/dev/null)
-sees_m2=$(echo "$links_resp" | jq --arg id "$m2_id" '[.links[]? // .[]? | select((.to // .target // "") == $id)] | length' 2>/dev/null || echo 0)
+  "curl -sS 'http://127.0.0.1:9077/api/v1/links/$m1_id'" 2>/dev/null)
+sees_m2=$(echo "$links_resp" | jq --arg id "$m2_id" '[.links[]? // .[]? | select((.target_id // .to // .target // "") == $id)] | length' 2>/dev/null || echo 0)
 sees_m2=${sees_m2:-0}
 log "  charlie sees M1->M2 link: $sees_m2 (expected >=1)"
 
