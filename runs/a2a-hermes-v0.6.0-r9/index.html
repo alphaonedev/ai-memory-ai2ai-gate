@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Campaign a2a-hermes-v0.6.0-r9 — ai-memory A2A gate</title>
+  <style>
+    :root { --fg:#1a1a1a; --bg:#fff; --muted:#666; --pass:#1a8b3c; --fail:#b32222; --warn:#b36b00; --pass-bg:#e6f6ea; --fail-bg:#fceaea; --warn-bg:#fdf3e0; --border:#e0e0e0; --code-bg:#f7f7f9; --accent:#3952c8; --accent-bg:#eef1fd; }
+    @media (prefers-color-scheme: dark) { :root { --fg:#eaeaea; --bg:#181818; --muted:#a0a0a0; --pass:#4adc76; --fail:#ff6a6a; --warn:#ffb74d; --pass-bg:#153d23; --fail-bg:#401818; --warn-bg:#3a2d10; --border:#2a2a2a; --code-bg:#202028; --accent:#8da3ff; --accent-bg:#1c2140; } }
+    * { box-sizing:border-box; }
+    body { font:15px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; color:var(--fg); background:var(--bg); margin:0; }
+    main { max-width:960px; margin:0 auto; padding:2rem 1.25rem 4rem; }
+    header { border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.5rem; }
+    header p.crumb { color:var(--muted); font-size:13px; margin:0 0 .25rem; }
+    h1 { margin:.25rem 0 .75rem; font-size:1.85rem; }
+    h2 { margin:1.75rem 0 .5rem; font-size:1.2rem; border-bottom:1px solid var(--border); padding-bottom:.25rem; }
+    h3 { margin:1.25rem 0 .4rem; font-size:1rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; font-weight:600; }
+    h4 { margin:.5rem 0 .25rem; font-size:1rem; }
+    dl.meta { display:grid; grid-template-columns:max-content 1fr; gap:.35rem 1rem; margin:0; }
+    dl.meta dt { color:var(--muted); }
+    dl.meta dd { margin:0; }
+    table.nodes { width:100%; border-collapse:collapse; margin-top:.5rem; font-size:14px; }
+    table.nodes th, table.nodes td { border:1px solid var(--border); padding:.35rem .6rem; text-align:left; }
+    table.nodes th { background:var(--code-bg); font-weight:600; }
+    .badge { display:inline-block; padding:.15rem .55rem; border-radius:999px; font-size:12px; font-weight:600; letter-spacing:.03em; text-transform:uppercase; margin-left:.4rem; vertical-align:middle; }
+    .badge.pass { color:var(--pass); background:var(--pass-bg); }
+    .badge.fail { color:var(--fail); background:var(--fail-bg); }
+    .badge.warn { color:var(--warn); background:var(--warn-bg); }
+    .run-focus { background:var(--code-bg); border-left:4px solid var(--accent); padding:1rem 1.25rem; margin:1.5rem 0; border-radius:0 6px 6px 0; }
+    .run-focus h2 { border:none; margin:0 0 .5rem; padding:0; font-size:1.1rem; }
+    .run-focus p.label { color:var(--accent); font-size:12px; text-transform:uppercase; letter-spacing:.06em; font-weight:600; margin:0 0 .25rem; }
+    .ai-insight { background:var(--accent-bg); border-radius:8px; padding:1.25rem 1.5rem; margin:1.5rem 0 2rem; border-left:4px solid var(--accent); }
+    .ai-insight h2 { border:none; padding:0; margin-top:.25rem; }
+    .ai-insight p.tag { color:var(--accent); font-size:12px; text-transform:uppercase; letter-spacing:.08em; font-weight:600; margin:0 0 .25rem; }
+    .ai-insight p.verdict { font-size:1.05rem; margin:.5rem 0 1rem; }
+    .audiences { display:grid; grid-template-columns:1fr; gap:.75rem; margin-top:.5rem; }
+    @media (min-width: 720px) { .audiences { grid-template-columns:repeat(3,1fr); } }
+    .audiences article { background:var(--bg); border:1px solid var(--border); border-radius:6px; padding:.85rem 1rem; }
+    .audiences article h4 { margin-top:0; color:var(--accent); font-size:14px; }
+    details { border:1px solid var(--border); border-radius:6px; padding:.25rem .75rem; margin:.5rem 0; }
+    summary { cursor:pointer; padding:.45rem 0; font-weight:500; }
+    pre { background:var(--code-bg); padding:.75rem; border-radius:6px; overflow-x:auto; font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace; margin:.5rem 0; max-height:480px; }
+    pre.log { max-height:640px; }
+    a { color:var(--accent); } a:hover { text-decoration:underline; }
+    .muted { color:var(--muted); font-size:14px; }
+    footer { color:var(--muted); font-size:12px; border-top:1px solid var(--border); padding-top:1rem; margin-top:3rem; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="crumb"><a href="../">../ runs index</a></p>
+      <h1>Campaign a2a-hermes-v0.6.0-r9 <span class="badge pass">PASS</span></h1>
+      <dl class="meta">
+        <dt>Agent group</dt><dd><code>hermes</code> (homogeneous)</dd>
+        <dt>ai-memory ref</dt><dd><code>v0.6.0</code></dd>
+        <dt>Completed at</dt><dd>2026-04-21T01:16:25Z</dd>
+        <dt>Overall pass</dt><dd>true</dd>
+        <dt>Skipped reports</dt><dd>1</dd>
+      </dl>
+    </header>
+      <section class="infra">
+        <h2>Infrastructure</h2>
+        <dl class="meta">
+          <dt>Provider</dt><dd><code>digitalocean</code></dd>
+          <dt>Region</dt><dd><code>nyc3</code></dd>
+          <dt>Droplet size</dt><dd><code>s-2vcpu-4gb</code></dd>
+          <dt>Topology</dt><dd>4-node federation mesh (W=2/N=4)</dd>
+          <dt>Scenarios started</dt><dd>2026-04-21T01:15:59Z</dd>
+          <dt>Scenarios ended</dt><dd>2026-04-21T01:16:25Z</dd>
+          <dt>Dispatched by</dt><dd><code>alphaonedev</code></dd>
+          <dt>Harness SHA</dt><dd><code>dfca0fb8eeef</code></dd>
+          <dt>Workflow run</dt><dd><a href="https://github.com/alphaonedev/ai-memory-ai2ai-gate/actions/runs/24698095429">https://github.com/alphaonedev/ai-memory-ai2ai-gate/actions/runs/24698095429</a></dd>
+        </dl>
+        <h3>Node roster</h3>
+        <table class="nodes">
+          <thead><tr><th>#</th><th>Role</th><th>Agent ID</th><th>Public IP</th><th>Private IP</th></tr></thead>
+          <tbody>
+<tr><td>1</td><td>agent</td><td><code>ai:alice</code></td><td><code>167.71.87.123</code></td><td><code>10.252.0.3</code></td></tr>
+<tr><td>2</td><td>agent</td><td><code>ai:bob</code></td><td><code>138.197.125.5</code></td><td><code>10.252.0.4</code></td></tr>
+<tr><td>3</td><td>agent</td><td><code>ai:charlie</code></td><td><code>64.225.62.213</code></td><td><code>10.252.0.2</code></td></tr>
+<tr><td>4</td><td>memory-only</td><td><code>—</code></td><td><code>165.227.209.252</code></td><td><code>10.252.0.5</code></td></tr>
+          </tbody>
+        </table>
+      </section>
+      <section class="baseline">
+        <h2>Baseline attestation <span class="badge pass">BASELINE OK</span></h2>
+        <p class="muted">Per the <a href="../baseline/">authoritative baseline spec</a>, every agent node must emit a self-attestation before any scenario is permitted to run. This run's attestation:</p>
+        <table class="nodes">
+          <thead><tr><th>Node</th><th>Agent</th><th>Framework</th><th>Authentic</th><th>MCP ai-memory</th><th>xAI cfg</th><th>xAI default</th><th>Agent ID</th><th>Federation</th><th>UFW off</th><th>xAI probe</th><th>MCP canary</th><th>Pass</th></tr></thead>
+          <tbody>
+<tr><td>node-1</td><td><code>ai:alice</code></td><td><code>hermes Hermes Agent v0.10.0 (2026.4.16)</code></td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td><strong>PASS</strong></td></tr>
+<tr><td>node-2</td><td><code>ai:bob</code></td><td><code>hermes Hermes Agent v0.10.0 (2026.4.16)</code></td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td><strong>PASS</strong></td></tr>
+<tr><td>node-3</td><td><code>ai:charlie</code></td><td><code>hermes Hermes Agent v0.10.0 (2026.4.16)</code></td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td><strong>PASS</strong></td></tr>
+          </tbody>
+        </table>
+        <details><summary>a2a-baseline.json</summary>
+          <pre>
+{
+	"baseline_pass": true,
+	"per_node": [
+		{
+			"spec_version": "1.2.0",
+			"agent_type": "hermes",
+			"agent_id": "ai:alice",
+			"node_index": "1",
+			"framework_version": "Hermes Agent v0.10.0 (2026.4.16)",
+			"ai_memory_version": "0.6.0",
+			"peer_urls": "http://10.252.0.4:9077,http://10.252.0.2:9077,http://10.252.0.5:9077",
+			"config_file_sha256": "fa358f9a90597243fb96224babd541399bd7b1e972f364605308ab1e2d9dd2c7",
+			"config_attestation": {
+				"framework_is_authentic": true,
+				"mcp_server_ai_memory_registered": true,
+				"llm_backend_is_xai_grok": true,
+				"llm_is_default_provider": true,
+				"mcp_command_is_ai_memory": true,
+				"agent_id_stamped": true,
+				"federation_live": true,
+				"ufw_disabled": true,
+				"iptables_flushed": true,
+				"dead_man_switch_scheduled": true
+			},
+			"negative_invariants": {
+				"_description": "Alternative A2A channels must be OFF so a passing scenario is only passing via ai-memory shared memory. Any true here = thesis-preserving.",
+				"a2a_protocol_off": true,
+				"sub_agent_or_sessions_spawn_off": true,
+				"alternative_channels_off": true,
+				"tool_allowlist_is_memory_only": true,
+				"a2a_gate_profile_locked": true
+			},
+			"functional_probes": {
+				"xai_grok_chat_reachable": true,
+				"xai_grok_sample_reply": "READY",
+				"substrate_http_canary_f2a": true,
+				"substrate_http_canary_uuid": "0c0e238a-1669-45a1-8016-c4817686bafe",
+				"agent_mcp_canary_f2b": false,
+				"agent_mcp_canary_uuid": "bfc76955-7617-4c4a-9ccf-6eba61bb5855",
+				"agent_canary_response_head": "Traceback (most recent call last):   File \"/usr/local/bin/hermes\", line 11, in &lt;module&gt;     main()   File \"/root/.hermes/hermes-agent/hermes_cli/main.py\", line 8487, in main     args.func(args)   File \"/root/.hermes/hermes-agent/hermes_cli/main.py\", line 1071, in cmd_chat     if not _has_any_provider_configured():            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^   File \"/root/.hermes/hermes-agent/hermes_cli/main.py\", line 209, in _has_any_provider_configured     from hermes_cli.auth import get_auth_sta",
+				"_f2b_note": "F2b is LLM-dependent and non-blocking. F2a (deterministic HTTP substrate) gates baseline_pass.",
+				"agent_mcp_ai_memory_canary": true,
+				"canary_uuid": "0c0e238a-1669-45a1-8016-c4817686bafe",
+				"canary_namespace": "_baseline_canary_f2a"
+			},
+			"baseline_pass": true
+		},
+		{
+			"spec_version": "1.2.0",
+			"agent_type": "hermes",
+			"agent_id": "ai:bob",
+			"node_index": "2",
+			"framework_version": "Hermes Agent v0.10.0 (2026.4.16)",
+			"ai_memory_version": "0.6.0",
+			"peer_urls": "http://10.252.0.3:9077,http://10.252.0.2:9077,http://10.252.0.5:9077",
+			"config_file_sha256": "21635cf6364057fd2a004d28aac89abf8438671d85f9fd2ed1e654d812d23ff1",
+			"config_attestation": {
+				"framework_is_authentic": true,
+				"mcp_server_ai_memory_registered": true,
+				"llm_backend_is_xai_grok": true,
+				"llm_is_default_provider": true,
+				"mcp_command_is_ai_memory": true,
+				"agent_id_stamped": true,
+				"federation_live": true,
+				"ufw_disabled": true,
+				"iptables_flushed": true,
+				"dead_man_switch_scheduled": true
+			},
+			"negative_invariants": {
+				"_description": "Alternative A2A channels must be OFF so a passing scenario is only passing via ai-memory shared memory. Any true here = thesis-preserving.",
+				"a2a_protocol_off": true,
+				"sub_agent_or_sessions_spawn_off": true,
+				"alternative_channels_off": true,
+				"tool_allowlist_is_memory_only": true,
+				"a2a_gate_profile_locked": true
+			},
+			"functional_probes": {
+				"xai_grok_chat_reachable": true,
+				"xai_grok_sample_reply": "READY",
+				"substrate_http_canary_f2a": true,
+				"substrate_http_canary_uuid": "60ce33df-75a7-472e-82dc-87ed4c55f515",
+				"agent_mcp_canary_f2b": false,
+				"agent_mcp_canary_uuid": "e64205ba-65dc-4390-b9dd-12d599a364ad",
+				"agent_canary_response_head": "Traceback (most recent call last):   File \"/usr/local/bin/hermes\", line 11, in &lt;module&gt;     main()   File \"/root/.hermes/hermes-agent/hermes_cli/main.py\", line 8487, in main     args.func(args)   File \"/root/.hermes/hermes-agent/hermes_cli/main.py\", line 1071, in cmd_chat     if not _has_any_provider_configured():            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^   File \"/root/.hermes/hermes-agent/hermes_cli/main.py\", line 209, in _has_any_provider_configured     from hermes_cli.auth import get_auth_sta",
+				"_f2b_note": "F2b is LLM-dependent and non-blocking. F2a (deterministic HTTP substrate) gates baseline_pass.",
+				"agent_mcp_ai_memory_canary": true,
+				"canary_uuid": "60ce33df-75a7-472e-82dc-87ed4c55f515",
+				"canary_namespace": "_baseline_canary_f2a"
+			},
+			"baseline_pass": true
+		},
+		{
+			"spec_version": "1.2.0",
+			"agent_type": "hermes",
+			"agent_id": "ai:charlie",
+			"node_index": "3",
+			"framework_version": "Hermes Agent v0.10.0 (2026.4.16)",
+			"ai_memory_version": "0.6.0",
+			"peer_urls": "http://10.252.0.3:9077,http://10.252.0.4:9077,http://10.252.0.5:9077",
+			"config_file_sha256": "ce52d772ef5a00968db29fb80eea7a14206b0a258a00ff2165db725405474618",
+			"config_attestation": {
+				"framework_is_authentic": true,
+				"mcp_server_ai_memory_registered": true,
+				"llm_backend_is_xai_grok": true,
+				"llm_is_default_provider": true,
+				"mcp_command_is_ai_memory": true,
+				"agent_id_stamped": true,
+				"federation_live": true,
+				"ufw_disabled": true,
+				"iptables_flushed": true,
+				"dead_man_switch_scheduled": true
+			},
+			"negative_invariants": {
+				"_description": "Alternative A2A channels must be OFF so a passing scenario is only passing via ai-memory shared memory. Any true here = thesis-preserving.",
+				"a2a_protocol_off": true,
+				"sub_agent_or_sessions_spawn_off": true,
+				"alternative_channels_off": true,
+				"tool_allowlist_is_memory_only": true,
+				"a2a_gate_profile_locked": true
+			},
+			"functional_probes": {
+				"xai_grok_chat_reachable": true,
+				"xai_grok_sample_reply": "READY",
+				"substrate_http_canary_f2a": true,
+				"substrate_http_canary_uuid": "09a4b125-7659-4247-9eca-660652805fd2",
+				"agent_mcp_canary_f2b": false,
+				"agent_mcp_canary_uuid": "e1571730-c8e1-481d-ae4b-df373d075f05",
+				"agent_canary_response_head": "Traceback (most recent call last):   File \"/usr/local/bin/hermes\", line 11, in &lt;module&gt;     main()   File \"/root/.hermes/hermes-agent/hermes_cli/main.py\", line 8487, in main     args.func(args)   File \"/root/.hermes/hermes-agent/hermes_cli/main.py\", line 1071, in cmd_chat     if not _has_any_provider_configured():            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^   File \"/root/.hermes/hermes-agent/hermes_cli/main.py\", line 209, in _has_any_provider_configured     from hermes_cli.auth import get_auth_sta",
+				"_f2b_note": "F2b is LLM-dependent and non-blocking. F2a (deterministic HTTP substrate) gates baseline_pass.",
+				"agent_mcp_ai_memory_canary": true,
+				"canary_uuid": "09a4b125-7659-4247-9eca-660652805fd2",
+				"canary_namespace": "_baseline_canary_f2a"
+			},
+			"baseline_pass": true
+		}
+	]
+}
+</pre>
+          <p><a href="./a2a-baseline.json">raw file</a></p>
+        </details>
+      </section>
+      <section class="f3">
+        <h2>F3 — peer A2A via shared memory <span class="badge pass">F3 OK</span></h2>
+        <p class="muted">Workflow-level probe answering "can agents communicate through ai-memory?". Writer <code>ai:alice</code> posted canary UUID <code>0d2b344e-b6bd-4013-9c15-4ef18aa9d82c</code> to namespace <code>_baseline_peer_canary</code> via node-1's local <code>ai-memory</code> serve HTTP. After W=2 fanout settle, probe confirmed the canary on each of the 3 peer nodes via their local <code>GET /api/v1/memories</code>.</p>
+        <details><summary>f3-peer-a2a.json</summary>
+          <pre>
+{
+	"probe": "F3",
+	"name": "peer-a2a-via-shared-memory",
+	"description": "Writer agent posts a canary via local ai-memory HTTP on node-1; verifies the row propagates to the 3 peer nodes (W=2/N=4 quorum) before scenarios run.",
+	"canary_uuid": "0d2b344e-b6bd-4013-9c15-4ef18aa9d82c",
+	"canary_namespace": "_baseline_peer_canary",
+	"writer_agent": "ai:alice",
+	"pass": true
+}
+</pre>
+          <p><a href="./f3-peer-a2a.json">raw file</a></p>
+        </details>
+      </section>
+      <section class="ai-insight">
+        <h2>AI NHI analysis</h2>
+        <p class="muted">No per-campaign narrative recorded yet. Append to <code>analysis/run-insights.json</code> after the run completes; the dashboard will refresh on next push.</p>
+      </section>
+      <section class="phase">
+        <h2>Scenario 1 — Per-agent write + read <span class="badge warn">UNKNOWN</span></h2>
+        <details><summary>scenario-1.json (report)</summary>
+          <pre></pre>
+          <p><a href="./scenario-1.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-1.log (console trace)</summary>
+          <pre class="log">[scenario-1 hermes] phase A: each agent writes 10 memories via MCP
+[scenario-1 hermes]   agent ai:alice on node-a (167.71.87.123)
+Traceback (most recent call last):
+  File "/usr/local/bin/hermes", line 11, in &lt;module&gt;
+    main()
+  File "/root/.hermes/hermes-agent/hermes_cli/main.py", line 8487, in main
+    args.func(args)
+  File "/root/.hermes/hermes-agent/hermes_cli/main.py", line 1071, in cmd_chat
+    if not _has_any_provider_configured():
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.hermes/hermes-agent/hermes_cli/main.py", line 209, in _has_any_provider_configured
+    from hermes_cli.auth import get_auth_status
+  File "/root/.hermes/hermes-agent/hermes_cli/auth.py", line 38, in &lt;module&gt;
+    import httpx
+ModuleNotFoundError: No module named 'httpx'
+</pre>
+          <p><a href="./scenario-1.log">raw file</a></p>
+        </details>
+      </section>
+    <section>
+      <h2>All artefacts</h2>
+      <ul>
+        <li><a href="./a2a-baseline.json">a2a-baseline.json</a></li>
+        <li><a href="./a2a-summary.json">a2a-summary.json</a></li>
+        <li><a href="./campaign.meta.json">campaign.meta.json</a></li>
+        <li><a href="./f3-peer-a2a.json">f3-peer-a2a.json</a></li>
+        <li><a href="./scenario-1.json">scenario-1.json</a></li>
+        <li><a href="./scenario-1b.json">scenario-1b.json</a></li>
+        <li><a href="./scenario-1.log">scenario-1.log</a></li>
+        <li><a href="./scenario-1b.log">scenario-1b.log</a></li>
+      </ul>
+    </section>
+    <footer>
+      Generated by <code>scripts/generate_run_html.sh</code>.
+      Methodology: <a href="https://alphaonedev.github.io/ai-memory-ai2ai-gate/methodology/">alphaonedev.github.io/ai-memory-ai2ai-gate/methodology</a>.
+      Analysis source: <code>analysis/run-insights.json</code>.
+    </footer>
+  </main>
+</body>
+</html>

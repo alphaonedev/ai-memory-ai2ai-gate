@@ -1,0 +1,19 @@
+{
+  "scenario": "1b",
+  "pass": true,
+  "agent_group": "hermes",
+  "path": "serve-http",
+  "expected_per_reader": 20,
+  "per_agent": {
+    "ai:alice": {
+      "recall": 20
+    },
+    "ai:bob": {
+      "recall": 20
+    },
+    "ai:charlie": {
+      "recall": 20
+    }
+  },
+  "reasons": []
+}

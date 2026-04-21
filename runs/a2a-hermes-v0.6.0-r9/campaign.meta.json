@@ -1,0 +1,55 @@
+{
+  "campaign_id": "a2a-hermes-v0.6.0-r9",
+  "agent_group": "hermes",
+  "ai_memory_git_ref": "v0.6.0",
+  "infra": {
+    "provider": "digitalocean",
+    "region": "nyc3",
+    "droplet_size": "s-2vcpu-4gb",
+    "topology": "4-node federation mesh (W=2/N=4)",
+    "nodes": [
+      {
+        "index": 1,
+        "role": "agent",
+        "agent_id": "ai:alice",
+        "public_ip": "167.71.87.123",
+        "private_ip": "10.252.0.3"
+      },
+      {
+        "index": 2,
+        "role": "agent",
+        "agent_id": "ai:bob",
+        "public_ip": "138.197.125.5",
+        "private_ip": "10.252.0.4"
+      },
+      {
+        "index": 3,
+        "role": "agent",
+        "agent_id": "ai:charlie",
+        "public_ip": "64.225.62.213",
+        "private_ip": "10.252.0.2"
+      },
+      {
+        "index": 4,
+        "role": "memory-only",
+        "agent_id": null,
+        "public_ip": "165.227.209.252",
+        "private_ip": "10.252.0.5"
+      }
+    ]
+  },
+  "scenarios_requested": [
+    "1",
+    "1b"
+  ],
+  "timing": {
+    "started_at": "2026-04-21T01:15:59Z",
+    "ended_at": "2026-04-21T01:16:25Z"
+  },
+  "ci": {
+    "actor": "alphaonedev",
+    "workflow_url": "https://github.com/alphaonedev/ai-memory-ai2ai-gate/actions/runs/24698095429",
+    "harness_sha": "dfca0fb8eeef26c95933082fc4d73a859e5e0742",
+    "runner_os": "Linux"
+  }
+}
