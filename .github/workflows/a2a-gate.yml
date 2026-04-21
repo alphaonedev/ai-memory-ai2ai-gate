@@ -38,9 +38,9 @@ on:
         required: false
         default: "1 1b 2 4 5 6 9 10 11 12 13 14 15 16 17 18"
       agent_droplet_size:
-        description: "Agent droplet size. Bump to s-4vcpu-16gb for scenario 8 (Ollama)."
+        description: "Agent droplet size. Default s-2vcpu-8gb (openclaw install thrashes on 4GB). Bump to s-4vcpu-16gb for scenario 8 (Ollama)."
         required: false
-        default: "s-2vcpu-4gb"
+        default: "s-2vcpu-8gb"
       openclaw_install_cmd:
         description: "Shell command to install OpenClaw on a droplet. Blank = placeholder driver (ai-memory CLI stand-in)."
         required: false

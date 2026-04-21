@@ -229,24 +229,24 @@ case "$AGENT_TYPE" in
     # cleanly (post-install wizard fails). We tolerate the exit and
     # rely on the presence check; FATAL only if the binary truly
     # isn't installed.
-    # openclaw install has two paths. install.sh is heavier and
-    # on s-2vcpu-4gb droplets it occasionally OOMs during npm build
-    # (observed r12 exit 255 — SSH connection lost mid-install).
-    # Swap order: npm-first (lighter, deterministic), install.sh
-    # as fallback. Latest npm-registry-published openclaw is the
-    # production install path per openclaw docs.
-    log "installing openclaw via npm -g (primary path, timeout ${TIMEOUT_NPM}s)"
-    # Bound npm heap to prevent OOM on 4GB droplets. Default V8 heap
-    # is ~1.5GB which is usually fine, but openclaw pulls many deps
-    # with native builds that can spike allocations.
+    # HISTORY (r12-r14): `npm install -g openclaw` as primary hangs
+    # 20+ min on s-2vcpu-4gb (OOM thrash through native deps). Swap
+    # file helps the OS but doesn't stop npm wall time from being
+    # unbounded. install.sh is the KNOWN-WORKING path (r7 completed
+    # successfully then exit-1'd at wizard, which we tolerate).
+    #
+    # install.sh-PRIMARY (tolerate exit, presence check authoritative),
+    # npm only as last-resort fallback if install.sh somehow didn't
+    # produce a binary.
     export NODE_OPTIONS="--max-old-space-size=2048"
-    if timeout -k 30 "$TIMEOUT_NPM" npm install -g openclaw 2>&1 | sed 's/^/[npm-openclaw] /'; then
-      log "openclaw installed via npm"
-    else
-      log "npm install failed — trying install.sh fallback (timeout ${TIMEOUT_INSTALL_SH}s)"
-      timeout -k 30 "$TIMEOUT_INSTALL_SH" bash -c '
-        curl -fsSL --max-time 60 https://openclaw.ai/install.sh | bash -s -- --install-method git 2>&1
-      ' | sed 's/^/[openclaw-install] /' || log "openclaw install.sh also returned non-zero (benign) — continuing to presence check"
+    log "installing openclaw via official install.sh (timeout ${TIMEOUT_INSTALL_SH}s)"
+    timeout -k 30 "$TIMEOUT_INSTALL_SH" bash -c '
+      curl -fsSL --max-time 60 https://openclaw.ai/install.sh | bash -s -- --install-method git 2>&1
+    ' | sed 's/^/[openclaw-install] /' || log "install.sh exit non-zero (expected — post-install wizard fails non-TTY) — continuing to presence check"
+    if ! command -v openclaw >/dev/null 2>&1; then
+      log "openclaw not on PATH after install.sh — trying npm fallback (timeout ${TIMEOUT_NPM}s)"
+      timeout -k 30 "$TIMEOUT_NPM" npm install -g openclaw 2>&1 | sed 's/^/[npm-fallback] /' || \
+        log "npm fallback also failed or timed out"
     fi
     # Symlink the binary into /usr/local/bin for deterministic PATH.
     if ! command -v openclaw >/dev/null 2>&1 || [ ! -x /usr/local/bin/openclaw ]; then
