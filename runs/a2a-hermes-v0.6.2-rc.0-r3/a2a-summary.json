@@ -1,0 +1,216 @@
+{
+  "campaign_id": "a2a-hermes-v0.6.2-rc.0-r3",
+  "agent_group": "hermes",
+  "ai_memory_git_ref": "v0.6.2-rc.0",
+  "completed_at": "2026-04-21T22:16:11Z",
+  "overall_pass": true,
+  "scenarios": [
+    {
+      "scenario": "10",
+      "pass": true,
+      "agent_group": "hermes",
+      "m1_id": "0087e671-75de-404c-955f-6c4ee8117048",
+      "uuid": "1fa147b2-c2e4-4398-89f7-2b080fd263bb",
+      "delete_http_code": "200",
+      "pre_delete_visible_peers": 3,
+      "post_delete_still_visible_peers": 0,
+      "reasons": []
+    },
+    {
+      "scenario": "11",
+      "pass": true,
+      "agent_group": "hermes",
+      "m1_id": "b01a7380-6fa5-4ed5-bb1f-0f134e0056b4",
+      "m2_id": "d069ab93-e247-4694-941d-75ff4181691f",
+      "relation": "related_to",
+      "link_http_code": "201",
+      "charlie_sees_link": 1,
+      "reasons": []
+    },
+    {
+      "scenario": "13",
+      "pass": true,
+      "agent_group": "hermes",
+      "m1_id": "6ee89f3e-963f-40f4-bf70-c73dfa946d4f",
+      "submitted": {
+        "v0": "5c5a3e7c-9f58-4438-9333-cef6d69c14ae",
+        "vA_alice": "2f758745-f59b-4684-a50c-0165140ac19f",
+        "vB_bob": "5f40919a-4f65-43aa-b0ab-5134aaf285d9"
+      },
+      "peer_view": {
+        "node_1": "2f758745-f59b-4684-a50c-0165140ac19f",
+        "node_2": "2f758745-f59b-4684-a50c-0165140ac19f",
+        "node_3": "2f758745-f59b-4684-a50c-0165140ac19f",
+        "node_4": "2f758745-f59b-4684-a50c-0165140ac19f"
+      },
+      "reasons": []
+    },
+    {
+      "scenario": "1b",
+      "pass": true,
+      "agent_group": "hermes",
+      "path": "serve-http",
+      "expected_per_reader": 20,
+      "per_agent": {
+        "ai:alice": {
+          "recall": 20
+        },
+        "ai:bob": {
+          "recall": 20
+        },
+        "ai:charlie": {
+          "recall": 20
+        }
+      },
+      "reasons": []
+    },
+    {
+      "scenario": "2",
+      "pass": true,
+      "agent_group": "hermes",
+      "path": "serve-http",
+      "per_agent": {
+        "ai:bob": {
+          "sees_handoff": 1
+        },
+        "ai:alice": {
+          "sees_ack": 1
+        }
+      },
+      "handoff_uuid": "b68dbea8-5b93-4151-86da-7fa04c01c77f",
+      "ack_uuid": "419947b5-4740-455a-922e-3da020b79dc0",
+      "reasons": []
+    },
+    {
+      "scenario": "4",
+      "pass": true,
+      "agent_group": "hermes",
+      "expected_per_agent": 30,
+      "per_agent": {
+        "ai:alice": {
+          "count": 30,
+          "wrong_agent_id": 0
+        },
+        "ai:bob": {
+          "count": 30,
+          "wrong_agent_id": 0
+        },
+        "ai:charlie": {
+          "count": 30,
+          "wrong_agent_id": 0
+        }
+      },
+      "reasons": []
+    },
+    {
+      "scenario": "5",
+      "pass": true,
+      "agent_group": "hermes",
+      "consolidated_id": "76dce9ed-c61f-4a13-a2a6-27a628dae5e7",
+      "consolidate_http_code": "201",
+      "consolidated_from_agents": "[\"ai:charlie\",\"ai:bob\",\"ai:alice\"]",
+      "reasons": []
+    },
+    {
+      "scenario": "6",
+      "pass": true,
+      "agent_group": "hermes",
+      "topic": "sky-color-1265bf74",
+      "alice_id": "ffb0fa27-5fb8-4e98-8450-75210500a424",
+      "bob_id": "998fa3a8-2fb4-48c9-b468-25cdd30aa29a",
+      "detect_http_code": "200",
+      "charlie_sees_both_memories": 1,
+      "charlie_sees_contradicts_link": 1,
+      "reasons": []
+    },
+    {
+      "scenario": "9",
+      "pass": true,
+      "agent_group": "hermes",
+      "m1_id": "d06833d7-ea57-4c6a-9b72-37bd315f2bdd",
+      "v1_uuid": "091cc57b-8a0a-474c-870d-263d85296700",
+      "v2_uuid": "73e71b44-7c60-4f85-91e0-c5369d0fd89f",
+      "put_http_code": "200",
+      "charlie_view": {
+        "content": "73e71b44-7c60-4f85-91e0-c5369d0fd89f",
+        "agent_id": "ai:alice"
+      },
+      "reasons": []
+    }
+  ],
+  "reasons": [],
+  "meta": {
+    "campaign_id": "a2a-hermes-v0.6.2-rc.0-r3",
+    "agent_group": "hermes",
+    "ai_memory_git_ref": "v0.6.2-rc.0",
+    "infra": {
+      "provider": "digitalocean",
+      "region": "nyc3",
+      "droplet_size": "s-2vcpu-4gb",
+      "topology": "4-node federation mesh (W=2/N=4)",
+      "nodes": [
+        {
+          "index": 1,
+          "role": "agent",
+          "agent_id": "ai:alice",
+          "public_ip": "104.236.45.117",
+          "private_ip": "10.252.0.4"
+        },
+        {
+          "index": 2,
+          "role": "agent",
+          "agent_id": "ai:bob",
+          "public_ip": "138.197.29.64",
+          "private_ip": "10.252.0.3"
+        },
+        {
+          "index": 3,
+          "role": "agent",
+          "agent_id": "ai:charlie",
+          "public_ip": "138.197.38.214",
+          "private_ip": "10.252.0.5"
+        },
+        {
+          "index": 4,
+          "role": "memory-only",
+          "agent_id": null,
+          "public_ip": "165.227.117.181",
+          "private_ip": "10.252.0.2"
+        }
+      ]
+    },
+    "scenarios_requested": [
+      "1",
+      "1b",
+      "2",
+      "4",
+      "5",
+      "6",
+      "9",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14",
+      "15",
+      "16",
+      "17",
+      "18"
+    ],
+    "timing": {
+      "started_at": "2026-04-21T21:25:58Z",
+      "ended_at": ""
+    },
+    "ci": {
+      "actor": "alphaonedev",
+      "workflow_url": "https://github.com/alphaonedev/ai-memory-ai2ai-gate/actions/runs/24746837313",
+      "harness_sha": "4c34fb036794f69f54838a91867ac32db1bde707",
+      "runner_os": "Linux"
+    }
+  },
+  "skipped_reports": [
+    "scenario-1.json:unparseable",
+    "scenario-12.json:unparseable",
+    "scenario-14.json:unparseable"
+  ]
+}

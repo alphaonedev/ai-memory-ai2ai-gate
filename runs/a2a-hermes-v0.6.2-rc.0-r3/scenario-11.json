@@ -1,0 +1,11 @@
+{
+  "scenario": "11",
+  "pass": true,
+  "agent_group": "hermes",
+  "m1_id": "b01a7380-6fa5-4ed5-bb1f-0f134e0056b4",
+  "m2_id": "d069ab93-e247-4694-941d-75ff4181691f",
+  "relation": "related_to",
+  "link_http_code": "201",
+  "charlie_sees_link": 1,
+  "reasons": []
+}
