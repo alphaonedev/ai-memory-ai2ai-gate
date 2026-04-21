@@ -33,12 +33,26 @@
 
 set -euo pipefail
 
+# Diagnostic trap — prints the failing line + command when any step
+# exits non-zero under set -e. Makes hangs/failures localizable from
+# the GitHub Actions log alone.
+trap 'rc=$?; echo "[setup-node-${NODE_INDEX:-?}] FAILED at line ${LINENO}: ${BASH_COMMAND} (exit $rc)" >&2' ERR
+
 : "${NODE_INDEX:?}"
 : "${PEER_URLS:?}"
 : "${ROLE:?}"
 : "${AI_MEMORY_VERSION:=0.6.0}"
 
-log() { printf '[setup-node-%s] %s\n' "$NODE_INDEX" "$*" >&2; }
+log() { printf '[setup-node-%s %s] %s\n' "$NODE_INDEX" "$(date -u +%H:%M:%S)" "$*" >&2; }
+
+# Bound every long-running subprocess so a hang on one node can't
+# stall the whole provision step (previous r11 symptom: 37+ min with
+# no progress — the GitHub Actions runner timeout was about to fire).
+TIMEOUT_INSTALL_SH=600     # 10 min — openclaw install via curl | bash
+TIMEOUT_NPM=300            # 5 min
+TIMEOUT_PIP=180            # 3 min
+TIMEOUT_AGENT_CLI=60       # 1 min — F2b canary (agent reasoning + tool call)
+TIMEOUT_XAI_CURL=20        # 20s — F1 xAI chat probe (already enforced inline)
 
 # ---- Base packages -------------------------------------------------
 log "installing base packages"
@@ -201,9 +215,10 @@ case "$AGENT_TYPE" in
     # cleanly (post-install wizard fails). We tolerate the exit and
     # rely on the presence check; FATAL only if the binary truly
     # isn't installed.
-    log "installing AUTHENTIC openclaw/openclaw via official one-liner"
-    curl -fsSL https://openclaw.ai/install.sh | bash -s -- --install-method git 2>&1 \
-      | sed 's/^/[openclaw-install] /' || true
+    log "installing AUTHENTIC openclaw/openclaw via official one-liner (timeout ${TIMEOUT_INSTALL_SH}s)"
+    timeout "$TIMEOUT_INSTALL_SH" bash -c '
+      curl -fsSL --max-time 60 https://openclaw.ai/install.sh | bash -s -- --install-method git 2>&1
+    ' | sed 's/^/[openclaw-install] /' || log "openclaw install.sh returned non-zero (benign) — proceeding"
     # Symlink the binary into /usr/local/bin for deterministic PATH.
     if ! command -v openclaw >/dev/null 2>&1 || [ ! -x /usr/local/bin/openclaw ]; then
       OPENCLAW_BIN=$(command -v openclaw || find /root/.openclaw /usr/local/lib/node_modules /usr/lib/node_modules -maxdepth 6 -name openclaw -type f -executable 2>/dev/null | head -1)
@@ -212,9 +227,9 @@ case "$AGENT_TYPE" in
       fi
     fi
     if ! command -v openclaw >/dev/null 2>&1; then
-      log "openclaw not on PATH after install.sh — falling back to npm install latest"
-      npm install -g openclaw 2>&1 | sed 's/^/[npm-fallback] /' || {
-        log "FATAL: every openclaw install path failed"; exit 1;
+      log "openclaw not on PATH after install.sh — falling back to npm install latest (timeout ${TIMEOUT_NPM}s)"
+      timeout "$TIMEOUT_NPM" npm install -g openclaw 2>&1 | sed 's/^/[npm-fallback] /' || {
+        log "FATAL: every openclaw install path failed (timeout or error)"; exit 1;
       }
     fi
     # Ensure binary is reachable at /usr/local/bin/openclaw so later
@@ -317,10 +332,12 @@ EOF
     # control (docs/baseline.md §12). Verified 2026-04-20 to work with
     # python-dotenv patch below.
     HERMES_INSTALL_REF="${HERMES_INSTALL_REF:-main}"
-    log "installing Nous Research Hermes Agent from ref=${HERMES_INSTALL_REF} (non-interactive)"
-    curl -fsSL "https://raw.githubusercontent.com/NousResearch/hermes-agent/${HERMES_INSTALL_REF}/scripts/install.sh" \
-      | bash -s -- --skip-setup 2>&1 | sed 's/^/[hermes-install] /' || {
-      log "FATAL: hermes install.sh failed"
+    log "installing Nous Research Hermes Agent from ref=${HERMES_INSTALL_REF} (timeout ${TIMEOUT_INSTALL_SH}s)"
+    timeout "$TIMEOUT_INSTALL_SH" bash -c "
+      curl -fsSL --max-time 60 'https://raw.githubusercontent.com/NousResearch/hermes-agent/${HERMES_INSTALL_REF}/scripts/install.sh' \
+        | bash -s -- --skip-setup 2>&1
+    " | sed 's/^/[hermes-install] /' || {
+      log "FATAL: hermes install.sh timed out or failed"
       exit 1
     }
 
@@ -329,9 +346,9 @@ EOF
     # imports at module-top. Surfaced by a2a-hermes-v0.6.0-r6.
     # PEP 668 on Ubuntu 24.04 requires --break-system-packages.
     PYTHON_DOTENV_PIN="${PYTHON_DOTENV_PIN:-1.0.1}"
-    log "installing python-dotenv==${PYTHON_DOTENV_PIN} (pinned)"
-    python3 -m pip install --break-system-packages --quiet "python-dotenv==${PYTHON_DOTENV_PIN}" || {
-      log "FATAL: python-dotenv==${PYTHON_DOTENV_PIN} pip install failed"
+    log "installing python-dotenv==${PYTHON_DOTENV_PIN} (pinned, timeout ${TIMEOUT_PIP}s)"
+    timeout "$TIMEOUT_PIP" python3 -m pip install --break-system-packages --quiet "python-dotenv==${PYTHON_DOTENV_PIN}" || {
+      log "FATAL: python-dotenv==${PYTHON_DOTENV_PIN} pip install timed out or failed"
       exit 1
     }
 
@@ -635,13 +652,16 @@ F2B_UUID=$(cat /proc/sys/kernel/random/uuid 2>/dev/null || echo "canary-b-$RANDO
 F2B_NS="_baseline_canary_f2b"
 F2B_PROMPT="Use the ai-memory MCP memory_store tool to save a memory with namespace=${F2B_NS}, title=canary-${AGENT_ID}, content=${F2B_UUID}. Respond with DONE when the tool call completes."
 . /etc/ai-memory-a2a/env
+log "  F2b: invoking $AGENT_TYPE with timeout ${TIMEOUT_AGENT_CLI}s"
 case "$AGENT_TYPE" in
   openclaw)
-    openclaw run --non-interactive --format json --max-tool-rounds 10 -p "$F2B_PROMPT" > /tmp/canary-openclaw.log 2>&1 || true
+    timeout "$TIMEOUT_AGENT_CLI" openclaw run --non-interactive --format json --max-tool-rounds 10 -p "$F2B_PROMPT" > /tmp/canary-openclaw.log 2>&1 || \
+      log "  F2b: openclaw returned non-zero or timed out (${TIMEOUT_AGENT_CLI}s) — proceeding"
     ;;
   hermes)
     set -a; . /etc/ai-memory-a2a/hermes.env; set +a
-    hermes chat -Q --provider xai --model grok-4-fast-non-reasoning -q "$F2B_PROMPT" > /tmp/canary-hermes.log 2>&1 || true
+    timeout "$TIMEOUT_AGENT_CLI" hermes chat -Q --provider xai --model grok-4-fast-non-reasoning -q "$F2B_PROMPT" > /tmp/canary-hermes.log 2>&1 || \
+      log "  F2b: hermes returned non-zero or timed out (${TIMEOUT_AGENT_CLI}s) — proceeding"
     ;;
 esac
 sleep 3
