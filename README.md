@@ -14,13 +14,16 @@ its stated purpose — persistent, shared, multi-agent memory.
 > **Baseline testing configuration** (authoritative + enforced):
 > every agent droplet of every campaign is pre-validated against a
 > hard-gated [BASELINE standard](docs/baseline.md) — authentic
-> upstream framework binaries, xAI Grok (`grok-4-fast-non-reasoning`)
-> as the LLM backend, `ai-memory` as the only MCP server, UFW
+> upstream framework binaries, xAI Grok (default SKU `grok-4-0709`
+> = Grok 4.2 reasoning, parameterized via `A2A_GATE_LLM_MODEL`) as
+> the LLM backend, `ai-memory` as the only MCP server, UFW
 > disabled, agent-ID provenance stamped, plus live functional probes
-> (xAI chat reachable + end-to-end agent → MCP → ai-memory canary)
-> **before any scenario is permitted to run.** Each run publishes
-> its per-node attestation as `a2a-baseline.json`. See
-> [docs/baseline.md](docs/baseline.md) for the full spec.
+> (xAI chat reachable + end-to-end agent → MCP → ai-memory canary
+> + 12-edge mesh connectivity) **before any scenario is permitted to
+> run.** Each run publishes its per-node attestation as
+> `a2a-baseline.json`. See [docs/baseline.md](docs/baseline.md) for
+> the full spec and [docs/roadmap.md](docs/roadmap.md) for planned
+> Phase-2 expansion to Claude Managed Agents (Haiku 4.5).
 
 ---
 

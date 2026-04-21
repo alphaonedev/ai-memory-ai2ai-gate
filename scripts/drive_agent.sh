@@ -48,8 +48,11 @@ agent_cli() { command -v "$AGENT_TYPE" >/dev/null 2>&1; }
 #   --max-tool-rounds bound the agent loop per scenario call
 #   Config lives in ~/.openclaw/openclaw.json (MCP + provider).
 #
-# hermes: hermes chat -Q --provider xai --model grok-4-fast-non-reasoning -q "<prompt>"
+# hermes: hermes chat -Q --provider xai --model $A2A_GATE_LLM_MODEL -q "<prompt>"
 #   Source /etc/ai-memory-a2a/hermes.env first for XAI_API_KEY.
+#   Model SKU parameterized via $A2A_GATE_LLM_MODEL (default grok-4-0709 =
+#   Grok 4.2 reasoning). Override for cost-optimized runs (#4).
+: "${A2A_GATE_LLM_MODEL:=grok-4-0709}"
 agent_prompt() {
   case "$AGENT_TYPE" in
     openclaw)
@@ -63,7 +66,7 @@ agent_prompt() {
       set -a; . /etc/ai-memory-a2a/hermes.env; set +a
       hermes chat -Q \
         --provider xai \
-        --model grok-4-fast-non-reasoning \
+        --model "$A2A_GATE_LLM_MODEL" \
         -q "$1"
       ;;
   esac

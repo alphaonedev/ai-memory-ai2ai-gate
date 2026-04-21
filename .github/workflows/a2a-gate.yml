@@ -49,6 +49,10 @@ on:
         description: "Shell command to install Hermes on a droplet. Blank = placeholder driver."
         required: false
         default: ""
+      llm_model:
+        description: "xAI Grok SKU under test. Default grok-4-0709 = Grok 4.2 reasoning (biologic directive). Override for cost-optimized smoke runs, e.g. grok-4-fast-non-reasoning."
+        required: false
+        default: "grok-4-0709"
 
 permissions:
   contents: write
@@ -83,6 +87,7 @@ jobs:
       OPENCLAW_INSTALL_CMD: ${{ github.event.inputs.openclaw_install_cmd }}
       HERMES_INSTALL_CMD: ${{ github.event.inputs.hermes_install_cmd }}
       XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+      A2A_GATE_LLM_MODEL: ${{ github.event.inputs.llm_model }}
 
     steps:
       - uses: actions/checkout@v5
@@ -170,7 +175,7 @@ jobs:
               scp -o StrictHostKeyChecking=no scripts/setup_node.sh scripts/drive_agent.sh root@$ip:/root/ 2>&1 | sed "s/^/[n$i scp] /"
               chmod_cmd="chmod +x /root/setup_node.sh /root/drive_agent.sh"
               env_cmd="NODE_INDEX=$i ROLE=$role PEER_URLS='$peers' AI_MEMORY_VERSION=$AMV"
-              [ "$role" = "agent" ] && env_cmd="$env_cmd AGENT_TYPE=${AGENT_GROUP} AGENT_ID=$aid XAI_API_KEY='${XAI_API_KEY}' OPENCLAW_INSTALL_CMD='${OPENCLAW_INSTALL_CMD}' HERMES_INSTALL_CMD='${HERMES_INSTALL_CMD}'"
+              [ "$role" = "agent" ] && env_cmd="$env_cmd AGENT_TYPE=${AGENT_GROUP} AGENT_ID=$aid XAI_API_KEY='${XAI_API_KEY}' A2A_GATE_LLM_MODEL='${A2A_GATE_LLM_MODEL}' OPENCLAW_INSTALL_CMD='${OPENCLAW_INSTALL_CMD}' HERMES_INSTALL_CMD='${HERMES_INSTALL_CMD}'"
               # stdbuf -oL forces line-buffered stdout on the ssh side
               # so `sed` gets each log line promptly — without it the
               # remote bash may buffer up big chunks before flushing.
