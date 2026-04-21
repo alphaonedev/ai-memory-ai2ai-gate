@@ -276,14 +276,17 @@ Config marker: `a2a_gate_profile: shared-memory-only` + `a2a_gate_profile_versio
 
 ### 6b.4 Network-level enforcement
 
-The VPC firewall (terraform-managed) also enforces the architecture from outside the agent:
+Two distinct DigitalOcean resources, plus the Ubuntu-level policy:
 
-- Port 22 (SSH) — inbound only from the GitHub Actions runner IP
-- Port 9077 (ai-memory serve) — inbound only from the other 3 nodes in the same VPC
-- All other inbound — DROP
-- All outbound to the public internet — allowed (agents need to reach `api.x.ai`)
+1. **DigitalOcean VPC** (`digitalocean_vpc.a2a` in `terraform/main.tf`) — a *private network only*, not a firewall. Isolates the 4 droplets on a private /24 subnet (10.251.x.x for openclaw, 10.252.x.x for hermes) so peer-to-peer traffic never traverses the public internet.
+2. **DigitalOcean Cloud Firewall** (`digitalocean_firewall.a2a`) — the actual inbound firewall. Applied to every droplet. Rules:
+   - Port 22 (SSH) — inbound only from the GitHub Actions runner egress range
+   - Port 9077 (ai-memory serve) — inbound only from the other droplets in the same VPC (source: `digitalocean_vpc.a2a.ip_range`)
+   - All other inbound — drop
+   - All outbound — allowed (agents need to reach `api.x.ai`, `openclaw.ai`, `github.com`)
+3. **Ubuntu UFW on every node** — explicitly DISABLED by `scripts/setup_node.sh` with hard-fail verification (ship-gate r21/r23 lesson). UFW on Ubuntu 24.04 blocks loopback and intra-VPC traffic in subtle ways; leaving it on breaks federation. The DO Cloud Firewall is the layer doing actual inbound protection.
 
-There is no network-level path by which two agent nodes could talk to each other *except* through port 9077, which is the ai-memory federation. The config lockdown closes the application-level paths; the VPC firewall closes the network-level paths. Defense-in-depth.
+The config lockdown (§6b.2 + §6b.3) closes the application-level A2A paths; the DO Cloud Firewall closes the network-level inbound paths; UFW is kept off so neither of those enforcement points is undermined by the OS. Defense-in-depth without interference.
 
 ### 6b.5 Cross-framework communication (future scenario)
 
@@ -362,7 +365,8 @@ Every agent node emits `/etc/ai-memory-a2a/baseline.json` at the end of `setup_n
 | C7 | `federation_live` | Functional (partial) | Local `ai-memory serve` responds on `127.0.0.1:9077/health` |
 | C8 | `ufw_disabled` | Functional (partial) | `ufw status` returns "inactive" |
 | F1 | `xai_grok_chat_reachable` | Functional | Direct POST to `api.x.ai/v1/chat/completions` returns non-empty content |
-| F2 | `agent_mcp_ai_memory_canary` | Functional | Agent-driven end-to-end canary: prompt → tool selection → MCP stdio → ai-memory write → agent_id provenance stamp verified via HTTP |
+| F2 | `agent_mcp_ai_memory_canary` | Functional | Agent-driven end-to-end canary: prompt → tool selection → MCP stdio → ai-memory write → agent_id provenance stamp verified via HTTP (per-node) |
+| F3 | `peer_a2a_via_shared_memory` | Functional | Cross-node peer visibility — writer agent posts a UUID canary via local ai-memory HTTP on node-1; W=2 fanout replicates it; probe confirms all 3 peer nodes (node-2, node-3, node-4) return the canary via their local `GET /api/v1/memories`. Answers the baseline-level question "can agents communicate with each other through ai-memory?" YES if F3 passes. (Workflow-level, not per-node.) |
 
 ### 8.2 Diagnostic separation
 

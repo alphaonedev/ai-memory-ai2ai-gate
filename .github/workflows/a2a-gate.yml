@@ -192,8 +192,76 @@ jobs:
             echo "::notice::BASELINE OK — all agent nodes verified; scenarios may run"
           fi
 
-      - name: Run scenarios
+      - name: Functional probe F3 — peer A2A via shared memory
         if: steps.baseline.outputs.baseline_ok == 'true'
+        id: probe_f3
+        run: |
+          set -e
+          # F3 answers the BASELINE question: "can openclaw instances
+          # (or hermes agents) actually communicate with each other
+          # through ai-memory?" Writes a canary on node-1's ai-memory
+          # serve via HTTP (the W=2 quorum path), confirms it lands
+          # on node-2 (peer agent), node-3 (peer agent), and node-4
+          # (memory-only aggregator). If F3 fails, scenarios can't
+          # meaningfully pass either — so the workflow halts.
+          CANARY_UUID=$(uuidgen)
+          CANARY_NS="_baseline_peer_canary"
+          NODE1_IP=${{ steps.wait.outputs.node1_ip }}
+          NODE2_IP=${{ steps.wait.outputs.node2_ip }}
+          NODE3_IP=${{ steps.wait.outputs.node3_ip }}
+          NODE4_IP=${{ steps.wait.outputs.memory_ip }}
+          WRITER_AGENT="ai:alice"
+
+          echo "::group::F3 — peer-replication canary"
+          # Write on node-1 through the federation coordinator.
+          ssh -o StrictHostKeyChecking=no root@$NODE1_IP \
+            "curl -sS -X POST 'http://127.0.0.1:9077/api/v1/memories' \
+              -H 'X-Agent-Id: ${WRITER_AGENT}' \
+              -H 'Content-Type: application/json' \
+              -d '{\"tier\":\"mid\",\"namespace\":\"${CANARY_NS}\",\"title\":\"f3-peer-canary\",\"content\":\"${CANARY_UUID}\",\"priority\":5,\"confidence\":1.0,\"source\":\"api\",\"metadata\":{\"agent_id\":\"${WRITER_AGENT}\",\"probe\":\"F3\"}}'"
+          # W=2 of N=4: fanout settles quickly. 8s is conservative.
+          sleep 8
+          # Each peer must see the canary via local HTTP (read on
+          # the SAME node we're querying, not forwarded).
+          all_ok=true
+          for peer_trip in node-2:$NODE2_IP node-3:$NODE3_IP node-4:$NODE4_IP; do
+            name=${peer_trip%%:*}; ip=${peer_trip##*:}
+            hit=$(ssh -o StrictHostKeyChecking=no root@$ip \
+              "curl -sS 'http://127.0.0.1:9077/api/v1/memories?namespace=${CANARY_NS}&limit=20' \
+                | jq --arg u '${CANARY_UUID}' '[.memories[]? | select(.content == \$u)] | length'" \
+              2>/dev/null | tail -1)
+            hit=${hit:-0}
+            echo "  $name hit=$hit (expected >=1)"
+            if [ "$hit" -lt 1 ] 2>/dev/null; then all_ok=false; fi
+          done
+          echo "::endgroup::"
+
+          jq -n \
+            --arg canary_uuid "$CANARY_UUID" \
+            --arg canary_ns "$CANARY_NS" \
+            --arg writer_agent "$WRITER_AGENT" \
+            --argjson pass $([ "$all_ok" = "true" ] && echo true || echo false) \
+            '{
+              probe: "F3",
+              name: "peer-a2a-via-shared-memory",
+              description: "Writer agent posts a canary via local ai-memory HTTP on node-1; verifies the row propagates to the 3 peer nodes (W=2/N=4 quorum) before scenarios run.",
+              canary_uuid: $canary_uuid,
+              canary_namespace: $canary_ns,
+              writer_agent: $writer_agent,
+              pass: $pass
+            }' > phase-reports/f3-peer-a2a.json
+          cat phase-reports/f3-peer-a2a.json
+
+          if [ "$all_ok" != "true" ]; then
+            echo "::error::F3 FAIL — peer A2A via shared memory not observed on all 3 peers. Scenarios halted."
+            echo "f3_ok=false" >> "$GITHUB_OUTPUT"
+            exit 5
+          fi
+          echo "::notice::F3 OK — canary propagated to all 3 peers; scenarios may run"
+          echo "f3_ok=true" >> "$GITHUB_OUTPUT"
+
+      - name: Run scenarios
+        if: steps.baseline.outputs.baseline_ok == 'true' && steps.probe_f3.outputs.f3_ok == 'true'
         id: scenarios
         run: |
           set -e
