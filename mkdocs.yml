@@ -32,7 +32,7 @@ nav:
   - Home: index.md
   - AI NHI insights: insights.md
   - Baseline configuration: baseline.md
-  - ai-memory integration (IronClaw + Hermes): ai-memory-integration.md
+  - ai-memory integration: ai-memory-integration.md
   - Infrastructure versions: infrastructure.md
   - Test book: testbook.md
   - Architecture: architecture.md
