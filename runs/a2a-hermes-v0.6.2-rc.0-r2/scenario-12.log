@@ -1,0 +1,2 @@
+[scenario-12 hermes] alice registers new agent ai:dave-probe-3e6836ad on node-1
+[scenario-12 hermes]   POST /api/v1/agents returned HTTP 422

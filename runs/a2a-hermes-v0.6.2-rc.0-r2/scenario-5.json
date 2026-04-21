@@ -1,0 +1,9 @@
+{
+  "scenario": "5",
+  "pass": true,
+  "agent_group": "hermes",
+  "consolidated_id": "85894ef0-e4f0-43bb-a11e-792a62d96d4e",
+  "consolidate_http_code": "201",
+  "consolidated_from_agents": "[\"ai:charlie\",\"ai:bob\",\"ai:alice\"]",
+  "reasons": []
+}

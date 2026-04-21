@@ -1,0 +1,11 @@
+{
+  "scenario": "10",
+  "pass": true,
+  "agent_group": "hermes",
+  "m1_id": "7e7cf3b6-d1a8-4912-a3eb-d9f5d1fd7b3f",
+  "uuid": "ef7e9b85-68b5-48bd-8657-a9caaff150a3",
+  "delete_http_code": "200",
+  "pre_delete_visible_peers": 3,
+  "post_delete_still_visible_peers": 0,
+  "reasons": []
+}

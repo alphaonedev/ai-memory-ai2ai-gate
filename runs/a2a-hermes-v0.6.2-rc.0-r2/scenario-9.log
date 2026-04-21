@@ -1,0 +1,6 @@
+[scenario-9 hermes] alice writes M1 content=4e42f1eb-84eb-4453-a3ef-dd571f9fef41 on node-1
+[scenario-9 hermes]   created memory id=9e5ce4ed-6fa2-45d2-bf3f-b0b0df9a375c
+[scenario-9 hermes] bob updates M1 content=31196555-0e61-4bdf-ba72-e13fbf4e6075 on node-2 via PUT
+[scenario-9 hermes]   PUT returned HTTP 200
+[scenario-9 hermes] charlie reads M1 on node-3 and checks content + provenance
+[scenario-9 hermes]   charlie sees content="31196555-0e61-4bdf-ba72-e13fbf4e6075" agent_id="ai:alice"

@@ -1,0 +1,8 @@
+[scenario-2 hermes] phase A: ai:alice writes handoff to ai:bob (uuid=c9df350c-0f8b-4b69-a20e-bb94e87932f9)
+[scenario-2 hermes] settle 8s for quorum fanout
+[scenario-2 hermes] phase B: ai:bob reads handoff on node-2
+[scenario-2 hermes]   ai:bob sees 1 handoff memories from ai:alice
+[scenario-2 hermes] phase C: ai:bob writes acknowledgement (uuid=38e540b4-811b-4bf3-852f-bee206eca56b)
+[scenario-2 hermes] settle 8s for reverse-direction fanout
+[scenario-2 hermes] phase D: ai:alice reads ack on node-1
+[scenario-2 hermes]   ai:alice sees 1 ack memories from ai:bob

@@ -1,0 +1,8 @@
+[scenario-13 hermes] alice writes M1 content=v0 on node-1
+[scenario-13 hermes]   M1 id=45c10ffe-ff3d-4396-9be7-f1dd05571e58
+[scenario-13 hermes] alice + bob issue concurrent PUTs (vA=b6ca4e64-7402-41be-b0f7-9568287257c8 from alice, vB=d6ede5e1-6403-4855-9734-97456fd8af7c from bob)
+[scenario-13 hermes] settle 10s for quorum convergence
+[scenario-13 hermes]   node-1 sees content=b6ca4e64-7402-41be-b0f7-9568287257c8
+[scenario-13 hermes]   node-2 sees content=b6ca4e64-7402-41be-b0f7-9568287257c8
+[scenario-13 hermes]   node-3 sees content=b6ca4e64-7402-41be-b0f7-9568287257c8
+[scenario-13 hermes]   node-4 sees content=b6ca4e64-7402-41be-b0f7-9568287257c8

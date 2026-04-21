@@ -1,0 +1,22 @@
+{
+  "scenario": "18",
+  "pass": false,
+  "agent_group": "hermes",
+  "query": "morning outdoor exercise routine",
+  "writers": [
+    {
+      "agent": "ai:alice",
+      "marker": "alice-sunrise-be05a738-e0a6-42ec-a46f-22789b80df26",
+      "seen_by_charlie": 0
+    },
+    {
+      "agent": "ai:bob",
+      "marker": "bob-daybreak-d96b0a8f-fe63-4805-a99e-44866d3fefd8",
+      "seen_by_charlie": 0
+    }
+  ],
+  "reasons": [
+    "semantic query did not surface alice's memory",
+    "semantic query did not surface bob's memory"
+  ]
+}

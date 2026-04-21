@@ -1,0 +1,6 @@
+[scenario-6 hermes] alice writes claim: "sky-color-12911f29 is blue" on node-1
+[scenario-6 hermes] bob writes contradicting claim: "sky-color-12911f29 is red" on node-2
+[scenario-6 hermes]   alice.id=25c0336d-f864-4f1b-9041-24cfd4f9a77a bob.id=4bffcb10-475d-4e03-88f4-c0ea88c99004
+[scenario-6 hermes] charlie queries memory_detect_contradiction on node-3
+[scenario-6 hermes]   HTTP 200; body length=1117
+[scenario-6 hermes]   sees both memories: 1; sees contradicts link: 1
