@@ -42,18 +42,38 @@ jobs:
             echo "# Campaign runs"
             echo
             echo "Every A2A campaign run commits its scenario artefacts +"
-            echo "generated evidence HTML here. Rows sort newest first by campaign"
-            echo "id (version-aware, so r10 > r9). \`PASS\` / \`FAIL\` reflect"
-            echo "\`overall_pass\` from \`a2a-summary.json\`; \`NO SUMMARY\` means the"
-            echo "campaign ran but the aggregator couldn't recover any scenario"
-            echo "JSON (legacy artefact format or pipeline failure — open the"
-            echo "evidence page for the raw trace)."
+            echo "generated evidence HTML here. Rows sort newest-first by"
+            echo "\`completed_at\` from \`a2a-summary.json\` (absent/legacy"
+            echo "runs fall back to the directory mtime so they still appear"
+            echo "in a sensible place). \`PASS\` / \`FAIL\` reflect"
+            echo "\`overall_pass\`; \`NO SUMMARY\` means the campaign ran but the"
+            echo "aggregator couldn't recover any scenario JSON — open the"
+            echo "evidence page for the raw trace."
             echo
             echo "| Campaign | Verdict | Baseline | F3 peer A2A | Scenarios | Group | ai-memory ref | Baseline spec | Completed | Dispatched by | Evidence |"
             echo "|---|---|---|---|---|---|---|---|---|---|---|"
           } > docs/runs/index.md
+          # Build a sort key per run: "<completed_at_rfc3339>|<dir>"
+          # When summary is absent or completed_at is missing, fall back
+          # to the directory's most-recent mtime (YYYY-MM-DDTHH:MM:SSZ
+          # formatted so ASCII sort matches chronological sort). Reverse
+          # sort gives newest first.
+          keyed=$(
+            for dir in $(ls -1d runs/*/ 2>/dev/null); do
+              summary="${dir}a2a-summary.json"
+              key=""
+              if [ -f "$summary" ]; then
+                key=$(jq -r '.completed_at // empty' "$summary" 2>/dev/null)
+              fi
+              if [ -z "$key" ] || [ "$key" = "null" ]; then
+                key=$(date -u -d @"$(stat -c %Y "$dir" 2>/dev/null || echo 0)" +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo "1970-01-01T00:00:00Z")
+              fi
+              printf '%s|%s\n' "$key" "$dir"
+            done | sort -r
+          )
           found_any=false
-          for dir in $(ls -1d runs/*/ 2>/dev/null | sort -Vr); do
+          while IFS='|' read -r _ts dir; do
+            [ -z "$dir" ] && continue
             found_any=true
             name=$(basename "$dir")
             summary="$dir/a2a-summary.json"
@@ -103,7 +123,7 @@ jobs:
             fi
             evidence="[offline HTML](../evidence/${name}/index.html)"
             echo "| ${name} | ${outcome} | ${base_cell} | ${f3_cell} | ${scen_cell} | ${group} | ${ref} | ${spec_cell} | ${completed} | ${actor_cell} | ${evidence} |" >> docs/runs/index.md
-          done
+          done <<< "$keyed"
           if [ "$found_any" = "false" ]; then
             echo >> docs/runs/index.md
             echo "*No campaign runs landed yet. Dispatch the first one via Actions tab or* \`gh workflow run a2a-gate.yml\`." >> docs/runs/index.md
