@@ -11,6 +11,17 @@ Every green ship-gate campaign gates a release tag. Every green
 ai2ai-gate campaign gates the claim that ai-memory actually serves
 its stated purpose — persistent, shared, multi-agent memory.
 
+> **Baseline testing configuration** (authoritative + enforced):
+> every agent droplet of every campaign is pre-validated against a
+> hard-gated [BASELINE standard](docs/baseline.md) — authentic
+> upstream framework binaries, xAI Grok (`grok-4-fast-non-reasoning`)
+> as the LLM backend, `ai-memory` as the only MCP server, UFW
+> disabled, agent-ID provenance stamped, plus live functional probes
+> (xAI chat reachable + end-to-end agent → MCP → ai-memory canary)
+> **before any scenario is permitted to run.** Each run publishes
+> its per-node attestation as `a2a-baseline.json`. See
+> [docs/baseline.md](docs/baseline.md) for the full spec.
+
 ---
 
 ## Position in the release protocol

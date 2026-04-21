@@ -9,6 +9,7 @@ other** — OpenClaw agents and Hermes agents running on separate
 DigitalOcean droplets, sharing context through a central ai-memory
 authoritative store.
 
+- **[Baseline configuration](baseline.md)** · the hard-gated standard every agent droplet must satisfy before any scenario runs — authentic frameworks, xAI Grok, ai-memory MCP, UFW off, functional probes
 - [Methodology](methodology.md) · every invariant this campaign defends
 - [Topology](topology.md) · 4-node VPC architecture
 - [Agents](agents/openclaw.md) · OpenClaw and Hermes integration details
