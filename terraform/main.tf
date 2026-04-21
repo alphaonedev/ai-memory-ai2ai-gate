@@ -11,9 +11,9 @@
 # OpenClaw MCP client implementation, not at ai-memory.
 #
 # Topology per campaign (4 droplets):
-#   node-1: agent (ai:alice)   — agent_type={openclaw|hermes}
-#   node-2: agent (ai:bob)     — agent_type={openclaw|hermes}
-#   node-3: agent (ai:charlie) — agent_type={openclaw|hermes}
+#   node-1: agent (ai:alice)   — agent_type={ironclaw|hermes|openclaw-legacy}
+#   node-2: agent (ai:bob)     — agent_type={ironclaw|hermes|openclaw-legacy}
+#   node-3: agent (ai:charlie) — agent_type={ironclaw|hermes|openclaw-legacy}
 #   node-4: ai-memory serve authoritative
 #
 # Two campaigns per release = 8 droplets total, two separate runs:
@@ -52,10 +52,10 @@ variable "campaign_id" {
 
 variable "agent_type" {
   type        = string
-  description = "Agent framework for every agent droplet in this campaign. Must be openclaw or hermes."
+  description = "Agent framework for every agent droplet in this campaign. Must be ironclaw, hermes, or (legacy) openclaw."
   validation {
-    condition     = contains(["openclaw", "hermes"], var.agent_type)
-    error_message = "agent_type must be either \"openclaw\" or \"hermes\"."
+    condition     = contains(["ironclaw", "hermes", "openclaw"], var.agent_type)
+    error_message = "agent_type must be \"ironclaw\", \"hermes\", or \"openclaw\" (legacy)."
   }
 }
 
@@ -88,12 +88,13 @@ provider "digitalocean" {
 
 locals {
   # Per-group VPC CIDR. DO requires distinct CIDRs across
-  # concurrently-provisioned VPCs, so the two homogeneous campaigns
-  # (openclaw, hermes) use adjacent /24s that don't overlap the
-  # ship-gate's 10.250.0.0/24.
+  # concurrently-provisioned VPCs, so the homogeneous campaigns
+  # each get a /24 that doesn't overlap the ship-gate's
+  # 10.250.0.0/24 or sibling groups.
   vpc_cidr = {
-    openclaw = "10.251.0.0/24"
+    ironclaw = "10.251.0.0/24"  # primary Rust agent (replaces openclaw 2026-04-21)
     hermes   = "10.252.0.0/24"
+    openclaw = "10.253.0.0/24"  # legacy; retained for historical dispatch reproduction
   }
 }
 
