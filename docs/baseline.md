@@ -190,6 +190,111 @@ Same binary, same DB file, same args on both frameworks:
 
 ---
 
+## 6b. A2A communication architecture — THE SINGLE ALLOWED PATH
+
+**The only path by which any agent communicates with any other agent in a campaign is ai-memory shared memory.** Every alternative inter-agent channel that each framework natively supports is explicitly disabled. This is what makes the A2A gate's claim falsifiable: if a scenario passes, it passed via shared memory — not via a messaging back-channel.
+
+### 6b.1 The allowed path (same for both groups)
+
+```
+   OpenClaw / Hermes agent on node-1 (ai:alice)
+   │
+   │ 1. agent reasons with xAI Grok (grok-4-fast-non-reasoning)
+   │ 2. picks ai-memory MCP tool (memory_store / memory_recall / memory_share / ...)
+   │
+   ▼
+   MCP stdio child process — `ai-memory --db /var/lib/ai-memory/a2a.db mcp`
+   │
+   │ 3. writes to local sqlite AND (with substrate fix — see #318)
+   │    POSTs to local serve HTTP → quorum fanout coordinator
+   │
+   ▼
+   Local `ai-memory serve` on node-1 — 127.0.0.1:9077
+   │
+   │ 4. W=2 quorum-write fanout over private VPC
+   │
+   ▼
+   Peer `ai-memory serve` on nodes 2, 3, 4 — port 9077
+   │
+   │ 5. row lands in peer DBs
+   │
+   ▼
+   Peer agent on node-2 (ai:bob):
+   │ 6. agent reasons with xAI Grok
+   │ 7. picks memory_recall via MCP stdio
+   │
+   ▼
+   Local `ai-memory mcp` on node-2 reads the peer-replicated row
+   and returns it to the agent.
+```
+
+Every step is evidence-producing:
+- MCP stdio child's log → `scenario-N.log`
+- Local serve `POST /api/v1/memories` → federation fanout metric
+- Peer's DB row → includes `metadata.agent_id = "ai:alice"` (Task 1.2 immutability)
+- Node-4 aggregator query → independent cross-cluster verification
+
+### 6b.2 Explicitly negated paths — OpenClaw
+
+Every alternative A2A channel OpenClaw natively supports is disabled in `~/.openclaw/openclaw.json`:
+
+| OpenClaw feature | Config field | Why disabled |
+|---|---|---|
+| Master A2A switch | `agentToAgent: false` | No direct agent-to-agent RPC sessions |
+| `sessions_send` / `sessions_spawn` tools | Not in `toolAllowlist` | Forces every coordination through memory tools |
+| Telegram bot channel | `channels.telegram.enabled: false` | No messaging-platform bridge |
+| Discord bot channel | `channels.discord.enabled: false` | No messaging-platform bridge |
+| Slack bot channel | `channels.slack.enabled: false` | No messaging-platform bridge |
+| Moltbook ("agent internet") | `channels.moltbook.enabled: false` | No external agent-network federation |
+| Gateway remote mode | `gateway.mode: "local"` + `remoteMode.enabled: false` | Each node's gateway talks only to its local agent, not to other nodes' gateways |
+| Node hosts | `nodeHosts: []` | No cross-node shell/file execution via gateway-managed hosts |
+| SubAgent delegation | `subAgent.enabled: false` | No parent-child agent hierarchies — all peers |
+| Agent Teams | `agentTeams.enabled: false` | No shared-state team abstraction |
+| Shared PostgreSQL / Supabase | `sharedServices.postgres.enabled: false`, `.supabase.enabled: false` | No out-of-band shared DB |
+| Shared Redis | `sharedServices.redis.enabled: false` | No out-of-band message broker |
+| Tool allowlist | `toolAllowlist` contains only `memory_*` tools | Every action the agent can take goes through ai-memory |
+
+Config marker: `a2aGateProfile: "shared-memory-only"` + `a2aGateProfileVersion: "1.0.0"` — cryptographically non-unique but operationally unambiguous.
+
+### 6b.3 Explicitly negated paths — Hermes
+
+Every alternative A2A channel Hermes natively supports is disabled in `~/.hermes/config.yaml`:
+
+| Hermes feature | Config field | Why disabled |
+|---|---|---|
+| Agent Communication Protocol (ACP) | `acp.enabled: false` | No REST-based stateful agent-to-agent messaging |
+| Messaging Gateway (15-platform bridge) | `messaging.gateway_enabled: false` | No outbound platform bridge |
+| Telegram platform | `messaging.platforms.telegram.enabled: false` | No direct Telegram channel |
+| Discord platform | `messaging.platforms.discord.enabled: false` | No direct Discord channel |
+| Slack platform | `messaging.platforms.slack.enabled: false` | No direct Slack channel |
+| Execution backends (SSH / Docker / Modal) | `execution_backends: []` | No cross-node shell or container exec |
+| MCP server mode | `mcp_server_mode: false` | Hermes is MCP CLIENT of ai-memory only — cannot be called as MCP server by another agent |
+| Subagent delegation | `subagent_delegation: false` | No `spawn_subagent` Python-RPC children |
+| Tool allowlist | `tool_allowlist` contains only `memory_*` tools | Every action the agent can take goes through ai-memory |
+
+Config marker: `a2a_gate_profile: shared-memory-only` + `a2a_gate_profile_version: "1.0.0"`.
+
+### 6b.4 Network-level enforcement
+
+The VPC firewall (terraform-managed) also enforces the architecture from outside the agent:
+
+- Port 22 (SSH) — inbound only from the GitHub Actions runner IP
+- Port 9077 (ai-memory serve) — inbound only from the other 3 nodes in the same VPC
+- All other inbound — DROP
+- All outbound to the public internet — allowed (agents need to reach `api.x.ai`)
+
+There is no network-level path by which two agent nodes could talk to each other *except* through port 9077, which is the ai-memory federation. The config lockdown closes the application-level paths; the VPC firewall closes the network-level paths. Defense-in-depth.
+
+### 6b.5 Cross-framework communication (future scenario)
+
+Current campaigns are **homogeneous** (all openclaw or all hermes). Cross-framework (OpenClaw ↔ Hermes on the same VPC) is not in the current scenarios, but is enabled by design: because both frameworks use the same ai-memory substrate with the same schema and the same `agent_id` provenance, any memory written by an OpenClaw agent is readable by a Hermes agent without translation. A `mixed` campaign is the next natural evolution.
+
+### 6b.6 Attestation
+
+Each agent node writes the negative invariants into `/etc/ai-memory-a2a/baseline.json` under `negative_invariants` (schema in §8). `baseline_pass` requires all negatives to be true. If any alternative channel is enabled on any node, the workflow halts before scenarios run. No overrides.
+
+---
+
 ## 7. Federation mesh — W=2 of N=4
 
 Every node (all 4) runs `ai-memory serve` as a long-running daemon on `0.0.0.0:9077`:
@@ -285,6 +390,47 @@ The split into config attestation vs. functional probes is intentional and diagn
 9. **Tear down infrastructure** — always runs, even on failure.
 
 The gate closes at step 4. No scenarios run without a clean baseline.
+
+---
+
+## 9b. Security — secrets + PII handling
+
+The campaign handles three classes of sensitive data. All three are subject to a strict "never land in git" discipline that is implemented in code, not just in policy.
+
+### 9b.1 What's sensitive
+
+| Item | Source | Where it lives during a run | Where it's committed | How we verify |
+|---|---|---|---|---|
+| `XAI_API_KEY` | GitHub repo secret | `openclaw.json` on the droplet + `hermes.env` on the droplet | **never** | Pre-commit sed redaction + post-redaction grep; `exit 4` if any match |
+| `DIGITALOCEAN_TOKEN` | GitHub repo secret | Terraform env on the runner | **never** | Same redaction pass |
+| `DIGITALOCEAN_SSH_PRIVATE_KEY` | GitHub repo secret | `~/.ssh/id_ed25519` on the runner | **never** | SSH private keys don't touch droplets or artefacts |
+| Droplet **public** IPs | Terraform output | `campaign.meta.json` | ✅ **yes**, intentionally | Droplets are destroyed by `terraform destroy` at workflow end — ephemeral. No long-term exposure. Useful for audit linkage. |
+| Droplet **private** IPs | Terraform output | `campaign.meta.json` | ✅ **yes**, intentionally | VPC-private; reachable only from within the destroyed VPC. Harmless post-destroy. |
+| Dispatching GitHub actor handle | `${{ github.actor }}` | `campaign.meta.json` | ✅ yes | Public GitHub username; not PII in our model. |
+| Harness commit SHA | `${{ github.sha }}` | `campaign.meta.json` | ✅ yes | Git hash — not sensitive. |
+
+No operator email, no home path, no phone number, no customer data touches the harness at any point — by design, this is an integration gate, not a user-data pipeline.
+
+### 9b.2 How redaction is enforced
+
+Immediately before `git commit`, `.github/workflows/a2a-gate.yml` runs a redaction pass over every file in `runs/<campaign-id>/`:
+
+1. Substitute `$XAI_API_KEY` literal value with `<REDACTED-XAI-API-KEY>`.
+2. Substitute `$DIGITALOCEAN_TOKEN` literal value with `<REDACTED-DO-TOKEN>`.
+3. Regex-mask any `xai-[A-Za-z0-9_-]{20,}` pattern (catches rotated keys that might have leaked to older logs) as `<REDACTED-XAI-KEY-LIKE>`.
+4. Regex-mask any `Authorization: Bearer <token>` header value.
+5. Post-pass grep verification — if any known secret value still appears in any file, **the step exits 4** and the workflow fails before commit.
+
+The redaction step is fail-closed. A leak would fail the build, visible in the Actions log.
+
+### 9b.3 Why by-design the secret never reaches the repo
+
+Even without redaction, the path from secret → committed file is closed:
+- `XAI_API_KEY` is substituted into config files on the droplet (`/root/.openclaw/openclaw.json`, `/etc/ai-memory-a2a/hermes.env`) — those files stay on the droplet.
+- The droplet is destroyed by `terraform destroy` at workflow end.
+- Only `/etc/ai-memory-a2a/baseline.json` is scp'd back, and its schema does not reference the key at all (only a model response sample like `"READY"`).
+
+Redaction is belt-and-suspenders for defence-in-depth — catches agent error messages or debug output that might accidentally echo the key.
 
 ---
 

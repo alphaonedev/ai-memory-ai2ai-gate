@@ -212,6 +212,15 @@ case "$AGENT_TYPE" in
     # api_key=XAI_API_KEY. Using grok-4-fast-non-reasoning to match hermes
     # so A2A comparison holds — same LLM, different agent framework.
     mkdir -p /root/.openclaw
+    # Config lock-down — THESIS INTEGRITY
+    # Every OpenClaw A2A channel except ai-memory shared memory is
+    # EXPLICITLY DISABLED, so a passing scenario can only be passing
+    # via the memory substrate. Enumerated negations:
+    #   agentToAgent: false      - master switch off
+    #   sessions_send / _spawn   - not in toolAllowlist
+    #   Telegram/Discord/Slack   - no credentials configured
+    #   Moltbook                 - not configured
+    # Tool allowlist restricted to the memory_* family only.
     cat > /root/.openclaw/openclaw.json <<EOF
 {
   "providers": {
@@ -231,7 +240,37 @@ case "$AGENT_TYPE" in
         "AI_MEMORY_AGENT_ID": "${AGENT_ID}"
       }
     }
-  }
+  },
+  "agentToAgent": false,
+  "toolAllowlist": [
+    "memory_store",
+    "memory_recall",
+    "memory_list",
+    "memory_get",
+    "memory_share",
+    "memory_link",
+    "memory_update",
+    "memory_detect_contradiction",
+    "memory_consolidate"
+  ],
+  "channels": {
+    "telegram": { "enabled": false },
+    "discord":  { "enabled": false },
+    "slack":    { "enabled": false },
+    "moltbook": { "enabled": false }
+  },
+  "gateway": { "mode": "local" },
+  "nodeHosts": [],
+  "remoteMode": { "enabled": false },
+  "subAgent": { "enabled": false },
+  "agentTeams": { "enabled": false },
+  "sharedServices": {
+    "postgres": { "enabled": false },
+    "redis":    { "enabled": false },
+    "supabase": { "enabled": false }
+  },
+  "a2aGateProfile": "shared-memory-only",
+  "a2aGateProfileVersion": "1.0.0"
 }
 EOF
     chmod 600 /root/.openclaw/openclaw.json
@@ -284,6 +323,15 @@ EOF
     # entry pointing at ai-memory stdio, same DB + same MCP binary
     # as the openclaw path. tier=semantic matches how the operator
     # workstation is wired.
+    #
+    # THESIS INTEGRITY — Hermes's native A2A channels are EXPLICITLY
+    # DISABLED so a passing scenario is only passing via ai-memory:
+    #   acp.enabled: false        — Agent Communication Protocol off
+    #   messaging.gateway: false  — no Telegram/Discord/Slack bridge
+    #   execution_backends: []    — no SSH/Docker/Modal cross-node exec
+    #   mcp_server_mode: false    — client-only (don't expose Hermes as MCP)
+    #   subagent_delegation: false — no spawn_subagent
+    # tool_allowlist restricted to memory_*.
     mkdir -p /root/.hermes
     cat > /root/.hermes/config.yaml <<EOF
 # Nous Research Hermes Agent — ai-memory-ai2ai-gate
@@ -301,6 +349,37 @@ mcp_servers:
     env:
       AI_MEMORY_AGENT_ID: "${AGENT_ID}"
     enabled: true
+
+# A2A channel lock-down — alternative communication paths must be OFF
+# for the shared-memory A2A thesis to be falsifiable.
+acp:
+  enabled: false
+
+messaging:
+  gateway_enabled: false
+  platforms:
+    telegram: { enabled: false }
+    discord:  { enabled: false }
+    slack:    { enabled: false }
+
+execution_backends: []
+
+mcp_server_mode: false     # Hermes is MCP client of ai-memory, NOT an MCP server itself
+subagent_delegation: false # no spawn_subagent — forces all coordination through memory
+
+tool_allowlist:
+  - memory_store
+  - memory_recall
+  - memory_list
+  - memory_get
+  - memory_share
+  - memory_link
+  - memory_update
+  - memory_detect_contradiction
+  - memory_consolidate
+
+a2a_gate_profile: shared-memory-only
+a2a_gate_profile_version: "1.0.0"
 EOF
     chmod 600 /root/.hermes/config.yaml
 
@@ -394,6 +473,60 @@ else
   ufw_disabled=true
 fi
 
+# NEGATIVE INVARIANTS — alternative A2A channels must be OFF.
+# The gate's thesis ("shared-memory A2A works") is only falsifiable
+# if no other A2A channel is available as a pass-through.
+case "$AGENT_TYPE" in
+  openclaw)
+    a2a_master_off=$(jq -e '.agentToAgent == false' /root/.openclaw/openclaw.json >/dev/null 2>&1 && echo true || echo false)
+    no_sessions_tools=$(jq -e '.toolAllowlist | map(select(startswith("sessions_"))) | length == 0' /root/.openclaw/openclaw.json >/dev/null 2>&1 && echo true || echo false)
+    # Channels/gateway/subagent/agentTeams/sharedServices all off,
+    # gateway.mode local, nodeHosts empty.
+    no_chat_channels=$(jq -e '
+      ([.channels[] | select(.enabled == true)] | length == 0) and
+      (.gateway.mode == "local") and
+      ((.nodeHosts // []) | length == 0) and
+      (.remoteMode.enabled == false) and
+      (.subAgent.enabled == false) and
+      (.agentTeams.enabled == false) and
+      ([.sharedServices[] | select(.enabled == true)] | length == 0)
+    ' /root/.openclaw/openclaw.json >/dev/null 2>&1 && echo true || echo false)
+    tools_are_memory_only=$(jq -e '[.toolAllowlist[] | select(startswith("memory_") | not)] | length == 0' /root/.openclaw/openclaw.json >/dev/null 2>&1 && echo true || echo false)
+    profile_locked=$(jq -e '.a2aGateProfile == "shared-memory-only"' /root/.openclaw/openclaw.json >/dev/null 2>&1 && echo true || echo false)
+    ;;
+  hermes)
+    # YAML — use python3 for robust parsing.
+    python3 - <<PY > /tmp/hermes_negatives.json
+import yaml, json, sys
+with open("/root/.hermes/config.yaml") as f: cfg = yaml.safe_load(f) or {}
+def get(path, default=None):
+    cur = cfg
+    for k in path.split("."):
+        if not isinstance(cur, dict) or k not in cur: return default
+        cur = cur[k]
+    return cur
+tools = cfg.get("tool_allowlist") or []
+channels = (cfg.get("messaging") or {}).get("platforms") or {}
+out = {
+  "acp_off":          get("acp.enabled") == False,
+  "gateway_off":      get("messaging.gateway_enabled") == False,
+  "no_chat_channels": all(not (v or {}).get("enabled") for v in channels.values()),
+  "no_exec_backends": (cfg.get("execution_backends") or []) == [],
+  "mcp_client_only":  get("mcp_server_mode") == False,
+  "no_subagent":      get("subagent_delegation") == False,
+  "tools_memory_only": all(isinstance(t,str) and t.startswith("memory_") for t in tools) and len(tools) > 0,
+  "profile_locked":   get("a2a_gate_profile") == "shared-memory-only",
+}
+print(json.dumps(out))
+PY
+    a2a_master_off=$(jq -r '.acp_off and .gateway_off' /tmp/hermes_negatives.json 2>/dev/null || echo false)
+    no_sessions_tools=$(jq -r '.no_subagent' /tmp/hermes_negatives.json 2>/dev/null || echo false)
+    no_chat_channels=$(jq -r '.no_chat_channels and .no_exec_backends and .mcp_client_only' /tmp/hermes_negatives.json 2>/dev/null || echo false)
+    tools_are_memory_only=$(jq -r '.tools_memory_only' /tmp/hermes_negatives.json 2>/dev/null || echo false)
+    profile_locked=$(jq -r '.profile_locked' /tmp/hermes_negatives.json 2>/dev/null || echo false)
+    ;;
+esac
+
 # ---- FUNCTIONAL PROBES --------------------------------------------
 # Static config attestation is necessary but not sufficient. These
 # probes exercise the live surfaces the agent will use.
@@ -470,6 +603,11 @@ jq -n \
   --argjson xai_functional "$xai_functional" \
   --argjson canary_functional "$canary_functional" \
   --argjson ufw_disabled "$ufw_disabled" \
+  --argjson a2a_master_off "$a2a_master_off" \
+  --argjson no_sessions_tools "$no_sessions_tools" \
+  --argjson no_chat_channels "$no_chat_channels" \
+  --argjson tools_are_memory_only "$tools_are_memory_only" \
+  --argjson profile_locked "$profile_locked" \
   '{
     agent_type:$agent_type,
     agent_id:$agent_id,
@@ -487,6 +625,14 @@ jq -n \
       federation_live:$fed_live,
       ufw_disabled:$ufw_disabled
     },
+    negative_invariants: {
+      _description: "Alternative A2A channels must be OFF so a passing scenario is only passing via ai-memory shared memory. Any true here = thesis-preserving.",
+      a2a_protocol_off:                 $a2a_master_off,
+      sub_agent_or_sessions_spawn_off:  $no_sessions_tools,
+      alternative_channels_off:         $no_chat_channels,
+      tool_allowlist_is_memory_only:    $tools_are_memory_only,
+      a2a_gate_profile_locked:          $profile_locked
+    },
     functional_probes: {
       xai_grok_chat_reachable: $xai_functional,
       xai_grok_sample_reply: $xai_content,
@@ -499,6 +645,8 @@ jq -n \
       $has_xai and $default_xai and
       $has_mem and $has_aid and $fed_live and
       $ufw_disabled and
+      $a2a_master_off and $no_sessions_tools and $no_chat_channels and
+      $tools_are_memory_only and $profile_locked and
       $xai_functional and $canary_functional
     )
   }' > /etc/ai-memory-a2a/baseline.json

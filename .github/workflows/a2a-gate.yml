@@ -296,8 +296,63 @@ jobs:
           mkdir -p "$CAMPAIGN_DIR"
           cp phase-reports/*.json "$CAMPAIGN_DIR/" 2>/dev/null || true
           cp phase-reports/*.log  "$CAMPAIGN_DIR/" 2>/dev/null || true
+          cp -r phase-reports/baselines "$CAMPAIGN_DIR/" 2>/dev/null || true
           cp a2a-summary.json "$CAMPAIGN_DIR/" 2>/dev/null || true
           bash scripts/generate_run_html.sh "$CAMPAIGN_DIR" || true
+
+      - name: Redact secrets from committed artefacts (belt-and-suspenders)
+        if: always()
+        env:
+          XAI_KEY_VALUE: ${{ secrets.XAI_API_KEY }}
+          DO_TOKEN_VALUE: ${{ secrets.DIGITALOCEAN_TOKEN }}
+        run: |
+          set -e
+          CAMPAIGN_DIR="runs/${{ github.event.inputs.campaign_id }}"
+          [ -d "$CAMPAIGN_DIR" ] || exit 0
+          # By design the secret never writes to committed files — the
+          # droplet that held it is destroyed. This pass is a final
+          # belt-and-suspenders redaction: sed over every file we're
+          # about to commit and replace known secret values with
+          # <REDACTED-*>. Prevents any accidental echo in agent logs,
+          # error traces, or jq output from ever reaching the repo.
+          # Also masks anything matching the xAI key prefix pattern
+          # (xai- followed by >=20 base62) even if we don't hold the
+          # exact value at redaction time.
+          for f in "$CAMPAIGN_DIR"/*.json "$CAMPAIGN_DIR"/*.log "$CAMPAIGN_DIR"/*.html "$CAMPAIGN_DIR"/baselines/*.json; do
+            [ -f "$f" ] || continue
+            if [ -n "$XAI_KEY_VALUE" ]; then
+              sed -i "s|${XAI_KEY_VALUE}|<REDACTED-XAI-API-KEY>|g" "$f" 2>/dev/null || true
+            fi
+            if [ -n "$DO_TOKEN_VALUE" ]; then
+              sed -i "s|${DO_TOKEN_VALUE}|<REDACTED-DO-TOKEN>|g" "$f" 2>/dev/null || true
+            fi
+            # Generic xAI key pattern — catches keys other than the
+            # one currently in secrets (defence-in-depth for rotated
+            # keys that might have leaked in older logs).
+            sed -i -E 's/xai-[A-Za-z0-9_-]{20,}/<REDACTED-XAI-KEY-LIKE>/g' "$f" 2>/dev/null || true
+            # Generic Bearer header token — mask the value, keep the header.
+            sed -i -E 's/(Authorization: Bearer )[A-Za-z0-9._~+/=-]{20,}/\1<REDACTED-BEARER>/g' "$f" 2>/dev/null || true
+          done
+          # Post-redaction verification: grep for known secret values
+          # in committed files. If any match, fail the commit step so
+          # the secret never reaches the repo.
+          leak_count=0
+          for f in "$CAMPAIGN_DIR"/*.json "$CAMPAIGN_DIR"/*.log "$CAMPAIGN_DIR"/*.html "$CAMPAIGN_DIR"/baselines/*.json; do
+            [ -f "$f" ] || continue
+            if [ -n "$XAI_KEY_VALUE" ] && grep -q "$XAI_KEY_VALUE" "$f" 2>/dev/null; then
+              echo "::error::XAI_API_KEY leak detected in $f"
+              leak_count=$((leak_count + 1))
+            fi
+            if [ -n "$DO_TOKEN_VALUE" ] && grep -q "$DO_TOKEN_VALUE" "$f" 2>/dev/null; then
+              echo "::error::DIGITALOCEAN_TOKEN leak detected in $f"
+              leak_count=$((leak_count + 1))
+            fi
+          done
+          if [ "$leak_count" -gt 0 ]; then
+            echo "::error::$leak_count secret leak(s) detected after redaction — refusing to commit"
+            exit 4
+          fi
+          echo "::notice::redaction pass clean — no secret values detected in $CAMPAIGN_DIR"
 
       - name: Commit campaign artefacts
         if: always()
