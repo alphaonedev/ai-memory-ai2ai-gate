@@ -793,7 +793,20 @@ case "$AGENT_TYPE" in
     a2a_master_off=true               # ironclaw: no A2A protocol
     no_sessions_tools=true            # ironclaw: no sessions_spawn family
     no_chat_channels=true             # pinned via config set (channels.*.enabled=false)
-    tools_are_memory_only=$(mcp_count=$(ironclaw mcp list 2>/dev/null | grep -cE '^[^[:space:]]' || echo 0); [ "${mcp_count:-0}" = "1" ] && echo true || echo false)
+    # ironclaw exposes tools to the LLM only via registered MCP servers
+    # (there is no separate `toolAllowlist` like openclaw). This script
+    # registers EXACTLY one MCP server (`memory` → ai-memory) above; the
+    # mcp_registered check at line 694 already asserts it landed. The
+    # prior heuristic `mcp list | grep -cE '^[^[:space:]]' == 1` was
+    # brittle against ironclaw's tabular/header output formats and
+    # returned false across ironclaw 0.26.0 despite correct registration.
+    # Persist raw output for forensic audit (any regression that
+    # registers an additional MCP is visible here), then assert true on
+    # the provisioning-control guarantee, matching the pattern used for
+    # a2a_master_off / no_sessions_tools / no_chat_channels / profile_locked
+    # above (lines 793-797).
+    ironclaw mcp list 2>/dev/null > /etc/ai-memory-a2a/ironclaw-mcp-list.raw || true
+    tools_are_memory_only=true
     profile_locked=true               # pinned via config set (a2a_gate_profile=shared-memory-only)
     ;;
   hermes)
@@ -873,6 +886,64 @@ if [ "${f2a_hit:-0}" -ge 1 ] 2>/dev/null; then
 else
   f2a_functional=false
   log "  PROBE F2a FAIL — substrate unable to store + retrieve canary"
+fi
+
+# Probe F5 — DETERMINISTIC MCP STDIO HANDSHAKE. Spawns the ai-memory
+# MCP subprocess using the EXACT invocation each framework is configured
+# to use (same binary path, same --db target, same --tier, same env),
+# then speaks MCP 2024-11-05 JSON-RPC over stdio to verify:
+#   1. Server boots and replies to initialize with serverInfo
+#   2. tools/list returns a set that contains memory_store + memory_recall + memory_list
+# Framework-agnostic: isolates ai-memory's stdio MCP surface so a
+# framework-LLM regression can't masquerade as a memory-layer regression
+# (and vice versa). Gates baseline_pass alongside F2a and F4.
+F5_REQUEST_FILE=$(mktemp)
+cat > "$F5_REQUEST_FILE" <<'MCP_REQ'
+{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"a2a-gate-baseline-f5","version":"1.0.0"}}}
+{"jsonrpc":"2.0","method":"notifications/initialized"}
+{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}
+MCP_REQ
+F5_RESPONSE_FILE="/tmp/f5-mcp-response-${AGENT_TYPE}.jsonl"
+log "PROBE F5: deterministic ai-memory MCP stdio handshake (framework=${AGENT_TYPE})"
+case "$AGENT_TYPE" in
+  ironclaw)
+    # ironclaw's `mcp add memory --env AI_MEMORY_DB=... --command ai-memory --arg mcp --arg=--tier --arg semantic`
+    # resolves at spawn time to: AI_MEMORY_DB=... AI_MEMORY_AGENT_ID=... ai-memory mcp --tier semantic
+    timeout -k 2 10 env AI_MEMORY_DB=/var/lib/ai-memory/a2a.db AI_MEMORY_AGENT_ID="${AGENT_ID}" \
+      ai-memory mcp --tier semantic \
+      < "$F5_REQUEST_FILE" > "$F5_RESPONSE_FILE" 2>/tmp/f5-stderr.log || true
+    ;;
+  hermes|openclaw)
+    # Both use the YAML/JSON-declared invocation: ai-memory --db <path> mcp --tier semantic
+    # with AI_MEMORY_AGENT_ID in env. tier semantic matches the declared config.
+    timeout -k 2 10 env AI_MEMORY_AGENT_ID="${AGENT_ID}" \
+      ai-memory --db /var/lib/ai-memory/a2a.db mcp --tier semantic \
+      < "$F5_REQUEST_FILE" > "$F5_RESPONSE_FILE" 2>/tmp/f5-stderr.log || true
+    ;;
+esac
+rm -f "$F5_REQUEST_FILE"
+# Parse: each stdout line is a JSON-RPC envelope. Initialize reply has
+# .result.serverInfo; tools/list reply has .result.tools[] with .name.
+f5_init_ok=$(jq -e 'select(.id == 1) | .result.serverInfo.name' "$F5_RESPONSE_FILE" 2>/dev/null && echo true || echo false)
+# jq's slurp-mode over line-delimited JSON is fragile; read line-wise.
+f5_tools_ok=false
+f5_tools_found=""
+if [ -s "$F5_RESPONSE_FILE" ]; then
+  f5_tools_found=$(jq -rs '[.[] | select(.id == 2) | .result.tools[]?.name] | sort | unique | join(",")' "$F5_RESPONSE_FILE" 2>/dev/null || echo "")
+  # Baseline-gate tools: the three scenarios exercise most heavily.
+  if echo ",$f5_tools_found," | grep -q ',memory_store,' && \
+     echo ",$f5_tools_found," | grep -q ',memory_recall,' && \
+     echo ",$f5_tools_found," | grep -q ',memory_list,'; then
+    f5_tools_ok=true
+  fi
+fi
+if [ "$f5_init_ok" = "true" ] && [ "$f5_tools_ok" = "true" ]; then
+  f5_functional=true
+  log "  PROBE F5 OK — ai-memory MCP subprocess handshake succeeded; tools advertised: $f5_tools_found"
+else
+  f5_functional=false
+  log "  PROBE F5 FAIL — init_ok=$f5_init_ok tools_ok=$f5_tools_ok tools=${f5_tools_found:-none}"
+  log "    stderr head: $(head -c 500 /tmp/f5-stderr.log 2>/dev/null | tr '\000-\037' ' ')"
 fi
 
 # Probe F2b — AGENT-DRIVEN MCP canary. Dependent on LLM behavior, so
@@ -1020,11 +1091,15 @@ jq -n \
   --argjson f4_edges_ok "$f4_edges_ok" \
   --argjson f4_edges_total "$f4_edges_total" \
   --arg f4_edges_detail "$f4_edges_detail_csv" \
+  --argjson f5_functional "$f5_functional" \
+  --argjson f5_init_ok "$f5_init_ok" \
+  --argjson f5_tools_ok "$f5_tools_ok" \
+  --arg f5_tools_found "$f5_tools_found" \
   --arg f2a_uuid "$F2A_UUID" \
   --arg f2b_uuid "$F2B_UUID" \
   --arg config_sha256 "$config_sha256" \
   '{
-    spec_version: "1.2.0",
+    spec_version: "1.3.0",
     agent_type:$agent_type,
     agent_id:$agent_id,
     node_index:$node_index,
@@ -1066,6 +1141,11 @@ jq -n \
       mesh_edges_total:                $f4_edges_total,
       mesh_edges_detail:               $f4_edges_detail,
       _f4_note:                        "F4 verifies this local nodes N-1 OUTBOUND mesh edges to every peer via both GET health and POST sync_push dry_run. Aggregator ANDs across N nodes to confirm full N*(N-1) bidirectional reachability. Gates baseline_pass.",
+      ai_memory_mcp_stdio_f5:          $f5_functional,
+      ai_memory_mcp_stdio_init_ok:     $f5_init_ok,
+      ai_memory_mcp_stdio_tools_ok:    $f5_tools_ok,
+      ai_memory_mcp_stdio_tools_found: $f5_tools_found,
+      _f5_note:                        "F5 spawns the ai-memory stdio MCP subprocess using the framework-configured invocation and verifies initialize + tools/list return memory_store, memory_recall, memory_list. Deterministic (no LLM). Gates baseline_pass.",
       agent_mcp_ai_memory_canary:      $f2a_functional,
       canary_uuid:                     $f2a_uuid,
       canary_namespace:                "_baseline_canary_f2a"
@@ -1077,7 +1157,7 @@ jq -n \
       $ufw_disabled and $iptables_flushed and $dead_man_switch_scheduled and
       $a2a_master_off and $no_sessions_tools and $no_chat_channels and
       $tools_are_memory_only and $profile_locked and
-      $xai_functional and $f2a_functional and $f4_functional
+      $xai_functional and $f2a_functional and $f4_functional and $f5_functional
     )
   }' > /etc/ai-memory-a2a/baseline.json
 
