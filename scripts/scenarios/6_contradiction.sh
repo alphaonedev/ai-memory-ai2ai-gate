@@ -19,17 +19,23 @@ TOPIC="sky-color-$(cat /proc/sys/kernel/random/uuid 2>/dev/null | cut -c1-8)"
 SSH_OPTS="-o StrictHostKeyChecking=no -o ConnectTimeout=10"
 
 log "alice writes claim: \"$TOPIC is blue\" on node-1"
+# Titles are per-agent to avoid UPSERT-on-(title,namespace) dedup. The
+# topic grouping is carried in metadata.topic, which ai-memory's new
+# /api/v1/contradictions endpoint filters on. (Prior to this, alice and
+# bob both wrote title=$TOPIC to the same namespace — UPSERT merged them
+# into ONE row, so the scenario could never see both memories. r14
+# report: alice_id == bob_id.)
 m_alice=$(ssh $SSH_OPTS root@"$NODE1_IP" \
   "curl -sS -X POST 'http://127.0.0.1:9077/api/v1/memories' \
     -H 'X-Agent-Id: ai:alice' -H 'Content-Type: application/json' \
-    -d '{\"tier\":\"mid\",\"namespace\":\"$NS\",\"title\":\"$TOPIC\",\"content\":\"$TOPIC is blue\",\"priority\":5,\"confidence\":1.0,\"source\":\"api\",\"metadata\":{\"agent_id\":\"ai:alice\",\"scenario\":\"6\",\"topic\":\"$TOPIC\"}}' \
+    -d '{\"tier\":\"mid\",\"namespace\":\"$NS\",\"title\":\"$TOPIC-alice\",\"content\":\"$TOPIC is blue\",\"priority\":5,\"confidence\":1.0,\"source\":\"api\",\"metadata\":{\"agent_id\":\"ai:alice\",\"scenario\":\"6\",\"topic\":\"$TOPIC\"}}' \
     | jq -r '.id // .memory_id // empty'" 2>/dev/null | tail -1)
 
 log "bob writes contradicting claim: \"$TOPIC is red\" on node-2"
 m_bob=$(ssh $SSH_OPTS root@"$NODE2_IP" \
   "curl -sS -X POST 'http://127.0.0.1:9077/api/v1/memories' \
     -H 'X-Agent-Id: ai:bob' -H 'Content-Type: application/json' \
-    -d '{\"tier\":\"mid\",\"namespace\":\"$NS\",\"title\":\"$TOPIC\",\"content\":\"$TOPIC is red\",\"priority\":5,\"confidence\":1.0,\"source\":\"api\",\"metadata\":{\"agent_id\":\"ai:bob\",\"scenario\":\"6\",\"topic\":\"$TOPIC\"}}' \
+    -d '{\"tier\":\"mid\",\"namespace\":\"$NS\",\"title\":\"$TOPIC-bob\",\"content\":\"$TOPIC is red\",\"priority\":5,\"confidence\":1.0,\"source\":\"api\",\"metadata\":{\"agent_id\":\"ai:bob\",\"scenario\":\"6\",\"topic\":\"$TOPIC\"}}' \
     | jq -r '.id // .memory_id // empty'" 2>/dev/null | tail -1)
 log "  alice.id=$m_alice bob.id=$m_bob"
 sleep 10

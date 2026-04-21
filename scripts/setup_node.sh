@@ -42,6 +42,12 @@ trap 'rc=$?; echo "[setup-node-${NODE_INDEX:-?}] FAILED at line ${LINENO}: ${BAS
 : "${PEER_URLS:?}"
 : "${ROLE:?}"
 : "${AI_MEMORY_VERSION:=0.6.0}"
+# v0.6.0.1 (#4) — LLM under test, parameterized so the harness can target
+# different Grok SKUs without code changes. Default is grok-4-0709 (the
+# current "Grok 4.2 reasoning" SKU at https://x.ai/api/models). Override
+# via workflow_dispatch input or env for cost-optimized smoke runs, e.g.:
+#   A2A_GATE_LLM_MODEL=grok-4-fast-non-reasoning
+: "${A2A_GATE_LLM_MODEL:=grok-4-0709}"
 
 log() { printf '[setup-node-%s %s] %s\n' "$NODE_INDEX" "$(date -u +%H:%M:%S)" "$*" >&2; }
 
@@ -281,8 +287,9 @@ case "$AGENT_TYPE" in
     # OpenClaw config schema per docs.openclaw.ai: ~/.openclaw/openclaw.json
     # with `mcpServers` as an OBJECT keyed by server name (not an array).
     # xAI Grok via OpenAI-compatible provider: base_url=https://api.x.ai/v1,
-    # api_key=XAI_API_KEY. Using grok-4-fast-non-reasoning to match hermes
-    # so A2A comparison holds — same LLM, different agent framework.
+    # api_key=XAI_API_KEY. Model SKU is $A2A_GATE_LLM_MODEL (default
+    # grok-4-0709 = Grok 4.2 reasoning) so both agent groups exercise the
+    # same production-intent reasoning model — A2A comparison holds.
     mkdir -p /root/.openclaw
     # Config lock-down — THESIS INTEGRITY
     # Every OpenClaw A2A channel except ai-memory shared memory is
@@ -300,7 +307,7 @@ case "$AGENT_TYPE" in
       "type": "openai-compatible",
       "api_key": "${XAI_API_KEY}",
       "base_url": "https://api.x.ai/v1",
-      "default_model": "grok-4-fast-non-reasoning"
+      "default_model": "${A2A_GATE_LLM_MODEL}"
     }
   },
   "defaultProvider": "xai",
@@ -499,7 +506,7 @@ log "agent $AGENT_ID provisioned with MCP config pointing at local ai-memory fed
 # INVARIANTS (per user directive, 2026-04-21):
 #   1. agent framework is the authentic upstream binary (not a
 #      symlink/surrogate to a different CLI)
-#   2. agent LLM backend is xAI Grok (grok-4-fast-non-reasoning)
+#   2. agent LLM backend is xAI Grok ($A2A_GATE_LLM_MODEL, default Grok 4.2 reasoning)
 #   3. agent's ONLY MCP server is `ai-memory` on the local node
 #   4. AGENT_ID is stamped into the MCP environment
 #   5. local `ai-memory serve` is part of the W=2/N=4 federation mesh
@@ -518,7 +525,7 @@ case "$AGENT_TYPE" in
     is_authentic=$([ -n "$ob" ] && [ "$ob" != "/usr/local/bin/grok" ] && [ -z "${ob##*openclaw*}" ] && echo true || echo false)
     fw_version=$(openclaw --version 2>/dev/null | head -1 | tr -d '"' || echo "unknown")
     mcp_registered=$(baseline_check "mcp-list" "openclaw mcp list 2>/dev/null | grep -q memory")
-    has_xai=$(jq -e '.providers.xai.base_url == "https://api.x.ai/v1" and .providers.xai.default_model == "grok-4-fast-non-reasoning"' /root/.openclaw/openclaw.json >/dev/null 2>&1 && echo true || echo false)
+    has_xai=$(jq -e --arg m "$A2A_GATE_LLM_MODEL" '.providers.xai.base_url == "https://api.x.ai/v1" and .providers.xai.default_model == $m' /root/.openclaw/openclaw.json >/dev/null 2>&1 && echo true || echo false)
     default_xai=$(jq -e '.defaultProvider == "xai"' /root/.openclaw/openclaw.json >/dev/null 2>&1 && echo true || echo false)
     has_mem=$(jq -e '.mcpServers.memory.command == "ai-memory"' /root/.openclaw/openclaw.json >/dev/null 2>&1 && echo true || echo false)
     has_aid=$(jq -e --arg a "$AGENT_ID" '.mcpServers.memory.env.AI_MEMORY_AGENT_ID == $a' /root/.openclaw/openclaw.json >/dev/null 2>&1 && echo true || echo false)
@@ -531,7 +538,7 @@ case "$AGENT_TYPE" in
     has_xai=$(grep -q '^XAI_API_KEY=' /etc/ai-memory-a2a/hermes.env 2>/dev/null && echo true || echo false)
     # hermes takes provider/model as drive_agent.sh flags; we assert
     # drive_agent.sh is on disk and passes the right flags.
-    default_xai=$(grep -q 'provider xai' /root/drive_agent.sh 2>/dev/null && grep -q 'grok-4-fast-non-reasoning' /root/drive_agent.sh 2>/dev/null && echo true || echo false)
+    default_xai=$(grep -q 'provider xai' /root/drive_agent.sh 2>/dev/null && grep -q "$A2A_GATE_LLM_MODEL" /root/drive_agent.sh 2>/dev/null && echo true || echo false)
     has_mem=$(grep -q 'command: ai-memory' /root/.hermes/config.yaml 2>/dev/null && echo true || echo false)
     has_aid=$(grep -q "AI_MEMORY_AGENT_ID.*${AGENT_ID}" /root/.hermes/config.yaml 2>/dev/null && echo true || echo false)
     ;;
@@ -638,7 +645,7 @@ xai_resp=$(curl -sS --max-time 20 \
   -X POST https://api.x.ai/v1/chat/completions \
   -H "Authorization: Bearer $XAI_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"model":"grok-4-fast-non-reasoning","messages":[{"role":"user","content":"Reply with the single word READY and nothing else."}],"max_tokens":10,"temperature":0}' \
+  -d "{\"model\":\"${A2A_GATE_LLM_MODEL}\",\"messages\":[{\"role\":\"user\",\"content\":\"Reply with the single word READY and nothing else.\"}],\"max_tokens\":10,\"temperature\":0}" \
   2>/dev/null || echo '{}')
 xai_content=$(echo "$xai_resp" | jq -r '.choices[0].message.content // empty' 2>/dev/null | tr -d '[:space:]')
 if [ -n "$xai_content" ]; then
@@ -688,7 +695,7 @@ case "$AGENT_TYPE" in
     ;;
   hermes)
     set -a; . /etc/ai-memory-a2a/hermes.env; set +a
-    timeout -k 10 "$TIMEOUT_AGENT_CLI" hermes chat -Q --provider xai --model grok-4-fast-non-reasoning -q "$F2B_PROMPT" > /tmp/canary-hermes.log 2>&1 || \
+    timeout -k 10 "$TIMEOUT_AGENT_CLI" hermes chat -Q --provider xai --model "$A2A_GATE_LLM_MODEL" -q "$F2B_PROMPT" > /tmp/canary-hermes.log 2>&1 || \
       log "  F2b: hermes returned non-zero or timed out (${TIMEOUT_AGENT_CLI}s) — proceeding"
     ;;
 esac
