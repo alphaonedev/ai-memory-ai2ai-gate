@@ -234,6 +234,7 @@ jobs:
         if: always()
         run: |
           set -e
+          mkdir -p phase-reports
           jq -n \
             --arg campaign_id    "${{ github.event.inputs.campaign_id }}" \
             --arg agent_group    "${AGENT_GROUP}" \

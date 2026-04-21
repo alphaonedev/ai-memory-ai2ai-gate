@@ -204,7 +204,16 @@ case "$AGENT_TYPE" in
         log "symlinked /usr/local/bin/openclaw -> $OPENCLAW_BIN"
       fi
     }
-    openclaw --version 2>&1 | head -1 || { log "openclaw --version failed"; exit 1; }
+    # `head -1` can SIGPIPE openclaw if the version output is more
+    # than a single line — with `set -o pipefail` that propagates as
+    # non-zero even when the underlying command succeeded. Capture
+    # the output to a variable instead, then log first line.
+    oc_version_out=$(openclaw --version 2>&1 || true)
+    if [ -z "$oc_version_out" ]; then
+      log "openclaw --version returned empty output — install may be incomplete"
+      exit 1
+    fi
+    log "openclaw version: $(echo "$oc_version_out" | head -1)"
 
     # OpenClaw config schema per docs.openclaw.ai: ~/.openclaw/openclaw.json
     # with `mcpServers` as an OBJECT keyed by server name (not an array).
@@ -576,12 +585,21 @@ sleep 3
 canary_hit=$(curl -sS "http://127.0.0.1:9077/api/v1/memories?namespace=${CANARY_NS}&limit=20" 2>/dev/null | \
   jq --arg u "$CANARY_UUID" --arg a "$AGENT_ID" \
     '[.memories[]? | select(.content == $u and (.metadata.agent_id // "") == $a)] | length' 2>/dev/null || echo 0)
+# Capture the agent's actual response head for diagnostic visibility
+# (redaction pass at commit-time strips any secret values).
+canary_log_file="/tmp/canary-${AGENT_TYPE}.log"
+if [ -f "$canary_log_file" ]; then
+  canary_response=$(head -c 800 "$canary_log_file" 2>/dev/null | tr '\000-\037' ' ' | head -c 500 || echo "")
+else
+  canary_response=""
+fi
 if [ "${canary_hit:-0}" -ge 1 ] 2>/dev/null; then
   canary_functional=true
   log "  PROBE 2 OK — agent-driven MCP canary landed with correct agent_id"
 else
   canary_functional=false
   log "  PROBE 2 FAIL — canary UUID $CANARY_UUID not found in ns=$CANARY_NS on local serve"
+  log "  Agent response head: ${canary_response:0:200}"
 fi
 
 jq -n \
@@ -593,6 +611,7 @@ jq -n \
   --arg ai_memory_version "$AI_MEMORY_VERSION" \
   --arg xai_content "$xai_content" \
   --arg canary_uuid "$CANARY_UUID" \
+  --arg canary_response "$canary_response" \
   --argjson is_authentic "$is_authentic" \
   --argjson mcp_registered "$mcp_registered" \
   --argjson has_xai "$has_xai" \
@@ -637,6 +656,7 @@ jq -n \
       xai_grok_chat_reachable: $xai_functional,
       xai_grok_sample_reply: $xai_content,
       agent_mcp_ai_memory_canary: $canary_functional,
+      agent_canary_response_head: $canary_response,
       canary_uuid: $canary_uuid,
       canary_namespace: "_baseline_canary"
     },
