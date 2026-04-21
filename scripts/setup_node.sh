@@ -102,6 +102,20 @@ fi
 # Dead-man switch: every droplet self-destructs at 8h regardless.
 shutdown -P +480 "ai-memory a2a-gate dead-man switch" & disown
 
+# Add a 2GB swap file — s-2vcpu-4gb droplets can OOM during agent
+# framework installs (observed r12 openclaw npm install: 4min in,
+# SSH connection dropped with exit 255, symptoms consistent with
+# OOM-killer terminating sshd). Swap lets the install page out
+# instead of dying. Only create if not already present.
+if [ ! -f /swapfile ]; then
+  log "creating 2GB swap file"
+  fallocate -l 2G /swapfile 2>/dev/null || dd if=/dev/zero of=/swapfile bs=1M count=2048 2>/dev/null
+  chmod 600 /swapfile
+  mkswap /swapfile >/dev/null 2>&1
+  swapon /swapfile
+  log "swap enabled: $(free -m | awk '/^Swap/ {print $2\" MB\"}')"
+fi
+
 # ---- ai-memory install + serve with federation --------------------
 log "installing ai-memory v${AI_MEMORY_VERSION}"
 cd /tmp
@@ -215,10 +229,25 @@ case "$AGENT_TYPE" in
     # cleanly (post-install wizard fails). We tolerate the exit and
     # rely on the presence check; FATAL only if the binary truly
     # isn't installed.
-    log "installing AUTHENTIC openclaw/openclaw via official one-liner (timeout ${TIMEOUT_INSTALL_SH}s)"
-    timeout "$TIMEOUT_INSTALL_SH" bash -c '
-      curl -fsSL --max-time 60 https://openclaw.ai/install.sh | bash -s -- --install-method git 2>&1
-    ' | sed 's/^/[openclaw-install] /' || log "openclaw install.sh returned non-zero (benign) — proceeding"
+    # openclaw install has two paths. install.sh is heavier and
+    # on s-2vcpu-4gb droplets it occasionally OOMs during npm build
+    # (observed r12 exit 255 — SSH connection lost mid-install).
+    # Swap order: npm-first (lighter, deterministic), install.sh
+    # as fallback. Latest npm-registry-published openclaw is the
+    # production install path per openclaw docs.
+    log "installing openclaw via npm -g (primary path, timeout ${TIMEOUT_NPM}s)"
+    # Bound npm heap to prevent OOM on 4GB droplets. Default V8 heap
+    # is ~1.5GB which is usually fine, but openclaw pulls many deps
+    # with native builds that can spike allocations.
+    export NODE_OPTIONS="--max-old-space-size=2048"
+    if timeout "$TIMEOUT_NPM" npm install -g openclaw 2>&1 | sed 's/^/[npm-openclaw] /'; then
+      log "openclaw installed via npm"
+    else
+      log "npm install failed — trying install.sh fallback (timeout ${TIMEOUT_INSTALL_SH}s)"
+      timeout "$TIMEOUT_INSTALL_SH" bash -c '
+        curl -fsSL --max-time 60 https://openclaw.ai/install.sh | bash -s -- --install-method git 2>&1
+      ' | sed 's/^/[openclaw-install] /' || log "openclaw install.sh also returned non-zero (benign) — continuing to presence check"
+    fi
     # Symlink the binary into /usr/local/bin for deterministic PATH.
     if ! command -v openclaw >/dev/null 2>&1 || [ ! -x /usr/local/bin/openclaw ]; then
       OPENCLAW_BIN=$(command -v openclaw || find /root/.openclaw /usr/local/lib/node_modules /usr/lib/node_modules -maxdepth 6 -name openclaw -type f -executable 2>/dev/null | head -1)
@@ -227,10 +256,8 @@ case "$AGENT_TYPE" in
       fi
     fi
     if ! command -v openclaw >/dev/null 2>&1; then
-      log "openclaw not on PATH after install.sh — falling back to npm install latest (timeout ${TIMEOUT_NPM}s)"
-      timeout "$TIMEOUT_NPM" npm install -g openclaw 2>&1 | sed 's/^/[npm-fallback] /' || {
-        log "FATAL: every openclaw install path failed (timeout or error)"; exit 1;
-      }
+      log "FATAL: openclaw not on PATH after both install paths"
+      exit 1
     fi
     # Ensure binary is reachable at /usr/local/bin/openclaw so later
     # SSH invocations (which load only the default PATH) can find it.
