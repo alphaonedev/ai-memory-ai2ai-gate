@@ -226,7 +226,20 @@ jobs:
             echo "::error::BASELINE VIOLATION — at least one agent node failed baseline verification. Scenarios will NOT run."
             echo "baseline_ok=false" >> "$GITHUB_OUTPUT"
             # Aggregate the violation into a summary the dashboard can render.
-            jq -s '{baseline_pass:false, per_node:., failure_mode:"baseline-violation"}' phase-reports/baselines/*.json > phase-reports/a2a-baseline.json
+            # Tolerate empty globs — when scp returned ENOENT for every node,
+            # the baselines dir is empty and `jq -s *.json` would exit non-zero.
+            shopt -s nullglob
+            baseline_files=(phase-reports/baselines/*.json)
+            shopt -u nullglob
+            if [ ${#baseline_files[@]} -gt 0 ]; then
+              jq -s '{baseline_pass:false, per_node:., failure_mode:"baseline-violation"}' "${baseline_files[@]}" > phase-reports/a2a-baseline.json
+            else
+              printf '%s\n' '{"baseline_pass":false,"per_node":[],"failure_mode":"baseline-absent"}' > phase-reports/a2a-baseline.json
+            fi
+            # Fail the step so the overall run is marked red. Without this,
+            # a soft-fail (file present, baseline_pass=false) exits 0 and
+            # the run is reported green even though scenarios were skipped.
+            exit 1
           else
             echo "baseline_ok=true" >> "$GITHUB_OUTPUT"
             jq -s '{baseline_pass:true, per_node:.}' phase-reports/baselines/*.json > phase-reports/a2a-baseline.json
