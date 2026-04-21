@@ -1,0 +1,13 @@
+[scenario-1b hermes] phase A: each agent POSTs 10 memories to local serve
+[scenario-1b hermes]   agent ai:alice on node-a (45.55.136.51)
+[scenario-1b hermes]   agent ai:bob on node-b (165.227.101.0)
+[scenario-1b hermes]   agent ai:charlie on node-c (143.198.31.2)
+[scenario-1b hermes] settle 15s for W=2/N=4 convergence
+[scenario-1b hermes] phase B: each reader counts rows in the OTHER two namespaces via local serve
+[scenario-1b hermes]   ai:alice sees 20 rows from the other two namespaces
+[scenario-1b hermes]   ai:bob sees 20 rows from the other two namespaces
+[scenario-1b hermes]   ai:charlie sees 20 rows from the other two namespaces
+[scenario-1b hermes] phase C: cross-cluster identity verification via node-4
+[scenario-1b hermes]   ns=scenario1b-ai:alice count=10 wrong_agent_id=0
+[scenario-1b hermes]   ns=scenario1b-ai:bob count=10 wrong_agent_id=0
+[scenario-1b hermes]   ns=scenario1b-ai:charlie count=10 wrong_agent_id=0

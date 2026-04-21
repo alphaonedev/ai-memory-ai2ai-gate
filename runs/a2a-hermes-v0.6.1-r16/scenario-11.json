@@ -1,0 +1,13 @@
+{
+  "scenario": "11",
+  "pass": false,
+  "agent_group": "hermes",
+  "m1_id": "30da1735-9a47-4690-bc4d-4d6548fb4b97",
+  "m2_id": "de6b77b9-9197-403e-942f-16514d939f42",
+  "relation": "related_to",
+  "link_http_code": "201",
+  "charlie_sees_link": 0,
+  "reasons": [
+    "charlie could not see M1->M2 link after settle"
+  ]
+}

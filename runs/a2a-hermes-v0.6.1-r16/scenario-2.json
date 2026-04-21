@@ -1,0 +1,17 @@
+{
+  "scenario": "2",
+  "pass": true,
+  "agent_group": "hermes",
+  "path": "serve-http",
+  "per_agent": {
+    "ai:bob": {
+      "sees_handoff": 1
+    },
+    "ai:alice": {
+      "sees_ack": 1
+    }
+  },
+  "handoff_uuid": "8fc9b3dd-5ee0-42b9-af34-a489a5e7c769",
+  "ack_uuid": "fa41fefb-5f19-4256-8de8-0d350928b7ed",
+  "reasons": []
+}

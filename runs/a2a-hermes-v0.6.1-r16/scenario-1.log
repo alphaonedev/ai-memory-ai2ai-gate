@@ -1,0 +1,15 @@
+[scenario-1 hermes] phase A: each agent writes 10 memories via MCP
+[scenario-1 hermes]   agent ai:alice on node-a (45.55.136.51)
+Traceback (most recent call last):
+  File "/usr/local/bin/hermes", line 11, in <module>
+    main()
+  File "/root/.hermes/hermes-agent/hermes_cli/main.py", line 8679, in main
+    args.func(args)
+  File "/root/.hermes/hermes-agent/hermes_cli/main.py", line 1083, in cmd_chat
+    if not _has_any_provider_configured():
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.hermes/hermes-agent/hermes_cli/main.py", line 222, in _has_any_provider_configured
+    from hermes_cli.auth import get_auth_status
+  File "/root/.hermes/hermes-agent/hermes_cli/auth.py", line 38, in <module>
+    import httpx
+ModuleNotFoundError: No module named 'httpx'
