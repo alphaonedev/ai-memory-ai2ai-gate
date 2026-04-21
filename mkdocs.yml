@@ -31,6 +31,9 @@ nav:
   - AI NHI insights: insights.md
   - Baseline configuration: baseline.md
   - Test book: testbook.md
+  - Architecture: architecture.md
+  - Runbook: runbook.md
+  - Incidents: incidents.md
   - Methodology: methodology.md
   - Topology: topology.md
   - Agents:

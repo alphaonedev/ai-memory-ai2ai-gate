@@ -34,9 +34,9 @@ on:
         required: false
         default: "nyc3"
       scenarios:
-        description: "Space-separated scenario ids. Default: 1 1b 2 4 9 10 15 17 (full spectrum; see docs/testbook.md)."
+        description: "Space-separated scenario ids. Default: 1 1b 2 4 5 6 9 10 11 12 13 14 15 16 17 18 (FULL SPECTRUM; see docs/testbook.md)."
         required: false
-        default: "1 1b 2 4 9 10 15 17"
+        default: "1 1b 2 4 5 6 9 10 11 12 13 14 15 16 17 18"
       agent_droplet_size:
         description: "Agent droplet size. Bump to s-4vcpu-16gb for scenario 8 (Ollama)."
         required: false
