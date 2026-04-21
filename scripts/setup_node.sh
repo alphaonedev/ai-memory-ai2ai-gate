@@ -156,40 +156,59 @@ log "MCP config written: /etc/ai-memory-a2a/mcp-config/config.json"
 
 case "$AGENT_TYPE" in
   openclaw)
-    log "installing grok CLI (alphaonedev/grok-cli grok-dev@1.6.0)"
-    curl -fsSL -o /usr/local/bin/grok \
-      "https://github.com/alphaonedev/grok-cli/releases/download/grok-dev%401.6.0/grok-linux-x64"
-    chmod +x /usr/local/bin/grok
-    /usr/local/bin/grok --version || { log "grok --version failed"; exit 1; }
-    ln -sf /usr/local/bin/grok /usr/local/bin/openclaw
-    log "symlinked /usr/local/bin/openclaw -> grok"
+    log "installing AUTHENTIC openclaw/openclaw via official one-liner"
+    # Node is required by the installer. Ship-gate lesson: pre-install
+    # a reasonable Node to skip the installer's own npm pull.
+    curl -fsSL https://openclaw.ai/install.sh | bash -s -- --install-method git --yes || {
+      log "openclaw install.sh returned non-zero — falling back to npm install"
+      npm install -g openclaw || { log "openclaw install failed"; exit 1; }
+    }
+    command -v openclaw >/dev/null 2>&1 || {
+      # The installer drops the CLI somewhere under ~/.openclaw; link it.
+      OPENCLAW_BIN=$(find /root/.openclaw /usr/local/lib/node_modules -maxdepth 5 -name openclaw -type f -executable 2>/dev/null | head -1)
+      if [ -n "$OPENCLAW_BIN" ] && [ -x "$OPENCLAW_BIN" ]; then
+        ln -sf "$OPENCLAW_BIN" /usr/local/bin/openclaw
+        log "symlinked /usr/local/bin/openclaw -> $OPENCLAW_BIN"
+      fi
+    }
+    openclaw --version 2>&1 | head -1 || { log "openclaw --version failed"; exit 1; }
 
-    mkdir -p /root/.grok
-    cat > /root/.grok/user-settings.json <<EOF
+    # OpenClaw config schema per docs.openclaw.ai: ~/.openclaw/openclaw.json
+    # with `mcpServers` as an OBJECT keyed by server name (not an array).
+    # xAI Grok via OpenAI-compatible provider: base_url=https://api.x.ai/v1,
+    # api_key=XAI_API_KEY. Using grok-4-fast-non-reasoning to match hermes
+    # so A2A comparison holds — same LLM, different agent framework.
+    mkdir -p /root/.openclaw
+    cat > /root/.openclaw/openclaw.json <<EOF
 {
-  "apiKey": "${XAI_API_KEY}",
-  "baseURL": "https://api.x.ai/v1",
-  "defaultModel": "grok-4-fast-non-reasoning",
-  "settingsVersion": 2,
-  "mcp": {
-    "servers": [
-      {
-        "id": "ai-memory",
-        "label": "AI Memory",
-        "enabled": true,
-        "transport": "stdio",
-        "command": "ai-memory",
-        "args": ["--db", "/var/lib/ai-memory/a2a.db", "mcp"],
-        "env": {
-          "AI_MEMORY_AGENT_ID": "${AGENT_ID}"
-        }
+  "providers": {
+    "xai": {
+      "type": "openai-compatible",
+      "api_key": "${XAI_API_KEY}",
+      "base_url": "https://api.x.ai/v1",
+      "default_model": "grok-4-fast-non-reasoning"
+    }
+  },
+  "defaultProvider": "xai",
+  "mcpServers": {
+    "memory": {
+      "command": "ai-memory",
+      "args": ["--db", "/var/lib/ai-memory/a2a.db", "mcp", "--tier", "semantic"],
+      "env": {
+        "AI_MEMORY_AGENT_ID": "${AGENT_ID}"
       }
-    ]
+    }
   }
 }
 EOF
-    chmod 600 /root/.grok/user-settings.json
-    log "grok configured with xAI key + ai-memory MCP (stdio, agent_id=${AGENT_ID})"
+    chmod 600 /root/.openclaw/openclaw.json
+
+    # Register the MCP server via the CLI as well so `openclaw mcp list`
+    # shows it — double-registration is a no-op but documents intent.
+    openclaw mcp set memory "$(jq -c '.mcpServers.memory' /root/.openclaw/openclaw.json)" 2>/dev/null || \
+      log "openclaw mcp set returned non-zero (likely already registered via config file)"
+
+    log "openclaw configured with xAI Grok + ai-memory MCP (agent_id=${AGENT_ID})"
     ;;
 
   hermes)

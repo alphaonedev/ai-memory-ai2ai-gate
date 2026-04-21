@@ -30,45 +30,37 @@ source /etc/ai-memory-a2a/env
 
 ACTION="${1:?usage: drive_agent.sh <action> ...}"; shift
 
-# grok-CLI backed drivers. setup_node.sh installed the `grok` binary
-# and symlinked /usr/local/bin/openclaw and /usr/local/bin/hermes at
-# it. Both use xAI as the inference backend and ai-memory as the MCP
-# server — config lives in /root/.grok/user-settings.json, so we
-# don't need to pass --mcp-config at invocation time.
+# Agent CLI drivers. Two authentic frameworks, each with its own
+# invocation surface. Both resolve xAI Grok as the LLM backend and
+# ai-memory as the only MCP server — but the reasoning layer is
+# genuinely different, which is the whole point of the A2A gate.
 #
-# grok flags we rely on:
-#   -p, --prompt   headless prompt
-#   --format json  machine-readable output
-#   --no-sandbox   the droplet IS the sandbox; skip Shuru
-#   --max-tool-rounds  bound the agent loop per scenario call
+#   openclaw → openclaw/openclaw CLI, ~/.openclaw/openclaw.json,
+#              xAI via OpenAI-compatible provider.
+#   hermes   → NousResearch/hermes-agent CLI, ~/.hermes/config.yaml,
+#              xAI native via --provider xai.
 
 agent_cli() { command -v "$AGENT_TYPE" >/dev/null 2>&1; }
 
-# openclaw = grok CLI. Flags: -p (prompt), --format json, --no-sandbox,
-# --max-tool-rounds. Picks up xAI key + ai-memory MCP from
-# /root/.grok/user-settings.json.
+# openclaw headless prompt. Per docs.openclaw.ai/cli:
+#   openclaw run --non-interactive -p "<prompt>"
+#   --format json     machine-readable output
+#   --max-tool-rounds bound the agent loop per scenario call
+#   Config lives in ~/.openclaw/openclaw.json (MCP + provider).
 #
-# hermes = Nous Research Hermes CLI. Envs: OPENAI_API_KEY/BASE,
-# HERMES_MODEL (sourced from /etc/ai-memory-a2a/hermes.env). MCP
-# servers from /root/.hermes/config.yaml.
+# hermes: hermes chat -Q --provider xai --model grok-4-fast-non-reasoning -q "<prompt>"
+#   Source /etc/ai-memory-a2a/hermes.env first for XAI_API_KEY.
 agent_prompt() {
   case "$AGENT_TYPE" in
     openclaw)
-      "$AGENT_TYPE" \
-        --no-sandbox \
+      openclaw run \
+        --non-interactive \
         --format json \
         --max-tool-rounds 20 \
         -p "$1"
       ;;
     hermes)
-      # Source xAI env for this invocation (XAI_API_KEY).
       set -a; . /etc/ai-memory-a2a/hermes.env; set +a
-      # Hermes CLI surface (hermes-agent ≥ v0.10.0):
-      #   hermes chat -q "..."     one-shot, non-interactive
-      #   -Q / --quiet             suppress banner/spinner
-      #   --provider xai           xAI native (alias grok)
-      #   --model <id>             override default model
-      # Global -p is PROFILE NAME, not prompt — that mismatch tripped r5.
       hermes chat -Q \
         --provider xai \
         --model grok-4-fast-non-reasoning \
