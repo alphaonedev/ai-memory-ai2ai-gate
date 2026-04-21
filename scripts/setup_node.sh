@@ -459,7 +459,7 @@ EOF
     # where pre-DB settings go (per src/bootstrap.rs).
     mkdir -p /root/.ironclaw
     cat > /root/.ironclaw/.env <<EOF
-DATABASE_URL=postgres://ironclaw:ironclaw@127.0.0.1:5432/ironclaw
+DATABASE_URL=postgres://ironclaw:ironclaw@127.0.0.1:5432/ironclaw?sslmode=disable
 LLM_BACKEND=openai_compatible
 LLM_BASE_URL=https://api.x.ai/v1
 LLM_API_KEY=${XAI_API_KEY}
@@ -484,20 +484,25 @@ EOF
     ironclaw config set a2a_gate_profile_version 1.0.0      2>/dev/null || true
 
     # ---- Register ai-memory MCP (stdio transport) --------------------
-    # IronClaw's `mcp add` uses a positional NAME + flags, with
-    # command arguments passed AFTER a `--` separator (clap idiom
-    # when arg values themselves start with `--`). r3 dispatch
-    # 24738251537 confirmed the error tip: "to pass '--db' as a value,
-    # use '-- --db'".
+    # IronClaw's `mcp add` uses `--arg <val>` (repeatable, one value
+    # per flag) for command arguments. Values starting with `--` must
+    # use `--arg=--flag` syntax so clap doesn't interpret them as flags.
+    # r3/r4 dispatches surfaced this grammar. The previous `-- <args>`
+    # approach fails because ironclaw's clap derive doesn't mark
+    # `cmd_args` as `trailing_var_arg`.
     #
-    # Structure: `ironclaw mcp add <NAME> [URL] --transport stdio
-    # --command <cmd> --env KEY=VAL [--env KEY=VAL ...] -- <cmd args>`
+    # ai-memory's `--db` path is passed via AI_MEMORY_DB env var (the
+    # binary honours it per CLAUDE.md §Environment Variables), leaving
+    # only `mcp --tier semantic` to pass as positional cmd args.
     ironclaw mcp add memory \
       --transport stdio \
       --command ai-memory \
+      --env "AI_MEMORY_DB=/var/lib/ai-memory/a2a.db" \
       --env "AI_MEMORY_AGENT_ID=${AGENT_ID}" \
-      --description "Shared-memory A2A via ai-memory (a2a-gate)" \
-      -- --db /var/lib/ai-memory/a2a.db mcp --tier semantic 2>&1 \
+      --arg mcp \
+      --arg=--tier \
+      --arg semantic \
+      --description "Shared-memory A2A via ai-memory (a2a-gate)" 2>&1 \
       | sed 's/^/[ironclaw-mcp-add] /' \
       || log "ironclaw mcp add returned non-zero; may already be registered"
 
