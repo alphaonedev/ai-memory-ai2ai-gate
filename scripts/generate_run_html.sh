@@ -140,27 +140,53 @@ insight_field() {
 }
 
 render_insights() {
-  [ -n "$INSIGHTS" ] || return 0
-  local has
-  has=$(jq -r --arg n "$NAME" '.[$n] != null' "$INSIGHTS" 2>/dev/null || echo false)
+  # Prefer the auto-generated per-run analysis over the curated global
+  # file. The per-run file is a flat object (no campaign-id key) written
+  # by scripts/analyze_run.py immediately after scenarios complete; the
+  # global file is the hand-curated one in analysis/run-insights.json
+  # keyed by campaign id.
+  local use_per_run=false
+  if [ -f "$DIR/ai-nhi-analysis.json" ]; then
+    use_per_run=true
+  fi
+  local has=false
+  if [ "$use_per_run" = "true" ]; then
+    has=true
+  elif [ -n "$INSIGHTS" ]; then
+    has=$(jq -r --arg n "$NAME" '.[$n] != null' "$INSIGHTS" 2>/dev/null || echo false)
+  fi
   if [ "$has" != "true" ]; then
     cat <<HERE
       <section class="ai-insight">
         <h2>AI NHI analysis</h2>
-        <p class="muted">No per-campaign narrative recorded yet. Append to <code>analysis/run-insights.json</code> after the run completes; the dashboard will refresh on next push.</p>
+        <p class="muted">No per-campaign narrative recorded yet. <code>scripts/analyze_run.py</code> will generate one on the next dispatch.</p>
       </section>
 HERE
     return 0
   fi
+  # insight_field() reads from the global file; per-run flat file is
+  # read directly with jq instead.
   local headline verdict tested proved nt cl sme nxt
-  headline=$(insight_field headline | html_escape)
-  verdict=$(insight_field verdict | html_escape)
-  tested=$(insight_field what_it_tested | html_escape)
-  proved=$(insight_field what_it_proved | html_escape)
-  nt=$(insight_field for_non_technical | html_escape)
-  cl=$(insight_field for_c_level | html_escape)
-  sme=$(insight_field for_sme | html_escape)
-  nxt=$(insight_field next_run_change | html_escape)
+  if [ "$use_per_run" = "true" ]; then
+    local pf="$DIR/ai-nhi-analysis.json"
+    headline=$(jq -r '.headline // ""' "$pf" | html_escape)
+    verdict=$(jq -r '.verdict // ""' "$pf" | html_escape)
+    tested=$(jq -r '.what_it_tested // ""' "$pf" | html_escape)
+    proved=$(jq -r '.what_it_proved // ""' "$pf" | html_escape)
+    nt=$(jq -r '.for_non_technical // ""' "$pf" | html_escape)
+    cl=$(jq -r '.for_c_level // ""' "$pf" | html_escape)
+    sme=$(jq -r '.for_sme // ""' "$pf" | html_escape)
+    nxt=$(jq -r '.next_run_change // ""' "$pf" | html_escape)
+  else
+    headline=$(insight_field headline | html_escape)
+    verdict=$(insight_field verdict | html_escape)
+    tested=$(insight_field what_it_tested | html_escape)
+    proved=$(insight_field what_it_proved | html_escape)
+    nt=$(insight_field for_non_technical | html_escape)
+    cl=$(insight_field for_c_level | html_escape)
+    sme=$(insight_field for_sme | html_escape)
+    nxt=$(insight_field next_run_change | html_escape)
+  fi
   cat <<HERE
       <section class="run-focus">
         <p class="label">Run focus</p>
@@ -213,7 +239,7 @@ scenario_block() {
     false) badge='<span class="badge fail">FAIL</span>' ;;
     *)     badge='<span class="badge warn">UNKNOWN</span>' ;;
   esac
-  printf '      <section class="phase">\n'
+  printf '      <section class="phase" id="scenario-%s">\n' "$n"
   printf '        <h2>Scenario %s — %s %s</h2>\n' "$n" "$title" "$badge"
   if [ -n "$reasons" ] && [ "$reasons" != "null" ]; then
     printf '        <p class="muted"><strong>Reasons:</strong> %s</p>\n' "$(echo "$reasons" | html_escape)"
@@ -368,16 +394,113 @@ HERE
       </section>
 HERE
 }
+# ---- Testbook v3.0.0 scenario catalog ------------------------------
+# Human-friendly title for every scenario id. Also drives the
+# "Tests performed" summary table and the per-scenario PASS/FAIL blocks.
+declare -A SCENARIO_TITLES=(
+  [1]="Per-agent write + read (MCP stdio)"
+  [1b]="Per-agent write + read (HTTP)"
+  [2]="Shared-context handoff"
+  [3]="Targeted memory_share"
+  [4]="Federation-aware concurrent writes"
+  [5]="Consolidation + curation"
+  [6]="Contradiction detection"
+  [7]="Scope visibility matrix"
+  [8]="Auto-tagging round-trip"
+  [9]="Mutation round-trip"
+  [10]="Deletion propagation"
+  [11]="Link integrity"
+  [12]="Agent registration"
+  [13]="Concurrent write contention"
+  [14]="Partition tolerance"
+  [15]="Read-your-writes"
+  [16]="Tier promotion"
+  [17]="Stats consistency"
+  [18]="Semantic query expansion"
+  [19]="Same-node A2A"
+  [20]="mTLS happy-path"
+  [21]="Anonymous client rejected"
+  [22]="Identity spoofing resistance"
+  [23]="Malicious content fuzz"
+  [24]="Byzantine peer"
+  [25]="Clock skew tolerance"
+  [26]="Mixed ironclaw + hermes"
+  [27]="Legacy OpenClaw regression"
+  [28]="memory_search keyword"
+  [29]="memory_archive lifecycle"
+  [30]="memory_capabilities handshake"
+  [31]="memory_gc quiescence"
+  [32]="memory_inbox + notify"
+  [33]="memory_subscribe pub/sub"
+  [34]="memory_pending governance"
+  [35]="memory_namespace standards"
+  [36]="memory_session_start"
+  [37]="memory_get_links bidirectional"
+  [38]="/export + /import"
+  [39]="/sync/since delta"
+  [40]="/memories/bulk"
+  [41]="/metrics Prometheus"
+  [42]="/namespaces enumeration"
+)
+
+# Discover scenarios that actually ran in this campaign (one scenario-*.json
+# per scenario, written by the workflow Run scenarios step).
+shopt -s nullglob
+declare -a _SCN_IDS_SEEN=()
+for _jfile in "$DIR"/scenario-*.json; do
+  _sid=$(basename "$_jfile" .json); _sid="${_sid#scenario-}"
+  _SCN_IDS_SEEN+=("$_sid")
+done
+# Sort numerically; "1b" lands between 1 and 2.
+IFS=$'\n' _SCN_SORTED=($(printf '%s\n' "${_SCN_IDS_SEEN[@]}" | awk '
+  { n=$0; gsub(/[^0-9]/,"",n); if (n=="") n=999; printf "%d\t%s\n", n, $0 }
+' | sort -k1,1n -k2,2 | cut -f2))
+unset IFS
+
+render_tests_performed() {
+  [ "${#_SCN_SORTED[@]}" -gt 0 ] || return 0
+  cat <<'HERE'
+      <section class="tests-performed">
+        <h2>Tests performed in this run</h2>
+        <p class="muted">Every scenario that produced a JSON report in this campaign, in testbook order. Click a row's scenario id to jump to its full report below. See the <a href="../../tests/">Every test performed</a> page for the authoritative catalog.</p>
+        <table class="tests-table">
+          <thead><tr><th>ID</th><th>Title</th><th>Result</th><th>Reason</th></tr></thead>
+          <tbody>
+HERE
+  for sid in "${_SCN_SORTED[@]}"; do
+    local title="${SCENARIO_TITLES[$sid]:-scenario-$sid}"
+    local jf="$DIR/scenario-${sid}.json"
+    local pass="?" skipped="false" reason=""
+    if [ -f "$jf" ]; then
+      pass=$(jq -r '.pass // "null"' "$jf" 2>/dev/null)
+      skipped=$(jq -r '.skipped // false' "$jf" 2>/dev/null)
+      reason=$(jq -r '.reason // ""' "$jf" 2>/dev/null | head -c 200)
+    fi
+    local badge
+    case "$pass" in
+      true)                      badge='<span class="badge pass">PASS</span>' ;;
+      false)                     badge='<span class="badge fail">FAIL</span>' ;;
+      null|"") if [ "$skipped" = "true" ]; then badge='<span class="badge warn">SKIP</span>'; else badge='<span class="badge warn">?</span>'; fi ;;
+      *)                         badge='<span class="badge warn">?</span>' ;;
+    esac
+    printf '            <tr><td><a href="#scenario-%s">S%s</a></td><td>%s</td><td>%s</td><td>%s</td></tr>\n' \
+      "$sid" "$sid" "$(printf '%s' "$title" | html_escape)" "$badge" "$(printf '%s' "$reason" | html_escape)"
+  done
+  cat <<'HERE'
+          </tbody>
+        </table>
+      </section>
+HERE
+}
+
 render_f3
 render_insights
-scenario_block 1 "Per-agent write + read"
-scenario_block 2 "Shared-context handoff"
-scenario_block 3 "Targeted share"
-scenario_block 4 "Federation-aware agents"
-scenario_block 5 "Consolidation + curation"
-scenario_block 6 "Contradiction detection"
-scenario_block 7 "Scoping visibility"
-scenario_block 8 "Auto-tagging (opt-in)"
+render_tests_performed
+unset IFS
+for _sid in "${_SCN_SORTED[@]}"; do
+  _title="${SCENARIO_TITLES[$_sid]:-scenario-$_sid}"
+  scenario_block "$_sid" "$_title"
+done
 
 cat <<EOF
     <section>

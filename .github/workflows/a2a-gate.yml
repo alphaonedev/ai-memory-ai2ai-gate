@@ -35,9 +35,9 @@ on:
         required: false
         default: "nyc3"
       scenarios:
-        description: "Space-separated scenario ids. Default: 1 1b 2 4 5 6 9 10 11 12 13 14 15 16 17 18 (FULL SPECTRUM; see docs/testbook.md)."
+        description: "Space-separated scenario ids. Default: testbook v3.0.0 always-on set (no tls_mode/agent_group gate). S20 (tls/mtls) + S21 (mtls only) + S26 (mixed) + S27 (openclaw) are auto-appended by the workflow's Compute step. See docs/testbook.md."
         required: false
-        default: "1 1b 2 4 5 6 9 10 11 12 13 14 15 16 17 18"
+        default: "1 1b 2 4 5 6 9 10 11 12 13 14 15 16 17 18 22 23 24 25 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42"
       agent_droplet_size:
         description: "Agent droplet size. Default s-2vcpu-4gb (Basic 4GB). Sufficient for ironclaw (Rust, ~500MB) AND hermes (Python, ~1GB). Only override for legacy openclaw dispatches (needs >8GB, DO tier upgrade required). Basic-tier only; -intel/-amd suffix variants are NOT needed at 4GB."
         required: false
@@ -58,6 +58,15 @@ on:
         description: "xAI Grok SKU under test. Default grok-4-0709 = Grok 4.2 reasoning (biologic directive). Override for cost-optimized smoke runs, e.g. grok-4-fast-non-reasoning."
         required: false
         default: "grok-4-0709"
+      tls_mode:
+        description: "Transport security mode. off=plain HTTP on the VPC (fastest, default). tls=HTTPS via self-signed CA, no client cert required. mtls=HTTPS + fingerprint-pinned client cert required — any connection without a whitelisted cert is rejected by rustls. Cert material is ephemeral per-campaign; destroyed with the VPC. Adds F6 (TLS handshake) and F7 (mTLS enforcement) probes + S20/S21 scenarios."
+        required: false
+        default: "off"
+        type: choice
+        options:
+          - "off"
+          - tls
+          - mtls
 
 permissions:
   contents: write
@@ -94,6 +103,7 @@ jobs:
       HERMES_INSTALL_CMD: ${{ github.event.inputs.hermes_install_cmd }}
       XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
       A2A_GATE_LLM_MODEL: ${{ github.event.inputs.llm_model }}
+      TLS_MODE: ${{ github.event.inputs.tls_mode }}
 
     steps:
       - uses: actions/checkout@v5
@@ -151,15 +161,102 @@ jobs:
           echo "node2_priv=$NODE2_PRIV"   >> "$GITHUB_OUTPUT"
           echo "node3_priv=$NODE3_PRIV"   >> "$GITHUB_OUTPUT"
 
+      - name: Generate ephemeral TLS material
+        if: env.TLS_MODE != 'off'
+        id: tls
+        run: |
+          set -e
+          # Per-campaign ephemeral CA + 4 server certs (each pinned to the
+          # node's private VPC IP as a SAN) + 1 gate client cert. Material
+          # lives only for the life of this campaign and is destroyed with
+          # the VPC; no CA key ever lands on a droplet (runner-only).
+          mkdir -p tls/ca tls/node-1 tls/node-2 tls/node-3 tls/node-4 tls/client
+          cd tls
+          # 1. CA — one self-signed root, private key stays on the runner.
+          openssl genrsa -out ca/ca.key 4096 2>/dev/null
+          openssl req -x509 -new -nodes -key ca/ca.key -sha256 -days 1 \
+            -subj "/CN=a2a-gate-ephemeral-ca" \
+            -out ca/ca.pem 2>/dev/null
+          # 2. Per-node server certs with SAN = private IP of that node.
+          declare -A NODE_IP
+          NODE_IP[1]="${{ steps.wait.outputs.node1_priv }}"
+          NODE_IP[2]="${{ steps.wait.outputs.node2_priv }}"
+          NODE_IP[3]="${{ steps.wait.outputs.node3_priv }}"
+          NODE_IP[4]="${{ steps.wait.outputs.memory_priv }}"
+          for n in 1 2 3 4; do
+            ip="${NODE_IP[$n]}"
+            openssl genrsa -out "node-${n}/server.key" 2048 2>/dev/null
+            openssl req -new -key "node-${n}/server.key" \
+              -subj "/CN=aim-a2a-node-${n}" \
+              -out "node-${n}/server.csr" 2>/dev/null
+            printf 'subjectAltName = IP:%s, IP:127.0.0.1, DNS:localhost\nextendedKeyUsage = serverAuth, clientAuth\n' "$ip" > "node-${n}/v3.ext"
+            openssl x509 -req -in "node-${n}/server.csr" \
+              -CA ca/ca.pem -CAkey ca/ca.key -CAcreateserial \
+              -out "node-${n}/server.pem" -days 1 -sha256 \
+              -extfile "node-${n}/v3.ext" 2>/dev/null
+            cp ca/ca.pem "node-${n}/ca.pem"
+          done
+          # 3. Gate client cert (for runner-driven probes + S20/S21).
+          openssl genrsa -out client/client.key 2048 2>/dev/null
+          openssl req -new -key client/client.key \
+            -subj "/CN=a2a-gate-client" \
+            -out client/client.csr 2>/dev/null
+          printf 'extendedKeyUsage = clientAuth\n' > client/v3.ext
+          openssl x509 -req -in client/client.csr \
+            -CA ca/ca.pem -CAkey ca/ca.key -CAcreateserial \
+            -out client/client.pem -days 1 -sha256 \
+            -extfile client/v3.ext 2>/dev/null
+          cp ca/ca.pem client/ca.pem
+          # 4. Fingerprints + allowlist (only meaningful when mtls).
+          echo "# Campaign $CAMPAIGN_ID — mTLS fingerprint allowlist" > allowlist.txt
+          echo "# Node server certs + gate client cert. Regenerated per campaign." >> allowlist.txt
+          for n in 1 2 3 4; do
+            fpr=$(openssl x509 -in "node-${n}/server.pem" -noout -fingerprint -sha256 | sed -e 's/^.*=//' -e 's/://g' | tr 'A-Z' 'a-z')
+            echo "sha256:$fpr  # node-${n}" >> allowlist.txt
+          done
+          fpr=$(openssl x509 -in client/client.pem -noout -fingerprint -sha256 | sed -e 's/^.*=//' -e 's/://g' | tr 'A-Z' 'a-z')
+          echo "sha256:$fpr  # gate-client" >> allowlist.txt
+          # 5. Distribute bundle per-node. Each node gets: ca.pem,
+          # server.pem, server.key, allowlist.txt, client.pem, client.key.
+          # The gate client cert lives on every node so F7/S21 can probe
+          # the LOCAL serve on 127.0.0.1 without crossing the network.
+          declare -A NODE_IP_PUB
+          NODE_IP_PUB[1]="${{ steps.wait.outputs.node1_ip }}"
+          NODE_IP_PUB[2]="${{ steps.wait.outputs.node2_ip }}"
+          NODE_IP_PUB[3]="${{ steps.wait.outputs.node3_ip }}"
+          NODE_IP_PUB[4]="${{ steps.wait.outputs.memory_ip }}"
+          for n in 1 2 3 4; do
+            ip_pub="${NODE_IP_PUB[$n]}"
+            ssh -o StrictHostKeyChecking=no root@"$ip_pub" "mkdir -p /etc/ai-memory-a2a/tls && chmod 700 /etc/ai-memory-a2a/tls"
+            scp -o StrictHostKeyChecking=no \
+              "node-${n}/ca.pem" "node-${n}/server.pem" "node-${n}/server.key" \
+              allowlist.txt \
+              client/client.pem client/client.key \
+              root@"$ip_pub":/etc/ai-memory-a2a/tls/
+            ssh -o StrictHostKeyChecking=no root@"$ip_pub" "chmod 600 /etc/ai-memory-a2a/tls/*.key && chmod 644 /etc/ai-memory-a2a/tls/*.pem /etc/ai-memory-a2a/tls/allowlist.txt"
+          done
+          # 6. Keep the gate-client cert available on the runner too for
+          # scenario runners (S20/S21) that probe via ssh hop.
+          echo "client_ca=$PWD/ca/ca.pem" >> "$GITHUB_OUTPUT"
+          echo "client_cert=$PWD/client/client.pem" >> "$GITHUB_OUTPUT"
+          echo "client_key=$PWD/client/client.key" >> "$GITHUB_OUTPUT"
+          echo "::notice::TLS material generated: tls_mode=$TLS_MODE"
+
       - name: Provision all 4 nodes (federation mesh)
         timeout-minutes: 35
         run: |
           set -e
           AMV=$(echo '${{ github.event.inputs.ai_memory_git_ref }}' | sed -e 's/^v//' -e 's|release/||')
-          P1=http://${{ steps.wait.outputs.node1_priv }}:9077
-          P2=http://${{ steps.wait.outputs.node2_priv }}:9077
-          P3=http://${{ steps.wait.outputs.node3_priv }}:9077
-          P4=http://${{ steps.wait.outputs.memory_priv }}:9077
+          # When TLS_MODE != off, peer URLs use https://. setup_node.sh
+          # consumes the cert material pre-distributed above and starts
+          # ai-memory serve with --tls-cert / --tls-key (+ --mtls-allowlist
+          # when mtls). When TLS_MODE = off, stay on plain http:// as
+          # before so existing campaigns are unaffected.
+          if [ "$TLS_MODE" = "off" ]; then SCHEME=http; else SCHEME=https; fi
+          P1=$SCHEME://${{ steps.wait.outputs.node1_priv }}:9077
+          P2=$SCHEME://${{ steps.wait.outputs.node2_priv }}:9077
+          P3=$SCHEME://${{ steps.wait.outputs.node3_priv }}:9077
+          P4=$SCHEME://${{ steps.wait.outputs.memory_priv }}:9077
           declare -A NODE
           NODE[1]="${{ steps.wait.outputs.node1_ip }}|agent|ai:alice|$P2,$P3,$P4"
           NODE[2]="${{ steps.wait.outputs.node2_ip }}|agent|ai:bob|$P1,$P3,$P4"
@@ -180,7 +277,7 @@ jobs:
               echo "[n$i] === BEGIN provision node-$i role=$role ip=$ip peers=$peers ==="
               scp -o StrictHostKeyChecking=no scripts/setup_node.sh scripts/drive_agent.sh root@$ip:/root/ 2>&1 | sed "s/^/[n$i scp] /"
               chmod_cmd="chmod +x /root/setup_node.sh /root/drive_agent.sh"
-              env_cmd="NODE_INDEX=$i ROLE=$role PEER_URLS='$peers' AI_MEMORY_VERSION=$AMV"
+              env_cmd="NODE_INDEX=$i ROLE=$role PEER_URLS='$peers' AI_MEMORY_VERSION=$AMV TLS_MODE='${TLS_MODE}'"
               [ "$role" = "agent" ] && env_cmd="$env_cmd AGENT_TYPE=${AGENT_GROUP} AGENT_ID=$aid XAI_API_KEY='${XAI_API_KEY}' A2A_GATE_LLM_MODEL='${A2A_GATE_LLM_MODEL}' IRONCLAW_INSTALL_CMD='${IRONCLAW_INSTALL_CMD}' OPENCLAW_INSTALL_CMD='${OPENCLAW_INSTALL_CMD}' HERMES_INSTALL_CMD='${HERMES_INSTALL_CMD}'"
               # stdbuf -oL forces line-buffered stdout on the ssh side
               # so `sed` gets each log line promptly — without it the
@@ -314,6 +411,30 @@ jobs:
           echo "::notice::F3 OK — canary propagated to all 3 peers; scenarios may run"
           echo "f3_ok=true" >> "$GITHUB_OUTPUT"
 
+      # Testbook v3.0.0 wiring: on top of the user-provided scenarios
+      # input, auto-append transport-gated (S20/S21) and framework-gated
+      # (S26/S27) scenarios. Scenarios without a script in
+      # scripts/scenarios/ are logged as a warning and skipped by the
+      # "Run scenarios" step, so partial rollouts don't block CI.
+      - name: Compute scenarios list
+        id: compute_scenarios
+        run: |
+          set -eu
+          BASE="${{ github.event.inputs.scenarios }}"
+          EXTRA=""
+          case "${TLS_MODE}" in
+            tls)  EXTRA="$EXTRA 20" ;;
+            mtls) EXTRA="$EXTRA 20 21" ;;
+          esac
+          case "${AGENT_GROUP}" in
+            mixed)    EXTRA="$EXTRA 26" ;;
+            openclaw) EXTRA="$EXTRA 27" ;;
+          esac
+          # Dedupe while preserving first-seen order.
+          FINAL=$(printf '%s\n' $BASE $EXTRA | awk 'NF && !seen[$0]++' | paste -sd' ' -)
+          echo "list=$FINAL" >> "$GITHUB_OUTPUT"
+          echo "::notice::final scenario list (base + tls=${TLS_MODE} + group=${AGENT_GROUP}): $FINAL"
+
       - name: Run scenarios
         if: steps.baseline.outputs.baseline_ok == 'true' && steps.probe_f3.outputs.f3_ok == 'true'
         id: scenarios
@@ -323,16 +444,15 @@ jobs:
           START_TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
           echo "start_ts=$START_TS" >> "$GITHUB_OUTPUT"
           SCENARIOS_RUN=()
-          for s in ${{ github.event.inputs.scenarios }}; do
-            script=$(ls scripts/scenarios/${s}_*.sh 2>/dev/null | head -1)
+          # Every scenario is Python 3 (v3.0.0+) and uses the shared
+          # harness at scripts/a2a_harness.py. stdout=JSON / stderr=log.
+          for s in ${{ steps.compute_scenarios.outputs.list }}; do
+            script=$(ls scripts/scenarios/${s}_*.py 2>/dev/null | head -1)
             if [ -z "$script" ]; then
               echo "::warning::scenario $s has no implementation yet — skipping"
               continue
             fi
             echo "::group::scenario $s ($script)"
-            # Split streams: stdout = final JSON report; stderr = console
-            # trace (log() lines). Mixing them corrupts the JSON contract
-            # the aggregator depends on and breaks the dashboard rollup.
             SCN_START=$(date -u +%Y-%m-%dT%H:%M:%SZ)
             NODE1_IP=${{ steps.wait.outputs.node1_ip }} \
             NODE2_IP=${{ steps.wait.outputs.node2_ip }} \
@@ -340,7 +460,8 @@ jobs:
             NODE4_IP=${{ steps.wait.outputs.memory_ip }} \
             MEMORY_NODE_IP=${{ steps.wait.outputs.memory_priv }} \
             AGENT_GROUP=${AGENT_GROUP} \
-              bash "$script" \
+            TLS_MODE=${TLS_MODE} \
+              python3 "$script" \
                 > "phase-reports/scenario-${s}.json" \
                 2> "phase-reports/scenario-${s}.log" || true
             SCN_END=$(date -u +%Y-%m-%dT%H:%M:%SZ)
@@ -412,7 +533,7 @@ jobs:
           bash scripts/collect_reports.sh a2a-summary.json phase-reports || true
           cat a2a-summary.json 2>/dev/null || echo "no summary"
 
-      - name: Regenerate evidence HTML
+      - name: Copy campaign artefacts into runs/
         if: always()
         run: |
           CAMPAIGN_DIR="runs/${{ github.event.inputs.campaign_id }}"
@@ -421,6 +542,27 @@ jobs:
           cp phase-reports/*.log  "$CAMPAIGN_DIR/" 2>/dev/null || true
           cp -r phase-reports/baselines "$CAMPAIGN_DIR/" 2>/dev/null || true
           cp a2a-summary.json "$CAMPAIGN_DIR/" 2>/dev/null || true
+
+      # Synthesize a tri-audience AI NHI analysis per run by calling
+      # xAI Grok with the full scenario artefact set. Writes
+      # runs/<id>/ai-nhi-analysis.json; the HTML generator prefers this
+      # over the curated global analysis/run-insights.json. Falls back
+      # to a placeholder (counts only) if the LLM call errors, so the
+      # run page always has something to render.
+      - name: Synthesize AI NHI tri-audience analysis
+        if: always()
+        env:
+          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+          A2A_GATE_LLM_MODEL: ${{ github.event.inputs.llm_model }}
+        run: |
+          CAMPAIGN_DIR="runs/${{ github.event.inputs.campaign_id }}"
+          python3 scripts/analyze_run.py "$CAMPAIGN_DIR" || \
+            echo "::warning::analyze_run.py failed; run page will render placeholder analysis"
+
+      - name: Regenerate evidence HTML
+        if: always()
+        run: |
+          CAMPAIGN_DIR="runs/${{ github.event.inputs.campaign_id }}"
           bash scripts/generate_run_html.sh "$CAMPAIGN_DIR" || true
 
       - name: Redact secrets from committed artifacts (belt-and-suspenders)

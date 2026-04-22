@@ -4,18 +4,19 @@
 
 Covers **same-node** A2A (two agent identities sharing a single droplet's ai-memory) and **between-node** A2A (agents on distinct droplets in the W=2/N=4 federation mesh) across every ai-memory primitive relevant to agent-to-agent coordination.
 
-**Test book version:** 2.0.0 (2026-04-21)
+**Test book version:** 3.0.0 (2026-04-21)
 **Changelog:**
+- **3.0.0** — 100% A2A coverage: transport security (S20-S21), adversarial + cross-framework (S22-S27), every uncovered MCP primitive (S28-S37), every HTTP-only endpoint (S38-S42). 42 scenarios across 9 suites. Baseline bumped to v1.4.0 (adds F6 TLS handshake + F7 mTLS enforcement probes). Tracked in [EPIC #14](https://github.com/alphaonedev/ai-memory-ai2ai-gate/issues/14).
 - **2.0.0** — full-spectrum expansion to 18 scenarios across 6 suites; adds mutation / lifecycle / resilience / observability / same-node A2A coverage
 - **1.0.0** — initial 8-scenario core
 
-Baseline [v1.2.0](baseline.md) must pass before any scenario runs. The test book assumes baseline green.
+Baseline [v1.4.0](baseline.md) must pass before any scenario runs. The test book assumes baseline green. F6 + F7 probes gate `baseline_pass` when `tls_mode ≥ tls` and `tls_mode = mtls` respectively.
 
 ---
 
-## 1. Six test suites, 18 scenarios
+## 1. Nine test suites, 42 scenarios
 
-The scenario corpus is partitioned into suites so failures are diagnostically localized. A red result in Suite A tells a different story than a red in Suite E.
+The scenario corpus is partitioned into suites so failures are diagnostically localized. A red result in Suite A tells a different story than a red in Suite G.
 
 | Suite | Scenarios | What it proves |
 |---|---|---|
@@ -25,8 +26,11 @@ The scenario corpus is partitioned into suites so failures are diagnostically lo
 | **D. Scope + Governance** | S7, S8, S12 | Scope enforcement matrix, auto-tag pipeline, agent registration (Task 1.3) |
 | **E. Resilience + Observability** | S13, S14, S15, S17, S18 | Concurrent contention, partition tolerance, read-your-writes, stats consistency, semantic query expansion |
 | **F. Topology variants** | S4, S19 | Quorum-under-load, SAME-NODE A2A (two agents sharing one droplet's ai-memory) |
+| **G. Transport + Adversarial + Cross-framework** (v3.0.0) | S20, S21, S22, S23, S24, S25, S26, S27 | mTLS happy-path, anonymous rejected, identity spoofing, malicious content fuzz, Byzantine peer, clock skew, mixed ironclaw+hermes, legacy OpenClaw regression |
+| **H. Uncovered primitives — 100% MCP surface** (v3.0.0) | S28, S29, S30, S31, S32, S33, S34, S35, S36, S37 | `memory_search`, archive lifecycle, `capabilities`, `gc`, `inbox`+`notify`, pub/sub, pending governance, namespace standards, `session_start`, `get_links` bidirectional |
+| **I. HTTP-only endpoints — 100% REST surface** (v3.0.0) | S38, S39, S40, S41, S42 | `/export`+`/import`, `/sync/since` delta sync, `/memories/bulk`, `/metrics`, `/namespaces` |
 
-**Coverage scorecard**: 18 scenarios spread across every A2A-relevant primitive. Suites A–E are between-node; Suite F contains the same-node variant (S19).
+**Coverage scorecard (v3.0.0 target)**: 37/37 MCP tools exercised, 27/27 HTTP endpoints exercised, 3 transport modes (http/tls/mtls), 3 agent groupings (ironclaw/hermes/mixed). Suites A–F are the v2.0.0 baseline; G–I are new in v3.0.0.
 
 ---
 
@@ -56,6 +60,29 @@ Each row is a one-line contract. Full per-scenario plans follow in §4.
 | S17 | Stats consistency | E | ✅ | `memory_stats` returns equal counts across peers post-settle |
 | S18 | Semantic query expansion | E | ✅ | `memory_expand_query` returns semantically related memories across writers |
 | S19 | **Same-node A2A** | F | ✅ (with topology override) | Two agents on ONE droplet share local ai-memory; writes + reads work without federation |
+| S20 | mTLS happy-path | G | ✅ tls_mode=mtls | Write+read round-trip over HTTPS with client-cert on the allowlist |
+| S21 | Anonymous client rejected | G | ✅ tls_mode=mtls | rustls rejects the TLS handshake when no client cert is presented |
+| S22 | Identity spoofing resistance | G | ✅ any tls_mode | X-Agent-Id/body resolution precedence honored; transport identity not bypassable |
+| S23 | Malicious content fuzz | G | ✅ any tls_mode | SQLi / NUL / oversize / unicode round-trip faithfully or reject cleanly |
+| S24 | Byzantine peer | G | ✅ any tls_mode | Tampered `sync_push` — metadata.agent_id preserved as declared, no silent re-attribution |
+| S25 | Clock skew (300s) | G | ✅ any tls_mode | Vector clock still converges with node-3 offset +300s |
+| S26 | Mixed ironclaw + hermes on same VPC | G | ⚠️ requires `agent_group=mixed` | Heterogeneous A2A through shared ai-memory |
+| S27 | Legacy OpenClaw regression | G | ⚠️ requires `agent_group=openclaw` | Pre-ironclaw regression lane |
+| S28 | `memory_search` keyword A2A | H | ✅ | Keyword search (distinct from recall/expand_query) consistent across peers |
+| S29 | `memory_archive` lifecycle | H | ✅ | archive_list/purge/restore/stats round-trip cross-peer |
+| S30 | `memory_capabilities` handshake | H | ✅ v0.6.2+ | Protocol version + tool surface match across peers |
+| S31 | `memory_gc` quiescence | H | ✅ | After forget+gc, non-deleted rows remain readable on all peers |
+| S32 | `memory_inbox` + `memory_notify` | H | ⚠️ requires inbox feature | Notify delivers to target's inbox; non-target cannot read |
+| S33 | pub/sub via `memory_subscribe` | H | ⚠️ requires sub feature | Subscribe→write→delivery→unsubscribe→no-delivery |
+| S34 | `memory_pending_*` governance flow | H | ⚠️ requires governance.write=approve | Approve vs reject yields correct downstream visibility |
+| S35 | `memory_namespace_*_standard` rule layering | H | ✅ | Parent chain rules merged into namespace standard |
+| S36 | `memory_session_start` lifecycle | H | ✅ | Session-tagged writes recall by session_id only |
+| S37 | `memory_get_links` explicit bidirectional | H | ✅ | Forward and reverse link traversal both return the pair |
+| S38 | `/export` + `/import` round-trip | I | ✅ | Export one peer → import elsewhere → stats match |
+| S39 | `/sync/since` delta sync | I | ✅ | Post-partition delta returns exactly the missed rows |
+| S40 | `/memories/bulk` bulk write | I | ✅ | 500-row bulk POST reaches all peers + aggregator |
+| S41 | `/metrics` Prometheus shape | I | ✅ | Required counters present and monotonic post-activity |
+| S42 | `/namespaces` enumeration | I | ✅ | Namespace list (with counts) equivalent across peers |
 
 ---
 
@@ -316,8 +343,23 @@ Adding a scenario is a **minor** test-book version bump. Removing or relaxing a 
 
 1. Entry in §2 register
 2. Full §4 plan (Objective / Pre-conditions / Procedure / Pass / Failure / Evidence)
-3. Working script in `scripts/scenarios/<N>_<slug>.sh` (or documented deferral rationale)
+3. Working script in `scripts/scenarios/<N>_<slug>.py` (Python 3; see §7b)
 4. Primitive coverage updated in §3
+
+---
+
+## 7b. Scenario scripting convention (v3.0.0+)
+
+**All scenarios are Python 3.** Every script in `scripts/scenarios/` is a `.py` file that imports `scripts/a2a_harness.py` (stdlib-only — no pip installs on the runner), runs its checks, and calls `harness.emit(...)` to produce the JSON report. The workflow dispatches via `python3`.
+
+Contract:
+- `stdout` — single-line JSON scenario report (consumed by aggregator)
+- `stderr` — human-readable log lines
+- exit 0 on a clean run (pass, fail, or skip); non-zero only on hard crash
+
+Why Python, not bash: complex payload construction (fuzz / bulk / export-import), real concurrency (`concurrent.futures`), clean assertions, reusable fixtures, JSON handled as data instead of shell-quoting hell.
+
+Reference implementation: `scripts/scenarios/26_mixed_framework.py`.
 
 ---
 
