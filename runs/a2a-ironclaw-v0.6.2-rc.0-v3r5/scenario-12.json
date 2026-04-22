@@ -1,0 +1,1 @@
+{"agent_group": "ironclaw", "pass": false, "peers_see": {"node_2": 1, "node_3": 1, "node_4": 0}, "reason": "node-4 did not see registered agent ai:dave-probe-de012782", "reasons": ["node-4 did not see registered agent ai:dave-probe-de012782"], "register_http_code": 201, "registered_agent": "ai:dave-probe-de012782", "scenario": "12", "skipped": false, "tls_mode": "off"}

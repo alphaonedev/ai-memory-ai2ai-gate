@@ -1,0 +1,256 @@
+phase A: each agent writes 10 memories via MCP
+  ai:alice on 138.197.33.142
+  !! drive_agent store failed for ai:alice i=1: error: unrecognized subcommand 'chat'
+
+  tip: a similar subcommand exists: 'channels'
+
+Usage: ironclaw [OPTIONS] [COMMAND]
+
+For more information, try '--help'.
+
+  !! drive_agent store failed for ai:alice i=2: error: unrecognized subcommand 'chat'
+
+  tip: a similar subcommand exists: 'channels'
+
+Usage: ironclaw [OPTIONS] [COMMAND]
+
+For more information, try '--help'.
+
+  !! drive_agent store failed for ai:alice i=3: error: unrecognized subcommand 'chat'
+
+  tip: a similar subcommand exists: 'channels'
+
+Usage: ironclaw [OPTIONS] [COMMAND]
+
+For more information, try '--help'.
+
+  !! drive_agent store failed for ai:alice i=4: error: unrecognized subcommand 'chat'
+
+  tip: a similar subcommand exists: 'channels'
+
+Usage: ironclaw [OPTIONS] [COMMAND]
+
+For more information, try '--help'.
+
+  !! drive_agent store failed for ai:alice i=5: error: unrecognized subcommand 'chat'
+
+  tip: a similar subcommand exists: 'channels'
+
+Usage: ironclaw [OPTIONS] [COMMAND]
+
+For more information, try '--help'.
+
+  !! drive_agent store failed for ai:alice i=6: error: unrecognized subcommand 'chat'
+
+  tip: a similar subcommand exists: 'channels'
+
+Usage: ironclaw [OPTIONS] [COMMAND]
+
+For more information, try '--help'.
+
+  !! drive_agent store failed for ai:alice i=7: error: unrecognized subcommand 'chat'
+
+  tip: a similar subcommand exists: 'channels'
+
+Usage: ironclaw [OPTIONS] [COMMAND]
+
+For more information, try '--help'.
+
+  !! drive_agent store failed for ai:alice i=8: error: unrecognized subcommand 'chat'
+
+  tip: a similar subcommand exists: 'channels'
+
+Usage: ironclaw [OPTIONS] [COMMAND]
+
+For more information, try '--help'.
+
+  !! drive_agent store failed for ai:alice i=9: error: unrecognized subcommand 'chat'
+
+  tip: a similar subcommand exists: 'channels'
+
+Usage: ironclaw [OPTIONS] [COMMAND]
+
+For more information, try '--help'.
+
+  !! drive_agent store failed for ai:alice i=10: error: unrecognized subcommand 'chat'
+
+  tip: a similar subcommand exists: 'channels'
+
+Usage: ironclaw [OPTIONS] [COMMAND]
+
+For more information, try '--help'.
+
+  ai:bob on 104.131.116.229
+  !! drive_agent store failed for ai:bob i=1: error: unrecognized subcommand 'chat'
+
+  tip: a similar subcommand exists: 'channels'
+
+Usage: ironclaw [OPTIONS] [COMMAND]
+
+For more information, try '--help'.
+
+  !! drive_agent store failed for ai:bob i=2: error: unrecognized subcommand 'chat'
+
+  tip: a similar subcommand exists: 'channels'
+
+Usage: ironclaw [OPTIONS] [COMMAND]
+
+For more information, try '--help'.
+
+  !! drive_agent store failed for ai:bob i=3: error: unrecognized subcommand 'chat'
+
+  tip: a similar subcommand exists: 'channels'
+
+Usage: ironclaw [OPTIONS] [COMMAND]
+
+For more information, try '--help'.
+
+  !! drive_agent store failed for ai:bob i=4: error: unrecognized subcommand 'chat'
+
+  tip: a similar subcommand exists: 'channels'
+
+Usage: ironclaw [OPTIONS] [COMMAND]
+
+For more information, try '--help'.
+
+  !! drive_agent store failed for ai:bob i=5: error: unrecognized subcommand 'chat'
+
+  tip: a similar subcommand exists: 'channels'
+
+Usage: ironclaw [OPTIONS] [COMMAND]
+
+For more information, try '--help'.
+
+  !! drive_agent store failed for ai:bob i=6: error: unrecognized subcommand 'chat'
+
+  tip: a similar subcommand exists: 'channels'
+
+Usage: ironclaw [OPTIONS] [COMMAND]
+
+For more information, try '--help'.
+
+  !! drive_agent store failed for ai:bob i=7: error: unrecognized subcommand 'chat'
+
+  tip: a similar subcommand exists: 'channels'
+
+Usage: ironclaw [OPTIONS] [COMMAND]
+
+For more information, try '--help'.
+
+  !! drive_agent store failed for ai:bob i=8: error: unrecognized subcommand 'chat'
+
+  tip: a similar subcommand exists: 'channels'
+
+Usage: ironclaw [OPTIONS] [COMMAND]
+
+For more information, try '--help'.
+
+  !! drive_agent store failed for ai:bob i=9: error: unrecognized subcommand 'chat'
+
+  tip: a similar subcommand exists: 'channels'
+
+Usage: ironclaw [OPTIONS] [COMMAND]
+
+For more information, try '--help'.
+
+  !! drive_agent store failed for ai:bob i=10: error: unrecognized subcommand 'chat'
+
+  tip: a similar subcommand exists: 'channels'
+
+Usage: ironclaw [OPTIONS] [COMMAND]
+
+For more information, try '--help'.
+
+  ai:charlie on 143.198.12.140
+  !! drive_agent store failed for ai:charlie i=1: error: unrecognized subcommand 'chat'
+
+  tip: a similar subcommand exists: 'channels'
+
+Usage: ironclaw [OPTIONS] [COMMAND]
+
+For more information, try '--help'.
+
+  !! drive_agent store failed for ai:charlie i=2: error: unrecognized subcommand 'chat'
+
+  tip: a similar subcommand exists: 'channels'
+
+Usage: ironclaw [OPTIONS] [COMMAND]
+
+For more information, try '--help'.
+
+  !! drive_agent store failed for ai:charlie i=3: error: unrecognized subcommand 'chat'
+
+  tip: a similar subcommand exists: 'channels'
+
+Usage: ironclaw [OPTIONS] [COMMAND]
+
+For more information, try '--help'.
+
+  !! drive_agent store failed for ai:charlie i=4: error: unrecognized subcommand 'chat'
+
+  tip: a similar subcommand exists: 'channels'
+
+Usage: ironclaw [OPTIONS] [COMMAND]
+
+For more information, try '--help'.
+
+  !! drive_agent store failed for ai:charlie i=5: error: unrecognized subcommand 'chat'
+
+  tip: a similar subcommand exists: 'channels'
+
+Usage: ironclaw [OPTIONS] [COMMAND]
+
+For more information, try '--help'.
+
+  !! drive_agent store failed for ai:charlie i=6: error: unrecognized subcommand 'chat'
+
+  tip: a similar subcommand exists: 'channels'
+
+Usage: ironclaw [OPTIONS] [COMMAND]
+
+For more information, try '--help'.
+
+  !! drive_agent store failed for ai:charlie i=7: error: unrecognized subcommand 'chat'
+
+  tip: a similar subcommand exists: 'channels'
+
+Usage: ironclaw [OPTIONS] [COMMAND]
+
+For more information, try '--help'.
+
+  !! drive_agent store failed for ai:charlie i=8: error: unrecognized subcommand 'chat'
+
+  tip: a similar subcommand exists: 'channels'
+
+Usage: ironclaw [OPTIONS] [COMMAND]
+
+For more information, try '--help'.
+
+  !! drive_agent store failed for ai:charlie i=9: error: unrecognized subcommand 'chat'
+
+  tip: a similar subcommand exists: 'channels'
+
+Usage: ironclaw [OPTIONS] [COMMAND]
+
+For more information, try '--help'.
+
+  !! drive_agent store failed for ai:charlie i=10: error: unrecognized subcommand 'chat'
+
+  tip: a similar subcommand exists: 'channels'
+
+Usage: ironclaw [OPTIONS] [COMMAND]
+
+For more information, try '--help'.
+
+settle 15s for W=2/N=4 convergence
+phase B: each agent counts rows in the OTHER two namespaces
+  ai:alice recalled 0 rows from the other two namespaces
+  ai:bob recalled 0 rows from the other two namespaces
+  ai:charlie recalled 0 rows from the other two namespaces
+phase C: cross-cluster identity check on node-4
+  ns=scenario1-ai:alice count=0 wrong_agent_id=0
+  !! expected 10 rows, got 0
+  ns=scenario1-ai:bob count=0 wrong_agent_id=0
+  !! expected 10 rows, got 0
+  ns=scenario1-ai:charlie count=0 wrong_agent_id=0
+  !! expected 10 rows, got 0

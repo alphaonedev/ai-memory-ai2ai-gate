@@ -1,0 +1,780 @@
+{
+  "campaign_id": "a2a-ironclaw-v0.6.2-rc.0-v3r5",
+  "agent_group": "ironclaw",
+  "ai_memory_git_ref": "v0.6.2-rc.0",
+  "completed_at": "2026-04-22T03:38:58Z",
+  "overall_pass": false,
+  "scenarios": [
+    {
+      "agent_group": "ironclaw",
+      "expected_per_reader": 20,
+      "pass": false,
+      "per_agent": {
+        "ai:alice": {
+          "recall": 0
+        },
+        "ai:bob": {
+          "recall": 0
+        },
+        "ai:charlie": {
+          "recall": 0
+        }
+      },
+      "per_namespace_node4": {
+        "scenario1-ai:alice": {
+          "count": 0,
+          "wrong_agent_id": 0
+        },
+        "scenario1-ai:bob": {
+          "count": 0,
+          "wrong_agent_id": 0
+        },
+        "scenario1-ai:charlie": {
+          "count": 0,
+          "wrong_agent_id": 0
+        }
+      },
+      "reason": "ai:alice recalled 0 < 20 via MCP; ai:bob recalled 0 < 20 via MCP; ai:charlie recalled 0 < 20 via MCP; cross-cluster identity check failed — see per_ns",
+      "reasons": [
+        "ai:alice recalled 0 < 20 via MCP",
+        "ai:bob recalled 0 < 20 via MCP",
+        "ai:charlie recalled 0 < 20 via MCP",
+        "cross-cluster identity check failed — see per_ns"
+      ],
+      "scenario": "1",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "ironclaw",
+      "delete_http_code": 200,
+      "m1_id": "7eb59338-0455-4013-8658-90014836a505",
+      "pass": true,
+      "post_delete_hits": {
+        "node-2": 0,
+        "node-3": 0,
+        "node-4": 0
+      },
+      "post_delete_still_visible_peers": 0,
+      "pre_delete_visible_peers": 3,
+      "reasons": [],
+      "scenario": "10",
+      "skipped": false,
+      "tls_mode": "off",
+      "uuid": "d-18ca820d4a2c4cc5b3b53179fb256205"
+    },
+    {
+      "agent_group": "ironclaw",
+      "charlie_sees_link": 1,
+      "link_http_code": 201,
+      "m1_id": "a5cdc92d-3061-4b71-b74d-cceb57cb885d",
+      "m2_id": "8943c7bf-786d-46d6-925f-e80b6079a531",
+      "pass": true,
+      "reasons": [],
+      "relation": "related_to",
+      "scenario": "11",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "ironclaw",
+      "pass": false,
+      "peers_see": {
+        "node_2": 1,
+        "node_3": 1,
+        "node_4": 0
+      },
+      "reason": "node-4 did not see registered agent ai:dave-probe-de012782",
+      "reasons": [
+        "node-4 did not see registered agent ai:dave-probe-de012782"
+      ],
+      "register_http_code": 201,
+      "registered_agent": "ai:dave-probe-de012782",
+      "scenario": "12",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "ironclaw",
+      "m1_id": "15775189-6d1c-49d9-8569-929cf0b0b216",
+      "pass": true,
+      "peer_view": {
+        "node_1": "vb-d65f78c6c86d411b9474b77fb1773e67",
+        "node_2": "vb-d65f78c6c86d411b9474b77fb1773e67",
+        "node_3": "vb-d65f78c6c86d411b9474b77fb1773e67",
+        "node_4": "vb-d65f78c6c86d411b9474b77fb1773e67"
+      },
+      "reasons": [],
+      "scenario": "13",
+      "skipped": false,
+      "submitted": {
+        "v0": "v0-53bf6e2772354965825cd614d401d0a6",
+        "vA_alice": "va-f9315dd6a7a443d3b29c897bb68d7683",
+        "vB_bob": "vb-d65f78c6c86d411b9474b77fb1773e67"
+      },
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "ironclaw",
+      "expected_post_recovery": 20,
+      "node3_saw": 20,
+      "partition_target": "node-3",
+      "pass": true,
+      "reasons": [],
+      "scenario": "14",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "ironclaw",
+      "pass": true,
+      "reasons": [],
+      "scenario": "15",
+      "skipped": false,
+      "tls_mode": "off",
+      "uuid": "ryw-b2d968a7fc01457ba263c84ac6cf2577",
+      "writer_sees_own_write": 1
+    },
+    {
+      "agent_group": "ironclaw",
+      "bob_sees_tier": "long",
+      "m1_id": "0622449c-23c4-4a47-a7b9-0d375a7bf7b5",
+      "pass": true,
+      "promote_http_code": 200,
+      "reasons": [],
+      "scenario": "16",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "ironclaw",
+      "expected_count": 15,
+      "pass": true,
+      "per_peer": {
+        "node_1": 15,
+        "node_2": 15,
+        "node_3": 15,
+        "node_4": 15
+      },
+      "reasons": [],
+      "scenario": "17",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "ironclaw",
+      "pass": false,
+      "query": "morning outdoor exercise routine",
+      "reason": "semantic query did not surface alice's memory; semantic query did not surface bob's memory",
+      "reasons": [
+        "semantic query did not surface alice's memory",
+        "semantic query did not surface bob's memory"
+      ],
+      "scenario": "18",
+      "skipped": false,
+      "tls_mode": "off",
+      "writers": [
+        {
+          "agent": "ai:alice",
+          "marker": "alice-sunrise-3b98b7ce",
+          "seen_by_charlie": 0
+        },
+        {
+          "agent": "ai:bob",
+          "marker": "bob-daybreak-d2b4e8c1",
+          "seen_by_charlie": 0
+        }
+      ]
+    },
+    {
+      "agent_group": "ironclaw",
+      "expected_per_reader": 20,
+      "pass": true,
+      "path": "serve-http",
+      "per_agent": {
+        "ai:alice": {
+          "recall": 20
+        },
+        "ai:bob": {
+          "recall": 20
+        },
+        "ai:charlie": {
+          "recall": 20
+        }
+      },
+      "per_namespace_node4": {
+        "scenario1b-ai:alice": {
+          "count": 10,
+          "wrong_agent_id": 0
+        },
+        "scenario1b-ai:bob": {
+          "count": 10,
+          "wrong_agent_id": 0
+        },
+        "scenario1b-ai:charlie": {
+          "count": 10,
+          "wrong_agent_id": 0
+        }
+      },
+      "reasons": [],
+      "scenario": "1b",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "ack_uuid": "a-4280a0f164914a19a4df296dcb6b3dfb",
+      "agent_group": "ironclaw",
+      "handoff_uuid": "h-add2238fb850402fbe5eb7bf903ae5b8",
+      "pass": true,
+      "path": "serve-http",
+      "per_agent": {
+        "ai:alice": {
+          "sees_ack": 1
+        },
+        "ai:bob": {
+          "sees_handoff": 1
+        }
+      },
+      "reasons": [],
+      "scenario": "2",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "ironclaw",
+      "pass": true,
+      "reasons": [],
+      "scenario": "22",
+      "skipped": false,
+      "tests": {
+        "body_vs_header_conflict": {
+          "acceptable": [
+            "ai:body-wins",
+            "ai:attacker"
+          ],
+          "stored_agent_id": "ai:attacker"
+        },
+        "header_only": {
+          "expected": "ai:alice",
+          "stored_agent_id": "ai:alice"
+        }
+      },
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "ironclaw",
+      "byzantine_marker": "bz-bf0fb28e4f0f4a04b3512f971e65f3ef",
+      "pass": true,
+      "reasons": [],
+      "scenario": "24",
+      "skipped": false,
+      "stored_metadata_agent_id": "REJECTED_BY_SERVER",
+      "sync_push_http_code": "422",
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "ironclaw",
+      "clock_offset_seconds": 300,
+      "marker": "ck-a2fad0ddf8ae46129184280a46013193",
+      "pass": true,
+      "reasons": [],
+      "scenario": "25",
+      "seen_on": {
+        "node_1": 1,
+        "node_3": 1
+      },
+      "skipped": false,
+      "target_node": "node-3",
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "ironclaw",
+      "pass": false,
+      "peer_hits": {
+        "node_2": 0,
+        "node_3": 0
+      },
+      "reason": "node-2 did not find the unique token via /search; node-3 did not find the unique token via /search",
+      "reasons": [
+        "node-2 did not find the unique token via /search",
+        "node-3 did not find the unique token via /search"
+      ],
+      "scenario": "28",
+      "skipped": false,
+      "tls_mode": "off",
+      "token": "kwsearch-a225d3dc9b"
+    },
+    {
+      "agent_group": "ironclaw",
+      "archive_http_code": 405,
+      "bob_sees_archived": false,
+      "m1_id": "b0c797cb-3c12-4f71-9725-e1d7a7f92075",
+      "node4_active_rows": 1,
+      "pass": false,
+      "reason": "archive POST returned HTTP 405; bob did not see M1 in /api/v1/archive; restore returned HTTP 404",
+      "reasons": [
+        "archive POST returned HTTP 405",
+        "bob did not see M1 in /api/v1/archive",
+        "restore returned HTTP 404"
+      ],
+      "restore_http_code": 404,
+      "scenario": "29",
+      "skipped": false,
+      "stats_shape_ok": true,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "ironclaw",
+      "pass": false,
+      "peer_views": {
+        "node_1": null,
+        "node_2": null,
+        "node_3": null,
+        "node_4": null
+      },
+      "reason": "no peer returned a capabilities response — endpoint may not be exposed",
+      "reasons": [
+        "no peer returned a capabilities response — endpoint may not be exposed"
+      ],
+      "scenario": "30",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "ironclaw",
+      "expected_live": 2,
+      "forget_http_code": 400,
+      "gc_http_code": 200,
+      "live_markers_per_peer": {
+        "node_1": 2,
+        "node_2": 2,
+        "node_3": 2,
+        "node_4": 2
+      },
+      "pass": true,
+      "reasons": [],
+      "scenario": "31",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "ironclaw",
+      "bob_inbox_count": 0,
+      "bob_sees_marker": false,
+      "charlie_inbox_count": 0,
+      "charlie_sees_marker": false,
+      "marker": "inb-bfd7b118a97a4faaad0556d6406aeda6",
+      "notify_http_code": 404,
+      "pass": false,
+      "reason": "notify returned HTTP 404; bob's inbox did not deliver alice's notify",
+      "reasons": [
+        "notify returned HTTP 404",
+        "bob's inbox did not deliver alice's notify"
+      ],
+      "scenario": "32",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "ironclaw",
+      "m1_delivered": 1,
+      "namespace": "scenario33-pubsub-22c00c",
+      "ns_in_subs_after": false,
+      "ns_in_subs_before": false,
+      "pass": false,
+      "reason": "subscribe returned HTTP 404; bob's subscription list did not include the subscribed namespace; unsubscribe returned HTTP 404",
+      "reasons": [
+        "subscribe returned HTTP 404",
+        "bob's subscription list did not include the subscribed namespace",
+        "unsubscribe returned HTTP 404"
+      ],
+      "scenario": "33",
+      "skipped": false,
+      "subscribe_http_code": 404,
+      "subscriptions_after_count": 0,
+      "subscriptions_before_count": 0,
+      "tls_mode": "off",
+      "unsubscribe_http_code": 404
+    },
+    {
+      "agent_group": "ironclaw",
+      "approve_http_code": 403,
+      "charlie_sees": {
+        "approved": 1,
+        "rejected": 1
+      },
+      "namespace": "scenario34-pending-8863db",
+      "pass": false,
+      "pending_queue_count": 0,
+      "reason": "set-standard returned HTTP 405; approve returned HTTP 403; reject returned HTTP 404; charlie saw rejected row — reject didn't prevent publication",
+      "reasons": [
+        "set-standard returned HTTP 405",
+        "approve returned HTTP 403",
+        "reject returned HTTP 404",
+        "charlie saw rejected row — reject didn't prevent publication"
+      ],
+      "reject_http_code": 404,
+      "scenario": "34",
+      "set_standard_http_code": 405,
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "ironclaw",
+      "child_ns": "scenario35-parent-2fb829/child",
+      "clear_http_code": 405,
+      "get_standard_http_code": 200,
+      "parent_ns": "scenario35-parent-2fb829",
+      "pass": false,
+      "post_clear_has_child_rule": false,
+      "reason": "set-parent returned HTTP 405; set-child returned HTTP 405; clear-standard returned HTTP 405; parent rule not layered into child's standard view; child rule missing from standard view",
+      "reasons": [
+        "set-parent returned HTTP 405",
+        "set-child returned HTTP 405",
+        "clear-standard returned HTTP 405",
+        "parent rule not layered into child's standard view",
+        "child rule missing from standard view"
+      ],
+      "scenario": "35",
+      "sees_child_rule": false,
+      "sees_parent_rule": false,
+      "set_child_http_code": 405,
+      "set_parent_http_code": 405,
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "ironclaw",
+      "pass": false,
+      "reason": "session_start returned HTTP 404",
+      "reasons": [
+        "session_start returned HTTP 404"
+      ],
+      "scenario": "36",
+      "skipped": false,
+      "start_http_code": 404,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "ironclaw",
+      "forward_has_target": true,
+      "m1": "dcbe7e82-2a1d-466c-96f4-23f0d93ea38f",
+      "m2": "ece52486-547f-41f5-886e-94a5c81d7ebc",
+      "pass": true,
+      "reasons": [],
+      "reverse_has_source": true,
+      "scenario": "37",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "ironclaw",
+      "dst_ns": "scenario38-dst-14a563",
+      "expected_rows": 5,
+      "export_http_code": 200,
+      "import_http_code": 200,
+      "markers_preserved": 5,
+      "pass": true,
+      "reasons": [],
+      "rows_exported": 5,
+      "rows_in_destination": 5,
+      "scenario": "38",
+      "skipped": false,
+      "src_ns": "scenario38-src-14a563",
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "ironclaw",
+      "checkpoint_ms": 1776829020939,
+      "expected_markers": 6,
+      "markers_present": 0,
+      "namespace": "scenario39-delta-402179",
+      "pass": false,
+      "reason": "delta returned 0/6 expected markers — delta-sync incomplete",
+      "reasons": [
+        "delta returned 0/6 expected markers — delta-sync incomplete"
+      ],
+      "rows_returned": 0,
+      "scenario": "39",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "ironclaw",
+      "expected_per_agent": 30,
+      "pass": true,
+      "per_agent": {
+        "ai:alice": {
+          "count": 30,
+          "wrong_agent_id": 0
+        },
+        "ai:bob": {
+          "count": 30,
+          "wrong_agent_id": 0
+        },
+        "ai:charlie": {
+          "count": 30,
+          "wrong_agent_id": 0
+        }
+      },
+      "reasons": [],
+      "scenario": "4",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "ironclaw",
+      "bulk_http_code": "422",
+      "bulk_size": 500,
+      "namespace": "scenario40-bulk-85ac25",
+      "pass": false,
+      "per_peer_count": {
+        "node_2": 0,
+        "node_3": 0,
+        "node_4": 0
+      },
+      "reason": "bulk returned HTTP 422; node-2 saw 0/500 bulk rows after fanout; node-3 saw 0/500 bulk rows after fanout; node-4 saw 0/500 bulk rows after fanout",
+      "reasons": [
+        "bulk returned HTTP 422",
+        "node-2 saw 0/500 bulk rows after fanout",
+        "node-3 saw 0/500 bulk rows after fanout",
+        "node-4 saw 0/500 bulk rows after fanout"
+      ],
+      "scenario": "40",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "activity_namespace": "scenario41-activity-cc805d",
+      "agent_group": "ironclaw",
+      "pass": true,
+      "per_peer": {
+        "node_1": {
+          "counters_t0": 7,
+          "counters_t1": 7,
+          "regressed_keys": 0
+        },
+        "node_2": {
+          "counters_t0": 7,
+          "counters_t1": 7,
+          "regressed_keys": 0
+        },
+        "node_3": {
+          "counters_t0": 7,
+          "counters_t1": 7,
+          "regressed_keys": 0
+        }
+      },
+      "reasons": [],
+      "scenario": "41",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "ironclaw",
+      "namespaces": [
+        "scenario42-84aa43-0",
+        "scenario42-84aa43-1",
+        "scenario42-84aa43-2"
+      ],
+      "pass": true,
+      "per_peer": {
+        "node_1": {
+          "scenario42-84aa43-0": 2,
+          "scenario42-84aa43-1": 2,
+          "scenario42-84aa43-2": 2
+        },
+        "node_2": {
+          "scenario42-84aa43-0": 2,
+          "scenario42-84aa43-1": 2,
+          "scenario42-84aa43-2": 2
+        },
+        "node_3": {
+          "scenario42-84aa43-0": 2,
+          "scenario42-84aa43-1": 2,
+          "scenario42-84aa43-2": 2
+        },
+        "node_4": {
+          "scenario42-84aa43-0": 2,
+          "scenario42-84aa43-1": 2,
+          "scenario42-84aa43-2": 2
+        }
+      },
+      "reasons": [],
+      "scenario": "42",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "ironclaw",
+      "consolidate_http_code": 201,
+      "consolidated_from_agents": [
+        "ai:charlie",
+        "ai:bob",
+        "ai:alice"
+      ],
+      "consolidated_id": "fa6d272c-84bd-42cf-82d7-e392358dfb05",
+      "pass": true,
+      "reasons": [],
+      "scenario": "5",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "ironclaw",
+      "alice_id": "85c1b1ef-1bba-4f12-93a3-4c53f5a96c85",
+      "bob_id": "b74280c6-d702-4a97-8cda-65f0da91c70d",
+      "charlie_sees_both_memories": true,
+      "charlie_sees_contradicts_link": true,
+      "detect_http_code": 200,
+      "pass": true,
+      "reasons": [],
+      "scenario": "6",
+      "skipped": false,
+      "tls_mode": "off",
+      "topic": "sky-color-08068efc"
+    },
+    {
+      "agent_group": "ironclaw",
+      "charlie_view": {
+        "agent_id": "ai:alice",
+        "content": "v2-307767e96fb544a78dd6c570a01108fe"
+      },
+      "m1_id": "054907c2-a079-4f52-9560-012fd21c068c",
+      "pass": true,
+      "put_http_code": 200,
+      "reasons": [],
+      "scenario": "9",
+      "skipped": false,
+      "tls_mode": "off",
+      "v1_uuid": "v1-15e35d2489f447ebb78774b4ea835e7d",
+      "v2_uuid": "v2-307767e96fb544a78dd6c570a01108fe"
+    }
+  ],
+  "reasons": [
+    "ai:alice recalled 0 < 20 via MCP",
+    "ai:bob recalled 0 < 20 via MCP",
+    "ai:charlie recalled 0 < 20 via MCP",
+    "approve returned HTTP 403",
+    "archive POST returned HTTP 405",
+    "bob did not see M1 in /api/v1/archive",
+    "bob's inbox did not deliver alice's notify",
+    "bob's subscription list did not include the subscribed namespace",
+    "bulk returned HTTP 422",
+    "charlie saw rejected row — reject didn't prevent publication",
+    "child rule missing from standard view",
+    "clear-standard returned HTTP 405",
+    "cross-cluster identity check failed — see per_ns",
+    "delta returned 0/6 expected markers — delta-sync incomplete",
+    "no peer returned a capabilities response — endpoint may not be exposed",
+    "node-2 did not find the unique token via /search",
+    "node-2 saw 0/500 bulk rows after fanout",
+    "node-3 did not find the unique token via /search",
+    "node-3 saw 0/500 bulk rows after fanout",
+    "node-4 did not see registered agent ai:dave-probe-de012782",
+    "node-4 saw 0/500 bulk rows after fanout",
+    "notify returned HTTP 404",
+    "parent rule not layered into child's standard view",
+    "reject returned HTTP 404",
+    "restore returned HTTP 404",
+    "semantic query did not surface alice's memory",
+    "semantic query did not surface bob's memory",
+    "session_start returned HTTP 404",
+    "set-child returned HTTP 405",
+    "set-parent returned HTTP 405",
+    "set-standard returned HTTP 405",
+    "subscribe returned HTTP 404",
+    "unsubscribe returned HTTP 404"
+  ],
+  "meta": {
+    "campaign_id": "a2a-ironclaw-v0.6.2-rc.0-v3r5",
+    "agent_group": "ironclaw",
+    "ai_memory_git_ref": "v0.6.2-rc.0",
+    "infra": {
+      "provider": "digitalocean",
+      "region": "nyc3",
+      "droplet_size": "s-2vcpu-4gb",
+      "topology": "4-node federation mesh (W=2/N=4)",
+      "nodes": [
+        {
+          "index": 1,
+          "role": "agent",
+          "agent_id": "ai:alice",
+          "public_ip": "138.197.33.142",
+          "private_ip": "10.251.0.5"
+        },
+        {
+          "index": 2,
+          "role": "agent",
+          "agent_id": "ai:bob",
+          "public_ip": "104.131.116.229",
+          "private_ip": "10.251.0.3"
+        },
+        {
+          "index": 3,
+          "role": "agent",
+          "agent_id": "ai:charlie",
+          "public_ip": "143.198.12.140",
+          "private_ip": "10.251.0.2"
+        },
+        {
+          "index": 4,
+          "role": "memory-only",
+          "agent_id": null,
+          "public_ip": "167.71.241.10",
+          "private_ip": "10.251.0.4"
+        }
+      ]
+    },
+    "scenarios_requested": [
+      "1",
+      "1b",
+      "2",
+      "4",
+      "5",
+      "6",
+      "9",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14",
+      "15",
+      "16",
+      "17",
+      "18",
+      "22",
+      "23",
+      "24",
+      "25",
+      "28",
+      "29",
+      "30",
+      "31",
+      "32",
+      "33",
+      "34",
+      "35",
+      "36",
+      "37",
+      "38",
+      "39",
+      "40",
+      "41",
+      "42"
+    ],
+    "timing": {
+      "started_at": "2026-04-22T03:26:49Z",
+      "ended_at": "2026-04-22T03:38:58Z"
+    },
+    "ci": {
+      "actor": "alphaonedev",
+      "workflow_url": "https://github.com/alphaonedev/ai-memory-ai2ai-gate/actions/runs/24758433768",
+      "harness_sha": "adf914ac1af2ba3bc898388c1f900d572ed81a93",
+      "runner_os": "Linux"
+    }
+  },
+  "skipped_reports": [
+    "scenario-23.json:unparseable"
+  ]
+}

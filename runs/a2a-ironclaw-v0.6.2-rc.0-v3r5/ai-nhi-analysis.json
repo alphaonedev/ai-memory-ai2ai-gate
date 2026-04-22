@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-ironclaw-v0.6.2-rc.0-v3r5",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "High risk posture with failures in federation sync and admin APIs blocking production readiness; customer claims on reliable AI2AI memory would be unviable currently. Regressions from prior runs in endpoint availability (e.g., 404/405 errors) suggest deployment issues. Fast-track fixes to unblock release candidate.",
+  "for_non_technical": "The AI agents could share basic memories in some tests, but often failed to find or update shared information reliably. Complex tasks like searching for memories or notifying others didn't work, meaning agents can't depend on each other for complete recall. Overall, the system needs fixes to make memory sharing trustworthy.",
+  "for_sme": "Failures cluster in admin-heavy scenarios (S29 archive 405, S30 capabilities missing, S32 notify 404, S33 pubsub 404, S34 approvals 403/404/405, S35 ns rules 405, S36 sessions 404, S39 delta-sync incomplete, S40 bulk 422) plus propagation issues (S1 MCP recall 0, S12 registration miss on node-4, S18 semantic miss, S28 keyword miss on nodes 2/3). Probable root causes include unimplemented endpoints and node-4 federation lag; check probes F# for HTTP codes and sync delays. Basic primitives like delete (S10), link (S11), version-branch (S13) passed.",
+  "headline": "Federated memory sharing fails in 13 scenarios, core propagation partial.",
+  "next_run_change": "Implement all missing admin endpoints (e.g., /archive, /notify, /subscribe) and debug node-4 visibility issues before next campaign.",
+  "verdict": "FAIL \u2014 13/35 scenarios failed, 1 skipped, core features degraded.",
+  "what_it_proved": "Basic memory writes and reads succeed in simple cases, but advanced primitives like search, notifications, subscriptions, approvals, and delta-sync fail consistently due to endpoint errors and incomplete federation.",
+  "what_it_tested": "This campaign exercised 35 scenarios testing memory propagation, linking, deletion, semantic/keyword search, bulk ops, pubsub, archiving, and admin endpoints across HTTP transport in a 4-node federation mesh."
+}
