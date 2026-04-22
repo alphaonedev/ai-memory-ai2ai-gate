@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-hermes-v3r14-tls-develop",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "High risk posture with 13 failures out of 36 scenarios, indicating TLS mode is not production-ready without fixes to admin and search primitives; customer-facing claims on features like semantic search or pubsub are not viable. Readiness blocked by persistent replication and endpoint exposure issues. Versus prior runs, basic HTTP paths improved, but advanced federation gaps widened under TLS.",
+  "for_non_technical": "Agents can share simple memories reliably in some basic tests, but they fail to handle more complex tasks like searching for information or sending notifications. This means the system works for straightforward sharing but not for advanced interactions. Overall, agents do not reliably share memories in all situations tested.",
+  "for_sme": "Failures clustered in S1 (MCP recall with identity mismatches), S12 (agent registration replication), S18 (semantic query misses), S28 (keyword search replication), S29 (archive/restore 405/404), S30 (capabilities not exposed), S32 (notify 404), S33 (pubsub subscribe/unsubscribe 404), S34 (approval workflow 405/403/404), S35 (namespace rules 405), S36 (session start 404), S39 (delta sync incomplete), S40 (bulk 422 with fanout misses); impacted primitives include search indexes, admin APIs, and cross-node replication. Probable root causes: TLS blocking unauthenticated admin endpoints (many 404/405), incomplete search index propagation, and identity federation bugs. Skipped S20 (mTLS-only) and unparseable S23.",
+  "headline": "TLS federation shows basic sharing works but advanced features fail widely.",
+  "next_run_change": "Switch to mTLS mode to cover skipped scenarios and potentially resolve auth-related endpoint failures.",
+  "verdict": "FAIL \u2014 21/36 scenarios green, 1 skipped, 1 unparseable.",
+  "what_it_proved": "Results demonstrated reliable basic memory sharing and partition recovery but exposed failures in semantic/keyword search, admin endpoints, pubsub, archive, and bulk operations due to access and replication issues.",
+  "what_it_tested": "Exercised 36 scenarios covering basic memory creation/recall, linking, search, archive, pubsub, bulk ops, and recovery across TLS transport in a 4-node mesh, with axes on frameworks like HTTP serve and primitives like notifications."
+}
