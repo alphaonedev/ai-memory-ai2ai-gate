@@ -889,21 +889,33 @@ esac
 # Probe 1 — xAI reachability + auth. Direct HTTPS call, parse
 # message content. max_tokens=10 keeps the probe cheap (~fractions
 # of a cent per dispatch, <1s wall).
+#
+# Retry up to 3x with backoff. xAI occasionally rate-limits individual
+# droplet IPs during a campaign (observed intermittently on v3r2-v3r4:
+# the failure lands on a different node each time, never the same).
+# Single-shot was too brittle — one flake = baseline_pass=false =
+# scenarios skipped = campaign wasted. 3 attempts covers the observed
+# flake rate without hiding a real xAI outage.
 log "PROBE 1/2: xAI Grok reachability + auth"
-xai_resp=$(curl -sS --max-time 20 \
-  -X POST https://api.x.ai/v1/chat/completions \
-  -H "Authorization: Bearer $XAI_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d "{\"model\":\"${A2A_GATE_LLM_MODEL}\",\"messages\":[{\"role\":\"user\",\"content\":\"Reply with the single word READY and nothing else.\"}],\"max_tokens\":10,\"temperature\":0}" \
-  2>/dev/null || echo '{}')
-xai_content=$(echo "$xai_resp" | jq -r '.choices[0].message.content // empty' 2>/dev/null | tr -d '[:space:]')
-if [ -n "$xai_content" ]; then
-  xai_functional=true
-  log "  PROBE 1 OK — xAI responded: \"$xai_content\""
-else
-  xai_functional=false
-  log "  PROBE 1 FAIL — no content from xAI. Response: $(echo "$xai_resp" | head -c 200)"
-fi
+xai_functional=false
+xai_content=""
+for attempt in 1 2 3; do
+  xai_resp=$(curl -sS --max-time 20 \
+    -X POST https://api.x.ai/v1/chat/completions \
+    -H "Authorization: Bearer $XAI_API_KEY" \
+    -H "Content-Type: application/json" \
+    -d "{\"model\":\"${A2A_GATE_LLM_MODEL}\",\"messages\":[{\"role\":\"user\",\"content\":\"Reply with the single word READY and nothing else.\"}],\"max_tokens\":10,\"temperature\":0}" \
+    2>/dev/null || echo '{}')
+  xai_content=$(echo "$xai_resp" | jq -r '.choices[0].message.content // empty' 2>/dev/null | tr -d '[:space:]')
+  if [ -n "$xai_content" ]; then
+    xai_functional=true
+    log "  PROBE 1 OK (attempt $attempt) — xAI responded: \"$xai_content\""
+    break
+  fi
+  log "  PROBE 1 attempt $attempt FAIL — response head: $(echo "$xai_resp" | head -c 200)"
+  [ "$attempt" -lt 3 ] && sleep $((attempt * 3))  # 3s, 6s backoff
+done
+[ "$xai_functional" = "true" ] || log "  PROBE 1 FAIL after 3 attempts"
 
 # Probe F2a — DETERMINISTIC substrate canary (no LLM). Direct HTTP
 # POST to local serve. Proves the federation-side write path works
