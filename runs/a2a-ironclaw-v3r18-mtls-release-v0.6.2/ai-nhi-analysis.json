@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-ironclaw-v3r18-mtls-release-v0.6.2",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "High risk posture due to failures in core replication and multiple APIs under mTLS, rendering the system not production-ready for federated environments and invalidating claims of seamless agent memory sharing. Compared to prior runs, this shows regressions in identity handling and endpoint availability on release v0.6.2. Prioritize fixes to mTLS federation before customer exposure or further releases.",
+  "for_non_technical": "The AI agents had trouble sharing memories reliably across the network, with many tests showing that information didn't spread correctly or features didn't work as expected. Simple memory storage worked in some basic cases, but things like searching for similar ideas or notifying other agents often failed. Overall, the system isn't dependable for group memory sharing yet.",
+  "for_sme": "Key failures in S1 (MCP replication with identity checks), S12 (agent registration visibility), S18 (semantic query recall), S29 (archive visibility and restore), S30 (capabilities endpoint exposure), S32 (notify delivery), S33 (subscribe/unsubscribe), S34 (approval/reject workflows), S35 (namespace hierarchy rules), S36 (session start), S39 (delta-sync completeness), S40 (bulk fanout); probable root cause is mTLS-related identity mismatches and unexposed/misconfigured endpoints (e.g., 404/403/405 responses). Impacted primitives include cross-cluster replication, pubsub mechanisms, and moderation APIs. Investigate cert propagation in mesh topology and add probes for endpoint health.",
+  "headline": "mTLS federation shows major replication and API failures in v0.6.2.",
+  "next_run_change": "Implement and test fixes for mTLS identity verification and endpoint exposure in the federation mesh before re-running.",
+  "verdict": "FAIL \u2014 12/35 scenarios failed, core replication broken.",
+  "what_it_proved": "Results demonstrated reliable basic writes and some advanced features like versioning and partitioning, but proved severe issues in replication, identity propagation, semantic queries, archive/restore, notifications, subscriptions, approvals, namespace hierarchies, sessions, delta-sync, and bulk inserts under mTLS.",
+  "what_it_tested": "This campaign exercised 35 scenarios covering basic memory sharing, linking, deletion, semantic search, bulk operations, pubsub, approvals, hierarchies, and delta-sync across HTTP/mTLS transport in a 4-node federation mesh, testing replication, identity, and recovery primitives."
+}

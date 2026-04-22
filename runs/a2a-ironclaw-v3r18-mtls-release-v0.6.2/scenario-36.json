@@ -1,0 +1,1 @@
+{"agent_group": "ironclaw", "pass": false, "reason": "session_start returned HTTP 404", "reasons": ["session_start returned HTTP 404"], "scenario": "36", "skipped": false, "start_http_code": 404, "tls_mode": "mtls"}
