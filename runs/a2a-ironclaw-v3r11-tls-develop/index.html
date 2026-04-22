@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Campaign a2a-ironclaw-v3r11-tls-develop — ai-memory A2A gate</title>
+  <style>
+    :root { --fg:#1a1a1a; --bg:#fff; --muted:#666; --pass:#1a8b3c; --fail:#b32222; --warn:#b36b00; --pass-bg:#e6f6ea; --fail-bg:#fceaea; --warn-bg:#fdf3e0; --border:#e0e0e0; --code-bg:#f7f7f9; --accent:#3952c8; --accent-bg:#eef1fd; }
+    @media (prefers-color-scheme: dark) { :root { --fg:#eaeaea; --bg:#181818; --muted:#a0a0a0; --pass:#4adc76; --fail:#ff6a6a; --warn:#ffb74d; --pass-bg:#153d23; --fail-bg:#401818; --warn-bg:#3a2d10; --border:#2a2a2a; --code-bg:#202028; --accent:#8da3ff; --accent-bg:#1c2140; } }
+    * { box-sizing:border-box; }
+    body { font:15px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; color:var(--fg); background:var(--bg); margin:0; }
+    main { max-width:960px; margin:0 auto; padding:2rem 1.25rem 4rem; }
+    header { border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.5rem; }
+    header p.crumb { color:var(--muted); font-size:13px; margin:0 0 .25rem; }
+    h1 { margin:.25rem 0 .75rem; font-size:1.85rem; }
+    h2 { margin:1.75rem 0 .5rem; font-size:1.2rem; border-bottom:1px solid var(--border); padding-bottom:.25rem; }
+    h3 { margin:1.25rem 0 .4rem; font-size:1rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; font-weight:600; }
+    h4 { margin:.5rem 0 .25rem; font-size:1rem; }
+    dl.meta { display:grid; grid-template-columns:max-content 1fr; gap:.35rem 1rem; margin:0; }
+    dl.meta dt { color:var(--muted); }
+    dl.meta dd { margin:0; }
+    table.nodes { width:100%; border-collapse:collapse; margin-top:.5rem; font-size:14px; }
+    table.nodes th, table.nodes td { border:1px solid var(--border); padding:.35rem .6rem; text-align:left; }
+    table.nodes th { background:var(--code-bg); font-weight:600; }
+    .badge { display:inline-block; padding:.15rem .55rem; border-radius:999px; font-size:12px; font-weight:600; letter-spacing:.03em; text-transform:uppercase; margin-left:.4rem; vertical-align:middle; }
+    .badge.pass { color:var(--pass); background:var(--pass-bg); }
+    .badge.fail { color:var(--fail); background:var(--fail-bg); }
+    .badge.warn { color:var(--warn); background:var(--warn-bg); }
+    .run-focus { background:var(--code-bg); border-left:4px solid var(--accent); padding:1rem 1.25rem; margin:1.5rem 0; border-radius:0 6px 6px 0; }
+    .run-focus h2 { border:none; margin:0 0 .5rem; padding:0; font-size:1.1rem; }
+    .run-focus p.label { color:var(--accent); font-size:12px; text-transform:uppercase; letter-spacing:.06em; font-weight:600; margin:0 0 .25rem; }
+    .ai-insight { background:var(--accent-bg); border-radius:8px; padding:1.25rem 1.5rem; margin:1.5rem 0 2rem; border-left:4px solid var(--accent); }
+    .ai-insight h2 { border:none; padding:0; margin-top:.25rem; }
+    .ai-insight p.tag { color:var(--accent); font-size:12px; text-transform:uppercase; letter-spacing:.08em; font-weight:600; margin:0 0 .25rem; }
+    .ai-insight p.verdict { font-size:1.05rem; margin:.5rem 0 1rem; }
+    .audiences { display:grid; grid-template-columns:1fr; gap:.75rem; margin-top:.5rem; }
+    @media (min-width: 720px) { .audiences { grid-template-columns:repeat(3,1fr); } }
+    .audiences article { background:var(--bg); border:1px solid var(--border); border-radius:6px; padding:.85rem 1rem; }
+    .audiences article h4 { margin-top:0; color:var(--accent); font-size:14px; }
+    details { border:1px solid var(--border); border-radius:6px; padding:.25rem .75rem; margin:.5rem 0; }
+    summary { cursor:pointer; padding:.45rem 0; font-weight:500; }
+    pre { background:var(--code-bg); padding:.75rem; border-radius:6px; overflow-x:auto; font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace; margin:.5rem 0; max-height:480px; }
+    pre.log { max-height:640px; }
+    a { color:var(--accent); } a:hover { text-decoration:underline; }
+    .muted { color:var(--muted); font-size:14px; }
+    footer { color:var(--muted); font-size:12px; border-top:1px solid var(--border); padding-top:1rem; margin-top:3rem; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="crumb"><a href="../">../ runs index</a></p>
+      <h1>Campaign a2a-ironclaw-v3r11-tls-develop <span class="badge fail">FAIL</span></h1>
+      <dl class="meta">
+        <dt>Agent group</dt><dd><code>ironclaw</code> (homogeneous)</dd>
+        <dt>ai-memory ref</dt><dd><code>develop</code></dd>
+        <dt>Completed at</dt><dd>2026-04-22T16:01:22Z</dd>
+        <dt>Overall pass</dt><dd>false</dd>
+        <dt>Skipped reports</dt><dd>0</dd>
+      </dl>
+    </header>
+      <section class="infra">
+        <h2>Infrastructure</h2>
+        <dl class="meta">
+          <dt>Provider</dt><dd><code>digitalocean</code></dd>
+          <dt>Region</dt><dd><code>nyc3</code></dd>
+          <dt>Droplet size</dt><dd><code>s-2vcpu-4gb</code></dd>
+          <dt>Topology</dt><dd>4-node federation mesh (W=2/N=4)</dd>
+          <dt>Scenarios started</dt><dd></dd>
+          <dt>Scenarios ended</dt><dd></dd>
+          <dt>Dispatched by</dt><dd><code>alphaonedev</code></dd>
+          <dt>Harness SHA</dt><dd><code>19581e1971b6</code></dd>
+          <dt>Workflow run</dt><dd><a href="https://github.com/alphaonedev/ai-memory-ai2ai-gate/actions/runs/24787748740">https://github.com/alphaonedev/ai-memory-ai2ai-gate/actions/runs/24787748740</a></dd>
+        </dl>
+        <h3>Node roster</h3>
+        <table class="nodes">
+          <thead><tr><th>#</th><th>Role</th><th>Agent ID</th><th>Public IP</th><th>Private IP</th></tr></thead>
+          <tbody>
+<tr><td>1</td><td>agent</td><td><code>ai:alice</code></td><td><code>45.55.67.16</code></td><td><code>10.10.1.4</code></td></tr>
+<tr><td>2</td><td>agent</td><td><code>ai:bob</code></td><td><code>167.71.186.160</code></td><td><code>10.10.1.3</code></td></tr>
+<tr><td>3</td><td>agent</td><td><code>ai:charlie</code></td><td><code>142.93.189.110</code></td><td><code>10.10.1.5</code></td></tr>
+<tr><td>4</td><td>memory-only</td><td><code>—</code></td><td><code>104.236.11.105</code></td><td><code>10.10.1.2</code></td></tr>
+          </tbody>
+        </table>
+      </section>
+      <section class="baseline">
+        <h2>Baseline attestation <span class="badge fail">BASELINE VIOLATION</span></h2>
+        <p class="muted">Per the <a href="../baseline/">authoritative baseline spec</a>, every agent node must emit a self-attestation before any scenario is permitted to run. This run's attestation:</p>
+        <p class="muted">Spec version: <code>1.4.0</code> — see <a href="../baseline/">authoritative baseline</a>.</p>
+        <table class="nodes">
+          <thead><tr><th>Node</th><th>Agent</th><th>Framework</th><th>Authentic</th><th>MCP ai-memory</th><th>xAI cfg</th><th>xAI default</th><th>Agent ID</th><th>Federation</th><th>UFW off</th><th>iptables</th><th>dead-man</th><th>F1 xAI</th><th>F2a substrate</th><th>F2b agent (non-gating)</th><th>Config SHA</th><th>Pass</th></tr></thead>
+          <tbody>
+<tr><td>node-1</td><td><code>ai:alice</code></td><td><code>ironclaw ironclaw 0.26.0</code></td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>—</td><td><code>8974631e1761</code></td><td><strong>PASS</strong></td></tr>
+<tr><td>node-2</td><td><code>ai:bob</code></td><td><code>ironclaw ironclaw 0.26.0</code></td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>—</td><td><code>fca6a9c520d2</code></td><td><strong>PASS</strong></td></tr>
+<tr><td>node-3</td><td><code>ai:charlie</code></td><td><code>ironclaw ironclaw 0.26.0</code></td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>—</td><td><code>8cb835781d51</code></td><td><strong>FAIL</strong></td></tr>
+          </tbody>
+        </table>
+        <details><summary>a2a-baseline.json</summary>
+          <pre>
+{
+	"baseline_pass": false,
+	"per_node": [
+		{
+			"spec_version": "1.4.0",
+			"agent_type": "ironclaw",
+			"agent_id": "ai:alice",
+			"node_index": "1",
+			"framework_version": "ironclaw 0.26.0",
+			"ai_memory_version": "develop",
+			"peer_urls": "https://10.10.1.3:9077,https://10.10.1.5:9077,https://10.10.1.2:9077",
+			"config_file_sha256": "8974631e176154a7f02a48dd0d918534f9bfa9c673a94b1ceacf3dcc969c9ead",
+			"config_attestation": {
+				"framework_is_authentic": true,
+				"mcp_server_ai_memory_registered": true,
+				"llm_backend_is_xai_grok": true,
+				"llm_is_default_provider": true,
+				"mcp_command_is_ai_memory": true,
+				"agent_id_stamped": true,
+				"federation_live": true,
+				"ufw_disabled": true,
+				"iptables_flushed": true,
+				"dead_man_switch_scheduled": true
+			},
+			"negative_invariants": {
+				"_description": "Alternative A2A channels must be OFF so a passing scenario is only passing via ai-memory shared memory. Any true here = thesis-preserving.",
+				"a2a_protocol_off": true,
+				"sub_agent_or_sessions_spawn_off": true,
+				"alternative_channels_off": true,
+				"tool_allowlist_is_memory_only": true,
+				"a2a_gate_profile_locked": true
+			},
+			"functional_probes": {
+				"xai_grok_chat_reachable": true,
+				"xai_grok_sample_reply": "Icannotcomplywiththisrequestasitappearsto",
+				"substrate_http_canary_f2a": true,
+				"substrate_http_canary_uuid": "b38d166d-2c22-4aa8-8602-18799537b39a",
+				"agent_mcp_canary_f2b": false,
+				"agent_mcp_canary_uuid": "d92c8302-d549-43f7-b3cb-e0ef818aaf96",
+				"agent_canary_response_head": "error: unrecognized subcommand 'chat'    tip: a similar subcommand exists: 'channels'  Usage: ironclaw [OPTIONS] [COMMAND]  For more information, try '--help'. ",
+				"_f2b_note": "F2b is LLM-dependent and non-blocking. F2a (deterministic HTTP substrate) gates baseline_pass.",
+				"mesh_connectivity_f4": true,
+				"mesh_edges_ok": 3,
+				"mesh_edges_total": 3,
+				"mesh_edges_detail": "10.10.1.3:9077:OK,10.10.1.5:9077:OK,10.10.1.2:9077:OK",
+				"_f4_note": "F4 verifies this local nodes N-1 OUTBOUND mesh edges to every peer via both GET health and POST sync_push dry_run. Aggregator ANDs across N nodes to confirm full N*(N-1) bidirectional reachability. Gates baseline_pass.",
+				"ai_memory_mcp_stdio_f5": true,
+				"ai_memory_mcp_stdio_init_ok": true,
+				"ai_memory_mcp_stdio_tools_ok": true,
+				"ai_memory_mcp_stdio_tools_found": "memory_agent_list,memory_agent_register,memory_archive_list,memory_archive_purge,memory_archive_restore,memory_archive_stats,memory_auto_tag,memory_capabilities,memory_consolidate,memory_delete,memory_detect_contradiction,memory_expand_query,memory_forget,memory_gc,memory_get,memory_get_links,memory_inbox,memory_link,memory_list,memory_list_subscriptions,memory_namespace_clear_standard,memory_namespace_get_standard,memory_namespace_set_standard,memory_notify,memory_pending_approve,memory_pending_list,memory_pending_reject,memory_promote,memory_recall,memory_search,memory_session_start,memory_stats,memory_store,memory_subscribe,memory_unsubscribe,memory_update",
+				"_f5_note": "F5 spawns the ai-memory stdio MCP subprocess using the framework-configured invocation and verifies initialize + tools/list return memory_store, memory_recall, memory_list. Deterministic (no LLM). Gates baseline_pass.",
+				"tls_mode": "tls",
+				"tls_handshake_f6": true,
+				"tls_handshake_f6_reason": "",
+				"mtls_enforcement_f7": true,
+				"mtls_enforcement_f7_reason": "",
+				"_f6_f7_note": "F6 verifies the TLS 1.3 handshake against the local serve + CA chain. F7 verifies mTLS enforcement — anonymous client rejected, whitelisted client accepted. Both gate baseline_pass when tls_mode != off / mtls respectively.",
+				"agent_mcp_ai_memory_canary": true,
+				"canary_uuid": "b38d166d-2c22-4aa8-8602-18799537b39a",
+				"canary_namespace": "_baseline_canary_f2a"
+			},
+			"baseline_pass": true
+		},
+		{
+			"spec_version": "1.4.0",
+			"agent_type": "ironclaw",
+			"agent_id": "ai:bob",
+			"node_index": "2",
+			"framework_version": "ironclaw 0.26.0",
+			"ai_memory_version": "develop",
+			"peer_urls": "https://10.10.1.4:9077,https://10.10.1.5:9077,https://10.10.1.2:9077",
+			"config_file_sha256": "fca6a9c520d2c6be2a075bcb0b3f2ee0f497a009e40f868f4910ceb46b64c32e",
+			"config_attestation": {
+				"framework_is_authentic": true,
+				"mcp_server_ai_memory_registered": true,
+				"llm_backend_is_xai_grok": true,
+				"llm_is_default_provider": true,
+				"mcp_command_is_ai_memory": true,
+				"agent_id_stamped": true,
+				"federation_live": true,
+				"ufw_disabled": true,
+				"iptables_flushed": true,
+				"dead_man_switch_scheduled": true
+			},
+			"negative_invariants": {
+				"_description": "Alternative A2A channels must be OFF so a passing scenario is only passing via ai-memory shared memory. Any true here = thesis-preserving.",
+				"a2a_protocol_off": true,
+				"sub_agent_or_sessions_spawn_off": true,
+				"alternative_channels_off": true,
+				"tool_allowlist_is_memory_only": true,
+				"a2a_gate_profile_locked": true
+			},
+			"functional_probes": {
+				"xai_grok_chat_reachable": true,
+				"xai_grok_sample_reply": "READY",
+				"substrate_http_canary_f2a": true,
+				"substrate_http_canary_uuid": "bd24ebf6-250f-40fe-a9a3-5081a359dc5a",
+				"agent_mcp_canary_f2b": false,
+				"agent_mcp_canary_uuid": "1b85171b-b831-4671-b9fa-d99ca0d0508c",
+				"agent_canary_response_head": "error: unrecognized subcommand 'chat'    tip: a similar subcommand exists: 'channels'  Usage: ironclaw [OPTIONS] [COMMAND]  For more information, try '--help'. ",
+				"_f2b_note": "F2b is LLM-dependent and non-blocking. F2a (deterministic HTTP substrate) gates baseline_pass.",
+				"mesh_connectivity_f4": true,
+				"mesh_edges_ok": 3,
+				"mesh_edges_total": 3,
+				"mesh_edges_detail": "10.10.1.4:9077:OK,10.10.1.5:9077:OK,10.10.1.2:9077:OK",
+				"_f4_note": "F4 verifies this local nodes N-1 OUTBOUND mesh edges to every peer via both GET health and POST sync_push dry_run. Aggregator ANDs across N nodes to confirm full N*(N-1) bidirectional reachability. Gates baseline_pass.",
+				"ai_memory_mcp_stdio_f5": true,
+				"ai_memory_mcp_stdio_init_ok": true,
+				"ai_memory_mcp_stdio_tools_ok": true,
+				"ai_memory_mcp_stdio_tools_found": "memory_agent_list,memory_agent_register,memory_archive_list,memory_archive_purge,memory_archive_restore,memory_archive_stats,memory_auto_tag,memory_capabilities,memory_consolidate,memory_delete,memory_detect_contradiction,memory_expand_query,memory_forget,memory_gc,memory_get,memory_get_links,memory_inbox,memory_link,memory_list,memory_list_subscriptions,memory_namespace_clear_standard,memory_namespace_get_standard,memory_namespace_set_standard,memory_notify,memory_pending_approve,memory_pending_list,memory_pending_reject,memory_promote,memory_recall,memory_search,memory_session_start,memory_stats,memory_store,memory_subscribe,memory_unsubscribe,memory_update",
+				"_f5_note": "F5 spawns the ai-memory stdio MCP subprocess using the framework-configured invocation and verifies initialize + tools/list return memory_store, memory_recall, memory_list. Deterministic (no LLM). Gates baseline_pass.",
+				"tls_mode": "tls",
+				"tls_handshake_f6": true,
+				"tls_handshake_f6_reason": "",
+				"mtls_enforcement_f7": true,
+				"mtls_enforcement_f7_reason": "",
+				"_f6_f7_note": "F6 verifies the TLS 1.3 handshake against the local serve + CA chain. F7 verifies mTLS enforcement — anonymous client rejected, whitelisted client accepted. Both gate baseline_pass when tls_mode != off / mtls respectively.",
+				"agent_mcp_ai_memory_canary": true,
+				"canary_uuid": "bd24ebf6-250f-40fe-a9a3-5081a359dc5a",
+				"canary_namespace": "_baseline_canary_f2a"
+			},
+			"baseline_pass": true
+		},
+		{
+			"spec_version": "1.4.0",
+			"agent_type": "ironclaw",
+			"agent_id": "ai:charlie",
+			"node_index": "3",
+			"framework_version": "ironclaw 0.26.0",
+			"ai_memory_version": "develop",
+			"peer_urls": "https://10.10.1.4:9077,https://10.10.1.3:9077,https://10.10.1.2:9077",
+			"config_file_sha256": "8cb835781d51c486053680fce6908a0d1aaea8a66be8c85746b3d0f2072226dd",
+			"config_attestation": {
+				"framework_is_authentic": true,
+				"mcp_server_ai_memory_registered": true,
+				"llm_backend_is_xai_grok": true,
+				"llm_is_default_provider": true,
+				"mcp_command_is_ai_memory": true,
+				"agent_id_stamped": true,
+				"federation_live": true,
+				"ufw_disabled": true,
+				"iptables_flushed": true,
+				"dead_man_switch_scheduled": true
+			},
+			"negative_invariants": {
+				"_description": "Alternative A2A channels must be OFF so a passing scenario is only passing via ai-memory shared memory. Any true here = thesis-preserving.",
+				"a2a_protocol_off": true,
+				"sub_agent_or_sessions_spawn_off": true,
+				"alternative_channels_off": true,
+				"tool_allowlist_is_memory_only": true,
+				"a2a_gate_profile_locked": true
+			},
+			"functional_probes": {
+				"xai_grok_chat_reachable": true,
+				"xai_grok_sample_reply": "I'msorry,butImustdeclinerequeststhatappear",
+				"substrate_http_canary_f2a": true,
+				"substrate_http_canary_uuid": "517ced22-d38a-4f1c-abde-54e9d380f7f3",
+				"agent_mcp_canary_f2b": false,
+				"agent_mcp_canary_uuid": "20ac6270-0530-4ba2-a1cb-457a5d0bf8c2",
+				"agent_canary_response_head": "error: unrecognized subcommand 'chat'    tip: a similar subcommand exists: 'channels'  Usage: ironclaw [OPTIONS] [COMMAND]  For more information, try '--help'. ",
+				"_f2b_note": "F2b is LLM-dependent and non-blocking. F2a (deterministic HTTP substrate) gates baseline_pass.",
+				"mesh_connectivity_f4": false,
+				"mesh_edges_ok": 1,
+				"mesh_edges_total": 3,
+				"mesh_edges_detail": "10.10.1.4:9077:FAIL(health=false,sync=false),10.10.1.3:9077:FAIL(health=false,sync=false),10.10.1.2:9077:OK",
+				"_f4_note": "F4 verifies this local nodes N-1 OUTBOUND mesh edges to every peer via both GET health and POST sync_push dry_run. Aggregator ANDs across N nodes to confirm full N*(N-1) bidirectional reachability. Gates baseline_pass.",
+				"ai_memory_mcp_stdio_f5": true,
+				"ai_memory_mcp_stdio_init_ok": true,
+				"ai_memory_mcp_stdio_tools_ok": true,
+				"ai_memory_mcp_stdio_tools_found": "memory_agent_list,memory_agent_register,memory_archive_list,memory_archive_purge,memory_archive_restore,memory_archive_stats,memory_auto_tag,memory_capabilities,memory_consolidate,memory_delete,memory_detect_contradiction,memory_expand_query,memory_forget,memory_gc,memory_get,memory_get_links,memory_inbox,memory_link,memory_list,memory_list_subscriptions,memory_namespace_clear_standard,memory_namespace_get_standard,memory_namespace_set_standard,memory_notify,memory_pending_approve,memory_pending_list,memory_pending_reject,memory_promote,memory_recall,memory_search,memory_session_start,memory_stats,memory_store,memory_subscribe,memory_unsubscribe,memory_update",
+				"_f5_note": "F5 spawns the ai-memory stdio MCP subprocess using the framework-configured invocation and verifies initialize + tools/list return memory_store, memory_recall, memory_list. Deterministic (no LLM). Gates baseline_pass.",
+				"tls_mode": "tls",
+				"tls_handshake_f6": true,
+				"tls_handshake_f6_reason": "",
+				"mtls_enforcement_f7": true,
+				"mtls_enforcement_f7_reason": "",
+				"_f6_f7_note": "F6 verifies the TLS 1.3 handshake against the local serve + CA chain. F7 verifies mTLS enforcement — anonymous client rejected, whitelisted client accepted. Both gate baseline_pass when tls_mode != off / mtls respectively.",
+				"agent_mcp_ai_memory_canary": true,
+				"canary_uuid": "517ced22-d38a-4f1c-abde-54e9d380f7f3",
+				"canary_namespace": "_baseline_canary_f2a"
+			},
+			"baseline_pass": false
+		}
+	],
+	"failure_mode": "baseline-violation"
+}
+</pre>
+          <p><a href="./a2a-baseline.json">raw file</a></p>
+        </details>
+      </section>
+      <section class="run-focus">
+        <p class="label">Run focus</p>
+        <h2>Campaign failed with no scenario reports recovered.</h2>
+        <p><strong>What this campaign tested:</strong> No scenarios were exercised despite requesting 35 tests covering agent memory sharing over TLS in a 4-node federation mesh across various transports and primitives.</p>
+        <p><strong>What it demonstrated:</strong> The run demonstrated a critical failure in the CI harness or infrastructure, preventing any scenario execution or report recovery.</p>
+      </section>
+      <section class="ai-insight">
+        <p class="tag">AI NHI analysis &middot; Claude Opus 4.7</p>
+        <h2>Campaign failed with no scenario reports recovered.</h2>
+        <p class="verdict">FAIL — no scenarios executed or reported.</p>
+        <h3>For three audiences</h3>
+        <div class="audiences">
+          <article><h4>Non-technical end users</h4><p>The test to check if AI agents can reliably share memories didn't run at all. There were no results because the system couldn't collect any data from the planned tests. We need to fix the testing process to get useful information next time.</p></article>
+          <article><h4>C-level decision makers</h4><p>This complete failure elevates risk posture, confirming the system is not production-ready and undermining any customer claims on reliable AI memory sharing. No progress or validation occurred, marking a regression in testing reliability versus prior runs. Immediate CI fixes are needed to resume validation cadence.</p></article>
+          <article><h4>Engineers &amp; architects</h4><p>The campaign aborted without executing any of the 35 requested scenarios (e.g., S1, S1b, S2, up to S42), resulting in no reports and overall_pass false. All primitives and coverage axes were impacted due to zero coverage. Probable root cause is a harness bug in report recovery (harness_sha: 19581e1971b6fecc0408bde2ff1a85f0b44ee23f), possibly related to infra provisioning or timing issues in the DigitalOcean nyc3 4-node setup.</p></article>
+        </div>
+        <h3>What changes going into the next campaign</h3>
+        <p>Debug and patch the CI harness to ensure scenario reports are collected and artifacted properly.</p>
+      </section>
+    <section>
+      <h2>All artifacts</h2>
+      <ul>
+        <li><a href="./a2a-baseline.json">a2a-baseline.json</a></li>
+        <li><a href="./a2a-summary.json">a2a-summary.json</a></li>
+        <li><a href="./ai-nhi-analysis.json">ai-nhi-analysis.json</a></li>
+        <li><a href="./campaign.meta.json">campaign.meta.json</a></li>
+      </ul>
+    </section>
+    <footer>
+      Generated by <code>scripts/generate_run_html.sh</code>.
+      Methodology: <a href="https://alphaonedev.github.io/ai-memory-ai2ai-gate/methodology/">alphaonedev.github.io/ai-memory-ai2ai-gate/methodology</a>.
+      Analysis source: <code>analysis/run-insights.json</code>.
+    </footer>
+  </main>
+</body>
+</html>
