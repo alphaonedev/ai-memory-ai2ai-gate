@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-hermes-v3r17-mtls-release-v0.6.2",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "High risk posture due to failures in core replication and features like search and notifications, rendering it not production-ready. Customer claims of reliable AI-to-AI memory sharing are not viable yet. This run introduces mTLS, which regressed basic functionality compared to prior non-mTLS tests.",
+  "for_non_technical": "The AI agents could not reliably share memories with each other in many tests. Basic sharing worked sometimes but failed in key cases, and features like searching for information or notifying others often didn't work. Overall, the system does not yet allow dependable memory sharing between AIs.",
+  "for_sme": "Failures occurred in S1 (MCP recall with identity issues), S12 (agent registration visibility), S18 (semantic search misses), S28 (keyword search failures on nodes), S29 (archive/restore HTTP errors), S30 (capabilities endpoint missing), S32 (notify delivery), S33 (pubsub subscribe/unsubscribe), S34 (pending approve/reject), S35 (namespace rule layering), S36 (session start), S39 (delta sync incomplete), S40 (bulk ingestion). Impacted primitives include replication fanout, HTTP endpoints, and query handling; probable root cause is mTLS auth mismatches or incomplete federation support in v0.6.2. Refer to F# reasons in artifact for debug probes.",
+  "headline": "mTLS v0.6.2 fails core memory sharing and multiple advanced features.",
+  "next_run_change": "Implement and verify basic replication fixes under mTLS before next campaign.",
+  "verdict": "FAIL \u2014 13/36 scenarios failed, 1 skipped.",
+  "what_it_proved": "Results showed critical failures in basic memory recall, search, archive, notifications, and other primitives, indicating unreliable sharing in the release.",
+  "what_it_tested": "Exercised 36 scenarios across mTLS transport in 4-node federation, covering replication, linking, search, archive, notifications, pubsub, and bulk operations."
+}
