@@ -62,11 +62,21 @@ If a step exceeds its timeout: cancel & diagnose (don't wait for job cap).
 
 ### §R4. testbook v3.0.0 matrix status (live)
 
+All cells now run on `release/v0.6.2` + `ai_memory_source_build=true` (v0.6.2 Patch 2 release freeze, memory `74698d94`). PR #357 @ `0ad00ed` is the source of truth.
+
 | | off | tls | mtls |
 |---|---|---|---|
-| **ironclaw** | ✅ v3r5 (21/13) | ⛔ blocked ai-memory-mcp#333 | ⛔ blocked ai-memory-mcp#333 |
-| **hermes** | ✅ v3r7 (21/13) | ⛔ blocked ai-memory-mcp#333 | ⛔ blocked ai-memory-mcp#333 |
-| **mixed** | ⏸ terraform topology work | ⛔ ai-memory-mcp#333 + topology | ⛔ ai-memory-mcp#333 + topology |
+| **ironclaw** | ✅ v3r5 (21/13) | ⏳ v3r17-tls dispatching | ✅ v3r17 (23/13) |
+| **hermes** | ✅ v3r7 (21/13) | ⏳ v3r17-tls dispatching | ✅ v3r17 (23/13) |
+| **mixed** | ⏸ terraform topology work | ⏸ topology | ⏸ topology |
+
+mTLS unblocked on 2026-04-22 via two a2a-gate fixes:
+- #35 — allowlist generator emits labels as separate comment lines (ai-memory-mcp parser-tolerance follow-up: alphaonedev/ai-memory-mcp#358).
+- #36 — F6 probe presents client cert under mtls so `openssl s_client` handshake completes.
+
+The 13 scenario-level failures (`1, 12, 18, 28, 29, 30, 32, 33, 34, 35, 36, 39, 40`) are framework-level issues — identical set across ironclaw × off / hermes × off / ironclaw × mtls / hermes × mtls. Not mtls regressions.
+
+mtls-specific scenarios `S20` (TLS enforcement) + `S21` (mtls enforcement) PASS on both frameworks — mtls is functionally proven end-to-end.
 
 Keep this table current — every completed / blocked cell updated in this file AND in issue #14.
 
