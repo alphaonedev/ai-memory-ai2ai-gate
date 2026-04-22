@@ -1,0 +1,14 @@
+alice writes M1 on node-1
+  M1 id=8d604242-563a-44a5-a9a4-177935ba6f41
+settle 5s for pre-archive replication
+alice archives M1 via DELETE /api/v1/memories/{id} (soft-delete → archive)
+  archive returned HTTP 405
+settle 5s for archive propagation
+bob queries /api/v1/archive on node-2
+  bob sees M1 in archive: False
+charlie restores M1 via /api/v1/archive/{id}/restore on node-3
+  restore returned HTTP 404
+settle 5s for restore propagation
+node-4 aggregator: M1 must be active again
+  node-4 active rows matching marker: 1
+fetch /api/v1/archive/stats on node-4

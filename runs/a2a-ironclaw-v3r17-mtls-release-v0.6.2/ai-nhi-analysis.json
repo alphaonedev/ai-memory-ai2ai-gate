@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-ironclaw-v3r17-mtls-release-v0.6.2",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "High risk posture due to failures in core sharing and multiple 404/405 errors; not production-ready as is; customer claims of reliable AI2AI memory federation are not viable; likely regressions from non-mTLS runs due to strict auth enforcement.",
+  "for_non_technical": "In this test, AI agents often failed to share and recall memories reliably across the group. Basic sharing didn't work for some agents, and features like notifications or backups were completely unavailable. Overall, the system isn't dependable for consistent memory sharing yet.",
+  "for_sme": "Core failures in S1 (MCP recall 0/20, identity mismatch), S12 (agent registration visibility), S18 (semantic query misses), S28 (keyword search misses), S29 (archive 405/404), S30 (capabilities missing), S32 (notify 404), S33 (pubsub 404), S34 (pending 405/403/404), S35 (namespace rules 405), S36 (session 404), S39 (delta sync incomplete), S40 (bulk 422, no fanout); impacted primitives include recall, search, archive, notify, subscribe, pending, namespaces, session, delta, bulk; probable root cause is mTLS cert validation blocking endpoints or incomplete implementation in release/v0.6.2.",
+  "headline": "mTLS v0.6.2 fails core agent memory sharing",
+  "next_run_change": "Implement and test mTLS client cert validation fixes for 404/405 endpoints before next campaign.",
+  "verdict": "FAIL \u2014 13/36 scenarios broken under mTLS",
+  "what_it_proved": "Results showed basic memory recall and identity checks fail in mTLS mode, while some recovery and versioning work, but many advanced endpoints are inaccessible or erroneous.",
+  "what_it_tested": "Exercised 36 scenarios (1 skipped) across mTLS transport, federation mesh framework, and primitives like recall, search, linking, archive, notifications, and bulk operations."
+}
