@@ -1253,14 +1253,30 @@ f4_edges_detail_csv=$(IFS=,; echo "${f4_edges_detail[*]:-}")
 # server presents cert whose SAN includes both 127.0.0.1 and the node's
 # private IP). Verify the cert chains to the campaign CA and the
 # fingerprint matches what's on the allowlist.
+#
+# Under mtls the server requires a client cert on every connection —
+# without -cert/-key the handshake aborts at TLS layer and s_client
+# exits non-zero, which under set -euo pipefail kills the whole
+# script via the ERR trap before baseline.json is written. Present
+# the gate-client cert so the handshake completes; F7 still verifies
+# anonymous-client rejection independently.
+#
+# `|| true` on the assignment makes the probe robust: command substitution
+# otherwise propagates pipefail into errexit and the script dies before
+# we can emit a clean f6_functional=false. We want F6 failures to degrade
+# gracefully to baseline_pass=false with a reason, not baseline-absent.
 f6_functional=true
 f6_reason=""
 if [ "$TLS_MODE" != "off" ]; then
   log "PROBE F6: TLS handshake verification"
+  F6_SCLIENT_FLAGS=(-connect 127.0.0.1:9077 -servername localhost
+    -CAfile "$TLS_CA" -verify_return_error)
+  if [ "$TLS_MODE" = "mtls" ]; then
+    F6_SCLIENT_FLAGS+=(-cert "$TLS_CLIENT_CERT" -key "$TLS_CLIENT_KEY")
+  fi
   handshake_out=$(timeout -k 2 8 openssl s_client \
-    -connect 127.0.0.1:9077 -servername localhost \
-    -CAfile "$TLS_CA" -verify_return_error \
-    </dev/null 2>&1 | head -200)
+    "${F6_SCLIENT_FLAGS[@]}" \
+    </dev/null 2>&1 | head -200) || true
   if echo "$handshake_out" | grep -qE "Verification: OK|Verify return code: 0"; then
     local_fpr=$(openssl x509 -in "$TLS_CERT" -noout -fingerprint -sha256 | sed -e 's/^.*=//' -e 's/://g' | tr 'A-Z' 'a-z')
     if [ "$TLS_MODE" = "mtls" ]; then
