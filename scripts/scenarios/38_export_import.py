@@ -37,26 +37,30 @@ def main() -> None:
                        title=f"exp-{i}", content=f"marker={m}")
     h.settle(4, reason="pre-export replication")
 
-    log(f"alice exports {src_ns} on node-1")
-    q = urllib.parse.urlencode({"namespace": src_ns})
-    _, export_doc = h.http_on(h.node1_ip, "GET", f"/api/v1/export?{q}", include_status=True)
+    log(f"alice exports on node-1 (endpoint has no namespace filter; filter client-side)")
+    _, export_doc = h.http_on(h.node1_ip, "GET", "/api/v1/export", include_status=True)
     export_code = (export_doc or {}).get("http_code", 0) if isinstance(export_doc, dict) else 0
     export_body = (export_doc or {}).get("body") if isinstance(export_doc, dict) else None
-    rows_exported = 0
+    total_rows = 0
     if isinstance(export_body, dict):
-        rows_exported = len(export_body.get("memories") or export_body.get("rows") or [])
-    log(f"  export returned HTTP {export_code}, rows_exported={rows_exported}")
+        total_rows = len(export_body.get("memories") or [])
+    log(f"  export returned HTTP {export_code}, total_rows={total_rows}")
 
-    # Rewrite exported memories to the new namespace before import.
-    payload = export_body
-    if isinstance(payload, dict):
-        rewrote: list[dict] = []
-        for m in (payload.get("memories") or payload.get("rows") or []):
-            if isinstance(m, dict):
+    # Filter to src_ns, rewrite namespace + id, import as ImportBody.
+    # ImportBody { memories: Vec<Memory>, links: Option<Vec<MemoryLink>> }
+    # — no namespace field; memories carry their own namespace field.
+    # Regenerate ids so imported rows don't collide with the originals.
+    rewrote: list[dict] = []
+    if isinstance(export_body, dict):
+        for m in (export_body.get("memories") or []):
+            if isinstance(m, dict) and m.get("namespace") == src_ns:
                 m2 = dict(m)
                 m2["namespace"] = dst_ns
+                m2["id"] = h.new_uuid("imp-")
                 rewrote.append(m2)
-        payload = {"memories": rewrote, "namespace": dst_ns}
+    log(f"  rewrote {len(rewrote)} memories from {src_ns} -> {dst_ns}")
+    rows_exported = len(rewrote)
+    payload = {"memories": rewrote}
 
     log(f"bob imports the payload into {dst_ns} on node-2")
     _, import_doc = h.http_on(h.node2_ip, "POST", "/api/v1/import",
