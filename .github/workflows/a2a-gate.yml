@@ -334,7 +334,7 @@ jobs:
           echo "::notice::TLS material generated: tls_mode=$TLS_MODE"
 
       - name: Provision all 4 nodes (federation mesh)
-        timeout-minutes: 15
+        timeout-minutes: 25
         run: |
           set -e
           AMV=$(echo '${{ github.event.inputs.ai_memory_git_ref }}' | sed -e 's/^v//' -e 's|release/||')
