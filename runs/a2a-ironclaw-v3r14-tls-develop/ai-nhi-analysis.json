@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-ironclaw-v3r14-tls-develop",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "High operational risk from failures in federation sync and key APIs, rendering the system not production-ready and customer claims on AI memory sharing untenable. Viability for external demos is low until regressions are fixed. Versus prior runs, TLS mode introduces new identity and endpoint issues, delaying release timelines.",
+  "for_non_technical": "The AI agents tried to share memories with each other over a secure network, but it often didn't work as expected. Simple sharing succeeded in some tests, but things like searching for memories or sending notifications frequently failed. Right now, agents cannot reliably share memories in this setup.",
+  "for_sme": "Key failure modes include zero recall in S1 (MCP path), missing agent visibility in S12, absent results in S18 (semantic) and S28 (keyword search), HTTP 4xx errors in S29 (archive), S30 (capabilities), S32 (notify), S33 (pubsub), S34 (approval), S35 (namespace inheritance), S36 (sessions), S39 (delta sync), S40 (bulk); impacted primitives are federation identity, search indexing, and admin APIs, with probable root in TLS misconfig blocking cross-node sync and unimplemented endpoints. Unparseable S23 indicates probe parsing bugs. Prioritize endpoint stubs and federation debug logs.",
+  "headline": "TLS federation fails core memory sharing and advanced APIs.",
+  "next_run_change": "Add stubs for all missing API endpoints and retest under TLS to isolate federation issues.",
+  "verdict": "FAIL \u2014 21/35 scenarios passed, critical primitives broken.",
+  "what_it_proved": "Proved basic HTTP serving and some primitives work, but exposed major gaps in cross-cluster identity, semantic/keyword search, archive/restore, notifications, subscriptions, approvals, namespace rules, sessions, delta sync, and bulk ingestion.",
+  "what_it_tested": "Exercised 34 scenarios across TLS transport in 4-node federation mesh, covering framework reliability and primitives like recall, linking, search, archive, notifications, pubsub, and bulk ops."
+}

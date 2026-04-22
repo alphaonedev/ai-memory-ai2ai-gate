@@ -1,0 +1,9 @@
+checkpoint = 1776881583013
+suspending ai-memory on node-3
+  !! ssh timeout (15s): root@209.97.157.77 pgrep -f 'ai-memory serve' | xargs -r kill -STOP
+alice + bob write 6 rows while node-3 is out
+resuming ai-memory on node-3
+settle 4s for process resume
+node-3 asks node-1 /api/v1/sync/since?after=1776881583013
+  !! ssh timeout (30s): root@209.97.157.77 curl -sS --cacert /etc/ai-memory-a2a/tls/ca.pem 'https://45.55.229.227:9077/api/v1/sync/since?after=1776881583013&namespace=scenario39-delta-0bca0a'
+  /sync/since returned 0 rows; 0/6 match our markers
