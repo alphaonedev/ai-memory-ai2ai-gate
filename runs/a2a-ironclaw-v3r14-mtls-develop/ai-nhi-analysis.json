@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-ironclaw-v3r14-mtls-develop",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "High risk due to complete campaign failure from report recovery issues, signaling unstable testing infrastructure not ready for production. Customer claims on AI memory sharing remain unvalidated. No progress or changes detectable versus prior runs.",
+  "for_non_technical": "This test run didn't collect any data because the reports went missing. We can't tell if the AI agents are sharing memories reliably or not. It's like planning a bunch of experiments but losing all the notes.",
+  "for_sme": "Failure mode was total absence of scenario reports, as indicated in summary reasons, with all 35 requested scenarios (S1, S1b, S2, S4-S6, S9-S18, S22-S25, S28-S42) effectively skipped. Probable root cause is a bug in the CI harness's report aggregation or infra teardown phase, possibly related to harness_sha 472a414c9315b4d4455722503b45aa34ed6c2060. No primitives or probes were exercised.",
+  "headline": "Campaign failed with no scenario reports recovered.",
+  "next_run_change": "Implement logging and error handling in the harness to diagnose and prevent report recovery failures.",
+  "verdict": "FAIL \u2014 no reports recovered from 35 requested scenarios.",
+  "what_it_proved": "The run proved a harness failure in recovering scenario reports, demonstrating nothing about AI memory reliability or functionality.",
+  "what_it_tested": "The campaign requested 35 scenarios covering AI memory sharing across federation mesh with mTLS, but no reports were recovered, resulting in zero coverage of transport, framework, or primitives axes."
+}
