@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-ironclaw-v0.6.2-rc.0-v3r9-tls",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "This run's total failure elevates risk posture, as no validation occurred for AI memory federation features. Production readiness remains unproven, and customer-facing claims about reliable agent-to-agent memory sharing are not supported. Without prior run context, this suggests potential instability in the testing pipeline.",
+  "for_non_technical": "This test run didn't produce any results because something went wrong in collecting the data. We were trying to see if AI agents can reliably share memories with each other, but with no information, we can't say if it works or not. It's like the test never really happened.",
+  "for_sme": "No scenarios ran, with failure mode being 'no scenario reports recovered' across all requested S1, S1b, S2, S4-S6, S9-S18, S22-S25, S28-S42. All primitives (e.g., federation mesh with W=2/N=4 under TLS) remain untested. Probable root cause is in the CI harness report aggregation (harness_sha: 8fb25731629c64edd28ebd55fd39a21846b189d3) or infra connectivity issues in the 4-node DigitalOcean setup.",
+  "headline": "Campaign failed with no scenario reports recovered.",
+  "next_run_change": "Debug and resolve the scenario report recovery failure in the CI workflow before re-running.",
+  "verdict": "FAIL \u2014 no scenario reports recovered",
+  "what_it_proved": "Proved nothing about AI memory sharing due to a complete absence of scenario results, indicating a harness or infrastructure failure.",
+  "what_it_tested": "Requested 35 scenarios covering transport layers, frameworks, and memory primitives like federation mesh under TLS, but none were executed or reported."
+}
