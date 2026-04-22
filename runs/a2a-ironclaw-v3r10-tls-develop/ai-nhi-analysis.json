@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-ironclaw-v3r10-tls-develop",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "This run exposes high risk in our CI pipeline reliability, as no data was captured, halting progress on validating production readiness for AI memory federation. Customer-facing claims about reliable agent-to-agent memory sharing remain unproven versus prior runs. Prioritize fixing the harness to resume gating releases.",
+  "for_non_technical": "The test campaign didn't run properly because no results were collected from any planned scenarios. This means we have no information on whether agents can reliably share memories with each other. It's like setting up a big experiment but forgetting to record the outcomes.",
+  "for_sme": "The campaign aborted without any scenario executions, as evidenced by empty 'scenarios' array and 'no scenario reports recovered' reason, impacting all requested scenarios (1 through 42 variants). Probable root cause is a flaw in the harness_sha 182b41d8ca787ef2e5db931a39cf2312023fd236, possibly in report aggregation or droplet teardown phases. No specific S# or F# identifiers available due to total absence of reports.",
+  "headline": "Campaign failed with no scenario reports recovered.",
+  "next_run_change": "Debug and patch the CI workflow to ensure scenario reports are properly collected and aggregated before teardown.",
+  "verdict": "FAIL \u2014 no scenario reports recovered",
+  "what_it_proved": "The run demonstrated a critical failure in the testing harness, with no results to evaluate agent memory sharing.",
+  "what_it_tested": "No scenarios were exercised due to missing reports, providing zero coverage across transport, framework, and primitives axes."
+}
