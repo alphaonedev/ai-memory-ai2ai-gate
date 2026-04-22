@@ -1,0 +1,9 @@
+checkpoint = 1776861291927
+suspending ai-memory on node-3
+  !! ssh timeout (15s): root@165.227.104.117 pgrep -f 'ai-memory serve' | xargs -r kill -STOP
+alice + bob write 6 rows while node-3 is out
+resuming ai-memory on node-3
+settle 4s for process resume
+node-3 asks node-1 /api/v1/sync/since?after=1776861291927
+  !! ssh timeout (30s): root@165.227.104.117 curl -sS 'http://45.55.84.80:9077/api/v1/sync/since?after=1776861291927&namespace=scenario39-delta-9bb9a7'
+  /sync/since returned 0 rows; 0/6 match our markers

@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-hermes-v0.6.2-rc.0-v3r7",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "High risk posture due to failures in core primitives like semantic search and notifications, indicating not production-ready for customer claims of seamless AI-to-AI memory sharing. Viable for internal pilots on basic features, but advanced capabilities need fixes to avoid reliability issues. No prior run data available, but this RC highlights persistent gaps in federation mesh stability.",
+  "for_non_technical": "The AI agents can share simple memories with each other in some basic ways, but they struggle with more advanced sharing like searching for similar ideas or notifying others about updates. This means the system works for straightforward tasks but not reliably for complex ones. Overall, memory sharing is inconsistent across the group.",
+  "for_sme": "Failures in S1 (MCP recall at 0/20 per agent, identity checks), S18 (semantic query missing memories), S28 (keyword search misses on nodes 2-3), S29 (archive/restore 405/404), S30 (capabilities endpoint missing), S32 (notify 404, inbox delivery), S33 (pubsub subscribe/unsubscribe 404), S34 (approvals 405/403/404), S35 (namespace rules 405, layering issues), S36 (session start 404), S39 (delta sync 0/6 markers), S40 (bulk 422, 0/500 rows fanned out), with probable root causes in missing endpoints, auth misconfigs, and MCP transport bugs. Scenario 23 skipped due to unparseable report. Impacts primitives like search, pubsub, and bulk ingestion.",
+  "headline": "Hermes v0.6.2-rc.0 shows partial memory sharing with major feature gaps.",
+  "next_run_change": "Implement and test MCP transport fixes to enable core cross-agent recall before re-running.",
+  "verdict": "PARTIAL \u2014 22/35 scenarios passed, 1 skipped.",
+  "what_it_proved": "Demonstrated reliable basic HTTP-based memory sharing and some advanced ops like consolidation and export/import, but exposed failures in MCP recall, semantic search, archiving, notifications, and namespace management.",
+  "what_it_tested": "Exercised 36 scenarios covering core sharing, linking, deletion, semantic/keyword search, bulk ops, namespaces, pubsub, approvals, and recovery across HTTP transport in a 4-node mesh, with primitives like MCP and fanout."
+}

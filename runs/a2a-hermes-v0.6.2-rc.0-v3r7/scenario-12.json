@@ -1,0 +1,1 @@
+{"agent_group": "hermes", "pass": false, "peers_see": {"node_2": 1, "node_3": 1, "node_4": 0}, "reason": "node-4 did not see registered agent ai:dave-probe-a6ca320b", "reasons": ["node-4 did not see registered agent ai:dave-probe-a6ca320b"], "register_http_code": 201, "registered_agent": "ai:dave-probe-a6ca320b", "scenario": "12", "skipped": false, "tls_mode": "off"}
