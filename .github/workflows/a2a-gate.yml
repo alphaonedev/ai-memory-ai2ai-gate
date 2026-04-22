@@ -120,6 +120,83 @@ jobs:
         with:
           terraform_version: "1.9.5"
 
+      # Pre-apply VPC diagnostic + cleanup. DO's async VPC teardown leaves
+      # orphaned VPCs in the account after failed / cancelled campaigns;
+      # terraform apply then 422s because the CIDR we want is still taken.
+      # This step lists every VPC, logs them, and deletes any whose
+      # ip_range matches the one THIS campaign is about to claim (by
+      # computing the same agent_type x tls_mode lookup that main.tf
+      # uses). Droplets inside the orphan VPC are deleted first because
+      # DO refuses to delete a VPC with attached resources.
+      - name: Pre-apply VPC cleanup (delete orphans colliding with target CIDR)
+        env:
+          DO_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
+        run: |
+          set -eu
+          declare -A CIDR=(
+            ["ironclaw|off"]="10.10.0.0/24"
+            ["ironclaw|tls"]="10.10.1.0/24"
+            ["ironclaw|mtls"]="10.10.2.0/24"
+            ["hermes|off"]="10.11.0.0/24"
+            ["hermes|tls"]="10.11.1.0/24"
+            ["hermes|mtls"]="10.11.2.0/24"
+            ["openclaw|off"]="10.12.0.0/24"
+            ["openclaw|tls"]="10.12.1.0/24"
+            ["openclaw|mtls"]="10.12.2.0/24"
+            ["mixed|off"]="10.13.0.0/24"
+            ["mixed|tls"]="10.13.1.0/24"
+            ["mixed|mtls"]="10.13.2.0/24"
+          )
+          key="${AGENT_GROUP}|${TLS_MODE}"
+          target="${CIDR[$key]:-10.10.0.0/24}"
+          echo "target CIDR for this campaign: $target"
+          echo "--- all VPCs in account ---"
+          curl -sS -H "Authorization: Bearer $DO_TOKEN" \
+            "https://api.digitalocean.com/v2/vpcs?per_page=200" \
+            | jq -r '.vpcs[] | "\(.id)  \(.ip_range)  \(.name)"'
+          echo "--- searching for orphan VPCs at $target ---"
+          orphans=$(curl -sS -H "Authorization: Bearer $DO_TOKEN" \
+            "https://api.digitalocean.com/v2/vpcs?per_page=200" \
+            | jq -r --arg r "$target" '.vpcs[] | select(.ip_range == $r) | .id')
+          if [ -z "$orphans" ]; then
+            echo "no orphan VPC at $target — clean"
+            exit 0
+          fi
+          for vpc_id in $orphans; do
+            echo "orphan VPC $vpc_id uses $target — purging attached resources + deleting"
+            # Enumerate members (droplets) + delete them first.
+            members=$(curl -sS -H "Authorization: Bearer $DO_TOKEN" \
+              "https://api.digitalocean.com/v2/vpcs/$vpc_id/members?per_page=200" \
+              | jq -r '.members[] | select(.type == "droplet") | .urn | split(":") | last')
+            for d in $members; do
+              echo "  deleting droplet $d"
+              curl -sS -X DELETE -H "Authorization: Bearer $DO_TOKEN" \
+                "https://api.digitalocean.com/v2/droplets/$d" || true
+            done
+            # DO deletes droplets async; poll until VPC is empty.
+            for i in 1 2 3 4 5 6; do
+              left=$(curl -sS -H "Authorization: Bearer $DO_TOKEN" \
+                "https://api.digitalocean.com/v2/vpcs/$vpc_id/members?per_page=200" \
+                | jq -r '.members | length')
+              [ "$left" = "0" ] && break
+              echo "  waiting for droplet teardown ($left still attached)..."
+              sleep 10
+            done
+            echo "  deleting VPC $vpc_id"
+            curl -sS -X DELETE -H "Authorization: Bearer $DO_TOKEN" \
+              "https://api.digitalocean.com/v2/vpcs/$vpc_id" || true
+            # Poll until the CIDR is actually free.
+            for i in 1 2 3 4 5 6; do
+              still_there=$(curl -sS -H "Authorization: Bearer $DO_TOKEN" \
+                "https://api.digitalocean.com/v2/vpcs?per_page=200" \
+                | jq --arg r "$target" '[.vpcs[] | select(.ip_range == $r)] | length')
+              [ "$still_there" = "0" ] && break
+              echo "  waiting for VPC deletion to settle ($still_there still claiming $target)..."
+              sleep 10
+            done
+          done
+          echo "pre-apply cleanup complete"
+
       - name: Terraform init + apply
         working-directory: terraform
         run: |
