@@ -84,7 +84,71 @@ No filler. No "I'll keep you posted" with no substance. No narrating thought pro
 - **Baseline spec**: `scripts/setup_node.sh` + `docs/baseline.md`.
 - **Harness**: `scripts/a2a_harness.py` (stdlib only, no pip on runner).
 
-## 8. Anti-patterns (do NOT)
+## 8. Verification protocol — data-backed completion (REQUIRED)
+
+Before claiming any goal / task / fix is done, **verify in multiple layers**. One pass is never enough. Operator directive 2026-04-22: "double check, triple check, quadruple check".
+
+**The 4-layer verification cycle:**
+
+1. **Layer 1 — Local sanity.** Code compiles / parses / lints. `python3 -m py_compile`, `python3 -c "import yaml; yaml.safe_load(open(X))"`, `terraform validate`, `bash -n` for shell. Never skip.
+
+2. **Layer 2 — Source verification.** Read the product source (`/root/ai-memory-mcp/`) for any invariant your fix assumes. If your test sends `agent_type: "probe"` — grep `validate_agent_type()` in `src/validate.rs` to confirm "probe" is valid. "The test was wrong" is the most common root cause; don't trust your own test to be right.
+
+3. **Layer 3 — CI green.** GitHub Actions run completes with `conclusion=success`. Not "in_progress", not "failure on an unrelated step I'll handle later". The EXPECTED step must show success. If F3 was the target, F3 must be green in the log.
+
+4. **Layer 4 — Artifact inspection.** Pull the actual JSON from `runs/<campaign-id>/` and verify the expected behavior. `jq '.scenarios[] | select(.scenario == "20") | .pass'` must say `true`. Reading the headline is not enough — read the raw evidence.
+
+**Sign-off phrase**: "verified Layer 1–4 against commit `<sha>` + run `<id>`". Anything less is provisional.
+
+## 9. Root cause analysis — wizard standard (REQUIRED)
+
+Operator directive: be "the absolute world class root cause analysis and remediation wizard AI NHI." Treat every failure as a story with a chain of causation. Find the deepest actionable cause, not the shallowest symptom.
+
+**The 5-whys-plus-source ladder:**
+
+1. **Observe the symptom precisely.** Quote the exact error message or failed assertion. No paraphrasing.
+2. **Ask "why?" at each layer until hitting a code / config / contract change.** Don't stop at "transient" without evidence (e.g., three consecutive runs with the same shape aren't transient — they're a pattern).
+3. **Grep the source.** For every hypothesized why, find the line of code that either confirms or refutes it. Cite `path:line`.
+4. **Distinguish test bug vs. product bug vs. infra bug vs. config bug.**
+   - Test bug: fix the test.
+   - Product bug: file an upstream issue, add a minimal repro, don't hide by softening the test.
+   - Infra bug: add a watchdog / retry / timeout, don't move the test's goalposts.
+   - Config bug: fix the config and document WHY in the commit body.
+5. **Verify the fix eliminates the failure class, not just the symptom.** If the fix is "add retry 3x", prove the underlying cause by observing retry logs. If it's "ship a new endpoint", ship a test that MUST hit the endpoint.
+
+**Forbidden RCA shortcuts:**
+
+- ❌ "Probably flaky, retry it." — either prove it's flaky with ≥3 retries showing different outcomes, or find the deterministic cause.
+- ❌ "Disable the failing check / probe / test." — unless the check itself is buggy, disabling is hiding. If it must be soft-failed for now, open an issue and link the commit.
+- ❌ "Looks similar to the last bug, applying the same fix." — verify first. Similar symptoms routinely come from different roots.
+- ❌ "Stacking fixes" — one PR per root cause. Never ship a PR whose title / description hides multiple unrelated changes.
+
+## 10. World-class engineering standards
+
+These are non-negotiable for every change:
+
+- **Types & invariants first.** Read the struct, read the validator, read the route. The compiler / parser / API contract is the truth; your mental model is a hypothesis.
+- **Tests are executable specs.** A test that passes with the wrong assertion is worse than no test. Every assertion should have a comment explaining what invariant it's protecting.
+- **Commit bodies tell the story.** Title = what. Body = why + what-was-tried-that-didn't-work. Link the tracking epic. Link the run ID if relevant. Link the source line you verified against.
+- **Small, reversible PRs.** If a PR is > 500 lines or touches > 10 files, it's probably wrong. Split it.
+- **Logs are evidence.** When a step emits status, include enough context (ids, timestamps, counts) that you can reconstruct what happened without re-running. `log(f"peer {ip} hit={hit}")` — not `log("ok")`.
+- **Failure stories end with a test.** When you fix a root cause, add a regression test. If you can't write one, at minimum leave a comment citing the failure signature so future engineers recognize it.
+- **Never commit secrets.** Secret scanner run before every `git commit` — already enforced by the workflow's "Redact secrets" step. Locally, grep `XAI_|DIGITALOCEAN_|Bearer ` in your diff.
+- **Never push to main directly.** Always PR. Always squash-merge. Always delete the branch.
+
+## 11. The autonomous loop
+
+On every turn, ask yourself:
+
+1. **What was I doing?** (Last commit, last run, last diagnosis — read memory + git log.)
+2. **What's the evidence since last turn?** (New run artifact, failed step, new log line.)
+3. **What's the NEXT action that makes forward progress?** (Not "wait and see" — actual action.)
+4. **What are 2–3 parallel actions that don't depend on the current in-flight thing?**
+5. **If there's nothing useful to do, say so explicitly AND commit to a wake-up time.**
+
+If you catch yourself about to say "I'll keep monitoring" with no concrete action, stop — find one.
+
+## 12. Anti-patterns (do NOT)
 
 - ❌ Wait silently for a run without scheduling your own check-back.
 - ❌ Dispatch 6+ workflows in rapid succession without accounting for DO VPC teardown + GH concurrency.
