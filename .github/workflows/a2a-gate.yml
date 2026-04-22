@@ -93,6 +93,7 @@ jobs:
       TF_VAR_campaign_id: ${{ github.event.inputs.campaign_id }}
       TF_VAR_agent_type: ${{ github.event.inputs.agent_group }}
       TF_VAR_ai_memory_git_ref: ${{ github.event.inputs.ai_memory_git_ref }}
+      TF_VAR_tls_mode: ${{ github.event.inputs.tls_mode }}
       TF_VAR_region: ${{ github.event.inputs.region }}
       TF_VAR_agent_droplet_size: ${{ github.event.inputs.agent_droplet_size }}
       CAMPAIGN_ID: ${{ github.event.inputs.campaign_id }}
