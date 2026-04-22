@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-hermes-v0.6.2-rc.0-v3r7-tls",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "High risk posture from complete campaign failure, indicating unresolved issues in the testing pipeline; production readiness remains unassessed. Customer-facing claims on agent memory sharing are unsupported by this run. No changes detected vs. prior runs as nothing was tested.",
+  "for_non_technical": "This test run didn't work at all because no results were collected from the planned scenarios. We can't tell if AI agents can reliably share memories with each other. It looks like there was a problem in setting up or running the tests.",
+  "for_sme": "No per-scenario results available, with overall failure due to 'no scenario reports recovered'; all 35 requested scenarios (S1, S1b, S2, etc.) effectively skipped. Probable root cause in harness report aggregation or CI workflow (harness_sha: 9d280e8e7ad5debcdfa38e38b86fdf12be9f99fe). Impacts all primitives and frameworks under test.",
+  "headline": "Campaign failed: no scenario reports recovered.",
+  "next_run_change": "Debug and resolve report recovery failures in the harness before retrying.",
+  "verdict": "FAIL \u2014 no scenarios executed or reported.",
+  "what_it_proved": "The results demonstrated a critical failure in the testing harness or infrastructure, preventing any data collection or validation.",
+  "what_it_tested": "No scenarios were exercised, despite requesting 35 covering various transport, framework, and primitive axes, due to missing reports."
+}
