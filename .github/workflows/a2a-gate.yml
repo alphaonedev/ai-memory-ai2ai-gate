@@ -458,6 +458,10 @@ jobs:
             NODE2_IP=${{ steps.wait.outputs.node2_ip }} \
             NODE3_IP=${{ steps.wait.outputs.node3_ip }} \
             NODE4_IP=${{ steps.wait.outputs.memory_ip }} \
+            NODE1_PRIV=${{ steps.wait.outputs.node1_priv }} \
+            NODE2_PRIV=${{ steps.wait.outputs.node2_priv }} \
+            NODE3_PRIV=${{ steps.wait.outputs.node3_priv }} \
+            MEMORY_PRIV=${{ steps.wait.outputs.memory_priv }} \
             MEMORY_NODE_IP=${{ steps.wait.outputs.memory_priv }} \
             AGENT_GROUP=${AGENT_GROUP} \
             TLS_MODE=${TLS_MODE} \
