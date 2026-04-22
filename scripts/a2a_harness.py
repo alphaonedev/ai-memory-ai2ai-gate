@@ -1,0 +1,297 @@
+# Copyright 2026 AlphaOne LLC
+# SPDX-License-Identifier: Apache-2.0
+"""
+Shared harness for Python-based a2a-gate scenarios (testbook v3.0.0+).
+
+Contract identical across every scenario:
+  - stdout = single-line JSON scenario report (consumed by aggregator)
+  - stderr = human-readable log lines
+  - exit 0 on a clean run (pass / fail / skip); non-zero only on hard crash
+
+Stdlib only — no pip installs on the runner. ssh to droplets is via the
+`ssh` subprocess with StrictHostKeyChecking=no.
+"""
+
+import concurrent.futures
+import json
+import os
+import shlex
+import subprocess
+import sys
+import time
+import urllib.parse
+import uuid
+from dataclasses import dataclass, field
+from typing import Any, Callable, Iterable, Sequence
+
+
+SSH_OPTS = ["-o", "StrictHostKeyChecking=no", "-o", "ConnectTimeout=10", "-o", "ServerAliveInterval=5"]
+
+
+def log(msg: str) -> None:
+    """Write a log line to stderr."""
+    print(msg, file=sys.stderr, flush=True)
+
+
+def new_uuid(prefix: str = "") -> str:
+    return f"{prefix}{uuid.uuid4().hex}" if prefix else uuid.uuid4().hex
+
+
+@dataclass
+class Harness:
+    """Campaign context + droplet handles. One instance per scenario run."""
+
+    node1_ip: str
+    node2_ip: str
+    node3_ip: str
+    node4_ip: str = ""
+    memory_node_ip: str = ""
+    agent_group: str = "ironclaw"
+    tls_mode: str = "off"
+    scenario_id: str = ""
+
+    @classmethod
+    def from_env(cls, scenario_id: str, *, require_node4: bool = False) -> "Harness":
+        need = ["NODE1_IP", "NODE2_IP", "NODE3_IP", "AGENT_GROUP"]
+        if require_node4:
+            need.append("NODE4_IP")
+        missing = [k for k in need if not os.environ.get(k)]
+        if missing:
+            raise RuntimeError(f"missing required env vars: {missing}")
+        return cls(
+            node1_ip=os.environ["NODE1_IP"],
+            node2_ip=os.environ["NODE2_IP"],
+            node3_ip=os.environ["NODE3_IP"],
+            node4_ip=os.environ.get("NODE4_IP", ""),
+            memory_node_ip=os.environ.get("MEMORY_NODE_IP", ""),
+            agent_group=os.environ["AGENT_GROUP"],
+            tls_mode=os.environ.get("TLS_MODE", "off"),
+            scenario_id=scenario_id,
+        )
+
+    # -------- ssh primitives --------
+
+    def ssh_exec(self, node_ip: str, remote_cmd: str, *, timeout: int = 60,
+                 stdin: str | None = None) -> subprocess.CompletedProcess:
+        """Run `remote_cmd` on `node_ip` via ssh. Never raises on non-zero exit."""
+        cmd = ["ssh", *SSH_OPTS, f"root@{node_ip}", remote_cmd]
+        return subprocess.run(
+            cmd, capture_output=True, text=True, timeout=timeout, input=stdin,
+        )
+
+    def ssh_bash_script(self, node_ip: str, script: str, *args: str,
+                        timeout: int = 120) -> subprocess.CompletedProcess:
+        """Pipe a multi-line bash script into a remote `bash -s -- arg1 arg2...`."""
+        argv = " ".join(shlex.quote(a) for a in args)
+        cmd = ["ssh", *SSH_OPTS, f"root@{node_ip}", f"bash -s -- {argv}"]
+        return subprocess.run(
+            cmd, capture_output=True, text=True, timeout=timeout, input=script,
+        )
+
+    # -------- curl construction --------
+
+    def _remote_curl_prefix(self) -> str:
+        if self.tls_mode == "off":
+            return "curl -sS"
+        flags = "curl -sS --cacert /etc/ai-memory-a2a/tls/ca.pem --resolve localhost:9077:127.0.0.1"
+        if self.tls_mode == "mtls":
+            flags += " --cert /etc/ai-memory-a2a/tls/client.pem --key /etc/ai-memory-a2a/tls/client.key"
+        return flags
+
+    def remote_base_url(self) -> str:
+        return "http://127.0.0.1:9077" if self.tls_mode == "off" else "https://localhost:9077"
+
+    # -------- HTTP helpers --------
+
+    def http_on(self, node_ip: str, method: str, path: str, *,
+                body: Any | None = None, agent_id: str | None = None,
+                extra_headers: dict[str, str] | None = None,
+                include_status: bool = False,
+                timeout: int = 30) -> tuple[int, Any]:
+        """Run an HTTP request against `node_ip`'s LOCAL ai-memory HTTP daemon via ssh+curl.
+
+        Returns `(ssh_returncode, parsed_response)` where parsed_response is
+        dict/list if JSON-parseable, raw string otherwise.
+
+        When `include_status=True`, parsed_response is `{body:..., http_code:<int>}`
+        — needed for scenarios that assert specific HTTP status codes (4xx, 201, etc.).
+        """
+        url = f"{self.remote_base_url()}{path}"
+        headers = {"Content-Type": "application/json"}
+        if agent_id:
+            headers["X-Agent-Id"] = agent_id
+        if extra_headers:
+            headers.update(extra_headers)
+        curl_prefix = self._remote_curl_prefix()
+
+        parts = [curl_prefix, "-X", method, shlex.quote(url)]
+        for k, v in headers.items():
+            parts += ["-H", shlex.quote(f"{k}: {v}")]
+        if body is not None:
+            parts += ["-d", shlex.quote(json.dumps(body))]
+        if include_status:
+            parts += ["-w", shlex.quote("\n__HTTP__%{http_code}")]
+        remote_cmd = " ".join(parts)
+
+        result = self.ssh_exec(node_ip, remote_cmd, timeout=timeout)
+        raw = (result.stdout or "").strip()
+
+        if include_status:
+            status_marker = "__HTTP__"
+            status = 0
+            body_str = raw
+            if status_marker in raw:
+                body_str, _, code_str = raw.rpartition(status_marker)
+                body_str = body_str.rstrip("\n")
+                try:
+                    status = int(code_str.strip())
+                except ValueError:
+                    status = 0
+            try:
+                parsed = json.loads(body_str) if body_str else None
+            except json.JSONDecodeError:
+                parsed = body_str
+            return result.returncode, {"body": parsed, "http_code": status}
+
+        try:
+            parsed = json.loads(raw) if raw else None
+        except json.JSONDecodeError:
+            parsed = raw
+        return result.returncode, parsed
+
+    def http_on_expect_fail(self, node_ip: str, method: str, path: str, **kwargs) -> int:
+        """Variant that EXPECTS curl to fail (TLS handshake rejected, etc.)."""
+        rc, _ = self.http_on(node_ip, method, path, include_status=False, **kwargs)
+        return rc
+
+    # -------- memory CRUD shortcuts --------
+
+    def write_memory(self, node_ip: str, agent_id: str, namespace: str, *,
+                     title: str, content: str, tier: str = "mid",
+                     priority: int = 5, metadata: dict | None = None,
+                     include_status: bool = False) -> tuple[int, Any]:
+        md = {"agent_id": agent_id, "scenario": self.scenario_id}
+        if metadata:
+            md.update(metadata)
+        body = {
+            "tier": tier, "namespace": namespace, "title": title,
+            "content": content, "priority": priority, "confidence": 1.0,
+            "source": "api", "metadata": md,
+        }
+        return self.http_on(node_ip, "POST", "/api/v1/memories",
+                            body=body, agent_id=agent_id, include_status=include_status)
+
+    def list_memories(self, node_ip: str, namespace: str, limit: int = 50) -> tuple[int, Any]:
+        q = urllib.parse.urlencode({"namespace": namespace, "limit": limit})
+        return self.http_on(node_ip, "GET", f"/api/v1/memories?{q}")
+
+    def get_memory(self, node_ip: str, memory_id: str) -> tuple[int, Any]:
+        return self.http_on(node_ip, "GET", f"/api/v1/memories/{memory_id}")
+
+    def update_memory(self, node_ip: str, memory_id: str, agent_id: str, *,
+                      updates: dict, include_status: bool = True) -> tuple[int, Any]:
+        return self.http_on(node_ip, "PUT", f"/api/v1/memories/{memory_id}",
+                            body=updates, agent_id=agent_id, include_status=include_status)
+
+    def delete_memory(self, node_ip: str, memory_id: str, agent_id: str,
+                      include_status: bool = True) -> tuple[int, Any]:
+        return self.http_on(node_ip, "DELETE", f"/api/v1/memories/{memory_id}",
+                            agent_id=agent_id, include_status=include_status)
+
+    # -------- namespace counting helpers --------
+
+    def count_matching(self, node_ip: str, namespace: str, *,
+                       content_contains: str | None = None,
+                       content_equals: str | None = None,
+                       agent_id: str | None = None,
+                       limit: int = 100) -> int:
+        """Count rows in `namespace` on `node_ip` that match a filter."""
+        rc, resp = self.list_memories(node_ip, namespace, limit=limit)
+        if rc != 0 or not isinstance(resp, dict):
+            return 0
+        n = 0
+        for m in resp.get("memories", []) or []:
+            if content_contains is not None and content_contains not in (m.get("content") or ""):
+                continue
+            if content_equals is not None and (m.get("content") or "") != content_equals:
+                continue
+            if agent_id is not None and ((m.get("metadata") or {}).get("agent_id") or "") != agent_id:
+                continue
+            n += 1
+        return n
+
+    def count_wrong_agent_id(self, node_ip: str, namespace: str, expected_agent_id: str,
+                             limit: int = 200) -> tuple[int, int]:
+        """Returns (total_rows, rows_with_wrong_agent_id). A diagnostic for Task 1.2 breach."""
+        rc, resp = self.list_memories(node_ip, namespace, limit=limit)
+        if rc != 0 or not isinstance(resp, dict):
+            return 0, 0
+        memories = resp.get("memories") or []
+        total = len(memories)
+        wrong = sum(
+            1 for m in memories
+            if ((m.get("metadata") or {}).get("agent_id") or "") != expected_agent_id
+        )
+        return total, wrong
+
+    # -------- concurrency --------
+
+    def run_parallel(self, fn: Callable[..., Any], inputs: Sequence[tuple],
+                     max_workers: int = 8) -> list[Any]:
+        """Run `fn(*args_tuple)` for each args_tuple in `inputs` concurrently.
+
+        Returns list of results (exception objects on failure).
+        """
+        with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as ex:
+            futs = [ex.submit(fn, *args) for args in inputs]
+            out: list[Any] = []
+            for f in futs:
+                try:
+                    out.append(f.result())
+                except Exception as exc:  # surface but don't propagate
+                    out.append(exc)
+            return out
+
+    # -------- flow control --------
+
+    def settle(self, seconds: int = 8, reason: str = "quorum fanout") -> None:
+        log(f"settle {seconds}s for {reason}")
+        time.sleep(seconds)
+
+    # -------- drive_agent.sh passthrough (for S1 MCP path) --------
+
+    def drive_agent(self, node_ip: str, verb: str, *args: str,
+                    timeout: int = 60) -> subprocess.CompletedProcess:
+        """Invoke /root/drive_agent.sh <verb> on a remote droplet (used by S1).
+
+        drive_agent.sh is installed on every agent droplet by setup_node.sh
+        and abstracts over ironclaw/hermes/openclaw MCP invocations.
+        """
+        argv = " ".join(shlex.quote(a) for a in (verb, *args))
+        remote = f"source /etc/ai-memory-a2a/env 2>/dev/null; bash /root/drive_agent.sh {argv}"
+        return self.ssh_exec(node_ip, remote, timeout=timeout)
+
+    # -------- reporting --------
+
+    def emit(self, *, passed: bool | None, skipped: bool = False, reason: str = "",
+             **fields: Any) -> None:
+        """Emit the final JSON scenario report to stdout and exit 0.
+
+        `passed=None` is allowed for skipped scenarios.
+        """
+        doc: dict[str, Any] = {
+            "scenario": self.scenario_id,
+            "pass": passed,
+            "skipped": skipped,
+            "agent_group": self.agent_group,
+            "tls_mode": self.tls_mode,
+        }
+        if reason:
+            doc["reason"] = reason
+        doc.update(fields)
+        print(json.dumps(doc, sort_keys=True), flush=True)
+        sys.exit(0)
+
+    def skip(self, reason: str, **fields: Any) -> None:
+        log(f"skipped — {reason}")
+        self.emit(passed=None, skipped=True, reason=reason, **fields)

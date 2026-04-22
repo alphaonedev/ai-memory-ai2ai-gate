@@ -35,6 +35,7 @@ nav:
   - ai-memory integration: ai-memory-integration.md
   - Infrastructure versions: infrastructure.md
   - Test book: testbook.md
+  - Every test performed: tests.md
   - Architecture: architecture.md
   - Runbook: runbook.md
   - Incidents: incidents.md

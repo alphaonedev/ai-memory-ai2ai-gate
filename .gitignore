@@ -1,0 +1,15 @@
+# Python bytecode (from local py_compile syntax checks)
+__pycache__/
+*.pyc
+*.pyo
+
+# Nested checkouts used for reference only (never committed from this repo)
+/ai-memory-mcp/
+
+# Local runner artifacts
+phase-reports/
+/tmp-*
+
+# Editor / OS noise
+*.swp
+.DS_Store

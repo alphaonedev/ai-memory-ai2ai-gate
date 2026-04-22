@@ -136,24 +136,59 @@ ai-memory --version
 mkdir -p /var/lib/ai-memory /etc/ai-memory-a2a
 
 # Federation config: W=2 of N=4. Peer URLs passed as comma-separated.
-log "starting ai-memory serve with federation peers: $PEER_URLS"
+# TLS mode is threaded in from the workflow (off | tls | mtls). When
+# enabled, /etc/ai-memory-a2a/tls/ is expected to contain ca.pem,
+# server.pem, server.key, and (mtls only) allowlist.txt + client.pem +
+# client.key, distributed by the workflow's "Generate ephemeral TLS
+# material" step BEFORE this script runs. See docs/baseline.md §TLS.
+TLS_MODE="${TLS_MODE:-off}"
+SERVE_SCHEME="http"
+TLS_FLAGS=()
+LOCAL_CURL_FLAGS=()
+CLIENT_CURL_FLAGS=()
+if [ "$TLS_MODE" != "off" ]; then
+  SERVE_SCHEME="https"
+  TLS_CERT=/etc/ai-memory-a2a/tls/server.pem
+  TLS_KEY=/etc/ai-memory-a2a/tls/server.key
+  TLS_CA=/etc/ai-memory-a2a/tls/ca.pem
+  TLS_ALLOWLIST=/etc/ai-memory-a2a/tls/allowlist.txt
+  TLS_CLIENT_CERT=/etc/ai-memory-a2a/tls/client.pem
+  TLS_CLIENT_KEY=/etc/ai-memory-a2a/tls/client.key
+  for required in "$TLS_CERT" "$TLS_KEY" "$TLS_CA"; do
+    [ -f "$required" ] || { log "FATAL: TLS_MODE=$TLS_MODE but $required missing"; exit 1; }
+  done
+  TLS_FLAGS+=(--tls-cert "$TLS_CERT" --tls-key "$TLS_KEY")
+  TLS_FLAGS+=(--quorum-client-cert "$TLS_CERT" --quorum-client-key "$TLS_KEY")
+  LOCAL_CURL_FLAGS=(--cacert "$TLS_CA" --resolve "localhost:9077:127.0.0.1")
+  CLIENT_CURL_FLAGS=(--cacert "$TLS_CA" --cert "$TLS_CLIENT_CERT" --key "$TLS_CLIENT_KEY")
+  if [ "$TLS_MODE" = "mtls" ]; then
+    [ -f "$TLS_ALLOWLIST" ] || { log "FATAL: TLS_MODE=mtls but $TLS_ALLOWLIST missing"; exit 1; }
+    TLS_FLAGS+=(--mtls-allowlist "$TLS_ALLOWLIST")
+  fi
+fi
+log "starting ai-memory serve scheme=$SERVE_SCHEME tls_mode=$TLS_MODE peers=$PEER_URLS"
 nohup ai-memory serve \
   --host 0.0.0.0 --port 9077 \
   --db /var/lib/ai-memory/a2a.db \
   --quorum-writes 2 \
   --quorum-peers "$PEER_URLS" \
+  "${TLS_FLAGS[@]}" \
   > /var/log/ai-memory-serve.log 2>&1 &
 disown
 
-# Health-check the local serve.
+# Local-loopback health check. Under TLS, curl must use --cacert pointing
+# to the campaign CA AND --resolve so SNI matches the server cert's
+# Subject Alternative Name (localhost / 127.0.0.1 both in the SAN).
+LOCAL_HEALTH_URL="${SERVE_SCHEME}://127.0.0.1:9077/api/v1/health"
+if [ "$TLS_MODE" != "off" ]; then LOCAL_HEALTH_URL="${SERVE_SCHEME}://localhost:9077/api/v1/health"; fi
 for attempt in $(seq 1 30); do
-  if curl -sSf http://127.0.0.1:9077/api/v1/health 2>/dev/null | grep -q '"ok"'; then
-    log "ai-memory serve ready on :9077"
+  if curl -sSf "${LOCAL_CURL_FLAGS[@]}" "$LOCAL_HEALTH_URL" 2>/dev/null | grep -q '"ok"'; then
+    log "ai-memory serve ready on :9077 (scheme=$SERVE_SCHEME)"
     break
   fi
   sleep 1
 done
-curl -sSf http://127.0.0.1:9077/api/v1/health | grep -q '"ok"' || {
+curl -sSf "${LOCAL_CURL_FLAGS[@]}" "$LOCAL_HEALTH_URL" | grep -q '"ok"' || {
   log "ai-memory serve FAILED to come up — see /var/log/ai-memory-serve.log"
   tail -n 40 /var/log/ai-memory-serve.log >&2
   exit 1
@@ -724,7 +759,7 @@ esac
 
 # Federation membership: this node's ai-memory serve must be listening
 # and have >=1 peer configured (we requested 3).
-fed_live=$(curl -sS http://127.0.0.1:9077/api/v1/health 2>/dev/null | jq -e '.status == "ok" or .healthy == true or .ok == true' >/dev/null 2>&1 && echo true || echo false)
+fed_live=$(curl -sS "${LOCAL_CURL_FLAGS[@]}" "$LOCAL_HEALTH_URL" 2>/dev/null | jq -e '.status == "ok" or .healthy == true or .ok == true' >/dev/null 2>&1 && echo true || echo false)
 
 # UFW must be disabled — ship-gate lesson, explicit baseline invariant.
 if command -v ufw >/dev/null 2>&1; then
@@ -876,13 +911,23 @@ fi
 log "PROBE F2a/F2b: substrate + agent-driven canary"
 F2A_UUID=$(cat /proc/sys/kernel/random/uuid 2>/dev/null || echo "canary-a-$RANDOM-$RANDOM")
 F2A_NS="_baseline_canary_f2a"
-curl -sS -X POST "http://127.0.0.1:9077/api/v1/memories" \
+# When TLS_MODE=mtls, the server requires a client cert on every
+# request — so F2a-over-localhost must present one too. The gate
+# client cert is in the campaign allowlist and was distributed to
+# every node by the workflow.
+F2A_BASE_URL="${SERVE_SCHEME}://localhost:9077"
+if [ "$TLS_MODE" = "off" ]; then F2A_BASE_URL="http://127.0.0.1:9077"; fi
+F2A_CURL_FLAGS=("${LOCAL_CURL_FLAGS[@]}")
+if [ "$TLS_MODE" = "mtls" ]; then
+  F2A_CURL_FLAGS=("${LOCAL_CURL_FLAGS[@]}" --cert "$TLS_CLIENT_CERT" --key "$TLS_CLIENT_KEY")
+fi
+curl -sS "${F2A_CURL_FLAGS[@]}" -X POST "${F2A_BASE_URL}/api/v1/memories" \
   -H "X-Agent-Id: ${AGENT_ID}" \
   -H "Content-Type: application/json" \
   -d "{\"tier\":\"mid\",\"namespace\":\"${F2A_NS}\",\"title\":\"f2a-canary-${AGENT_ID}\",\"content\":\"${F2A_UUID}\",\"priority\":5,\"confidence\":1.0,\"source\":\"api\",\"metadata\":{\"agent_id\":\"${AGENT_ID}\",\"probe\":\"F2a\"}}" \
   > /tmp/f2a-write.log 2>&1 || true
 sleep 1
-f2a_hit=$(curl -sS "http://127.0.0.1:9077/api/v1/memories?namespace=${F2A_NS}&limit=20" 2>/dev/null | \
+f2a_hit=$(curl -sS "${F2A_CURL_FLAGS[@]}" "${F2A_BASE_URL}/api/v1/memories?namespace=${F2A_NS}&limit=20" 2>/dev/null | \
   jq --arg u "$F2A_UUID" --arg a "$AGENT_ID" \
     '[.memories[]? | select(.content == $u and (.metadata.agent_id // "") == $a)] | length' 2>/dev/null || echo 0)
 if [ "${f2a_hit:-0}" -ge 1 ] 2>/dev/null; then
@@ -988,7 +1033,7 @@ case "$AGENT_TYPE" in
     ;;
 esac
 sleep 3
-f2b_hit=$(curl -sS "http://127.0.0.1:9077/api/v1/memories?namespace=${F2B_NS}&limit=20" 2>/dev/null | \
+f2b_hit=$(curl -sS "${F2A_CURL_FLAGS[@]}" "${F2A_BASE_URL}/api/v1/memories?namespace=${F2B_NS}&limit=20" 2>/dev/null | \
   jq --arg u "$F2B_UUID" --arg a "$AGENT_ID" \
     '[.memories[]? | select(.content == $u and (.metadata.agent_id // "") == $a)] | length' 2>/dev/null || echo 0)
 canary_log_file="/tmp/canary-${AGENT_TYPE}.log"
@@ -1030,20 +1075,33 @@ CANARY_NS=$F2A_NS
 # serve-live) AND POST /api/v1/sync/push with dry_run=true (proves the
 # same verb/path peers will use during scenarios, catches mTLS/auth
 # failures a bare GET would miss). Each peer edge must pass BOTH.
-log "PROBE F4: directional mesh connectivity to each peer"
+log "PROBE F4: directional mesh connectivity to each peer (scheme=$SERVE_SCHEME tls_mode=$TLS_MODE)"
 f4_edges_ok=0
 f4_edges_total=0
 f4_edges_detail=()
 IFS=',' read -ra F4_PEER_ARR <<< "$PEER_URLS"
+# For TLS peer-to-peer, the runner-side peer URLs use the private IP,
+# which doesn't match the server-cert's CN but IS in the SAN (IP:...).
+# rustls under axum-server honours IP SAN entries, so HTTPS to the raw
+# private IP works. Pass --cacert for the ephemeral CA. Under mtls the
+# server also demands a client cert — use the campaign client cert
+# (which is on the allowlist distributed to all nodes).
+F4_CURL_FLAGS=()
+if [ "$TLS_MODE" != "off" ]; then
+  F4_CURL_FLAGS+=(--cacert "$TLS_CA")
+  if [ "$TLS_MODE" = "mtls" ]; then
+    F4_CURL_FLAGS+=(--cert "$TLS_CLIENT_CERT" --key "$TLS_CLIENT_KEY")
+  fi
+fi
 for peer_url in "${F4_PEER_ARR[@]}"; do
   [ -z "$peer_url" ] && continue
   f4_edges_total=$((f4_edges_total + 1))
-  peer_label="${peer_url#http://}"
+  peer_label="${peer_url#http*://}"
   peer_label="${peer_label%/}"
 
   # Leg 1: GET /health
   h_ok=false
-  if curl -sS --max-time 5 "${peer_url%/}/api/v1/health" 2>/dev/null \
+  if curl -sS --max-time 5 "${F4_CURL_FLAGS[@]}" "${peer_url%/}/api/v1/health" 2>/dev/null \
        | jq -e '.status == "ok" or .healthy == true or .ok == true' >/dev/null 2>&1; then
     h_ok=true
   fi
@@ -1052,7 +1110,7 @@ for peer_url in "${F4_PEER_ARR[@]}"; do
   # dry_run=true so no row state is perturbed on the peer. Empty memories
   # array keeps the body valid per the v0.6.0 schema.
   p_ok=false
-  p_resp=$(curl -sS --max-time 5 \
+  p_resp=$(curl -sS --max-time 5 "${F4_CURL_FLAGS[@]}" \
     -X POST "${peer_url%/}/api/v1/sync/push" \
     -H 'Content-Type: application/json' \
     -d "{\"sender_agent_id\":\"${AGENT_ID}\",\"sender_clock\":{\"entries\":{}},\"memories\":[],\"dry_run\":true}" \
@@ -1078,6 +1136,76 @@ else
   log "  PROBE F4 FAIL — ${f4_edges_ok}/${f4_edges_total} outbound mesh edges reachable"
 fi
 f4_edges_detail_csv=$(IFS=,; echo "${f4_edges_detail[*]:-}")
+
+# ---- Probe F6: TLS handshake verification ------------------------
+# Active only when tls_mode != off. openssl s_client opens a TLS 1.3
+# handshake to the LOCAL serve (127.0.0.1:9077 reachable via loopback;
+# server presents cert whose SAN includes both 127.0.0.1 and the node's
+# private IP). Verify the cert chains to the campaign CA and the
+# fingerprint matches what's on the allowlist.
+f6_functional=true
+f6_reason=""
+if [ "$TLS_MODE" != "off" ]; then
+  log "PROBE F6: TLS handshake verification"
+  handshake_out=$(timeout -k 2 8 openssl s_client \
+    -connect 127.0.0.1:9077 -servername localhost \
+    -CAfile "$TLS_CA" -verify_return_error \
+    </dev/null 2>&1 | head -200)
+  if echo "$handshake_out" | grep -qE "Verification: OK|Verify return code: 0"; then
+    local_fpr=$(openssl x509 -in "$TLS_CERT" -noout -fingerprint -sha256 | sed -e 's/^.*=//' -e 's/://g' | tr 'A-Z' 'a-z')
+    if [ "$TLS_MODE" = "mtls" ]; then
+      if grep -qi "sha256:$local_fpr" "$TLS_ALLOWLIST"; then
+        log "  PROBE F6 OK — TLS handshake + CA verify + server fingerprint on allowlist"
+      else
+        f6_functional=false
+        f6_reason="server fingerprint $local_fpr missing from allowlist"
+        log "  PROBE F6 FAIL — $f6_reason"
+      fi
+    else
+      log "  PROBE F6 OK — TLS handshake + CA verify (tls mode, no client-cert check)"
+    fi
+  else
+    f6_functional=false
+    f6_reason="TLS handshake or CA verify failed"
+    log "  PROBE F6 FAIL — $f6_reason"
+    log "    s_client tail: $(echo "$handshake_out" | tail -c 400 | tr '\000-\037' ' ')"
+  fi
+else
+  log "PROBE F6: skipped (tls_mode=off)"
+fi
+
+# ---- Probe F7: mTLS enforcement ---------------------------------
+# Active only when tls_mode=mtls. Attempt an anonymous HTTPS connection
+# (no client cert). rustls must reject at the TLS layer — curl returns
+# a non-zero exit code and the server never sees the request. Any
+# success here is a showstopper — it means the mtls-allowlist is
+# not being enforced.
+f7_functional=true
+f7_reason=""
+if [ "$TLS_MODE" = "mtls" ]; then
+  log "PROBE F7: mTLS enforcement — anonymous client must be rejected"
+  if curl -sS --max-time 5 --cacert "$TLS_CA" \
+       "${SERVE_SCHEME}://localhost:9077/api/v1/health" >/dev/null 2>&1; then
+    f7_functional=false
+    f7_reason="anonymous TLS client succeeded — mTLS not enforcing allowlist"
+    log "  PROBE F7 FAIL — $f7_reason"
+  else
+    log "  PROBE F7 OK — anonymous client correctly rejected at TLS layer"
+  fi
+  # Positive check — client WITH cert must succeed (already covered by F2a,
+  # but assert explicitly so F7 has both directions).
+  if curl -sS --max-time 5 --cacert "$TLS_CA" \
+       --cert "$TLS_CLIENT_CERT" --key "$TLS_CLIENT_KEY" \
+       "${SERVE_SCHEME}://localhost:9077/api/v1/health" 2>/dev/null | grep -q '"ok"'; then
+    log "  PROBE F7 OK — whitelisted client accepted"
+  else
+    f7_functional=false
+    f7_reason="whitelisted client rejected — allowlist verifier broken"
+    log "  PROBE F7 FAIL — $f7_reason"
+  fi
+else
+  log "PROBE F7: skipped (tls_mode=$TLS_MODE — only runs under mtls)"
+fi
 
 jq -n \
   --arg agent_type "$AGENT_TYPE" \
@@ -1116,11 +1244,16 @@ jq -n \
   --argjson f5_init_ok "$f5_init_ok" \
   --argjson f5_tools_ok "$f5_tools_ok" \
   --arg f5_tools_found "$f5_tools_found" \
+  --arg tls_mode "$TLS_MODE" \
+  --argjson f6_functional "$f6_functional" \
+  --arg f6_reason "$f6_reason" \
+  --argjson f7_functional "$f7_functional" \
+  --arg f7_reason "$f7_reason" \
   --arg f2a_uuid "$F2A_UUID" \
   --arg f2b_uuid "$F2B_UUID" \
   --arg config_sha256 "$config_sha256" \
   '{
-    spec_version: "1.3.0",
+    spec_version: "1.4.0",
     agent_type:$agent_type,
     agent_id:$agent_id,
     node_index:$node_index,
@@ -1167,6 +1300,12 @@ jq -n \
       ai_memory_mcp_stdio_tools_ok:    $f5_tools_ok,
       ai_memory_mcp_stdio_tools_found: $f5_tools_found,
       _f5_note:                        "F5 spawns the ai-memory stdio MCP subprocess using the framework-configured invocation and verifies initialize + tools/list return memory_store, memory_recall, memory_list. Deterministic (no LLM). Gates baseline_pass.",
+      tls_mode:                        $tls_mode,
+      tls_handshake_f6:                $f6_functional,
+      tls_handshake_f6_reason:         $f6_reason,
+      mtls_enforcement_f7:             $f7_functional,
+      mtls_enforcement_f7_reason:      $f7_reason,
+      _f6_f7_note:                     "F6 verifies the TLS 1.3 handshake against the local serve + CA chain. F7 verifies mTLS enforcement — anonymous client rejected, whitelisted client accepted. Both gate baseline_pass when tls_mode != off / mtls respectively.",
       agent_mcp_ai_memory_canary:      $f2a_functional,
       canary_uuid:                     $f2a_uuid,
       canary_namespace:                "_baseline_canary_f2a"
@@ -1178,7 +1317,9 @@ jq -n \
       $ufw_disabled and $iptables_flushed and $dead_man_switch_scheduled and
       $a2a_master_off and $no_sessions_tools and $no_chat_channels and
       $tools_are_memory_only and $profile_locked and
-      $xai_functional and $f2a_functional and $f4_functional and $f5_functional
+      $xai_functional and $f2a_functional and $f4_functional and $f5_functional and
+      ($tls_mode == "off" or $f6_functional) and
+      ($tls_mode != "mtls" or $f7_functional)
     )
   }' > /etc/ai-memory-a2a/baseline.json
 
