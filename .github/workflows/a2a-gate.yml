@@ -14,9 +14,17 @@ on:
   workflow_dispatch:
     inputs:
       ai_memory_git_ref:
-        description: "ai-memory-mcp release or pre-release tag (v0.6.2-rc.N for consistency-gate testing; v0.6.2 for final). The setup_node.sh binary download URL uses this verbatim."
+        description: "ai-memory-mcp git ref. When ai_memory_source_build=false, must be a release tag (v0.6.2-rc.N / v0.6.2) — the tarball URL is built from this. When ai_memory_source_build=true, any branch name or SHA is valid — setup_node.sh clones + builds from source."
         required: true
         default: "v0.6.2-rc.0"
+      ai_memory_source_build:
+        description: "Build ai-memory from source on each droplet instead of downloading a release tarball. Use when testing an unreleased fix on a branch (e.g. 'develop' under the v0.6.2 Patch 2 release freeze). Adds ~3-5 min per node."
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
       agent_group:
         description: "Which agent framework to run in this campaign. Every agent droplet in the campaign uses the SAME framework (homogeneous group). ironclaw (Rust, 4GB) and hermes (Python, 4GB) are the supported groups; openclaw (Python, 16GB+) is LEGACY and being retired — kept for historical dispatch reproduction only."
         required: true
@@ -99,6 +107,7 @@ jobs:
       CAMPAIGN_ID: ${{ github.event.inputs.campaign_id }}
       AGENT_GROUP: ${{ github.event.inputs.agent_group }}
       AI_MEMORY_GIT_REF: ${{ github.event.inputs.ai_memory_git_ref }}
+      AI_MEMORY_SOURCE_BUILD: ${{ github.event.inputs.ai_memory_source_build }}
       IRONCLAW_INSTALL_CMD: ${{ github.event.inputs.ironclaw_install_cmd }}
       OPENCLAW_INSTALL_CMD: ${{ github.event.inputs.openclaw_install_cmd }}
       HERMES_INSTALL_CMD: ${{ github.event.inputs.hermes_install_cmd }}
@@ -326,10 +335,10 @@ jobs:
 
       - name: Provision all 4 nodes (federation mesh)
         timeout-minutes: 15
-        timeout-minutes: 35
         run: |
           set -e
           AMV=$(echo '${{ github.event.inputs.ai_memory_git_ref }}' | sed -e 's/^v//' -e 's|release/||')
+          AMR="${{ github.event.inputs.ai_memory_git_ref }}"  # full raw ref for source-build mode
           # When TLS_MODE != off, peer URLs use https://. setup_node.sh
           # consumes the cert material pre-distributed above and starts
           # ai-memory serve with --tls-cert / --tls-key (+ --mtls-allowlist
@@ -360,7 +369,7 @@ jobs:
               echo "[n$i] === BEGIN provision node-$i role=$role ip=$ip peers=$peers ==="
               scp -o StrictHostKeyChecking=no scripts/setup_node.sh scripts/drive_agent.sh root@$ip:/root/ 2>&1 | sed "s/^/[n$i scp] /"
               chmod_cmd="chmod +x /root/setup_node.sh /root/drive_agent.sh"
-              env_cmd="NODE_INDEX=$i ROLE=$role PEER_URLS='$peers' AI_MEMORY_VERSION=$AMV TLS_MODE='${TLS_MODE}'"
+              env_cmd="NODE_INDEX=$i ROLE=$role PEER_URLS='$peers' AI_MEMORY_VERSION=$AMV AI_MEMORY_GIT_REF='$AMR' TLS_MODE='${TLS_MODE}' AI_MEMORY_SOURCE_BUILD='${AI_MEMORY_SOURCE_BUILD:-false}'"
               [ "$role" = "agent" ] && env_cmd="$env_cmd AGENT_TYPE=${AGENT_GROUP} AGENT_ID=$aid XAI_API_KEY='${XAI_API_KEY}' A2A_GATE_LLM_MODEL='${A2A_GATE_LLM_MODEL}' IRONCLAW_INSTALL_CMD='${IRONCLAW_INSTALL_CMD}' OPENCLAW_INSTALL_CMD='${OPENCLAW_INSTALL_CMD}' HERMES_INSTALL_CMD='${HERMES_INSTALL_CMD}'"
               # stdbuf -oL forces line-buffered stdout on the ssh side
               # so `sed` gets each log line promptly — without it the

@@ -125,12 +125,50 @@ if [ ! -f /swapfile ]; then
 fi
 
 # ---- ai-memory install + serve with federation --------------------
-log "installing ai-memory v${AI_MEMORY_VERSION}"
-cd /tmp
-curl -sSL -o amem.tgz \
-  "https://github.com/alphaonedev/ai-memory-mcp/releases/download/v${AI_MEMORY_VERSION}/ai-memory-x86_64-unknown-linux-gnu.tar.gz"
-tar xzf amem.tgz
-install -m 0755 ai-memory /usr/local/bin/ai-memory
+# Two install paths, selected by AI_MEMORY_SOURCE_BUILD (default false):
+#   * release tarball (default): downloads the prebuilt binary for
+#     v${AI_MEMORY_VERSION} from GitHub Releases. Fast (~5s). Requires a
+#     published release at that tag.
+#   * source build: clones ai-memory-mcp at AI_MEMORY_VERSION (which is
+#     now interpreted as a branch/SHA, not strictly a tag), installs
+#     rustup + cargo, builds --release, installs the binary. ~3-5 min.
+#     Use when testing a pre-release commit (e.g. `develop` with a
+#     fix that hasn't been released yet — see alphaonedev operator
+#     directive 2026-04-22 release freeze).
+AI_MEMORY_SOURCE_BUILD="${AI_MEMORY_SOURCE_BUILD:-false}"
+# For source builds, use AI_MEMORY_GIT_REF (full raw ref — branch name,
+# SHA, or tag with leading 'v') — the release-tarball path uses
+# AI_MEMORY_VERSION which is AMV-stripped. Fall back to AMV+'v' if
+# GIT_REF isn't set (backward compat).
+AI_MEMORY_GIT_REF="${AI_MEMORY_GIT_REF:-v${AI_MEMORY_VERSION}}"
+if [ "$AI_MEMORY_SOURCE_BUILD" = "true" ]; then
+  log "installing ai-memory from source @ ${AI_MEMORY_GIT_REF}"
+  DEBIAN_FRONTEND=noninteractive apt-get install -y -q \
+    build-essential pkg-config libssl-dev git ca-certificates \
+    2>&1 | sed 's/^/[apt] /'
+  if ! command -v cargo >/dev/null 2>&1; then
+    log "installing rustup toolchain (minimal)"
+    curl -sSf --tlsv1.2 https://sh.rustup.rs | \
+      sh -s -- -y --default-toolchain stable --profile minimal \
+      2>&1 | sed 's/^/[rustup] /'
+  fi
+  export PATH="$HOME/.cargo/bin:$PATH"
+  rm -rf /tmp/ai-memory-src
+  git clone --depth 1 --branch "${AI_MEMORY_GIT_REF}" \
+    https://github.com/alphaonedev/ai-memory-mcp.git /tmp/ai-memory-src \
+    2>&1 | sed 's/^/[git] /'
+  pushd /tmp/ai-memory-src >/dev/null
+  cargo build --release --locked 2>&1 | sed 's/^/[cargo] /'
+  install -m 0755 target/release/ai-memory /usr/local/bin/ai-memory
+  popd >/dev/null
+else
+  log "installing ai-memory v${AI_MEMORY_VERSION} (release tarball)"
+  cd /tmp
+  curl -sSL -o amem.tgz \
+    "https://github.com/alphaonedev/ai-memory-mcp/releases/download/v${AI_MEMORY_VERSION}/ai-memory-x86_64-unknown-linux-gnu.tar.gz"
+  tar xzf amem.tgz
+  install -m 0755 ai-memory /usr/local/bin/ai-memory
+fi
 ai-memory --version
 
 mkdir -p /var/lib/ai-memory /etc/ai-memory-a2a
