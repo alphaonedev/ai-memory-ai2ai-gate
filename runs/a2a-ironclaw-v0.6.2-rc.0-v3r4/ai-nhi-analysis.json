@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-ironclaw-v0.6.2-rc.0-v3r4",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "This run exposes high risk in testing infrastructure reliability, as zero scenario results were recovered despite requests. It blocks assessment of production readiness and undermines any customer-facing claims on AI memory sharing. Versus prior runs, this is a complete regression in harness execution.",
+  "for_non_technical": "The test aimed to see if AI agents can reliably share memories with each other in a networked setup. Unfortunately, the test system broke down, and no results came back at all. We can't tell from this if the memory sharing works well or not.",
+  "for_sme": "All 35 requested scenarios (S1, S1b, S2, S4-S6, S9-S18, S22-S25, S28-S42) failed to produce reports, impacting all primitives like federation mesh (W=2/N=4) on digitalocean nyc3. Probable root cause is artifact recovery failure in CI harness (sha: e8b9089a3c974746715d1ad0111a7d8be38f8c52); check workflow_url for logs. No specific failure modes observable due to total absence of data.",
+  "headline": "Campaign failed: no scenario reports recovered.",
+  "next_run_change": "Debug and fix the scenario report collection and recovery in the CI workflow before the next campaign.",
+  "verdict": "FAIL \u2014 no scenarios executed or reported.",
+  "what_it_proved": "The run demonstrated a critical failure in the campaign harness or reporting, proving nothing about AI memory functionality or reliability.",
+  "what_it_tested": "This run requested 35 scenarios covering AI memory sharing across federation mesh topology but recovered no reports, exercising no transport, framework, or primitive axes."
+}
