@@ -23,7 +23,10 @@ SCENARIO_ID = "28"
 def main() -> None:
     h = Harness.from_env(SCENARIO_ID)
     ns = "scenario28-search"
-    token = f"kwsearch-{new_uuid()[:10]}"
+    # No hyphens: FTS5 unicode61 tokenizer splits on `-` at index time,
+    # and sanitize_fts_query (db.rs:1544) currently strips `-` from query
+    # tokens, so a hyphenated needle would never match. Use alnum only.
+    token = f"kwsearch{new_uuid()[:10]}"
 
     log(f"alice writes a row containing unique token={token}")
     h.write_memory(h.node1_ip, "ai:alice", ns,

@@ -36,12 +36,10 @@ def main() -> None:
         }
         for i in range(BULK_SIZE)
     ]
-    payload = {"memories": rows}
-
-    # Write the payload to /tmp on node-1, then POST from there (keeps
-    # the ssh command short — 500 inline rows would overflow argv).
+    # bulk_create handler (handlers.rs:1873) takes `Json<Vec<CreateMemory>>` —
+    # bare array, NOT {"memories": [...]}.
     log("staging bulk payload on node-1 /tmp, then POST /api/v1/memories/bulk")
-    json_payload = json.dumps(payload)
+    json_payload = json.dumps(rows)
     stage_cmd = f"cat > /tmp/s40-bulk.json <<'PAYLOAD_EOF'\n{json_payload}\nPAYLOAD_EOF"
     r_stage = h.ssh_exec(h.node1_ip, stage_cmd, timeout=60)
     if r_stage.returncode != 0:
