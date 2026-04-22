@@ -66,9 +66,11 @@ All cells now run on `release/v0.6.2` + `ai_memory_source_build=true` (v0.6.2 Pa
 
 | | off | tls | mtls |
 |---|---|---|---|
-| **ironclaw** | ✅ v3r5 (21/13) | ⏳ v3r17-tls dispatching | ✅ v3r17 (23/13) |
-| **hermes** | ✅ v3r7 (21/13) | ⏳ v3r17-tls dispatching | ✅ v3r17 (23/13) |
+| **ironclaw** | ✅ v3r5 (21/13) | ✅ v3r17 (22/12/1) | ✅ v3r17 (23/13/0) |
+| **hermes** | ✅ v3r7 (21/13) | ✅ v3r17 (21/13/1) | ✅ v3r17 (23/13/0) |
 | **mixed** | ⏸ terraform topology work | ⏸ topology | ⏸ topology |
+
+**6/9 matrix GREEN on release/v0.6.2.** Remaining 3 cells are the mixed-framework row — blocked on terraform topology work, NOT on ai-memory-mcp. tls cells skip S20 (currently mtls-gated in the scenario internals).
 
 mTLS unblocked on 2026-04-22 via two a2a-gate fixes:
 - #35 — allowlist generator emits labels as separate comment lines (ai-memory-mcp parser-tolerance follow-up: alphaonedev/ai-memory-mcp#358).
