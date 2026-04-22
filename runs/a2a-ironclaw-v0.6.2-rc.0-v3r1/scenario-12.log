@@ -1,0 +1,6 @@
+alice registers new agent ai:dave-probe-37518964 on node-1
+  POST /api/v1/agents returned HTTP 400
+settle 10s for agent-list fanout
+  node-2 sees ai:dave-probe-37518964: 0 (expected >=1)
+  node-3 sees ai:dave-probe-37518964: 0 (expected >=1)
+  node-4 sees ai:dave-probe-37518964: 0 (expected >=1)

@@ -1,0 +1,21 @@
+checkpoint = 1776821856412
+suspending ai-memory on node-3
+Traceback (most recent call last):
+  File "/home/runner/work/ai-memory-ai2ai-gate/ai-memory-ai2ai-gate/scripts/scenarios/39_sync_since_delta.py", line 107, in <module>
+    main()
+  File "/home/runner/work/ai-memory-ai2ai-gate/ai-memory-ai2ai-gate/scripts/scenarios/39_sync_since_delta.py", line 34, in main
+    h.ssh_exec(h.node3_ip, "pgrep -f 'ai-memory serve' | xargs -r kill -STOP", timeout=15)
+  File "/home/runner/work/ai-memory-ai2ai-gate/ai-memory-ai2ai-gate/scripts/a2a_harness.py", line 78, in ssh_exec
+    return subprocess.run(
+           ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 550, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 1209, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 2116, in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+  File "/usr/lib/python3.12/subprocess.py", line 1253, in _check_timeout
+    raise TimeoutExpired(
+subprocess.TimeoutExpired: Command '['ssh', '-o', 'StrictHostKeyChecking=no', '-o', 'ConnectTimeout=10', '-o', 'ServerAliveInterval=5', 'root@167.99.59.68', "pgrep -f 'ai-memory serve' | xargs -r kill -STOP"]' timed out after 15 seconds

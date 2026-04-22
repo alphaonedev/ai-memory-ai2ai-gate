@@ -1,0 +1,41 @@
+alice sets namespace standard on scenario34-pending-d9c5bb: write=approve, approver=ai:bob
+  set-standard returned HTTP 405
+settle 2s for standard settle
+alice writes two memories into the governed namespace (should land in pending)
+  p1=a88c1fdc-e1e1-4e2c-8f4a-9484d0aa8123 p2=a1717e4f-a014-4092-bc2c-4056429dbf0b
+settle 4s for pending queue settle
+bob lists pending on node-2
+  pending queue has 0 entries
+bob approves p1, rejects p2
+  approve HTTP 403; reject HTTP 404
+settle 5s for decision fanout
+charlie reads the namespace — expects ONLY approved marker
+Traceback (most recent call last):
+  File "/home/runner/work/ai-memory-ai2ai-gate/ai-memory-ai2ai-gate/scripts/scenarios/34_pending_governance.py", line 111, in <module>
+    main()
+  File "/home/runner/work/ai-memory-ai2ai-gate/ai-memory-ai2ai-gate/scripts/scenarios/34_pending_governance.py", line 75, in main
+    sees_approved = h.count_matching(h.node3_ip, ns, content_contains=approved_marker, limit=20)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/ai-memory-ai2ai-gate/ai-memory-ai2ai-gate/scripts/a2a_harness.py", line 209, in count_matching
+    rc, resp = self.list_memories(node_ip, namespace, limit=limit)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/ai-memory-ai2ai-gate/ai-memory-ai2ai-gate/scripts/a2a_harness.py", line 186, in list_memories
+    return self.http_on(node_ip, "GET", f"/api/v1/memories?{q}")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/ai-memory-ai2ai-gate/ai-memory-ai2ai-gate/scripts/a2a_harness.py", line 136, in http_on
+    result = self.ssh_exec(node_ip, remote_cmd, timeout=timeout)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/ai-memory-ai2ai-gate/ai-memory-ai2ai-gate/scripts/a2a_harness.py", line 78, in ssh_exec
+    return subprocess.run(
+           ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 550, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 1209, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 2116, in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+  File "/usr/lib/python3.12/subprocess.py", line 1253, in _check_timeout
+    raise TimeoutExpired(
+subprocess.TimeoutExpired: Command '['ssh', '-o', 'StrictHostKeyChecking=no', '-o', 'ConnectTimeout=10', '-o', 'ServerAliveInterval=5', 'root@167.99.59.68', "curl -sS -X GET 'http://127.0.0.1:9077/api/v1/memories?namespace=scenario34-pending-d9c5bb&limit=20' -H 'Content-Type: application/json'"]' timed out after 30 seconds

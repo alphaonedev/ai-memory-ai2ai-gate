@@ -1,0 +1,27 @@
+alice writes A on node-1
+bob writes B on node-2
+settle 15s for fanout + index rebuild
+charlie queries on node-3 with semantically-related prompt
+Traceback (most recent call last):
+  File "/home/runner/work/ai-memory-ai2ai-gate/ai-memory-ai2ai-gate/scripts/scenarios/18_query_expansion.py", line 84, in <module>
+    main()
+  File "/home/runner/work/ai-memory-ai2ai-gate/ai-memory-ai2ai-gate/scripts/scenarios/18_query_expansion.py", line 46, in main
+    _, resp = h.http_on(h.node3_ip, "GET", f"/api/v1/recall?{q}")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/ai-memory-ai2ai-gate/ai-memory-ai2ai-gate/scripts/a2a_harness.py", line 136, in http_on
+    result = self.ssh_exec(node_ip, remote_cmd, timeout=timeout)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/ai-memory-ai2ai-gate/ai-memory-ai2ai-gate/scripts/a2a_harness.py", line 78, in ssh_exec
+    return subprocess.run(
+           ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 550, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 1209, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 2116, in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+  File "/usr/lib/python3.12/subprocess.py", line 1253, in _check_timeout
+    raise TimeoutExpired(
+subprocess.TimeoutExpired: Command '['ssh', '-o', 'StrictHostKeyChecking=no', '-o', 'ConnectTimeout=10', '-o', 'ServerAliveInterval=5', 'root@167.99.59.68', "curl -sS -X GET 'http://127.0.0.1:9077/api/v1/recall?context=morning+outdoor+exercise+routine&namespace=scenario18-semantic&limit=20' -H 'Content-Type: application/json'"]' timed out after 30 seconds

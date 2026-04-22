@@ -1,0 +1,1 @@
+{"agent_group": "ironclaw", "pass": null, "reason": "NODE2_PRIV / NODE3_PRIV not set \u2014 private peer URLs unavailable", "scenario": "24", "skipped": true, "tls_mode": "off"}

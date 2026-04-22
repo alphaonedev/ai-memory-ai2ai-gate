@@ -1,0 +1,10 @@
+alice writes 5 rows into scenario38-src-81eb85
+settle 4s for pre-export replication
+alice exports scenario38-src-81eb85 on node-1
+  export returned HTTP 200, rows_exported=171
+bob imports the payload into scenario38-dst-81eb85 on node-2
+  import returned HTTP 200
+settle 6s for import + fanout
+verify row counts match on destination
+  scenario38-dst-81eb85 has 0 rows (expected 5)
+  markers preserved in destination: 0/5
