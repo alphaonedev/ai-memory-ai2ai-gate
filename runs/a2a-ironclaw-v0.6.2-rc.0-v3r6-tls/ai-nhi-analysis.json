@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-ironclaw-v0.6.2-rc.0-v3r6-tls",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "High risk posture due to total test failure, indicating the system is not production-ready and no customer-facing claims can be made about reliability. No progress or changes versus prior runs, as no data was captured. Prioritize harness fixes to unblock validation.",
+  "for_non_technical": "This test was supposed to check if AI agents can reliably share memories with each other. Unfortunately, the test didn't collect any results, so we don't know if the sharing works. It's like trying to run an experiment but losing all the data.",
+  "for_sme": "Complete failure mode where no scenario reports were recovered, impacting all 35 requested scenarios (S1, S1b, S2, S4-S6, S9-S18, S22-S25, S28-S42). Primitives like memory sharing across agents (e.g., ai:alice, ai:bob, ai:charlie) were not tested. Probable root cause is a harness bug in report collection (harness_sha: f5bc6dd5453678084dd5dbc88a267776523db1ce); no specific F# probes executed.",
+  "headline": "Campaign failed: no scenario reports recovered.",
+  "next_run_change": "Fix report recovery mechanism in the CI harness to ensure scenario outputs are captured.",
+  "verdict": "FAIL \u2014 no scenarios executed or reported.",
+  "what_it_proved": "The results demonstrated a complete failure in recovering any scenario reports, proving nothing about memory sharing reliability.",
+  "what_it_tested": "The campaign attempted to exercise 35 scenarios covering agent-to-agent memory sharing across various transports, frameworks, and primitives in a 4-node federation mesh with TLS."
+}
