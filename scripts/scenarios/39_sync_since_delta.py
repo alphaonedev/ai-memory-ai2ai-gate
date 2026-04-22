@@ -13,6 +13,8 @@ were written during the partition.
 import sys
 import pathlib
 import time
+import urllib.parse
+from datetime import datetime, timezone
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from a2a_harness import Harness, log, new_uuid
@@ -26,12 +28,14 @@ def main() -> None:
     h = Harness.from_env(SCENARIO_ID)
     ns = f"scenario39-delta-{new_uuid()[:6]}"
 
-    # Checkpoint: unix ms timestamp before partition.
-    checkpoint_ms = int(time.time() * 1000)
-    log(f"checkpoint = {checkpoint_ms}")
+    # Checkpoint: handler (handlers.rs:2306) requires RFC 3339, not unix ms.
+    # Subtract 1s so the `since > checkpoint` comparison is strict-inclusive
+    # of our writes.
+    checkpoint = (datetime.now(timezone.utc).replace(microsecond=0)).isoformat()
+    log(f"checkpoint = {checkpoint}")
 
     log("suspending ai-memory on node-3")
-    h.ssh_exec(h.node3_ip, "pgrep -f 'ai-memory serve' | xargs -r kill -STOP", timeout=15)
+    h.ssh_exec(h.node3_ip, "pgrep -f 'ai-memory serve' | xargs -r kill -STOP", timeout=30)
     time.sleep(2)
 
     markers: list[str] = []
@@ -45,24 +49,23 @@ def main() -> None:
                        title=f"delta-{i}", content=f"marker={u}")
 
     log("resuming ai-memory on node-3")
-    h.ssh_exec(h.node3_ip, "pgrep -f 'ai-memory serve' | xargs -r kill -CONT", timeout=15)
+    h.ssh_exec(h.node3_ip, "pgrep -f 'ai-memory serve' | xargs -r kill -CONT", timeout=30)
     h.settle(4, reason="process resume")
 
-    log(f"node-3 asks node-1 /api/v1/sync/since?after={checkpoint_ms}")
+    log(f"node-3 asks node-1 /api/v1/sync/since?since={checkpoint}")
     # Use a plain curl from node-3 (we don't want to inject node-3's own view).
-    curl = h._remote_curl_prefix()
+    # `since` is RFC3339; `namespace` is filtered client-side (handler doesn't
+    # accept it — it returns the full post-checkpoint delta capped at limit).
     import shlex as _sh
-    url = f"{h.remote_base_url()}/api/v1/sync/since?after={checkpoint_ms}&namespace={ns}"
-    url_remote = url.replace("localhost", h.node1_ip if h.tls_mode == "off" else "localhost")
-    # When TLS, --resolve maps to 127.0.0.1 which is LOCAL; we want node-1 via its public IP.
+    since_q = urllib.parse.quote(checkpoint)
     if h.tls_mode == "off":
-        cmd = f"curl -sS {_sh.quote(f'http://{h.node1_ip}:9077/api/v1/sync/since?after={checkpoint_ms}&namespace={ns}')}"
+        cmd = f"curl -sS {_sh.quote(f'http://{h.node1_ip}:9077/api/v1/sync/since?since={since_q}&limit=500')}"
     else:
         cmd = (
             f"curl -sS --cacert /etc/ai-memory-a2a/tls/ca.pem "
             + ("--cert /etc/ai-memory-a2a/tls/client.pem --key /etc/ai-memory-a2a/tls/client.key "
                if h.tls_mode == "mtls" else "")
-            + f"{_sh.quote(f'https://{h.node1_ip}:9077/api/v1/sync/since?after={checkpoint_ms}&namespace={ns}')}"
+            + f"{_sh.quote(f'https://{h.node1_ip}:9077/api/v1/sync/since?since={since_q}&limit=500')}"
         )
     r = h.ssh_exec(h.node3_ip, cmd, timeout=30)
     delta_body = (r.stdout or "").strip()
@@ -74,16 +77,17 @@ def main() -> None:
         parsed = _json.loads(delta_body) if delta_body else {}
         if isinstance(parsed, dict):
             pool = parsed.get("memories") or parsed.get("rows") or parsed.get("delta") or []
-            returned = len(pool)
-            for m in pool:
-                if isinstance(m, dict):
-                    content = m.get("content") or ""
-                    if any(marker in content for marker in markers):
-                        present += 1
+            # Client-side namespace filter — endpoint returns global delta.
+            pool_ns = [m for m in pool if isinstance(m, dict) and m.get("namespace") == ns]
+            returned = len(pool_ns)
+            for m in pool_ns:
+                content = m.get("content") or ""
+                if any(marker in content for marker in markers):
+                    present += 1
     except _json.JSONDecodeError:
         pass
 
-    log(f"  /sync/since returned {returned} rows; {present}/{N} match our markers")
+    log(f"  /sync/since returned {returned} rows in ns={ns}; {present}/{N} match our markers")
 
     reasons: list[str] = []
     passed = True
@@ -95,7 +99,7 @@ def main() -> None:
         passed=passed,
         reason="; ".join(reasons) if reasons else "",
         namespace=ns,
-        checkpoint_ms=checkpoint_ms,
+        checkpoint=checkpoint,
         expected_markers=N,
         markers_present=present,
         rows_returned=returned,

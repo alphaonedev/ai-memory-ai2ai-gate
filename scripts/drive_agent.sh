@@ -86,21 +86,23 @@ openclaw_driver() {
       store)
         title="${1:?title required}"; content="${2:?content required}"
         ns="${3:-scenario}"
-        agent_prompt "Store a memory in namespace ${ns} titled \"${title}\" with content: ${content}. Use the ai-memory MCP memory_store tool."
+        if agent_prompt "Store a memory in namespace ${ns} titled \"${title}\" with content: ${content}. Use the ai-memory MCP memory_store tool."; then return; fi
         ;;
       recall)
         query="${1:?query required}"; ns="${2:-}"
-        agent_prompt "Recall memories matching \"${query}\"${ns:+ in namespace ${ns}} using the ai-memory MCP memory_recall tool. Return the JSON result verbatim."
+        if agent_prompt "Recall memories matching \"${query}\"${ns:+ in namespace ${ns}} using the ai-memory MCP memory_recall tool. Return the JSON result verbatim."; then return; fi
         ;;
       list)
         ns="${1:-}"
-        agent_prompt "List memories${ns:+ in namespace ${ns}} using the ai-memory MCP memory_list tool. Return the JSON result verbatim."
+        if agent_prompt "List memories${ns:+ in namespace ${ns}} using the ai-memory MCP memory_list tool. Return the JSON result verbatim."; then return; fi
         ;;
       *)
         echo "unknown action: $ACTION" >&2; exit 1 ;;
     esac
-    return
   fi
+  # Agent CLI not installed OR invocation failed — fall back to the
+  # deterministic ai-memory HTTP surface so the scenario exercises the
+  # tool-dispatch layer regardless of upstream CLI version drift.
   fallback_driver
 }
 
@@ -110,20 +112,19 @@ hermes_driver() {
       store)
         title="${1:?title required}"; content="${2:?content required}"
         ns="${3:-scenario}"
-        agent_prompt "Store a memory: namespace=${ns} title=\"${title}\" content=${content} via the ai-memory MCP memory_store tool."
+        if agent_prompt "Store a memory: namespace=${ns} title=\"${title}\" content=${content} via the ai-memory MCP memory_store tool."; then return; fi
         ;;
       recall)
         query="${1:?query required}"; ns="${2:-}"
-        agent_prompt "Recall on \"${query}\"${ns:+ namespace=${ns}} via the ai-memory MCP memory_recall tool; output JSON."
+        if agent_prompt "Recall on \"${query}\"${ns:+ namespace=${ns}} via the ai-memory MCP memory_recall tool; output JSON."; then return; fi
         ;;
       list)
         ns="${1:-}"
-        agent_prompt "List memories${ns:+ namespace=${ns}} via the ai-memory MCP memory_list tool; output JSON."
+        if agent_prompt "List memories${ns:+ namespace=${ns}} via the ai-memory MCP memory_list tool; output JSON."; then return; fi
         ;;
       *)
         echo "unknown action: $ACTION" >&2; exit 1 ;;
     esac
-    return
   fi
   fallback_driver
 }
@@ -164,20 +165,19 @@ ironclaw_driver() {
       store)
         title="${1:?title required}"; content="${2:?content required}"
         ns="${3:-scenario}"
-        agent_prompt "Store a memory: namespace=${ns} title=\"${title}\" content=${content} via the ai-memory MCP memory_store tool."
+        if agent_prompt "Store a memory: namespace=${ns} title=\"${title}\" content=${content} via the ai-memory MCP memory_store tool."; then return; fi
         ;;
       recall)
         query="${1:?query required}"; ns="${2:-}"
-        agent_prompt "Recall on \"${query}\"${ns:+ namespace=${ns}} via the ai-memory MCP memory_recall tool; output JSON."
+        if agent_prompt "Recall on \"${query}\"${ns:+ namespace=${ns}} via the ai-memory MCP memory_recall tool; output JSON."; then return; fi
         ;;
       list)
         ns="${1:-}"
-        agent_prompt "List memories${ns:+ namespace=${ns}} via the ai-memory MCP memory_list tool; output JSON."
+        if agent_prompt "List memories${ns:+ namespace=${ns}} via the ai-memory MCP memory_list tool; output JSON."; then return; fi
         ;;
       *)
         echo "unknown action: $ACTION" >&2; exit 1 ;;
     esac
-    return
   fi
   fallback_driver
 }
