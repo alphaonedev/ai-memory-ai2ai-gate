@@ -1,0 +1,88 @@
+{
+  "campaign_id": "a2a-ironclaw-v3r13-tls-develop",
+  "agent_group": "ironclaw",
+  "ai_memory_git_ref": "develop",
+  "infra": {
+    "provider": "digitalocean",
+    "region": "nyc3",
+    "droplet_size": "s-2vcpu-4gb",
+    "topology": "4-node federation mesh (W=2/N=4)",
+    "nodes": [
+      {
+        "index": 1,
+        "role": "agent",
+        "agent_id": "ai:alice",
+        "public_ip": "104.131.45.7",
+        "private_ip": "10.10.1.5"
+      },
+      {
+        "index": 2,
+        "role": "agent",
+        "agent_id": "ai:bob",
+        "public_ip": "159.65.40.217",
+        "private_ip": "10.10.1.2"
+      },
+      {
+        "index": 3,
+        "role": "agent",
+        "agent_id": "ai:charlie",
+        "public_ip": "104.236.46.98",
+        "private_ip": "10.10.1.4"
+      },
+      {
+        "index": 4,
+        "role": "memory-only",
+        "agent_id": null,
+        "public_ip": "45.55.80.216",
+        "private_ip": "10.10.1.3"
+      }
+    ]
+  },
+  "scenarios_requested": [
+    "1",
+    "1b",
+    "2",
+    "4",
+    "5",
+    "6",
+    "9",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "22",
+    "23",
+    "24",
+    "25",
+    "28",
+    "29",
+    "30",
+    "31",
+    "32",
+    "33",
+    "34",
+    "35",
+    "36",
+    "37",
+    "38",
+    "39",
+    "40",
+    "41",
+    "42"
+  ],
+  "timing": {
+    "started_at": "",
+    "ended_at": ""
+  },
+  "ci": {
+    "actor": "alphaonedev",
+    "workflow_url": "https://github.com/alphaonedev/ai-memory-ai2ai-gate/actions/runs/24790798318",
+    "harness_sha": "905768737e14834dc62e20b0931a529f432093a6",
+    "runner_os": "Linux"
+  }
+}
