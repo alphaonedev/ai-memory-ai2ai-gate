@@ -1136,6 +1136,36 @@ f4_edges_ok=0
 f4_edges_total=0
 f4_edges_detail=()
 IFS=',' read -ra F4_PEER_ARR <<< "$PEER_URLS"
+
+# Pre-F4 sync barrier: wait for ALL peers to start listening before running
+# functional F4 checks. Without this, the first-finishing node's setup runs
+# F4 while slower peers are still provisioning (especially under
+# AI_MEMORY_SOURCE_BUILD=true where cargo build time varies droplet-to-
+# droplet), producing spurious F4 failures that gate baseline_pass.
+# Barrier waits up to 240s per peer for /health to respond. Success on
+# the barrier doesn't validate F4 — it just ensures the peer's serve is
+# up so the actual F4 probe has a fair shot.
+log "F4 pre-barrier: waiting for all peers' /health to respond (up to 240s each)"
+F4_BARRIER_CURL_FLAGS=()
+if [ "$TLS_MODE" != "off" ]; then
+  F4_BARRIER_CURL_FLAGS+=(--cacert "$TLS_CA")
+  [ "$TLS_MODE" = "mtls" ] && F4_BARRIER_CURL_FLAGS+=(--cert "$TLS_CLIENT_CERT" --key "$TLS_CLIENT_KEY")
+fi
+for peer_url in "${F4_PEER_ARR[@]}"; do
+  [ -z "$peer_url" ] && continue
+  peer_label="${peer_url#http*://}"; peer_label="${peer_label%/}"
+  barrier_ok=false
+  for i in $(seq 1 80); do
+    if curl -sS --max-time 3 "${F4_BARRIER_CURL_FLAGS[@]}" "${peer_url%/}/api/v1/health" 2>/dev/null \
+         | jq -e '.status == "ok" or .healthy == true or .ok == true' >/dev/null 2>&1; then
+      barrier_ok=true
+      [ "$i" -gt 1 ] && log "  F4 barrier ${peer_label}: ready on attempt $i (~$((i * 3))s)"
+      break
+    fi
+    sleep 3
+  done
+  $barrier_ok || log "  F4 barrier ${peer_label}: still not responding after 240s (proceeding anyway; F4 will report)"
+done
 # For TLS peer-to-peer, the runner-side peer URLs use the private IP,
 # which doesn't match the server-cert's CN but IS in the SAN (IP:...).
 # rustls under axum-server honours IP SAN entries, so HTTPS to the raw
