@@ -533,7 +533,7 @@ jobs:
           bash scripts/collect_reports.sh a2a-summary.json phase-reports || true
           cat a2a-summary.json 2>/dev/null || echo "no summary"
 
-      - name: Regenerate evidence HTML
+      - name: Copy campaign artefacts into runs/
         if: always()
         run: |
           CAMPAIGN_DIR="runs/${{ github.event.inputs.campaign_id }}"
@@ -542,6 +542,27 @@ jobs:
           cp phase-reports/*.log  "$CAMPAIGN_DIR/" 2>/dev/null || true
           cp -r phase-reports/baselines "$CAMPAIGN_DIR/" 2>/dev/null || true
           cp a2a-summary.json "$CAMPAIGN_DIR/" 2>/dev/null || true
+
+      # Synthesize a tri-audience AI NHI analysis per run by calling
+      # xAI Grok with the full scenario artefact set. Writes
+      # runs/<id>/ai-nhi-analysis.json; the HTML generator prefers this
+      # over the curated global analysis/run-insights.json. Falls back
+      # to a placeholder (counts only) if the LLM call errors, so the
+      # run page always has something to render.
+      - name: Synthesize AI NHI tri-audience analysis
+        if: always()
+        env:
+          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+          A2A_GATE_LLM_MODEL: ${{ github.event.inputs.llm_model }}
+        run: |
+          CAMPAIGN_DIR="runs/${{ github.event.inputs.campaign_id }}"
+          python3 scripts/analyze_run.py "$CAMPAIGN_DIR" || \
+            echo "::warning::analyze_run.py failed; run page will render placeholder analysis"
+
+      - name: Regenerate evidence HTML
+        if: always()
+        run: |
+          CAMPAIGN_DIR="runs/${{ github.event.inputs.campaign_id }}"
           bash scripts/generate_run_html.sh "$CAMPAIGN_DIR" || true
 
       - name: Redact secrets from committed artifacts (belt-and-suspenders)
