@@ -98,31 +98,31 @@ provider "digitalocean" {
 
 locals {
   # Per-(agent_type × tls_mode) VPC CIDR. DO rejects a VPC create when
-  # its IP range overlaps ANY existing VPC in the account — including
-  # one that's mid-teardown from a sibling campaign. The legacy
-  # single-axis map (agent_type only) collided whenever two campaigns
-  # of the same agent_type ran back-to-back (teardown is async on DO's
-  # side; GH Actions concurrency slot releases before the VPC is truly
-  # gone). Expanding to 9+ non-overlapping /24s lets every cell of the
-  # 9-cell matrix {ironclaw,hermes,mixed}×{off,tls,mtls} run without
-  # needing a wait-for-teardown probe between dispatches.
+  # its IP range overlaps ANY existing VPC in the account, including
+  # DO's own region-default VPCs. We observed 10.252.0.0/24 colliding
+  # with nyc3's default VPC (default-subnet-for-vpc-6241e85f) on
+  # 2026-04-22, meaning hermes runs would have failed independent of
+  # any sibling campaign activity.
   #
-  # Second octet = agent_type index (251 ironclaw, 252 hermes,
-  # 253 openclaw, 254 mixed). Third octet = tls_mode index
-  # (0 off, 1 tls, 2 mtls). Ship-gate owns 10.250.0.0/24; keep clear.
+  # Move all CIDRs into 10.10-13.x.0/24 — far from DO's typical
+  # default VPC ranges (10.108.x, 10.124.x, 10.252.x seen in practice)
+  # AND far from ship-gate's 10.250.0.0/24.
+  # Second octet = 10 + agent_type index (10 ironclaw, 11 hermes,
+  # 12 openclaw, 13 mixed). Third octet = tls_mode index
+  # (0 off, 1 tls, 2 mtls).
   vpc_cidr = {
-    "ironclaw|off"  = "10.251.0.0/24"
-    "ironclaw|tls"  = "10.251.1.0/24"
-    "ironclaw|mtls" = "10.251.2.0/24"
-    "hermes|off"    = "10.252.0.0/24"
-    "hermes|tls"    = "10.252.1.0/24"
-    "hermes|mtls"   = "10.252.2.0/24"
-    "openclaw|off"  = "10.253.0.0/24"
-    "openclaw|tls"  = "10.253.1.0/24"
-    "openclaw|mtls" = "10.253.2.0/24"
-    "mixed|off"     = "10.254.0.0/24"
-    "mixed|tls"     = "10.254.1.0/24"
-    "mixed|mtls"    = "10.254.2.0/24"
+    "ironclaw|off"  = "10.10.0.0/24"
+    "ironclaw|tls"  = "10.10.1.0/24"
+    "ironclaw|mtls" = "10.10.2.0/24"
+    "hermes|off"    = "10.11.0.0/24"
+    "hermes|tls"    = "10.11.1.0/24"
+    "hermes|mtls"   = "10.11.2.0/24"
+    "openclaw|off"  = "10.12.0.0/24"
+    "openclaw|tls"  = "10.12.1.0/24"
+    "openclaw|mtls" = "10.12.2.0/24"
+    "mixed|off"     = "10.13.0.0/24"
+    "mixed|tls"     = "10.13.1.0/24"
+    "mixed|mtls"    = "10.13.2.0/24"
   }
   cidr_key = "${var.agent_type}|${var.tls_mode}"
 }
