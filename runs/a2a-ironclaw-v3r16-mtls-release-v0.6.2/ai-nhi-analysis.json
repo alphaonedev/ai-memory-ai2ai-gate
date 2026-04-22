@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-ironclaw-v3r16-mtls-release-v0.6.2",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "This run exposes high operational risk from harness failures, blocking any assessment of production readiness for AI memory sharing. Customer-facing claims remain unvalidated, with no progress versus prior runs. Prioritize debugging the CI workflow to restore testing integrity.",
+  "for_non_technical": "The test campaign didn't work at all because no results were collected from any of the planned scenarios. This means we have no information on whether AI agents can reliably share memories with each other. It's like setting up a big experiment but forgetting to record the outcomes.",
+  "for_sme": "The primary failure mode was complete absence of scenario reports, resulting in all 35 requested scenarios (e.g., S1, S1b, S2, etc.) being effectively skipped. No primitives were impacted or tested due to probable root cause in the harness (SHA: 4bf59f5406248cf8fd87fbccf96f0f537d850a7c) failing to recover outputs. No specific testbook or probe identifiers are available as no per-scenario data was generated. Infrastructure setup (4-node federation mesh) appeared nominal but unutilized.",
+  "headline": "Campaign failed: no scenario reports recovered.",
+  "next_run_change": "Debug and fix the CI harness to ensure scenario reports are properly generated and recovered before the next campaign.",
+  "verdict": "FAIL \u2014 zero scenarios executed or reported.",
+  "what_it_proved": "The run proved a critical flaw in the testing harness, yielding no demonstrable results on agent memory sharing reliability.",
+  "what_it_tested": "No scenarios were exercised, despite requesting 35 across various transport, framework, and primitive axes, due to report recovery failure."
+}
