@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-ironclaw-v3r12-tls-develop",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "This complete test failure indicates high risk and blocks production readiness, as no data supports reliability claims for agent memory sharing. Customer-facing assertions about federation stability remain unvalidated. This represents a regression in CI reliability compared to prior successful runs.",
+  "for_non_technical": "This test run didn't produce any results because no reports were collected from the scenarios. As a result, we couldn't determine if the AI agents can reliably share memories with each other. The testing process itself needs to be fixed before we can evaluate the system's performance.",
+  "for_sme": "No per-scenario results were recovered, pointing to a harness failure in report collection or upload (harness_sha: 6d3fe7aff9ac948a4ca4b8126e7e95452cedc6dc). All 35 requested scenarios (e.g., S1, S1b, S2 through S42) are effectively skipped with no pass/fail data. Probable root cause is a CI workflow issue in artifact handling; no specific primitives or failure modes (F#) observable due to lack of reports.",
+  "headline": "Campaign failed with no scenario reports recovered.",
+  "next_run_change": "Investigate and resolve the report recovery failure in the CI harness to ensure artifact collection works in the next campaign.",
+  "verdict": "FAIL \u2014 no scenario reports recovered",
+  "what_it_proved": "The run demonstrated a complete failure in the testing harness to generate or recover any scenario results.",
+  "what_it_tested": "The campaign requested 35 scenarios to exercise coverage across transport, framework, and primitive axes but recovered no reports."
+}
