@@ -208,6 +208,12 @@ if [ "$TLS_MODE" != "off" ]; then
   if [ "$TLS_MODE" = "mtls" ]; then
     [ -f "$TLS_ALLOWLIST" ] || { log "FATAL: TLS_MODE=mtls but $TLS_ALLOWLIST missing"; exit 1; }
     TLS_FLAGS+=(--mtls-allowlist "$TLS_ALLOWLIST")
+    # Loopback curl must present the campaign client cert under mtls —
+    # rustls enforces the allowlist on /api/v1/health too (verified by
+    # the F7 anonymous-rejection probe). Without this, the initial
+    # health wait and fed_live attestation anonymous-fail and the
+    # provision step exits 1 before baseline.json is written.
+    LOCAL_CURL_FLAGS+=(--cert "$TLS_CLIENT_CERT" --key "$TLS_CLIENT_KEY")
   fi
 fi
 log "starting ai-memory serve scheme=$SERVE_SCHEME tls_mode=$TLS_MODE peers=$PEER_URLS"
