@@ -103,7 +103,9 @@ openclaw_driver() {
   # Agent CLI not installed OR invocation failed — fall back to the
   # deterministic ai-memory HTTP surface so the scenario exercises the
   # tool-dispatch layer regardless of upstream CLI version drift.
-  fallback_driver
+  # Pass through the driver's positional args so fallback_driver's
+  # `${1:?title required}` etc. resolve correctly.
+  fallback_driver "$@"
 }
 
 hermes_driver() {
@@ -126,7 +128,7 @@ hermes_driver() {
         echo "unknown action: $ACTION" >&2; exit 1 ;;
     esac
   fi
-  fallback_driver
+  fallback_driver "$@"
 }
 
 # Fallback when the agent CLI isn't installed: direct ai-memory MCP
@@ -179,7 +181,7 @@ ironclaw_driver() {
         echo "unknown action: $ACTION" >&2; exit 1 ;;
     esac
   fi
-  fallback_driver
+  fallback_driver "$@"
 }
 
 case "$AGENT_TYPE" in
