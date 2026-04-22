@@ -82,26 +82,57 @@ variable "ai_memory_git_ref" {
   description = "ai-memory-mcp release to validate against."
 }
 
+variable "tls_mode" {
+  type        = string
+  default     = "off"
+  description = "Transport mode (off|tls|mtls). Participates in VPC CIDR allocation so N same-agent_type campaigns with different tls_mode can be in-flight simultaneously without VPC collision."
+  validation {
+    condition     = contains(["off", "tls", "mtls"], var.tls_mode)
+    error_message = "tls_mode must be \"off\", \"tls\", or \"mtls\"."
+  }
+}
+
 provider "digitalocean" {
   token = var.do_token
 }
 
 locals {
-  # Per-group VPC CIDR. DO requires distinct CIDRs across
-  # concurrently-provisioned VPCs, so the homogeneous campaigns
-  # each get a /24 that doesn't overlap the ship-gate's
-  # 10.250.0.0/24 or sibling groups.
+  # Per-(agent_type × tls_mode) VPC CIDR. DO rejects a VPC create when
+  # its IP range overlaps ANY existing VPC in the account — including
+  # one that's mid-teardown from a sibling campaign. The legacy
+  # single-axis map (agent_type only) collided whenever two campaigns
+  # of the same agent_type ran back-to-back (teardown is async on DO's
+  # side; GH Actions concurrency slot releases before the VPC is truly
+  # gone). Expanding to 9+ non-overlapping /24s lets every cell of the
+  # 9-cell matrix {ironclaw,hermes,mixed}×{off,tls,mtls} run without
+  # needing a wait-for-teardown probe between dispatches.
+  #
+  # Second octet = agent_type index (251 ironclaw, 252 hermes,
+  # 253 openclaw, 254 mixed). Third octet = tls_mode index
+  # (0 off, 1 tls, 2 mtls). Ship-gate owns 10.250.0.0/24; keep clear.
   vpc_cidr = {
-    ironclaw = "10.251.0.0/24"  # primary Rust agent (replaces openclaw 2026-04-21)
-    hermes   = "10.252.0.0/24"
-    openclaw = "10.253.0.0/24"  # legacy; retained for historical dispatch reproduction
+    "ironclaw|off"  = "10.251.0.0/24"
+    "ironclaw|tls"  = "10.251.1.0/24"
+    "ironclaw|mtls" = "10.251.2.0/24"
+    "hermes|off"    = "10.252.0.0/24"
+    "hermes|tls"    = "10.252.1.0/24"
+    "hermes|mtls"   = "10.252.2.0/24"
+    "openclaw|off"  = "10.253.0.0/24"
+    "openclaw|tls"  = "10.253.1.0/24"
+    "openclaw|mtls" = "10.253.2.0/24"
+    "mixed|off"     = "10.254.0.0/24"
+    "mixed|tls"     = "10.254.1.0/24"
+    "mixed|mtls"    = "10.254.2.0/24"
   }
+  cidr_key = "${var.agent_type}|${var.tls_mode}"
 }
 
 resource "digitalocean_vpc" "a2a" {
-  name     = "aim-a2a-${var.agent_type}-${var.campaign_id}"
+  # Include tls_mode in the VPC name to make the mapping visible in DO's
+  # UI and so two same-agent_type campaigns never collide on name either.
+  name     = "aim-a2a-${var.agent_type}-${var.tls_mode}-${var.campaign_id}"
   region   = var.region
-  ip_range = lookup(local.vpc_cidr, var.agent_type, "10.251.0.0/24")
+  ip_range = lookup(local.vpc_cidr, local.cidr_key, "10.251.0.0/24")
 }
 
 # Three agent droplets — all the same agent_type. Distinct agent_ids
