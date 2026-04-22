@@ -441,10 +441,25 @@ jobs:
           NODE4_IP=${{ steps.wait.outputs.memory_ip }}
           WRITER_AGENT="ai:alice"
 
-          echo "::group::F3 — peer-replication canary"
+          # Under tls/mtls the serve listens on HTTPS only, so plain
+          # http://127.0.0.1:9077 returns connection-refused and F3
+          # always fails. Build the same TLS-aware curl prefix the
+          # Python harness uses.
+          if [ "$TLS_MODE" = "off" ]; then
+            CURL='curl -sS'
+            BASE='http://127.0.0.1:9077'
+          else
+            CURL='curl -sS --cacert /etc/ai-memory-a2a/tls/ca.pem --resolve localhost:9077:127.0.0.1'
+            if [ "$TLS_MODE" = "mtls" ]; then
+              CURL="$CURL --cert /etc/ai-memory-a2a/tls/client.pem --key /etc/ai-memory-a2a/tls/client.key"
+            fi
+            BASE='https://localhost:9077'
+          fi
+
+          echo "::group::F3 — peer-replication canary (tls_mode=$TLS_MODE)"
           # Write on node-1 through the federation coordinator.
           ssh -o StrictHostKeyChecking=no root@$NODE1_IP \
-            "curl -sS -X POST 'http://127.0.0.1:9077/api/v1/memories' \
+            "$CURL -X POST '$BASE/api/v1/memories' \
               -H 'X-Agent-Id: ${WRITER_AGENT}' \
               -H 'Content-Type: application/json' \
               -d '{\"tier\":\"mid\",\"namespace\":\"${CANARY_NS}\",\"title\":\"f3-peer-canary\",\"content\":\"${CANARY_UUID}\",\"priority\":5,\"confidence\":1.0,\"source\":\"api\",\"metadata\":{\"agent_id\":\"${WRITER_AGENT}\",\"probe\":\"F3\"}}'"
@@ -456,7 +471,7 @@ jobs:
           for peer_trip in node-2:$NODE2_IP node-3:$NODE3_IP node-4:$NODE4_IP; do
             name=${peer_trip%%:*}; ip=${peer_trip##*:}
             hit=$(ssh -o StrictHostKeyChecking=no root@$ip \
-              "curl -sS 'http://127.0.0.1:9077/api/v1/memories?namespace=${CANARY_NS}&limit=20' \
+              "$CURL '$BASE/api/v1/memories?namespace=${CANARY_NS}&limit=20' \
                 | jq --arg u '${CANARY_UUID}' '[.memories[]? | select(.content == \$u)] | length'" \
               2>/dev/null | tail -1)
             hit=${hit:-0}
