@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-hermes-v3r17-tls-release-v0.6.2",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "High risk posture due to failures in fundamental sharing and key features, rendering the system not production-ready and customer claims about multi-agent memory unreliable. Viability for external demos is low without fixes. Versus prior runs, this TLS-mode campaign exposes new regressions likely from release v0.6.2 or mesh config changes.",
+  "for_non_technical": "The test checked if AI agents can reliably share and access each other's memories across a network. While some simple sharing worked, many times agents couldn't see or find shared information, and advanced tools like searching or notifications failed. Overall, the system doesn't yet allow agents to dependably exchange memories in all situations.",
+  "for_sme": "Core failures in S1 (MCP recall with identity mismatches), S12 (agent registration visibility), S18 (semantic query misses), S28 (keyword search misses on nodes 2-3), S29 (archive/restore HTTP errors), S30 (capabilities endpoint unexposed), S32 (notify delivery), S33 (pubsub subscribe/unsubscribe), S34 (approval/reject mechanics), S35 (namespace rule inheritance), S36 (session start), S39 (delta sync incomplete), S40 (bulk fanout); impacted primitives include recall, search, archive, notify, subscribe, approve, namespace ops, sessions, delta, bulk. Probable root causes: federation sync lags in TLS mesh, missing endpoint implementations (e.g., 404/405 errors), or v0.6.2 bugs; note S20 skipped (mTLS-only) and S23 unparseable.",
+  "headline": "Regressions in memory sharing and advanced features under TLS.",
+  "next_run_change": "Rerun under mTLS mode to enable S20 and diagnose if stricter TLS resolves identity and sync issues.",
+  "verdict": "FAIL \u2014 21/34 scenarios passed, 13 failed, 1 skipped, 1 unparseable.",
+  "what_it_proved": "Results demonstrated reliable basic sharing in some HTTP paths but failures in core recall, identity checks, search, archiving, notifications, pubsub, approvals, namespace inheritance, sessions, delta sync, and bulk ops, indicating incomplete federation and endpoint issues.",
+  "what_it_tested": "This campaign tested memory sharing, linking, deletion, semantic/keyword search, bulk operations, namespaces, pubsub, approvals, archiving, and federation resilience in a 4-node TLS mesh, covering HTTP transport, multi-cluster framework, and primitives like recall, link, and notify."
+}
