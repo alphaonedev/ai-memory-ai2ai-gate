@@ -1155,25 +1155,43 @@ for peer_url in "${F4_PEER_ARR[@]}"; do
   peer_label="${peer_url#http*://}"
   peer_label="${peer_label%/}"
 
-  # Leg 1: GET /health
+  # Retry F4 probe up to 6 times with 10s backoff. Under AI_MEMORY_SOURCE_BUILD=true
+  # nodes finish provisioning at different times (source-build wall varies
+  # minute-to-minute on t-shirt droplets); the first-finishing node's
+  # baseline can run before slower peers' ai-memory serve is up,
+  # producing spurious F4 failures. With retry, each probe has up to
+  # ~60s of slack for peers to come online. Observed in runs
+  # a2a-ironclaw-v3r11/v3r12-tls-develop where 1 of 3 nodes had 2 of 3
+  # outbound edges "health=false sync=false" on first probe.
   h_ok=false
-  if curl -sS --max-time 5 "${F4_CURL_FLAGS[@]}" "${peer_url%/}/api/v1/health" 2>/dev/null \
-       | jq -e '.status == "ok" or .healthy == true or .ok == true' >/dev/null 2>&1; then
-    h_ok=true
-  fi
-
-  # Leg 2: POST /api/v1/sync/push dry_run — same verb/path scenarios use.
-  # dry_run=true so no row state is perturbed on the peer. Empty memories
-  # array keeps the body valid per the v0.6.0 schema.
   p_ok=false
-  p_resp=$(curl -sS --max-time 5 "${F4_CURL_FLAGS[@]}" \
-    -X POST "${peer_url%/}/api/v1/sync/push" \
-    -H 'Content-Type: application/json' \
-    -d "{\"sender_agent_id\":\"${AGENT_ID}\",\"sender_clock\":{\"entries\":{}},\"memories\":[],\"dry_run\":true}" \
-    2>/dev/null || echo '')
-  if echo "$p_resp" | jq -e '.applied == 0 and .dry_run == true' >/dev/null 2>&1; then
-    p_ok=true
-  fi
+  for attempt in 1 2 3 4 5 6; do
+    # Leg 1: GET /health
+    if curl -sS --max-time 5 "${F4_CURL_FLAGS[@]}" "${peer_url%/}/api/v1/health" 2>/dev/null \
+         | jq -e '.status == "ok" or .healthy == true or .ok == true' >/dev/null 2>&1; then
+      h_ok=true
+    else
+      h_ok=false
+    fi
+
+    # Leg 2: POST /api/v1/sync/push dry_run — same verb/path scenarios use.
+    p_resp=$(curl -sS --max-time 5 "${F4_CURL_FLAGS[@]}" \
+      -X POST "${peer_url%/}/api/v1/sync/push" \
+      -H 'Content-Type: application/json' \
+      -d "{\"sender_agent_id\":\"${AGENT_ID}\",\"sender_clock\":{\"entries\":{}},\"memories\":[],\"dry_run\":true}" \
+      2>/dev/null || echo '')
+    if echo "$p_resp" | jq -e '.applied == 0 and .dry_run == true' >/dev/null 2>&1; then
+      p_ok=true
+    else
+      p_ok=false
+    fi
+
+    if $h_ok && $p_ok; then
+      [ "$attempt" -gt 1 ] && log "  PROBE F4 ${peer_label}: recovered on attempt $attempt"
+      break
+    fi
+    [ "$attempt" -lt 6 ] && sleep 10
+  done
 
   if $h_ok && $p_ok; then
     f4_edges_ok=$((f4_edges_ok + 1))
@@ -1181,7 +1199,7 @@ for peer_url in "${F4_PEER_ARR[@]}"; do
     log "  PROBE F4 ${peer_label}: OK (health + sync_push dry_run)"
   else
     f4_edges_detail+=("${peer_label}:FAIL(health=$h_ok,sync=$p_ok)")
-    log "  PROBE F4 ${peer_label}: FAIL (health=$h_ok, sync_push=$p_ok)"
+    log "  PROBE F4 ${peer_label}: FAIL after 6 attempts (health=$h_ok, sync_push=$p_ok)"
   fi
 done
 if [ "$f4_edges_ok" -eq "$f4_edges_total" ] && [ "$f4_edges_total" -gt 0 ]; then
