@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-hermes-v0.6.2-rc.0-v3r5",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "This campaign failure indicates high risk in the testing pipeline, blocking production readiness assessments for ai-memory v0.6.2-rc.0. Customer-facing claims about reliable agent-to-agent memory federation remain unvalidated. No changes vs. prior runs can be assessed due to zero data.",
+  "for_non_technical": "This test was supposed to check if AI agents can reliably share memories with each other. Unfortunately, the test didn't run properly, and no results were collected. We don't know from this run if the agents share memories well or not.",
+  "for_sme": "The run aborted without recovering any scenario reports, likely due to a harness or infra provisioning failure in the CI workflow (harness_sha: 1d6f036b7bb68a8ba85760e1f0cb17a7170a1054). All 35 requested scenarios (e.g., S1, S1b, S2) across federation mesh topology were impacted, with probable root cause in report aggregation. No specific primitives or failure modes observable without logs.",
+  "headline": "Campaign failed: no scenario reports recovered.",
+  "next_run_change": "Debug and fix the report recovery logic in the CI harness to ensure scenario outputs are captured.",
+  "verdict": "FAIL \u2014 zero scenarios executed or reported.",
+  "what_it_proved": "The run proved nothing about AI memory sharing due to complete absence of scenario outcomes.",
+  "what_it_tested": "No scenarios were exercised; requested 35 scenarios covering various transport, framework, and primitive axes, but none reported results."
+}
