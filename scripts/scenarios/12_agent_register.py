@@ -25,12 +25,17 @@ def main() -> None:
     h = Harness.from_env(SCENARIO_ID, require_node4=True)
     dave_id = f"ai:dave-probe-{new_uuid()[:8]}"
 
+    # agent_type must pass validate::validate_agent_type() — curated list
+    # (human / system / ai:<name>) or the `ai:<name>` open namespace. Prior
+    # scenarios sent "probe" and got HTTP 400 ("agent_type not in curated
+    # list"). Use `ai:probe-v3` so the probe is self-identifying in the
+    # registry while still passing validation.
     log(f"alice registers new agent {dave_id} on node-1")
     _, reg_doc = h.http_on(
         h.node1_ip, "POST", "/api/v1/agents",
         body={
             "agent_id": dave_id,
-            "agent_type": "probe",
+            "agent_type": "ai:probe-v3",
             "capabilities": ["memory_store", "memory_recall"],
         },
         agent_id="ai:alice",

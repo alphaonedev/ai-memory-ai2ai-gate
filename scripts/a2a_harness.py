@@ -50,6 +50,11 @@ class Harness:
     tls_mode: str = "off"
     scenario_id: str = ""
 
+    @staticmethod
+    def new_uuid(prefix: str = "") -> str:
+        """Convenience: `h.new_uuid("prefix-")` calls the module-level helper."""
+        return new_uuid(prefix)
+
     @classmethod
     def from_env(cls, scenario_id: str, *, require_node4: bool = False) -> "Harness":
         need = ["NODE1_IP", "NODE2_IP", "NODE3_IP", "AGENT_GROUP"]
