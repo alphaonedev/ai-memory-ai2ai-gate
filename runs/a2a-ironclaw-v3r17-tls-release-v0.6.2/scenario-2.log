@@ -1,0 +1,8 @@
+phase A: ai:alice writes handoff to ai:bob (uuid=h-9e83fcf06d834bf6a66b488558aac451)
+settle 8s for quorum fanout
+phase B: ai:bob reads handoff on node-2
+  ai:bob sees 1 handoff memories from ai:alice
+phase C: ai:bob writes acknowledgement (uuid=a-1c49b324feb3482188237fa481bc2318)
+settle 8s for reverse-direction fanout
+phase D: ai:alice reads ack on node-1
+  ai:alice sees 1 ack memories from ai:bob

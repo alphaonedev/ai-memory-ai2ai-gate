@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-ironclaw-v3r17-tls-release-v0.6.2",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "High production risk from replication failures and broken APIs; not ready for reliability claims to customers; regressions in endpoint availability vs. prior releases, blocking v0.6.2 promotion.",
+  "for_non_technical": "In this test, AI agents often failed to reliably share and recall memories across the network, especially for basic sharing and searches. Some features like linking memories or deleting them worked well. Overall, the system isn't fully dependable for group memory sharing yet.",
+  "for_sme": "Core replication failed in S1 (0/20 recall via MCP, identity mismatches); semantic search missed in S18; keyword search absent in S28; archive/restore broken in S29 (405/404); capabilities missing in S30; notify/inbox failed in S32 (404); subscribe/unsubscribe erred in S33 (404); approval workflows broken in S34 (405/403/404); namespace inheritance failed in S35 (405); session start 404 in S36; delta-sync incomplete in S39 (0/6); bulk ingest rejected in S40 (422, 0/500). Likely root: incomplete TLS impl, missing handlers (F# endpoint exposure).",
+  "headline": "TLS federation exposes replication and API failures in v0.6.2",
+  "next_run_change": "Enable mTLS mode to validate mutual auth and re-run skipped S20.",
+  "verdict": "FAIL \u2014 22/35 scenarios passed, 12 failed, 1 skipped",
+  "what_it_proved": "Results showed core failures in replication, semantic search, and multiple API endpoints like archive, notify, and subscribe, while basic CRUD and linking succeeded.",
+  "what_it_tested": "Exercised 35 scenarios testing memory replication, linking, deletion, semantic/keyword search, namespace ops, and recovery across HTTP/TLS transport in 4-node mesh using CRUD and advanced primitives."
+}
