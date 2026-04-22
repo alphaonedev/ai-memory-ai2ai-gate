@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-ironclaw-v3r15-mtls-develop",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "This run poses high risk due to total failure in collecting any test outcomes, indicating the system is not production-ready. No customer-facing claims about reliable AI memory sharing can be supported. Compared to prior runs, this represents a regression in testing infrastructure stability.",
+  "for_non_technical": "The test to check if AI agents can reliably share memories with each other didn't work at all. No results were collected, so we have no idea if agents can remember things from one another. This means the system isn't proven to work as expected.",
+  "for_sme": "The run failed entirely with no scenario reports recovered, impacting all requested scenarios (1,1b,2,4-6,9-18,22-25,28-42) across mTLS federation mesh. Probable root cause is a bug in the CI harness artifact collection (harness_sha: 006cdf4a787bfec7cfc5007fd40ae990e22e5860). No primitives were tested; all effectively skipped with overall_pass false.",
+  "headline": "Campaign failed with no scenario reports recovered.",
+  "next_run_change": "Fix the scenario report recovery mechanism in the CI workflow to ensure artifacts are collected properly.",
+  "verdict": "FAIL \u2014 no scenario reports recovered",
+  "what_it_proved": "The results demonstrated a complete failure in the testing harness, providing no evidence on memory sharing reliability or functionality.",
+  "what_it_tested": "This run intended to exercise 35 scenarios covering basic to advanced AI-to-AI memory sharing across mTLS transport, various frameworks, and federation primitives but recovered no reports."
+}
