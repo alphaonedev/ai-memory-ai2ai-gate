@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-hermes-v3r15-mtls-develop",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "The campaign completely failed to yield results, elevating risk posture due to untested changes in the develop branch. Production readiness remains unassessed, and no customer-facing claims can be validated. No progress or changes detected versus prior runs since nothing was tested.",
+  "for_non_technical": "This test run didn't produce any results because no reports were collected from the scenarios. We can't tell if agents reliably share memories or not. It seems like there was a problem with the setup or data collection.",
+  "for_sme": "No scenario reports were recovered for any of the 35 requested scenarios (e.g., S1, S2, S4 through S42), indicating a harness failure at sha 006cdf4a787bfec7cfc5007fd40ae990e22e5860. All coverage axes (transport, framework, primitives) were untested, effectively skipping everything. Probable root cause: error in infrastructure provisioning, scenario execution, or report aggregation in the CI workflow.",
+  "headline": "Campaign failed: no scenario reports recovered.",
+  "next_run_change": "Debug and resolve report recovery issues in the CI harness to ensure scenario results are captured.",
+  "verdict": "FAIL \u2014 no scenario reports recovered",
+  "what_it_proved": "The run proved a critical failure in the testing infrastructure or harness, as no scenario results were generated or recovered.",
+  "what_it_tested": "No scenarios were exercised, despite requesting 35 scenarios across various transport, framework, and primitive axes, due to report recovery failure."
+}
