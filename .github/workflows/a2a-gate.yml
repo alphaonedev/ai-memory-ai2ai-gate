@@ -84,7 +84,7 @@ jobs:
   campaign:
     name: "a2a-${{ github.event.inputs.agent_group }} — provision + run scenarios"
     runs-on: ubuntu-24.04
-    timeout-minutes: 60
+    timeout-minutes: 50
     env:
       DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
       DIGITALOCEAN_SSH_KEY_FINGERPRINT: ${{ secrets.DIGITALOCEAN_SSH_KEY_FINGERPRINT }}
@@ -129,6 +129,7 @@ jobs:
       # uses). Droplets inside the orphan VPC are deleted first because
       # DO refuses to delete a VPC with attached resources.
       - name: Pre-apply VPC cleanup (delete orphans colliding with target CIDR)
+        timeout-minutes: 6
         env:
           DO_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
         run: |
@@ -198,6 +199,7 @@ jobs:
           echo "pre-apply cleanup complete"
 
       - name: Terraform init + apply
+        timeout-minutes: 8
         working-directory: terraform
         run: |
           terraform init
@@ -205,6 +207,7 @@ jobs:
           terraform output -json > ../terraform-output.json
 
       - name: Wait for SSH
+        timeout-minutes: 3
         id: wait
         run: |
           set -e
@@ -240,6 +243,7 @@ jobs:
           echo "node3_priv=$NODE3_PRIV"   >> "$GITHUB_OUTPUT"
 
       - name: Generate ephemeral TLS material
+        timeout-minutes: 2
         if: env.TLS_MODE != 'off'
         id: tls
         run: |
@@ -321,6 +325,7 @@ jobs:
           echo "::notice::TLS material generated: tls_mode=$TLS_MODE"
 
       - name: Provision all 4 nodes (federation mesh)
+        timeout-minutes: 15
         timeout-minutes: 35
         run: |
           set -e
@@ -383,6 +388,7 @@ jobs:
           [ "$FAIL" = "0" ] || { echo "::error::one or more nodes failed to provision"; exit 1; }
 
       - name: Collect + enforce BASELINE on every agent node
+        timeout-minutes: 5
         id: baseline
         run: |
           set -e
@@ -422,6 +428,7 @@ jobs:
           fi
 
       - name: Functional probe F3 — peer A2A via shared memory
+        timeout-minutes: 2
         if: steps.baseline.outputs.baseline_ok == 'true'
         id: probe_f3
         run: |
@@ -510,6 +517,7 @@ jobs:
       # scripts/scenarios/ are logged as a warning and skipped by the
       # "Run scenarios" step, so partial rollouts don't block CI.
       - name: Compute scenarios list
+        timeout-minutes: 1
         id: compute_scenarios
         run: |
           set -eu
@@ -529,6 +537,7 @@ jobs:
           echo "::notice::final scenario list (base + tls=${TLS_MODE} + group=${AGENT_GROUP}): $FINAL"
 
       - name: Run scenarios
+        timeout-minutes: 25
         if: steps.baseline.outputs.baseline_ok == 'true' && steps.probe_f3.outputs.f3_ok == 'true'
         id: scenarios
         run: |
@@ -742,6 +751,7 @@ jobs:
           exit 1
 
       - name: Tear down infrastructure
+        timeout-minutes: 6
         if: always()
         working-directory: terraform
         run: |
