@@ -71,22 +71,38 @@ class Harness:
 
     # -------- ssh primitives --------
 
-    def ssh_exec(self, node_ip: str, remote_cmd: str, *, timeout: int = 60,
+    def _run(self, cmd: list[str], *, timeout: int, stdin: str | None = None
+             ) -> subprocess.CompletedProcess:
+        """Thin wrapper around subprocess.run that converts TimeoutExpired
+        into a CompletedProcess(returncode=124) so scenario code can check
+        returncode uniformly instead of wrapping every call in try/except.
+        Exit code 124 matches the coreutils `timeout(1)` convention.
+        """
+        try:
+            return subprocess.run(
+                cmd, capture_output=True, text=True, timeout=timeout, input=stdin,
+            )
+        except subprocess.TimeoutExpired as e:
+            log(f"  !! ssh timeout ({timeout}s): {' '.join(cmd[-2:])}")
+            return subprocess.CompletedProcess(
+                args=cmd, returncode=124,
+                stdout=(e.stdout or b"").decode("utf-8", "replace") if isinstance(e.stdout, bytes) else (e.stdout or ""),
+                stderr=f"__TIMEOUT_{timeout}s__",
+            )
+
+    def ssh_exec(self, node_ip: str, remote_cmd: str, *, timeout: int = 120,
                  stdin: str | None = None) -> subprocess.CompletedProcess:
-        """Run `remote_cmd` on `node_ip` via ssh. Never raises on non-zero exit."""
+        """Run `remote_cmd` on `node_ip` via ssh. Never raises on non-zero
+        exit or timeout — returncode=124 on timeout (coreutils convention)."""
         cmd = ["ssh", *SSH_OPTS, f"root@{node_ip}", remote_cmd]
-        return subprocess.run(
-            cmd, capture_output=True, text=True, timeout=timeout, input=stdin,
-        )
+        return self._run(cmd, timeout=timeout, stdin=stdin)
 
     def ssh_bash_script(self, node_ip: str, script: str, *args: str,
-                        timeout: int = 120) -> subprocess.CompletedProcess:
+                        timeout: int = 180) -> subprocess.CompletedProcess:
         """Pipe a multi-line bash script into a remote `bash -s -- arg1 arg2...`."""
         argv = " ".join(shlex.quote(a) for a in args)
         cmd = ["ssh", *SSH_OPTS, f"root@{node_ip}", f"bash -s -- {argv}"]
-        return subprocess.run(
-            cmd, capture_output=True, text=True, timeout=timeout, input=script,
-        )
+        return self._run(cmd, timeout=timeout, stdin=script)
 
     # -------- curl construction --------
 
@@ -107,7 +123,7 @@ class Harness:
                 body: Any | None = None, agent_id: str | None = None,
                 extra_headers: dict[str, str] | None = None,
                 include_status: bool = False,
-                timeout: int = 30) -> tuple[int, Any]:
+                timeout: int = 60) -> tuple[int, Any]:
         """Run an HTTP request against `node_ip`'s LOCAL ai-memory HTTP daemon via ssh+curl.
 
         Returns `(ssh_returncode, parsed_response)` where parsed_response is
