@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-hermes-v3r18-mtls-release-v0.6.2",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "High operational risk from regressions in core memory propagation and unimplemented advanced APIs, rendering the release not production-ready. Customer claims of secure, reliable AI2AI memory sharing are not viable under mTLS. Versus prior runs, this introduces identity and endpoint exposure issues, delaying gated release.",
+  "for_non_technical": "The AI agents could not reliably share memories in many important tests, such as recalling information from each other or getting notifications about new memories. While some basic sharing worked, features like storing memories for later or subscribing to updates failed completely. This means the system does not yet allow agents to dependably exchange and use shared knowledge.",
+  "for_sme": "Core failures in S1 (MCP recall with identity mismatches per per_namespace_node4), S12 (agent registration visibility), S18 (semantic query misses), S29 (archive visibility and restore 404), S30 (capabilities endpoint unexposed), S32 (notify 404 and delivery), S33 (subscribe/unsubscribe 404), S34 (set-standard 405, approve 403, reject 404 with leakage), S35 (set-parent/child 405, clear 405, no rule layering), S36 (session start 404), S39 (delta sync incomplete), S40 (bulk fanout to 0 rows). Probable roots: mTLS cert-based identity enforcement blocking cross-node ops, missing endpoint implementations yielding 404/405, and incomplete fanout propagation. Prioritize endpoint stubs and identity probe F# per_ns checks.",
+  "headline": "mTLS v0.6.2 fails core sharing and advanced memory features.",
+  "next_run_change": "Fix mTLS identity propagation and implement stub responses for 404/405 endpoints like notify and subscribe before next run.",
+  "verdict": "FAIL \u2014 24/36 passed, 12 failed, 1 skipped.",
+  "what_it_proved": "Results demonstrated reliable HTTP-based sharing and some primitives like deletion and promotion, but proved failures in MCP recall, agent registration, semantic search, and advanced features including notifications, subscriptions, and namespace rules.",
+  "what_it_tested": "This campaign exercised 36 scenarios testing mTLS transport security, agent framework interactions, and memory primitives like recall, linking, archiving, pubsub, and bulk operations across a 4-node mesh."
+}
