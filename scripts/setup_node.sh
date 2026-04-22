@@ -197,6 +197,12 @@ if [ "$TLS_MODE" != "off" ]; then
   done
   TLS_FLAGS+=(--tls-cert "$TLS_CERT" --tls-key "$TLS_KEY")
   TLS_FLAGS+=(--quorum-client-cert "$TLS_CERT" --quorum-client-key "$TLS_KEY")
+  # #334: trust the campaign's ephemeral CA in the outbound federation
+  # reqwest client. Without this, quorum writes time out with
+  # quorum_not_met because rustls-tls (webpki-roots only) rejects the
+  # peer cert chain. Requires ai-memory-mcp develop@635615a or newer
+  # (i.e. AI_MEMORY_SOURCE_BUILD=true until v0.6.2 Patch 2 is cut).
+  TLS_FLAGS+=(--quorum-ca-cert "$TLS_CA")
   LOCAL_CURL_FLAGS=(--cacert "$TLS_CA" --resolve "localhost:9077:127.0.0.1")
   CLIENT_CURL_FLAGS=(--cacert "$TLS_CA" --cert "$TLS_CLIENT_CERT" --key "$TLS_CLIENT_KEY")
   if [ "$TLS_MODE" = "mtls" ]; then
