@@ -14,13 +14,13 @@ on:
   workflow_dispatch:
     inputs:
       ai_memory_git_ref:
-        description: "ai-memory-mcp git ref. When ai_memory_source_build=false, must be a release tag (v0.6.2-rc.N / v0.6.2) — the tarball URL is built from this. When ai_memory_source_build=true, any branch name or SHA is valid — setup_node.sh clones + builds from source."
+        description: "ai-memory-mcp git ref. When ai_memory_source_build=false, must be a release tag — the tarball URL is built from this. When ai_memory_source_build=true, any branch name or SHA is valid — setup_node.sh clones + builds from source. Default 'release/v0.6.2' matches the v0.6.2 Patch 2 release freeze (PR #357 merged, no tag cut yet)."
         required: true
-        default: "v0.6.2-rc.0"
+        default: "release/v0.6.2"
       ai_memory_source_build:
-        description: "Build ai-memory from source on each droplet instead of downloading a release tarball. Use when testing an unreleased fix on a branch (e.g. 'develop' under the v0.6.2 Patch 2 release freeze). Adds ~3-5 min per node."
+        description: "Build ai-memory from source on each droplet instead of downloading a release tarball. Default 'true' because the v0.6.2 Patch 2 release freeze means no release tarball exists at the 'release/v0.6.2' branch tip. Adds ~3-5 min per node."
         required: false
-        default: "false"
+        default: "true"
         type: choice
         options:
           - "false"
@@ -299,14 +299,22 @@ jobs:
             -extfile client/v3.ext 2>/dev/null
           cp ca/ca.pem client/ca.pem
           # 4. Fingerprints + allowlist (only meaningful when mtls).
+          # ai-memory's load_fingerprint_allowlist (src/main.rs) skips lines
+          # that START with `#` but does NOT strip trailing inline comments.
+          # A `sha256:<fpr>  # node-N` line is parsed whole and fails the
+          # 64-hex-char length check ("got 74"), aborting `ai-memory serve`
+          # before baseline.json is written. Emit labels as their own
+          # comment lines so the fingerprint lines are pure hex.
           echo "# Campaign $CAMPAIGN_ID — mTLS fingerprint allowlist" > allowlist.txt
           echo "# Node server certs + gate client cert. Regenerated per campaign." >> allowlist.txt
           for n in 1 2 3 4; do
             fpr=$(openssl x509 -in "node-${n}/server.pem" -noout -fingerprint -sha256 | sed -e 's/^.*=//' -e 's/://g' | tr 'A-Z' 'a-z')
-            echo "sha256:$fpr  # node-${n}" >> allowlist.txt
+            echo "# node-${n}" >> allowlist.txt
+            echo "sha256:$fpr" >> allowlist.txt
           done
           fpr=$(openssl x509 -in client/client.pem -noout -fingerprint -sha256 | sed -e 's/^.*=//' -e 's/://g' | tr 'A-Z' 'a-z')
-          echo "sha256:$fpr  # gate-client" >> allowlist.txt
+          echo "# gate-client" >> allowlist.txt
+          echo "sha256:$fpr" >> allowlist.txt
           # 5. Distribute bundle per-node. Each node gets: ca.pem,
           # server.pem, server.key, allowlist.txt, client.pem, client.key.
           # The gate client cert lives on every node so F7/S21 can probe
