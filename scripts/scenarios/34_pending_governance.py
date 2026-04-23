@@ -27,12 +27,21 @@ def main() -> None:
     rejected_marker = new_uuid("rejected-")
 
     log(f"alice sets namespace standard on {ns}: write=approve, approver=ai:bob")
+    # ai-memory-mcp GovernancePolicy requires all 4 fields (write/promote/
+    # delete/approver). No serde defaults yet — until that product-side fix
+    # lands, send the full policy with sensible defaults for the fields
+    # this scenario doesn't exercise.
     _, std_doc = h.http_on(
         h.node1_ip, "POST", "/api/v1/namespaces",
         body={
             "namespace": ns,
             "standard": {
-                "governance": {"write": "approve", "approver": {"agent": "ai:bob"}},
+                "governance": {
+                    "write": "approve",
+                    "promote": "any",
+                    "delete": "owner",
+                    "approver": {"agent": "ai:bob"},
+                },
             },
         },
         agent_id="ai:alice", include_status=True,

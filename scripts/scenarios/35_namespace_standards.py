@@ -61,7 +61,10 @@ def main() -> None:
     h.settle(4, reason="standard fanout")
 
     log(f"bob gets standard for {child} on node-2 (expects layered parent+child)")
-    _, std_doc = h.http_on(h.node2_ip, "GET", f"/api/v1/namespaces?namespace={child}",
+    # `inherit=true` is required to get the layered parent+child rule
+    # chain. Without it the handler returns only the child's own
+    # standard (ai-memory-mcp mcp.rs:1912).
+    _, std_doc = h.http_on(h.node2_ip, "GET", f"/api/v1/namespaces?namespace={child}&inherit=true",
                            include_status=True)
     std_code = (std_doc or {}).get("http_code", 0) if isinstance(std_doc, dict) else 0
     body = (std_doc or {}).get("body") if isinstance(std_doc, dict) else None
