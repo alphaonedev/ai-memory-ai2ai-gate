@@ -1,0 +1,10 @@
+alice writes M1 content=v0-c20de9d421ec4c50a5dbed5cc945df5b on node-1
+  M1 id=36bf75b0-2dbe-4dfc-8388-0d0e2c119dc1
+settle 5s for initial replication
+alice + bob issue concurrent PUTs (vA=va-51cb55828d9e43f1a552512a97b94cf7 from alice, vB=vb-1fc6faca5a9f415eb0f92b08b2371a3d from bob)
+  concurrent PUT results: [(0, {'body': {'access_count': 0, 'confidence': 1.0, 'content': 'va-51cb55828d9e43f1a552512a97b94cf7', 'created_at': '2026-04-23T21:56:59.845477314+00:00', 'expires_at': '2026-04-30T21:56:59.845477314+00:00', 'id': '36bf75b0-2dbe-4dfc-8388-0d0e2c119dc1', 'metadata': {'agent_id': 'ai:alice', 'scenario': '13'}, 'namespace': 'scenario13-contention', 'priority': 5, 'source': 'api', 'tags': [], 'tier': 'mid', 'title': 'm1', 'updated_at': '2026-04-23T21:57:05.488486735+00:00'}, 'http_code': 200}), (0, {'body': {'access_count': 0, 'confidence': 1.0, 'content': 'vb-1fc6faca5a9f415eb0f92b08b2371a3d', 'created_at': '2026-04-23T21:56:59.845477314+00:00', 'expires_at': '2026-04-30T21:56:59.845477314+00:00', 'id': '36bf75b0-2dbe-4dfc-8388-0d0e2c119dc1', 'metadata': {'agent_id': 'ai:alice', 'scenario': '13'}, 'namespace': 'scenario13-contention', 'priority': 5, 'source': 'api', 'tags': [], 'tier': 'mid', 'title': 'm1', 'updated_at': '2026-04-23T21:57:05.591090828+00:00'}, 'http_code': 200})]
+settle 10s for quorum convergence
+  node-1 sees content=vb-1fc6faca5a9f415eb0f92b08b2371a3d
+  node-2 sees content=vb-1fc6faca5a9f415eb0f92b08b2371a3d
+  node-3 sees content=vb-1fc6faca5a9f415eb0f92b08b2371a3d
+  node-4 sees content=vb-1fc6faca5a9f415eb0f92b08b2371a3d
