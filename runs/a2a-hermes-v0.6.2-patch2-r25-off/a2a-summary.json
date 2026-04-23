@@ -1,0 +1,791 @@
+{
+  "campaign_id": "a2a-hermes-v0.6.2-patch2-r25-off",
+  "agent_group": "hermes",
+  "ai_memory_git_ref": "release/v0.6.2",
+  "completed_at": "2026-04-23T20:46:29Z",
+  "overall_pass": false,
+  "scenarios": [
+    {
+      "agent_group": "hermes",
+      "expected_per_reader": 20,
+      "pass": true,
+      "per_agent": {
+        "ai:alice": {
+          "recall": 20
+        },
+        "ai:bob": {
+          "recall": 20
+        },
+        "ai:charlie": {
+          "recall": 20
+        }
+      },
+      "per_namespace_node4": {
+        "scenario1-ai:alice": {
+          "count": 10,
+          "wrong_agent_id": 0
+        },
+        "scenario1-ai:bob": {
+          "count": 10,
+          "wrong_agent_id": 0
+        },
+        "scenario1-ai:charlie": {
+          "count": 10,
+          "wrong_agent_id": 0
+        }
+      },
+      "reasons": [],
+      "scenario": "1",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "hermes",
+      "delete_http_code": 200,
+      "m1_id": "924b41e3-fb5a-473c-a93c-5b5b0b3ce592",
+      "pass": true,
+      "post_delete_hits": {
+        "node-2": 0,
+        "node-3": 0,
+        "node-4": 0
+      },
+      "post_delete_still_visible_peers": 0,
+      "pre_delete_visible_peers": 3,
+      "reasons": [],
+      "scenario": "10",
+      "skipped": false,
+      "tls_mode": "off",
+      "uuid": "d-6d4be220ce6c4496a7948e46233e46aa"
+    },
+    {
+      "agent_group": "hermes",
+      "charlie_sees_link": 1,
+      "link_http_code": 201,
+      "m1_id": "4326350a-2c34-4509-9a47-2f9cab41a146",
+      "m2_id": "d5158bd6-4ad1-49fc-ab44-093d235e821b",
+      "pass": true,
+      "reasons": [],
+      "relation": "related_to",
+      "scenario": "11",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "hermes",
+      "pass": true,
+      "peers_see": {
+        "node_2": 1,
+        "node_3": 1,
+        "node_4": 1
+      },
+      "reasons": [],
+      "register_http_code": 201,
+      "registered_agent": "ai:dave-probe-1eefc6ba",
+      "scenario": "12",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "hermes",
+      "m1_id": "c0ae4256-034b-48a8-a97f-61b4b55947fd",
+      "pass": true,
+      "peer_view": {
+        "node_1": "vb-ffa01bf129674c7f8b90750e10368147",
+        "node_2": "vb-ffa01bf129674c7f8b90750e10368147",
+        "node_3": "vb-ffa01bf129674c7f8b90750e10368147",
+        "node_4": "vb-ffa01bf129674c7f8b90750e10368147"
+      },
+      "reasons": [],
+      "scenario": "13",
+      "skipped": false,
+      "submitted": {
+        "v0": "v0-173527d3ed994018824681d53987c7ea",
+        "vA_alice": "va-a03f1cc3197a47a3a9f55d221e470fe2",
+        "vB_bob": "vb-ffa01bf129674c7f8b90750e10368147"
+      },
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "hermes",
+      "expected_post_recovery": 20,
+      "node3_saw": 20,
+      "partition_target": "node-3",
+      "pass": true,
+      "reasons": [],
+      "scenario": "14",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "hermes",
+      "pass": true,
+      "reasons": [],
+      "scenario": "15",
+      "skipped": false,
+      "tls_mode": "off",
+      "uuid": "ryw-51645efa28104d8fbf9c50d46dd0dfdd",
+      "writer_sees_own_write": 1
+    },
+    {
+      "agent_group": "hermes",
+      "bob_sees_tier": "long",
+      "m1_id": "8be2da31-b358-440f-80f4-74cfced7acda",
+      "pass": true,
+      "promote_http_code": 200,
+      "reasons": [],
+      "scenario": "16",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "hermes",
+      "expected_count": 15,
+      "pass": true,
+      "per_peer": {
+        "node_1": 15,
+        "node_2": 15,
+        "node_3": 15,
+        "node_4": 15
+      },
+      "reasons": [],
+      "scenario": "17",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "hermes",
+      "pass": false,
+      "query": "morning outdoor exercise routine",
+      "reason": "semantic query did not surface bob's memory",
+      "reasons": [
+        "semantic query did not surface bob's memory"
+      ],
+      "scenario": "18",
+      "skipped": false,
+      "tls_mode": "off",
+      "writers": [
+        {
+          "agent": "ai:alice",
+          "marker": "alice-sunrise-1857dd4f",
+          "seen_by_charlie": 1
+        },
+        {
+          "agent": "ai:bob",
+          "marker": "bob-daybreak-00784da2",
+          "seen_by_charlie": 0
+        }
+      ]
+    },
+    {
+      "agent_group": "hermes",
+      "expected_per_reader": 20,
+      "pass": true,
+      "path": "serve-http",
+      "per_agent": {
+        "ai:alice": {
+          "recall": 20
+        },
+        "ai:bob": {
+          "recall": 20
+        },
+        "ai:charlie": {
+          "recall": 20
+        }
+      },
+      "per_namespace_node4": {
+        "scenario1b-ai:alice": {
+          "count": 10,
+          "wrong_agent_id": 0
+        },
+        "scenario1b-ai:bob": {
+          "count": 10,
+          "wrong_agent_id": 0
+        },
+        "scenario1b-ai:charlie": {
+          "count": 10,
+          "wrong_agent_id": 0
+        }
+      },
+      "reasons": [],
+      "scenario": "1b",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "ack_uuid": "a-58f570f27cfd4e84843a204420b89e13",
+      "agent_group": "hermes",
+      "handoff_uuid": "h-21364f8365ad4d47bb0f26ed033dd971",
+      "pass": true,
+      "path": "serve-http",
+      "per_agent": {
+        "ai:alice": {
+          "sees_ack": 1
+        },
+        "ai:bob": {
+          "sees_handoff": 1
+        }
+      },
+      "reasons": [],
+      "scenario": "2",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "hermes",
+      "pass": true,
+      "reasons": [],
+      "scenario": "22",
+      "skipped": false,
+      "tests": {
+        "body_vs_header_conflict": {
+          "acceptable": [
+            "ai:body-wins",
+            "ai:attacker"
+          ],
+          "stored_agent_id": "ai:attacker"
+        },
+        "header_only": {
+          "expected": "ai:alice",
+          "stored_agent_id": "ai:alice"
+        }
+      },
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "hermes",
+      "byzantine_marker": "bz-ffa067f386554def8f421214efa2b76e",
+      "pass": true,
+      "reasons": [],
+      "scenario": "24",
+      "skipped": false,
+      "stored_metadata_agent_id": "REJECTED_BY_SERVER",
+      "sync_push_http_code": "422",
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "hermes",
+      "clock_offset_seconds": 300,
+      "marker": "ck-ae565070642a4c54bd53f4abc03e337a",
+      "pass": true,
+      "reasons": [],
+      "scenario": "25",
+      "seen_on": {
+        "node_1": 1,
+        "node_3": 1
+      },
+      "skipped": false,
+      "target_node": "node-3",
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "hermes",
+      "pass": true,
+      "peer_hits": {
+        "node_2": 1,
+        "node_3": 1
+      },
+      "reasons": [],
+      "scenario": "28",
+      "skipped": false,
+      "tls_mode": "off",
+      "token": "kwsearch260d6bdbe7"
+    },
+    {
+      "agent_group": "hermes",
+      "archive_http_code": 200,
+      "bob_sees_archived": true,
+      "m1_id": "f4647989-b842-42bf-bb3f-504f97aa122e",
+      "node4_active_rows": 1,
+      "pass": true,
+      "reasons": [],
+      "restore_http_code": 200,
+      "scenario": "29",
+      "skipped": false,
+      "stats_shape_ok": true,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "hermes",
+      "pass": true,
+      "peer_views": {
+        "node_1": {
+          "_path": "/api/v1/capabilities",
+          "features": {
+            "auto_consolidation": false,
+            "auto_tagging": false,
+            "contradiction_analysis": false,
+            "cross_encoder_reranking": false,
+            "embedder_loaded": true,
+            "hybrid_recall": true,
+            "keyword_search": true,
+            "memory_reflection": false,
+            "query_expansion": false,
+            "semantic_search": true
+          },
+          "models": {
+            "cross_encoder": "none",
+            "embedding": "sentence-transformers/all-MiniLM-L6-v2",
+            "embedding_dim": 384,
+            "llm": "none"
+          },
+          "tier": "semantic",
+          "version": "0.6.2"
+        },
+        "node_2": {
+          "_path": "/api/v1/capabilities",
+          "features": {
+            "auto_consolidation": false,
+            "auto_tagging": false,
+            "contradiction_analysis": false,
+            "cross_encoder_reranking": false,
+            "embedder_loaded": true,
+            "hybrid_recall": true,
+            "keyword_search": true,
+            "memory_reflection": false,
+            "query_expansion": false,
+            "semantic_search": true
+          },
+          "models": {
+            "cross_encoder": "none",
+            "embedding": "sentence-transformers/all-MiniLM-L6-v2",
+            "embedding_dim": 384,
+            "llm": "none"
+          },
+          "tier": "semantic",
+          "version": "0.6.2"
+        },
+        "node_3": {
+          "_path": "/api/v1/capabilities",
+          "features": {
+            "auto_consolidation": false,
+            "auto_tagging": false,
+            "contradiction_analysis": false,
+            "cross_encoder_reranking": false,
+            "embedder_loaded": true,
+            "hybrid_recall": true,
+            "keyword_search": true,
+            "memory_reflection": false,
+            "query_expansion": false,
+            "semantic_search": true
+          },
+          "models": {
+            "cross_encoder": "none",
+            "embedding": "sentence-transformers/all-MiniLM-L6-v2",
+            "embedding_dim": 384,
+            "llm": "none"
+          },
+          "tier": "semantic",
+          "version": "0.6.2"
+        },
+        "node_4": {
+          "_path": "/api/v1/capabilities",
+          "features": {
+            "auto_consolidation": false,
+            "auto_tagging": false,
+            "contradiction_analysis": false,
+            "cross_encoder_reranking": false,
+            "embedder_loaded": true,
+            "hybrid_recall": true,
+            "keyword_search": true,
+            "memory_reflection": false,
+            "query_expansion": false,
+            "semantic_search": true
+          },
+          "models": {
+            "cross_encoder": "none",
+            "embedding": "sentence-transformers/all-MiniLM-L6-v2",
+            "embedding_dim": 384,
+            "llm": "none"
+          },
+          "tier": "semantic",
+          "version": "0.6.2"
+        }
+      },
+      "reasons": [],
+      "scenario": "30",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "hermes",
+      "expected_live": 2,
+      "forget_http_code": 400,
+      "gc_http_code": 200,
+      "live_markers_per_peer": {
+        "node_1": 2,
+        "node_2": 2,
+        "node_3": 2,
+        "node_4": 2
+      },
+      "pass": true,
+      "reasons": [],
+      "scenario": "31",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "hermes",
+      "bob_inbox_count": 1,
+      "bob_sees_marker": true,
+      "charlie_inbox_count": 0,
+      "charlie_sees_marker": false,
+      "marker": "inb-2985b41d1b7342b7ae44982d198c2669",
+      "notify_http_code": 201,
+      "pass": true,
+      "reasons": [],
+      "scenario": "32",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "hermes",
+      "m1_delivered": 1,
+      "namespace": "scenario33-pubsub-dc140f",
+      "ns_in_subs_after": false,
+      "ns_in_subs_before": true,
+      "pass": true,
+      "reasons": [],
+      "scenario": "33",
+      "skipped": false,
+      "subscribe_http_code": 201,
+      "subscriptions_after_count": 0,
+      "subscriptions_before_count": 1,
+      "tls_mode": "off",
+      "unsubscribe_http_code": 200
+    },
+    {
+      "agent_group": "hermes",
+      "approve_http_code": 200,
+      "charlie_sees": {
+        "approved": 1,
+        "rejected": 0
+      },
+      "namespace": "scenario34-pending-6ba435",
+      "pass": true,
+      "pending_queue_count": 2,
+      "reasons": [],
+      "reject_http_code": 200,
+      "scenario": "34",
+      "set_standard_http_code": 201,
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "hermes",
+      "child_ns": "scenario35-parent-a20d37/child",
+      "clear_http_code": 200,
+      "get_standard_http_code": 200,
+      "parent_ns": "scenario35-parent-a20d37",
+      "pass": true,
+      "post_clear_has_child_rule": false,
+      "reasons": [],
+      "scenario": "35",
+      "sees_child_rule": true,
+      "sees_parent_rule": true,
+      "set_child_http_code": 201,
+      "set_parent_http_code": 201,
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "hermes",
+      "pass": true,
+      "reasons": [],
+      "scenario": "36",
+      "session_id": "90a10de7-e671-4654-ba8a-7b8f6970f0c6",
+      "session_tagged_rows_on_bob": 2,
+      "skipped": false,
+      "start_http_code": 200,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "hermes",
+      "forward_has_target": true,
+      "m1": "eaf5b702-8f06-4bec-8d19-9eb1a8beeb54",
+      "m2": "c1431f4c-4d69-41a7-ab27-41c95bc0fca0",
+      "pass": true,
+      "reasons": [],
+      "reverse_has_source": true,
+      "scenario": "37",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "hermes",
+      "dst_ns": "scenario38-dst-fd1b46",
+      "expected_rows": 5,
+      "export_http_code": 200,
+      "import_http_code": 200,
+      "markers_preserved": 5,
+      "pass": true,
+      "reasons": [],
+      "rows_exported": 5,
+      "rows_in_destination": 5,
+      "scenario": "38",
+      "skipped": false,
+      "src_ns": "scenario38-src-fd1b46",
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "hermes",
+      "checkpoint": "2026-04-23T20:43:43+00:00",
+      "diag_curl_body_head": "{\"count\":6,\"earliest_updated_at\":\"2026-04-23T20:44:17.337857441+00:00\",\"latest_updated_at\":\"2026-04-23T20:44:24.298240357+00:00\",\"limit\":500,\"memories\":[{\"access_count\":0,\"confidence\":1.0,\"content\":\"marker=delta-0-92e26d4d6a7f455a8c4a793ff317935e\",\"created_at\":\"2026-04-23T20:44:17.337857441+00:00\",\"",
+      "diag_curl_exit": 0,
+      "diag_curl_http_code": 200,
+      "diag_curl_stderr": "",
+      "diag_earliest_updated_at": "2026-04-23T20:44:17.337857441+00:00",
+      "diag_latest_updated_at": "2026-04-23T20:44:24.298240357+00:00",
+      "diag_node3_health_reachable": true,
+      "diag_updated_since": "2026-04-23T20:43:43+00:00",
+      "expected_markers": 6,
+      "markers_present": 6,
+      "namespace": "scenario39-delta-4d8df2",
+      "pass": true,
+      "reasons": [],
+      "rows_returned": 6,
+      "rows_returned_raw": 6,
+      "scenario": "39",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "hermes",
+      "expected_per_agent": 30,
+      "pass": true,
+      "per_agent": {
+        "ai:alice": {
+          "count": 30,
+          "wrong_agent_id": 0
+        },
+        "ai:bob": {
+          "count": 30,
+          "wrong_agent_id": 0
+        },
+        "ai:charlie": {
+          "count": 30,
+          "wrong_agent_id": 0
+        }
+      },
+      "reasons": [],
+      "scenario": "4",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "hermes",
+      "bulk_http_code": "200",
+      "bulk_size": 500,
+      "namespace": "scenario40-bulk-2dc30b",
+      "pass": true,
+      "per_peer_count": {
+        "node_2": 500,
+        "node_3": 500,
+        "node_4": 500
+      },
+      "reasons": [],
+      "scenario": "40",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "activity_namespace": "scenario41-activity-d9d265",
+      "agent_group": "hermes",
+      "pass": true,
+      "per_peer": {
+        "node_1": {
+          "counters_t0": 8,
+          "counters_t1": 8,
+          "regressed_keys": 0
+        },
+        "node_2": {
+          "counters_t0": 8,
+          "counters_t1": 8,
+          "regressed_keys": 0
+        },
+        "node_3": {
+          "counters_t0": 7,
+          "counters_t1": 7,
+          "regressed_keys": 0
+        }
+      },
+      "reasons": [],
+      "scenario": "41",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "hermes",
+      "namespaces": [
+        "scenario42-abc471-0",
+        "scenario42-abc471-1",
+        "scenario42-abc471-2"
+      ],
+      "pass": true,
+      "per_peer": {
+        "node_1": {
+          "scenario42-abc471-0": 2,
+          "scenario42-abc471-1": 2,
+          "scenario42-abc471-2": 2
+        },
+        "node_2": {
+          "scenario42-abc471-0": 2,
+          "scenario42-abc471-1": 2,
+          "scenario42-abc471-2": 2
+        },
+        "node_3": {
+          "scenario42-abc471-0": 2,
+          "scenario42-abc471-1": 2,
+          "scenario42-abc471-2": 2
+        },
+        "node_4": {
+          "scenario42-abc471-0": 2,
+          "scenario42-abc471-1": 2,
+          "scenario42-abc471-2": 2
+        }
+      },
+      "reasons": [],
+      "scenario": "42",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "hermes",
+      "consolidate_http_code": 201,
+      "consolidated_from_agents": [
+        "ai:charlie",
+        "ai:bob",
+        "ai:alice"
+      ],
+      "consolidated_id": "fb89731a-64ee-477d-924f-c80bc02e0583",
+      "pass": true,
+      "reasons": [],
+      "scenario": "5",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "hermes",
+      "alice_id": "9d221694-4777-44a7-954c-6705f3c179ed",
+      "bob_id": "d927f53a-2193-43a5-b298-95638e3e1e1a",
+      "charlie_sees_both_memories": true,
+      "charlie_sees_contradicts_link": true,
+      "detect_http_code": 200,
+      "pass": true,
+      "reasons": [],
+      "scenario": "6",
+      "skipped": false,
+      "tls_mode": "off",
+      "topic": "sky-color-8c645a7f"
+    },
+    {
+      "agent_group": "hermes",
+      "charlie_view": {
+        "agent_id": "ai:alice",
+        "content": "v2-25f7e57a7908468fb89f2fa094018f19"
+      },
+      "m1_id": "b02c2075-0b3d-4074-840c-38d0bb8c1df9",
+      "pass": true,
+      "put_http_code": 200,
+      "reasons": [],
+      "scenario": "9",
+      "skipped": false,
+      "tls_mode": "off",
+      "v1_uuid": "v1-7864325464ae400ba4b3305697359fdf",
+      "v2_uuid": "v2-25f7e57a7908468fb89f2fa094018f19"
+    }
+  ],
+  "reasons": [
+    "semantic query did not surface bob's memory"
+  ],
+  "meta": {
+    "campaign_id": "a2a-hermes-v0.6.2-patch2-r25-off",
+    "agent_group": "hermes",
+    "ai_memory_git_ref": "release/v0.6.2",
+    "infra": {
+      "provider": "digitalocean",
+      "region": "nyc3",
+      "droplet_size": "s-2vcpu-4gb",
+      "topology": "4-node federation mesh (W=2/N=4)",
+      "nodes": [
+        {
+          "index": 1,
+          "role": "agent",
+          "agent_id": "ai:alice",
+          "public_ip": "104.236.92.237",
+          "private_ip": "10.11.0.3"
+        },
+        {
+          "index": 2,
+          "role": "agent",
+          "agent_id": "ai:bob",
+          "public_ip": "104.236.54.83",
+          "private_ip": "10.11.0.2"
+        },
+        {
+          "index": 3,
+          "role": "agent",
+          "agent_id": "ai:charlie",
+          "public_ip": "104.236.96.109",
+          "private_ip": "10.11.0.4"
+        },
+        {
+          "index": 4,
+          "role": "memory-only",
+          "agent_id": null,
+          "public_ip": "104.131.108.255",
+          "private_ip": "10.11.0.5"
+        }
+      ]
+    },
+    "scenarios_requested": [
+      "1",
+      "1b",
+      "2",
+      "4",
+      "5",
+      "6",
+      "9",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14",
+      "15",
+      "16",
+      "17",
+      "18",
+      "22",
+      "23",
+      "24",
+      "25",
+      "28",
+      "29",
+      "30",
+      "31",
+      "32",
+      "33",
+      "34",
+      "35",
+      "36",
+      "37",
+      "38",
+      "39",
+      "40",
+      "41",
+      "42"
+    ],
+    "timing": {
+      "started_at": "2026-04-23T20:30:32Z",
+      "ended_at": "2026-04-23T20:46:29Z"
+    },
+    "ci": {
+      "actor": "alphaonedev",
+      "workflow_url": "https://github.com/alphaonedev/ai-memory-ai2ai-gate/actions/runs/24856669777",
+      "harness_sha": "f76eaf683ebaa89ac472415f26008165c9dedea6",
+      "runner_os": "Linux"
+    }
+  },
+  "skipped_reports": [
+    "scenario-23.json:unparseable"
+  ]
+}

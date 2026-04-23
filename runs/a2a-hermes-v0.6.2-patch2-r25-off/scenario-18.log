@@ -1,0 +1,6 @@
+alice writes A on node-1
+bob writes B on node-2
+settle 15s for fanout + index rebuild
+charlie queries on node-3 with semantically-related prompt
+  charlie sees alice's memory: 1 (expected >=1)
+  charlie sees bob's memory: 0 (expected >=1)

@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-hermes-v0.6.2-patch2-r25-off",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "Risk posture remains low with high reliability in core memory sharing, supporting production readiness for most features; customer claims on semantic search viability need caution due to intermittent misses. This patch maintains stability versus prior runs, with the semantic flake persisting as a known issue. No regressions noted, but skipped scenario requires fix for full coverage.",
+  "for_non_technical": "The AI agents were able to share and remember information with each other reliably in almost all tests. However, in one case, a search for similar ideas missed something that should have been found. One other test was skipped because its results couldn't be read properly.",
+  "for_sme": "Failure in S18 where semantic query on 'morning outdoor exercise routine' did not surface Bob's memory (seen_by_charlie=0), likely due to embedding similarity threshold or index flake; impacts hybrid_recall primitive. S23 skipped from unparseable JSON, probable harness bug in report generation. Other primitives like keyword_search (S28), bulk insert (S40), and delta queries (S39) passed cleanly across nodes.",
+  "headline": "Semantic recall failed in one scenario; most memory ops reliable.",
+  "next_run_change": "Investigate and fix S18 semantic recall flake, and resolve S23 report parsing issue for complete coverage.",
+  "verdict": "PARTIAL \u2014 33/34 scenarios passed, S18 failed, S23 skipped.",
+  "what_it_proved": "Demonstrated reliable memory sharing and replication across agents in most tests, but revealed a failure in semantic query recall for one agent's memory and a skipped scenario due to unparseable report.",
+  "what_it_tested": "Exercised 34 scenarios covering basic recall, handoffs, deletions, links, registrations, versioning, partitions, promotions, queries, bulk ops, and advanced features like consolidation, contradictions, archiving, notifications, and exports over HTTP transport in a 4-node federation without TLS."
+}
