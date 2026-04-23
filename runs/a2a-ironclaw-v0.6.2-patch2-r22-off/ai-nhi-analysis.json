@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-ironclaw-v0.6.2-patch2-r22-off",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "Risk posture is moderate with failures in semantic search and syncing potentially impacting user experience; not fully production-ready until resolved, but core reliability supports basic customer claims. Compared to prior runs, semantic issues persist while namespace clearing emerged as new. Prioritize fixes to enable confident scaling.",
+  "for_non_technical": "Agents can usually share and access each other's memories reliably across the system. However, sometimes they fail to find important memories when searching by meaning, and updates don't always sync properly. Overall, the sharing works well for simple tasks but needs fixes for advanced features.",
+  "for_sme": "Failures in S18 (semantic query missed expected memories, likely embedding or index issues), S35 (clear failed to remove child namespace rules, probable inheritance bug), S39 (delta-sync returned 0/6 markers, possible timestamp filtering error); S23 skipped due to unparseable report. Impacts semantic primitives and sync APIs; root causes suggest query engine and timestamp logic need auditing. Bulk and replication scenarios like S1, S4, S40 passed cleanly across nodes.",
+  "headline": "Core memory sharing solid, but semantic search and sync issues persist.",
+  "next_run_change": "Implement timestamp validation in delta-sync and retest S39 before next campaign.",
+  "verdict": "FAIL \u2014 3/35 scenarios failed, 1 skipped.",
+  "what_it_proved": "Demonstrated reliable replication and reads for most primitives, but exposed flaws in semantic recall, namespace clearing, and delta syncing.",
+  "what_it_tested": "Tested 35 scenarios covering basic CRUD, replication, versioning, semantic search, namespace ops, bulk inserts, and recovery in a 4-node HTTP mesh without TLS."
+}

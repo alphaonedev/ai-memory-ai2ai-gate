@@ -1,0 +1,1 @@
+{"ack_uuid": "a-8bc9b79395a24d38bf584cc740f5afb9", "agent_group": "ironclaw", "handoff_uuid": "h-48a3b51b58ed43978df58bdbb3006575", "pass": true, "path": "serve-http", "per_agent": {"ai:alice": {"sees_ack": 1}, "ai:bob": {"sees_handoff": 1}}, "reasons": [], "scenario": "2", "skipped": false, "tls_mode": "off"}
