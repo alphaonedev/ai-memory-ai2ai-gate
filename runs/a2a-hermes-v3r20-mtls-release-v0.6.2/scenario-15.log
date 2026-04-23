@@ -1,0 +1,2 @@
+alice writes + immediately reads M1 on node-1 (uuid=ryw-d2d27ca7e22c4d70a0bcf760d70ab3f1)
+  alice sees 1 (expected 1) immediately after write

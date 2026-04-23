@@ -1,0 +1,11 @@
+phase A: each agent writes 3 related memories
+  ai:alice on 159.203.95.107
+  ai:bob on 142.93.65.16
+  ai:charlie on 104.236.45.124
+settle 8s for quorum fanout
+phase B: collect source ids on node-1, then trigger consolidate
+  source ids (count=9): ['5110c629-bdae-4bda-9d4e-350fcea752eb', 'f26f7c91-8982-40f3-a11c-47d6eba22491', '5231dddd-e92e-4dc8-95af-2e23af9647dc', 'ba1f7d73-cc25-4661-b286-f4481d8aafd1', '3e87570d-c5e2-4e29-ad35-20d9bb63c4dd']...
+  consolidate HTTP 201, consolidated_id=7fca7516-7598-432e-a779-3a511b2bedc9
+settle 10s for consolidation fanout
+phase C: verifying consolidated_from_agents on node-4
+  consolidated_from_agents=['ai:charlie', 'ai:bob', 'ai:alice']

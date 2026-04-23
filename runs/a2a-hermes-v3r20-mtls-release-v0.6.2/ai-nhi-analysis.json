@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-hermes-v3r20-mtls-release-v0.6.2",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "High risk posture due to regressions in core recall and bulk handling, making production readiness low and customer claims of reliable AI memory federation unviable. This run on v0.6.2 with mTLS shows degradation vs. prior non-mTLS campaigns. Prioritize fixes to avoid deployment delays.",
+  "for_non_technical": "Agents could not reliably share memories in basic group recall tests or when handling large data batches. Many other sharing features, like linking memories or recovering from failures, worked well. Overall, memory sharing is inconsistent under secure network conditions.",
+  "for_sme": "Key failures in S1 (MCP recall 0/20 per agent, identity check failed), S18 (semantic query missed alice/bob memories), S29 (restore missed on node-4), S32 (notify undelivered to bob), S34 (pending HTTP 400/403/404, reject ineffective), S35 (rule layering absent in child ns), S39 (delta sync 0/6 markers), S40 (bulk fanout 200/500 per node). Probable root causes include mTLS cross-cluster identity mismatches and incomplete replication in federation mesh. Impacts primitives like recall, search, restore, and bulk; see F# federation probes.",
+  "headline": "mTLS federation regresses core recall and bulk operations.",
+  "next_run_change": "Resolve mTLS identity validation and bulk fanout bugs before next campaign.",
+  "verdict": "FAIL \u2014 8/35 scenarios failed, 1 skipped.",
+  "what_it_proved": "Proved reliable performance in linking, registration, versioning, and capabilities queries, but exposed failures in multi-agent recall, semantic search, restore, notify, pending approvals, rule inheritance, delta sync, and bulk fanout.",
+  "what_it_tested": "Exercised 35 scenarios across mTLS transport, HTTP frameworks, and primitives including memory recall, semantic search, linking, deletion, recovery, and bulk ingestion in a 4-node mesh."
+}
