@@ -131,29 +131,41 @@ hermes_driver() {
   fallback_driver "$@"
 }
 
-# Fallback when the agent CLI isn't installed: direct ai-memory MCP
-# tool invocation via the HTTP surface. The agent framework would
-# have converted an LLM prompt into these same tool calls, so this
-# exercises the tool-dispatch layer which is the majority of what
-# the scenario is validating.
+# Fallback when the agent CLI isn't installed OR its invocation
+# fails (ironclaw 0.26.0 removed `chat`; hermes CLI may Python-
+# traceback on pre-release builds). Drives ai-memory directly via
+# HTTP, exercising the same tool-dispatch layer the agent would have
+# routed to. TLS-aware: when TLS_MODE is tls/mtls, use HTTPS +
+# --cacert + (under mtls) client cert — otherwise curl gets
+# `Received HTTP/0.9 when not allowed` on the TLS daemon.
 fallback_driver() {
+  local curl_flags=()
+  if [ "${TLS_MODE:-off}" != "off" ]; then
+    curl_flags+=(--cacert "${TLS_CA:-/etc/ai-memory-a2a/tls/ca.pem}")
+    if [ "${TLS_MODE}" = "mtls" ]; then
+      curl_flags+=(
+        --cert "${TLS_CLIENT_CERT:-/etc/ai-memory-a2a/tls/client.pem}"
+        --key "${TLS_CLIENT_KEY:-/etc/ai-memory-a2a/tls/client.key}"
+      )
+    fi
+  fi
   case "$ACTION" in
     store)
       title="${1:?title required}"; content="${2:?content required}"
       ns="${3:-scenario}"
-      curl -sS -X POST "$LOCAL_MEMORY_URL/api/v1/memories" \
+      curl -sS "${curl_flags[@]}" -X POST "$LOCAL_MEMORY_URL/api/v1/memories" \
         -H "X-Agent-Id: $AGENT_ID" \
         -H "Content-Type: application/json" \
         -d "{\"tier\":\"mid\",\"namespace\":\"$ns\",\"title\":\"$title\",\"content\":\"$content\",\"priority\":5,\"confidence\":1.0,\"source\":\"api\",\"metadata\":{\"agent_id\":\"$AGENT_ID\"}}"
       ;;
     recall)
       query="${1:?query required}"; ns="${2:-}"
-      curl -sS "$LOCAL_MEMORY_URL/api/v1/recall?q=$(python3 -c "import urllib.parse,sys;print(urllib.parse.quote(sys.argv[1]))" "$query")${ns:+&namespace=$ns}" \
+      curl -sS "${curl_flags[@]}" "$LOCAL_MEMORY_URL/api/v1/recall?q=$(python3 -c "import urllib.parse,sys;print(urllib.parse.quote(sys.argv[1]))" "$query")${ns:+&namespace=$ns}" \
         -H "X-Agent-Id: $AGENT_ID"
       ;;
     list)
       ns="${1:-}"
-      curl -sS "$LOCAL_MEMORY_URL/api/v1/memories${ns:+?namespace=$ns}" \
+      curl -sS "${curl_flags[@]}" "$LOCAL_MEMORY_URL/api/v1/memories${ns:+?namespace=$ns}" \
         -H "X-Agent-Id: $AGENT_ID"
       ;;
     *)
