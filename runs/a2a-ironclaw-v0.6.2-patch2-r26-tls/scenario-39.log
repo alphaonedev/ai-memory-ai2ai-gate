@@ -1,0 +1,11 @@
+checkpoint = 2026-04-23T23:09:10+00:00
+suspending ai-memory on node-3
+  !! ssh timeout (30s): root@68.183.63.75 pgrep -f 'ai-memory serve' | xargs -r kill -STOP
+alice + bob write 6 rows while node-3 is out
+resuming ai-memory on node-3
+settle 15s for process resume + federation catchup
+  node-3 → node-1 health reachable: True (after 1 probes)
+node-3 asks node-1 /api/v1/sync/since?since=2026-04-23T23:09:10+00:00
+  curl exit=0 http_code=200 body_len=2898 stderr=''
+  /sync/since raw=6 ns-filtered=6; 6/6 match our markers
+  diag: updated_since=2026-04-23T23:09:10+00:00 earliest=2026-04-23T23:09:44.397063341+00:00 latest=2026-04-23T23:09:49.916734229+00:00
