@@ -82,6 +82,24 @@ def main() -> None:
     # short pad above that async window.
     h.settle(3, reason="embedder + HNSW catch-up")
 
+    # v0.6.2 (S18 iteration): direct DB probe on node-3. If the row has
+    # LENGTH(embedding)=0 or NULL, we know sync_push's embedding_refresh
+    # didn't run OR failed silently for that row. This is the single
+    # question that distinguishes "embedding not set on peer" from
+    # "embedding set but cosine < 0.3".
+    probe_sql = (
+        "SELECT title, COALESCE(LENGTH(embedding), 0), "
+        "(CASE WHEN embedding IS NULL THEN 'NULL' ELSE 'BYTES' END) "
+        f"FROM memories WHERE namespace = '{ns}' ORDER BY title;"
+    )
+    r = h.ssh_exec(
+        h.node3_ip,
+        f"sqlite3 -cmd '.timeout 5000' /var/lib/ai-memory/a2a.db \"{probe_sql}\"",
+        timeout=15,
+    )
+    embedding_diag = (r.stdout or "").strip().replace("\n", " | ")
+    log(f"  node-3 DB embedding probe: {embedding_diag!r}")
+
     log("charlie queries on node-3 with semantically-related prompt")
     q = urllib.parse.urlencode({"context": query, "namespace": ns, "limit": 20})
     _, resp = h.http_on(h.node3_ip, "GET", f"/api/v1/recall?{q}")
@@ -120,6 +138,7 @@ def main() -> None:
         rows_in_recall=len(memories),
         diag_list_alice_present=saw_a_pre,
         diag_list_bob_present=saw_b_pre,
+        diag_node3_embedding_probe=embedding_diag,
         writers=[
             {"agent": "ai:alice", "marker": tag_a, "seen_by_charlie": saw_a},
             {"agent": "ai:bob", "marker": tag_b, "seen_by_charlie": saw_b},
