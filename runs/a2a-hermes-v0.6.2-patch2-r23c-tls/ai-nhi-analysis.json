@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-hermes-v0.6.2-patch2-r23c-tls",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "Risk remains high for semantic search and delta-sync features, delaying production readiness; customer claims on reliable recall are viable for core ops but not for search-dependent workflows. Compared to prior runs, this patch improved stability but introduced or exposed delta-sync regressions. Prioritize fixes before customer pilots.",
+  "for_non_technical": "In this test, AI agents mostly shared and recalled memories reliably across the network. However, sometimes searches failed to find relevant memories, and syncing recent changes didn't work properly. Overall, the system works well for basic sharing but has issues with advanced search and updates.",
+  "for_sme": "Semantic search in S18 failed to surface expected memories from alice and bob, likely due to embedding model inconsistencies or index lag in the all-MiniLM-L6-v2 embedder. Delta-sync in S39 returned 0/6 markers, indicating incomplete propagation possibly from timestamp handling or quorum issues in the 4-node mesh (W=2/N=4). Skipped S20 due to mTLS requirement; unparseable S23 suggests harness logging bugs.",
+  "headline": "TLS mode shows reliable core sharing but fails semantic and delta-sync.",
+  "next_run_change": "Apply fixes for delta-sync timestamp logic and semantic indexing before re-running the full suite.",
+  "verdict": "PARTIAL \u2014 32/35 scenarios green, fails in S18 and S39, S20 skipped.",
+  "what_it_proved": "Demonstrated consistent memory propagation and operations in most cases but revealed bugs in semantic query recall and delta-sync completeness under TLS.",
+  "what_it_tested": "Exercised 35 scenarios covering basic recall, linking, deletion, recovery, semantic search, bulk ops, and advanced features like pubsub and consolidation across TLS transport in a 4-node federated mesh using HTTP primitives."
+}
