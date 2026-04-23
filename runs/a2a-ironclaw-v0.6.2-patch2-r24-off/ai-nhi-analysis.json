@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-ironclaw-v0.6.2-patch2-r24-off",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "Low risk for core federation features in non-TLS setups, but semantic search and delta-sync failures indicate not yet production-ready for query-heavy workloads; customer claims on reliable recall viable for keyword but not semantic. Compared to prior runs, semantic flake persists while delta issue is new regression. Prioritize fixes before broader deployment.",
+  "for_non_technical": "In this test, AI agents mostly shared memories reliably across a network of computers, remembering and retrieving information as expected in various situations. However, there were issues where searches for similar ideas didn't find the right memories, and syncing changes sometimes missed updates. Overall, the system works well for basic sharing but has some bugs in advanced search and update features.",
+  "for_sme": "Failures in S18 (semantic query missed alice/bob memories on charlie) likely due to embedding/indexing inconsistency; S39 (delta-sync returned 0/6 markers) from node3 unreachability (curl timeout), probable network partition or health check flaw in federation layer. S23 skipped (unparseable report). Root causes tie to query engine (F18) and sync primitives (F39); review testbook probes for stability.",
+  "headline": "Federation mesh reliable except semantic search and delta-sync flakes.",
+  "next_run_change": "Add retry logic and diagnostics for delta-sync and semantic queries to isolate flakes.",
+  "verdict": "PARTIAL \u2014 33/35 scenarios passed; 18 and 39 failed; 23 skipped.",
+  "what_it_proved": "Demonstrated consistent memory propagation and reliability in most CRUD and federation scenarios but revealed flakiness in semantic search recall and delta-sync completeness under the tested configuration.",
+  "what_it_tested": "Tested memory sharing, recall, deletion, linking, versioning, partitioning, bulk ops, and advanced features in a 4-node federation mesh with TLS off, covering HTTP transport, agent interactions, and core primitives like sync, query, and namespace management."
+}

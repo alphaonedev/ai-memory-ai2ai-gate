@@ -1,0 +1,11 @@
+checkpoint = 2026-04-23T19:28:08+00:00
+suspending ai-memory on node-3
+  !! ssh timeout (30s): root@159.89.191.162 pgrep -f 'ai-memory serve' | xargs -r kill -STOP
+alice + bob write 6 rows while node-3 is out
+resuming ai-memory on node-3
+settle 15s for process resume + federation catchup
+  node-3 → node-1 health reachable: False (after 10 probes)
+node-3 asks node-1 /api/v1/sync/since?since=2026-04-23T19:28:08+00:00
+  curl exit=28 http_code=0 body_len=0 stderr='curl: (28) Connection timed out after 15002 milliseconds'
+  /sync/since raw=0 ns-filtered=0; 0/6 match our markers
+  diag: updated_since=None earliest=None latest=None
