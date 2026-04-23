@@ -1,0 +1,6 @@
+alice starts a session on node-1
+  session_start returned HTTP 200, session_id=009ca659-4206-49fe-8fb6-2b2b006de746
+alice writes 2 memories tagged with session_id
+settle 6s for session-tagged fanout
+bob lists on node-2 filtered by session_id=009ca659-4206-49fe-8fb6-2b2b006de746
+  bob sees 2 rows tagged session_id=009ca659-4206-49fe-8fb6-2b2b006de746 (expected 2)

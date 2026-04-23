@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-ironclaw-v0.6.2-patch2-r23-mtls",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "Semantic search and delta-sync pose high reliability risks, blocking production readiness for query-dependent use cases; core federation remains stable versus prior runs, supporting customer claims on basic replication but not advanced features.",
+  "for_non_technical": "AI agents in this setup can usually share and access each other's memories securely across different computers. However, searching for memories based on their meaning doesn't work properly, and updating changes between systems fails sometimes. Overall, basic sharing is good, but advanced features need fixes.",
+  "for_sme": "Semantic query in S18 missed Alice/Bob memories, likely due to embedding mismatches or index issues; delta-sync in S39 returned 0/6 markers, probable root in timestamp filtering or checkpoint logic; S23 skipped as unparseable; impacts hybrid_recall and delta primitives.",
+  "headline": "mTLS federation hits semantic and delta-sync failures in v0.6.2",
+  "next_run_change": "Resolve delta-sync timestamp bugs and add diagnostics for semantic embedding consistency before next campaign.",
+  "verdict": "FAIL \u2014 2/36 scenarios red, 1 unparseable skip",
+  "what_it_proved": "Core memory writes and reads replicate reliably under mTLS, but semantic queries fail to surface expected memories and delta-sync returns no markers, indicating incomplete synchronization.",
+  "what_it_tested": "Tested memory sharing, replication, semantic search, delta-sync, mTLS security, and primitives like links, deletions, partitions across 4-node mesh using HTTP transport."
+}

@@ -1,0 +1,1 @@
+{"agent_group": "ironclaw", "marker": "mtls-9a6b1bd253e94ca9be90d054d6108f0c", "pass": true, "peers_see": {"node_2": 1, "node_3": 1}, "reasons": [], "scenario": "20", "skipped": false, "tls_mode": "mtls", "write_http_code": 201}

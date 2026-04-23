@@ -1,0 +1,1 @@
+{"agent_group": "ironclaw", "pass": true, "peers_see": {"node_2": 1, "node_3": 1, "node_4": 1}, "reasons": [], "register_http_code": 201, "registered_agent": "ai:dave-probe-782f67d9", "scenario": "12", "skipped": false, "tls_mode": "mtls"}
