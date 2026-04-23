@@ -342,7 +342,15 @@ jobs:
           echo "::notice::TLS material generated: tls_mode=$TLS_MODE"
 
       - name: Provision all 4 nodes (federation mesh)
-        timeout-minutes: 25
+        # 40 min (was 25): source-build of ai-memory with the rustls/hyper
+        # crate tree on 4× s-2vcpu-4gb droplets in parallel regularly spends
+        # 15–20 min in cargo; adding the hermes-install SSH→HTTPS fallback
+        # (~60 s per node) and occasional crates.io slowness pushed a v3r22
+        # hermes mtls run (24833746718) to exactly 25:00 with node-1 still
+        # installing. 40 min leaves headroom without softening the watchdog
+        # — a node that can't provision in 40 min is a real failure, not a
+        # timing miss. Also bumps §R2 watchdog table.
+        timeout-minutes: 40
         run: |
           set -e
           AMV=$(echo '${{ github.event.inputs.ai_memory_git_ref }}' | sed -e 's/^v//' -e 's|release/||')

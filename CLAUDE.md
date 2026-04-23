@@ -43,7 +43,7 @@ Per the-standard §9. Current enforcement in `.github/workflows/a2a-gate.yml`:
 | Terraform init + apply | 2–3 min | 8 min |
 | Wait for SSH | 30–60 s | 3 min |
 | Generate ephemeral TLS material | < 10 s | 2 min |
-| Provision all 4 nodes | 6–8 min | 15 min |
+| Provision all 4 nodes | 6–8 min binary install · 15–20 min source-build | 40 min (source-build headroom) |
 | Collect + enforce BASELINE | 1–2 min | 5 min |
 | Functional probe F3 | 10–15 s | 2 min |
 | Compute scenarios list | < 5 s | 1 min |
