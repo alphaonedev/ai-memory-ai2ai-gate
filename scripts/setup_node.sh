@@ -141,8 +141,19 @@ AI_MEMORY_SOURCE_BUILD="${AI_MEMORY_SOURCE_BUILD:-false}"
 # AI_MEMORY_VERSION which is AMV-stripped. Fall back to AMV+'v' if
 # GIT_REF isn't set (backward compat).
 AI_MEMORY_GIT_REF="${AI_MEMORY_GIT_REF:-v${AI_MEMORY_VERSION}}"
-if [ "$AI_MEMORY_SOURCE_BUILD" = "true" ]; then
-  log "installing ai-memory from source @ ${AI_MEMORY_GIT_REF}"
+
+# v0.6.2 (v3r24 perf): fast path — runner-built binary pre-staged at
+# /tmp/ai-memory.prebuilt by the workflow's "Build ai-memory binary
+# (runner)" step. When present, skip the on-droplet cargo build (which
+# runs 4× in parallel on s-2vcpu-4gb and dominates provisioning wall
+# clock at ~15–20 min/droplet). Runner is ubuntu-24.04 and droplets are
+# ubuntu-24-04-x64 — binary-compatible on glibc.
+if [ -x /tmp/ai-memory.prebuilt ]; then
+  log "using pre-built ai-memory binary from /tmp/ai-memory.prebuilt (build-once path)"
+  install -m 0755 /tmp/ai-memory.prebuilt /usr/local/bin/ai-memory
+  rm -f /tmp/ai-memory.prebuilt
+elif [ "$AI_MEMORY_SOURCE_BUILD" = "true" ]; then
+  log "installing ai-memory from source @ ${AI_MEMORY_GIT_REF} (no runner binary staged — legacy path)"
   DEBIAN_FRONTEND=noninteractive apt-get install -y -q \
     build-essential pkg-config libssl-dev git ca-certificates \
     2>&1 | sed 's/^/[apt] /'
