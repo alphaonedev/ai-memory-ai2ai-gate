@@ -1,0 +1,54 @@
+{
+  "campaign_id": "a2a-ironclaw-v0.6.2-patch2-r25v-s18probe",
+  "agent_group": "ironclaw",
+  "ai_memory_git_ref": "release/v0.6.2",
+  "infra": {
+    "provider": "digitalocean",
+    "region": "nyc3",
+    "droplet_size": "s-2vcpu-4gb",
+    "topology": "4-node federation mesh (W=2/N=4)",
+    "nodes": [
+      {
+        "index": 1,
+        "role": "agent",
+        "agent_id": "ai:alice",
+        "public_ip": "143.198.20.231",
+        "private_ip": "10.10.0.4"
+      },
+      {
+        "index": 2,
+        "role": "agent",
+        "agent_id": "ai:bob",
+        "public_ip": "159.89.186.17",
+        "private_ip": "10.10.0.5"
+      },
+      {
+        "index": 3,
+        "role": "agent",
+        "agent_id": "ai:charlie",
+        "public_ip": "157.245.217.61",
+        "private_ip": "10.10.0.3"
+      },
+      {
+        "index": 4,
+        "role": "memory-only",
+        "agent_id": null,
+        "public_ip": "138.197.45.31",
+        "private_ip": "10.10.0.2"
+      }
+    ]
+  },
+  "scenarios_requested": [
+    "18"
+  ],
+  "timing": {
+    "started_at": "2026-04-23T21:20:40Z",
+    "ended_at": "2026-04-23T21:20:49Z"
+  },
+  "ci": {
+    "actor": "alphaonedev",
+    "workflow_url": "https://github.com/alphaonedev/ai-memory-ai2ai-gate/actions/runs/24859065637",
+    "harness_sha": "3c702ea414871af33864e4e463f2ec679cb25603",
+    "runner_os": "Linux"
+  }
+}

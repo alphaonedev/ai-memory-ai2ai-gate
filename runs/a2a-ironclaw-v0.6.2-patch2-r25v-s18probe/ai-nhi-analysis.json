@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-ironclaw-v0.6.2-patch2-r25v-s18probe",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "This run exposes a high-risk bug in semantic memory sharing, rendering the v0.6.2 release not production-ready for federated agent groups. Customer-facing claims on reliable AI-to-AI memory propagation are untenable until fixed; represents a regression from prior stable runs.",
+  "for_non_technical": "In this test, two AI agents shared memories about morning exercise routines. When a third agent asked about it, the system only showed one agent's memory and missed the other. This shows that agents do not reliably share and access all relevant memories yet.",
+  "for_sme": "Scenario S18 failed with hybrid recall returning only 1 row instead of 2, impacting the semantic embedding query primitive in the W=2/N=4 federated mesh. Charlie saw Alice's marker but not Bob's, despite both embeddings present in diagnostics. Probable root cause is incomplete query fanout or replication inconsistency across nodes; re-run with trace-level logging on recall endpoints.",
+  "headline": "Hybrid semantic recall failed to surface Bob's shared memory.",
+  "next_run_change": "Add trace logging for query propagation and replication status before re-running S18.",
+  "verdict": "FAIL \u2014 0/1 scenarios passed due to missing memory in query results.",
+  "what_it_proved": "Demonstrated that semantic queries in hybrid mode fail to retrieve all relevant memories from multiple agents in the federated setup, surfacing only one out of two expected items.",
+  "what_it_tested": "Tested scenario 18 exercising hybrid recall mode with semantic querying in a 4-node federation mesh over non-TLS transport, covering embedding primitives and multi-writer sharing."
+}
