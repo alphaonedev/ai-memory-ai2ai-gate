@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-hermes-v0.6.2-patch2-r25-mtls",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "This run poses high risk as it completely failed to execute or report any scenarios, leaving production readiness unassessed. No progress or changes versus prior runs due to lack of data. Customer-facing claims about reliable memory sharing remain unvalidated.",
+  "for_non_technical": "This test didn't produce any results because no reports from the scenarios were collected. We couldn't determine if agents can reliably share memories with each other. The issue appears to be with the testing setup itself.",
+  "for_sme": "All 35 requested scenarios (S1, S1b, S2, S4-S6, S9-S18, S22-S25, S28-S42) failed to produce reports, indicating a harness-level issue in report recovery. Probable root cause is a bug in the CI workflow or artifact collection at harness_sha 99900147618e75137156a4c4fa3f8c3124fdeeec. No specific primitives or failure modes observable due to missing data.",
+  "headline": "Campaign failed: no scenario reports recovered.",
+  "next_run_change": "Debug and fix the test harness report recovery process before the next campaign.",
+  "verdict": "FAIL \u2014 no scenario reports recovered",
+  "what_it_proved": "The run demonstrated a critical failure in the test harness, as no scenario reports were recovered despite requesting 35 scenarios.",
+  "what_it_tested": "Attempted to exercise 35 scenarios covering agent-to-agent memory sharing primitives under mTLS in a 4-node federation mesh, but none reported."
+}
