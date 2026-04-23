@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Campaign a2a-ironclaw-v0.6.2-patch2-r25t-s18only — ai-memory A2A gate</title>
+  <style>
+    :root { --fg:#1a1a1a; --bg:#fff; --muted:#666; --pass:#1a8b3c; --fail:#b32222; --warn:#b36b00; --pass-bg:#e6f6ea; --fail-bg:#fceaea; --warn-bg:#fdf3e0; --border:#e0e0e0; --code-bg:#f7f7f9; --accent:#3952c8; --accent-bg:#eef1fd; }
+    @media (prefers-color-scheme: dark) { :root { --fg:#eaeaea; --bg:#181818; --muted:#a0a0a0; --pass:#4adc76; --fail:#ff6a6a; --warn:#ffb74d; --pass-bg:#153d23; --fail-bg:#401818; --warn-bg:#3a2d10; --border:#2a2a2a; --code-bg:#202028; --accent:#8da3ff; --accent-bg:#1c2140; } }
+    * { box-sizing:border-box; }
+    body { font:15px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; color:var(--fg); background:var(--bg); margin:0; }
+    main { max-width:960px; margin:0 auto; padding:2rem 1.25rem 4rem; }
+    header { border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.5rem; }
+    header p.crumb { color:var(--muted); font-size:13px; margin:0 0 .25rem; }
+    h1 { margin:.25rem 0 .75rem; font-size:1.85rem; }
+    h2 { margin:1.75rem 0 .5rem; font-size:1.2rem; border-bottom:1px solid var(--border); padding-bottom:.25rem; }
+    h3 { margin:1.25rem 0 .4rem; font-size:1rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; font-weight:600; }
+    h4 { margin:.5rem 0 .25rem; font-size:1rem; }
+    dl.meta { display:grid; grid-template-columns:max-content 1fr; gap:.35rem 1rem; margin:0; }
+    dl.meta dt { color:var(--muted); }
+    dl.meta dd { margin:0; }
+    table.nodes { width:100%; border-collapse:collapse; margin-top:.5rem; font-size:14px; }
+    table.nodes th, table.nodes td { border:1px solid var(--border); padding:.35rem .6rem; text-align:left; }
+    table.nodes th { background:var(--code-bg); font-weight:600; }
+    .badge { display:inline-block; padding:.15rem .55rem; border-radius:999px; font-size:12px; font-weight:600; letter-spacing:.03em; text-transform:uppercase; margin-left:.4rem; vertical-align:middle; }
+    .badge.pass { color:var(--pass); background:var(--pass-bg); }
+    .badge.fail { color:var(--fail); background:var(--fail-bg); }
+    .badge.warn { color:var(--warn); background:var(--warn-bg); }
+    .run-focus { background:var(--code-bg); border-left:4px solid var(--accent); padding:1rem 1.25rem; margin:1.5rem 0; border-radius:0 6px 6px 0; }
+    .run-focus h2 { border:none; margin:0 0 .5rem; padding:0; font-size:1.1rem; }
+    .run-focus p.label { color:var(--accent); font-size:12px; text-transform:uppercase; letter-spacing:.06em; font-weight:600; margin:0 0 .25rem; }
+    .ai-insight { background:var(--accent-bg); border-radius:8px; padding:1.25rem 1.5rem; margin:1.5rem 0 2rem; border-left:4px solid var(--accent); }
+    .ai-insight h2 { border:none; padding:0; margin-top:.25rem; }
+    .ai-insight p.tag { color:var(--accent); font-size:12px; text-transform:uppercase; letter-spacing:.08em; font-weight:600; margin:0 0 .25rem; }
+    .ai-insight p.verdict { font-size:1.05rem; margin:.5rem 0 1rem; }
+    .audiences { display:grid; grid-template-columns:1fr; gap:.75rem; margin-top:.5rem; }
+    @media (min-width: 720px) { .audiences { grid-template-columns:repeat(3,1fr); } }
+    .audiences article { background:var(--bg); border:1px solid var(--border); border-radius:6px; padding:.85rem 1rem; }
+    .audiences article h4 { margin-top:0; color:var(--accent); font-size:14px; }
+    details { border:1px solid var(--border); border-radius:6px; padding:.25rem .75rem; margin:.5rem 0; }
+    summary { cursor:pointer; padding:.45rem 0; font-weight:500; }
+    pre { background:var(--code-bg); padding:.75rem; border-radius:6px; overflow-x:auto; font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace; margin:.5rem 0; max-height:480px; }
+    pre.log { max-height:640px; }
+    a { color:var(--accent); } a:hover { text-decoration:underline; }
+    .muted { color:var(--muted); font-size:14px; }
+    footer { color:var(--muted); font-size:12px; border-top:1px solid var(--border); padding-top:1rem; margin-top:3rem; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="crumb"><a href="../">../ runs index</a></p>
+      <h1>Campaign a2a-ironclaw-v0.6.2-patch2-r25t-s18only <span class="badge fail">FAIL</span></h1>
+      <dl class="meta">
+        <dt>Agent group</dt><dd><code>ironclaw</code> (homogeneous)</dd>
+        <dt>ai-memory ref</dt><dd><code>release/v0.6.2</code></dd>
+        <dt>Completed at</dt><dd>2026-04-23T21:04:13Z</dd>
+        <dt>Overall pass</dt><dd>false</dd>
+        <dt>Skipped reports</dt><dd>0</dd>
+      </dl>
+    </header>
+      <section class="infra">
+        <h2>Infrastructure</h2>
+        <dl class="meta">
+          <dt>Provider</dt><dd><code>digitalocean</code></dd>
+          <dt>Region</dt><dd><code>nyc3</code></dd>
+          <dt>Droplet size</dt><dd><code>s-2vcpu-4gb</code></dd>
+          <dt>Topology</dt><dd>4-node federation mesh (W=2/N=4)</dd>
+          <dt>Scenarios started</dt><dd>2026-04-23T21:04:08Z</dd>
+          <dt>Scenarios ended</dt><dd>2026-04-23T21:04:13Z</dd>
+          <dt>Dispatched by</dt><dd><code>alphaonedev</code></dd>
+          <dt>Harness SHA</dt><dd><code>99900147618e</code></dd>
+          <dt>Workflow run</dt><dd><a href="https://github.com/alphaonedev/ai-memory-ai2ai-gate/actions/runs/24858329493">https://github.com/alphaonedev/ai-memory-ai2ai-gate/actions/runs/24858329493</a></dd>
+        </dl>
+        <h3>Node roster</h3>
+        <table class="nodes">
+          <thead><tr><th>#</th><th>Role</th><th>Agent ID</th><th>Public IP</th><th>Private IP</th></tr></thead>
+          <tbody>
+<tr><td>1</td><td>agent</td><td><code>ai:alice</code></td><td><code>159.65.245.73</code></td><td><code>10.10.0.3</code></td></tr>
+<tr><td>2</td><td>agent</td><td><code>ai:bob</code></td><td><code>45.55.72.145</code></td><td><code>10.10.0.4</code></td></tr>
+<tr><td>3</td><td>agent</td><td><code>ai:charlie</code></td><td><code>104.236.38.105</code></td><td><code>10.10.0.5</code></td></tr>
+<tr><td>4</td><td>memory-only</td><td><code>—</code></td><td><code>68.183.53.38</code></td><td><code>10.10.0.2</code></td></tr>
+          </tbody>
+        </table>
+      </section>
+      <section class="baseline">
+        <h2>Baseline attestation <span class="badge pass">BASELINE OK</span></h2>
+        <p class="muted">Per the <a href="../baseline/">authoritative baseline spec</a>, every agent node must emit a self-attestation before any scenario is permitted to run. This run's attestation:</p>
+        <p class="muted">Spec version: <code>1.4.0</code> — see <a href="../baseline/">authoritative baseline</a>.</p>
+        <table class="nodes">
+          <thead><tr><th>Node</th><th>Agent</th><th>Framework</th><th>Authentic</th><th>MCP ai-memory</th><th>xAI cfg</th><th>xAI default</th><th>Agent ID</th><th>Federation</th><th>UFW off</th><th>iptables</th><th>dead-man</th><th>F1 xAI</th><th>F2a substrate</th><th>F2b agent (non-gating)</th><th>Config SHA</th><th>Pass</th></tr></thead>
+          <tbody>
+<tr><td>node-1</td><td><code>ai:alice</code></td><td><code>ironclaw ironclaw 0.26.0</code></td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>—</td><td><code>0942520714b6</code></td><td><strong>PASS</strong></td></tr>
+<tr><td>node-2</td><td><code>ai:bob</code></td><td><code>ironclaw ironclaw 0.26.0</code></td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>—</td><td><code>ad4105738b4c</code></td><td><strong>PASS</strong></td></tr>
+<tr><td>node-3</td><td><code>ai:charlie</code></td><td><code>ironclaw ironclaw 0.26.0</code></td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>—</td><td><code>06d9c01655a2</code></td><td><strong>PASS</strong></td></tr>
+          </tbody>
+        </table>
+        <details><summary>a2a-baseline.json</summary>
+          <pre>
+{
+	"baseline_pass": true,
+	"per_node": [
+		{
+			"spec_version": "1.4.0",
+			"agent_type": "ironclaw",
+			"agent_id": "ai:alice",
+			"node_index": "1",
+			"framework_version": "ironclaw 0.26.0",
+			"ai_memory_version": "v0.6.2",
+			"peer_urls": "http://10.10.0.4:9077,http://10.10.0.5:9077,http://10.10.0.2:9077",
+			"config_file_sha256": "0942520714b6156f0c727a1470fb0fad8c0e258a16ed6f6301edce2d6fabcfab",
+			"config_attestation": {
+				"framework_is_authentic": true,
+				"mcp_server_ai_memory_registered": true,
+				"llm_backend_is_xai_grok": true,
+				"llm_is_default_provider": true,
+				"mcp_command_is_ai_memory": true,
+				"agent_id_stamped": true,
+				"federation_live": true,
+				"ufw_disabled": true,
+				"iptables_flushed": true,
+				"dead_man_switch_scheduled": true
+			},
+			"negative_invariants": {
+				"_description": "Alternative A2A channels must be OFF so a passing scenario is only passing via ai-memory shared memory. Any true here = thesis-preserving.",
+				"a2a_protocol_off": true,
+				"sub_agent_or_sessions_spawn_off": true,
+				"alternative_channels_off": true,
+				"tool_allowlist_is_memory_only": true,
+				"a2a_gate_profile_locked": true
+			},
+			"functional_probes": {
+				"xai_grok_chat_reachable": true,
+				"xai_grok_sample_reply": "READY",
+				"substrate_http_canary_f2a": true,
+				"substrate_http_canary_uuid": "b24893a7-1221-4731-acac-5325f172483e",
+				"agent_mcp_canary_f2b": false,
+				"agent_mcp_canary_uuid": "c07bf611-988b-4291-853e-f5ba6377e58f",
+				"agent_canary_response_head": "error: unrecognized subcommand 'chat'    tip: a similar subcommand exists: 'channels'  Usage: ironclaw [OPTIONS] [COMMAND]  For more information, try '--help'. ",
+				"_f2b_note": "F2b is LLM-dependent and non-blocking. F2a (deterministic HTTP substrate) gates baseline_pass.",
+				"mesh_connectivity_f4": true,
+				"mesh_edges_ok": 3,
+				"mesh_edges_total": 3,
+				"mesh_edges_detail": "10.10.0.4:9077:OK,10.10.0.5:9077:OK,10.10.0.2:9077:OK",
+				"_f4_note": "F4 verifies this local nodes N-1 OUTBOUND mesh edges to every peer via both GET health and POST sync_push dry_run. Aggregator ANDs across N nodes to confirm full N*(N-1) bidirectional reachability. Gates baseline_pass.",
+				"ai_memory_mcp_stdio_f5": true,
+				"ai_memory_mcp_stdio_init_ok": true,
+				"ai_memory_mcp_stdio_tools_ok": true,
+				"ai_memory_mcp_stdio_tools_found": "memory_agent_list,memory_agent_register,memory_archive_list,memory_archive_purge,memory_archive_restore,memory_archive_stats,memory_auto_tag,memory_capabilities,memory_consolidate,memory_delete,memory_detect_contradiction,memory_expand_query,memory_forget,memory_gc,memory_get,memory_get_links,memory_inbox,memory_link,memory_list,memory_list_subscriptions,memory_namespace_clear_standard,memory_namespace_get_standard,memory_namespace_set_standard,memory_notify,memory_pending_approve,memory_pending_list,memory_pending_reject,memory_promote,memory_recall,memory_search,memory_session_start,memory_stats,memory_store,memory_subscribe,memory_unsubscribe,memory_update",
+				"_f5_note": "F5 spawns the ai-memory stdio MCP subprocess using the framework-configured invocation and verifies initialize + tools/list return memory_store, memory_recall, memory_list. Deterministic (no LLM). Gates baseline_pass.",
+				"tls_mode": "off",
+				"tls_handshake_f6": true,
+				"tls_handshake_f6_reason": "",
+				"mtls_enforcement_f7": true,
+				"mtls_enforcement_f7_reason": "",
+				"_f6_f7_note": "F6 verifies the TLS 1.3 handshake against the local serve + CA chain. F7 verifies mTLS enforcement — anonymous client rejected, whitelisted client accepted. Both gate baseline_pass when tls_mode != off / mtls respectively.",
+				"embedder_loaded_f8": true,
+				"embedder_loaded_f8_reason": "",
+				"_f8_note": "F8 verifies /api/v1/capabilities reports features.embedder_loaded=true — i.e. the MiniLM embedder initialised at serve startup. Gates baseline_pass unconditionally. Without this, scenario-18 silently black-holes (semantic recall returns 0 rows).",
+				"agent_mcp_ai_memory_canary": true,
+				"canary_uuid": "b24893a7-1221-4731-acac-5325f172483e",
+				"canary_namespace": "_baseline_canary_f2a"
+			},
+			"baseline_pass": true
+		},
+		{
+			"spec_version": "1.4.0",
+			"agent_type": "ironclaw",
+			"agent_id": "ai:bob",
+			"node_index": "2",
+			"framework_version": "ironclaw 0.26.0",
+			"ai_memory_version": "v0.6.2",
+			"peer_urls": "http://10.10.0.3:9077,http://10.10.0.5:9077,http://10.10.0.2:9077",
+			"config_file_sha256": "ad4105738b4c3c792046282490135a5fd57073c639f0eb2bed43a8e11978dc7e",
+			"config_attestation": {
+				"framework_is_authentic": true,
+				"mcp_server_ai_memory_registered": true,
+				"llm_backend_is_xai_grok": true,
+				"llm_is_default_provider": true,
+				"mcp_command_is_ai_memory": true,
+				"agent_id_stamped": true,
+				"federation_live": true,
+				"ufw_disabled": true,
+				"iptables_flushed": true,
+				"dead_man_switch_scheduled": true
+			},
+			"negative_invariants": {
+				"_description": "Alternative A2A channels must be OFF so a passing scenario is only passing via ai-memory shared memory. Any true here = thesis-preserving.",
+				"a2a_protocol_off": true,
+				"sub_agent_or_sessions_spawn_off": true,
+				"alternative_channels_off": true,
+				"tool_allowlist_is_memory_only": true,
+				"a2a_gate_profile_locked": true
+			},
+			"functional_probes": {
+				"xai_grok_chat_reachable": true,
+				"xai_grok_sample_reply": "READY",
+				"substrate_http_canary_f2a": true,
+				"substrate_http_canary_uuid": "489b4441-1f41-46bd-a225-28beeaead003",
+				"agent_mcp_canary_f2b": false,
+				"agent_mcp_canary_uuid": "b27bbdf8-1584-4e3a-9a9f-517c46810da7",
+				"agent_canary_response_head": "error: unrecognized subcommand 'chat'    tip: a similar subcommand exists: 'channels'  Usage: ironclaw [OPTIONS] [COMMAND]  For more information, try '--help'. ",
+				"_f2b_note": "F2b is LLM-dependent and non-blocking. F2a (deterministic HTTP substrate) gates baseline_pass.",
+				"mesh_connectivity_f4": true,
+				"mesh_edges_ok": 3,
+				"mesh_edges_total": 3,
+				"mesh_edges_detail": "10.10.0.3:9077:OK,10.10.0.5:9077:OK,10.10.0.2:9077:OK",
+				"_f4_note": "F4 verifies this local nodes N-1 OUTBOUND mesh edges to every peer via both GET health and POST sync_push dry_run. Aggregator ANDs across N nodes to confirm full N*(N-1) bidirectional reachability. Gates baseline_pass.",
+				"ai_memory_mcp_stdio_f5": true,
+				"ai_memory_mcp_stdio_init_ok": true,
+				"ai_memory_mcp_stdio_tools_ok": true,
+				"ai_memory_mcp_stdio_tools_found": "memory_agent_list,memory_agent_register,memory_archive_list,memory_archive_purge,memory_archive_restore,memory_archive_stats,memory_auto_tag,memory_capabilities,memory_consolidate,memory_delete,memory_detect_contradiction,memory_expand_query,memory_forget,memory_gc,memory_get,memory_get_links,memory_inbox,memory_link,memory_list,memory_list_subscriptions,memory_namespace_clear_standard,memory_namespace_get_standard,memory_namespace_set_standard,memory_notify,memory_pending_approve,memory_pending_list,memory_pending_reject,memory_promote,memory_recall,memory_search,memory_session_start,memory_stats,memory_store,memory_subscribe,memory_unsubscribe,memory_update",
+				"_f5_note": "F5 spawns the ai-memory stdio MCP subprocess using the framework-configured invocation and verifies initialize + tools/list return memory_store, memory_recall, memory_list. Deterministic (no LLM). Gates baseline_pass.",
+				"tls_mode": "off",
+				"tls_handshake_f6": true,
+				"tls_handshake_f6_reason": "",
+				"mtls_enforcement_f7": true,
+				"mtls_enforcement_f7_reason": "",
+				"_f6_f7_note": "F6 verifies the TLS 1.3 handshake against the local serve + CA chain. F7 verifies mTLS enforcement — anonymous client rejected, whitelisted client accepted. Both gate baseline_pass when tls_mode != off / mtls respectively.",
+				"embedder_loaded_f8": true,
+				"embedder_loaded_f8_reason": "",
+				"_f8_note": "F8 verifies /api/v1/capabilities reports features.embedder_loaded=true — i.e. the MiniLM embedder initialised at serve startup. Gates baseline_pass unconditionally. Without this, scenario-18 silently black-holes (semantic recall returns 0 rows).",
+				"agent_mcp_ai_memory_canary": true,
+				"canary_uuid": "489b4441-1f41-46bd-a225-28beeaead003",
+				"canary_namespace": "_baseline_canary_f2a"
+			},
+			"baseline_pass": true
+		},
+		{
+			"spec_version": "1.4.0",
+			"agent_type": "ironclaw",
+			"agent_id": "ai:charlie",
+			"node_index": "3",
+			"framework_version": "ironclaw 0.26.0",
+			"ai_memory_version": "v0.6.2",
+			"peer_urls": "http://10.10.0.3:9077,http://10.10.0.4:9077,http://10.10.0.2:9077",
+			"config_file_sha256": "06d9c01655a2bdbc525b1cb2081e089df4c92293938581095e910876f8328acc",
+			"config_attestation": {
+				"framework_is_authentic": true,
+				"mcp_server_ai_memory_registered": true,
+				"llm_backend_is_xai_grok": true,
+				"llm_is_default_provider": true,
+				"mcp_command_is_ai_memory": true,
+				"agent_id_stamped": true,
+				"federation_live": true,
+				"ufw_disabled": true,
+				"iptables_flushed": true,
+				"dead_man_switch_scheduled": true
+			},
+			"negative_invariants": {
+				"_description": "Alternative A2A channels must be OFF so a passing scenario is only passing via ai-memory shared memory. Any true here = thesis-preserving.",
+				"a2a_protocol_off": true,
+				"sub_agent_or_sessions_spawn_off": true,
+				"alternative_channels_off": true,
+				"tool_allowlist_is_memory_only": true,
+				"a2a_gate_profile_locked": true
+			},
+			"functional_probes": {
+				"xai_grok_chat_reachable": true,
+				"xai_grok_sample_reply": "READY",
+				"substrate_http_canary_f2a": true,
+				"substrate_http_canary_uuid": "88a56393-d4db-4bf2-8790-bb0408cf582e",
+				"agent_mcp_canary_f2b": false,
+				"agent_mcp_canary_uuid": "89e452f0-28c6-4b4d-950a-b05fafbf5f85",
+				"agent_canary_response_head": "error: unrecognized subcommand 'chat'    tip: a similar subcommand exists: 'channels'  Usage: ironclaw [OPTIONS] [COMMAND]  For more information, try '--help'. ",
+				"_f2b_note": "F2b is LLM-dependent and non-blocking. F2a (deterministic HTTP substrate) gates baseline_pass.",
+				"mesh_connectivity_f4": true,
+				"mesh_edges_ok": 3,
+				"mesh_edges_total": 3,
+				"mesh_edges_detail": "10.10.0.3:9077:OK,10.10.0.4:9077:OK,10.10.0.2:9077:OK",
+				"_f4_note": "F4 verifies this local nodes N-1 OUTBOUND mesh edges to every peer via both GET health and POST sync_push dry_run. Aggregator ANDs across N nodes to confirm full N*(N-1) bidirectional reachability. Gates baseline_pass.",
+				"ai_memory_mcp_stdio_f5": true,
+				"ai_memory_mcp_stdio_init_ok": true,
+				"ai_memory_mcp_stdio_tools_ok": true,
+				"ai_memory_mcp_stdio_tools_found": "memory_agent_list,memory_agent_register,memory_archive_list,memory_archive_purge,memory_archive_restore,memory_archive_stats,memory_auto_tag,memory_capabilities,memory_consolidate,memory_delete,memory_detect_contradiction,memory_expand_query,memory_forget,memory_gc,memory_get,memory_get_links,memory_inbox,memory_link,memory_list,memory_list_subscriptions,memory_namespace_clear_standard,memory_namespace_get_standard,memory_namespace_set_standard,memory_notify,memory_pending_approve,memory_pending_list,memory_pending_reject,memory_promote,memory_recall,memory_search,memory_session_start,memory_stats,memory_store,memory_subscribe,memory_unsubscribe,memory_update",
+				"_f5_note": "F5 spawns the ai-memory stdio MCP subprocess using the framework-configured invocation and verifies initialize + tools/list return memory_store, memory_recall, memory_list. Deterministic (no LLM). Gates baseline_pass.",
+				"tls_mode": "off",
+				"tls_handshake_f6": true,
+				"tls_handshake_f6_reason": "",
+				"mtls_enforcement_f7": true,
+				"mtls_enforcement_f7_reason": "",
+				"_f6_f7_note": "F6 verifies the TLS 1.3 handshake against the local serve + CA chain. F7 verifies mTLS enforcement — anonymous client rejected, whitelisted client accepted. Both gate baseline_pass when tls_mode != off / mtls respectively.",
+				"embedder_loaded_f8": true,
+				"embedder_loaded_f8_reason": "",
+				"_f8_note": "F8 verifies /api/v1/capabilities reports features.embedder_loaded=true — i.e. the MiniLM embedder initialised at serve startup. Gates baseline_pass unconditionally. Without this, scenario-18 silently black-holes (semantic recall returns 0 rows).",
+				"agent_mcp_ai_memory_canary": true,
+				"canary_uuid": "88a56393-d4db-4bf2-8790-bb0408cf582e",
+				"canary_namespace": "_baseline_canary_f2a"
+			},
+			"baseline_pass": true
+		}
+	]
+}
+</pre>
+          <p><a href="./a2a-baseline.json">raw file</a></p>
+        </details>
+      </section>
+      <section class="f3">
+        <h2>F3 — peer A2A via shared memory <span class="badge pass">F3 OK</span></h2>
+        <p class="muted">Workflow-level probe answering "can agents communicate through ai-memory?". Writer <code>ai:alice</code> posted canary UUID <code>18017cd1-bdd8-4027-9b82-5d03bde2f85c</code> to namespace <code>_baseline_peer_canary</code> via node-1's local <code>ai-memory</code> serve HTTP. After W=2 fanout settle, probe confirmed the canary on each of the 3 peer nodes via their local <code>GET /api/v1/memories</code>.</p>
+        <details><summary>f3-peer-a2a.json</summary>
+          <pre>
+{
+	"probe": "F3",
+	"name": "peer-a2a-via-shared-memory",
+	"description": "Writer agent posts a canary via local ai-memory HTTP on node-1; verifies the row propagates to the 3 peer nodes (W=2/N=4 quorum) before scenarios run.",
+	"canary_uuid": "18017cd1-bdd8-4027-9b82-5d03bde2f85c",
+	"canary_namespace": "_baseline_peer_canary",
+	"writer_agent": "ai:alice",
+	"pass": true
+}
+</pre>
+          <p><a href="./f3-peer-a2a.json">raw file</a></p>
+        </details>
+      </section>
+      <section class="run-focus">
+        <p class="label">Run focus</p>
+        <h2>Hybrid recall failed to surface Bob's memory in semantic query.</h2>
+        <p><strong>What this campaign tested:</strong> Tested scenario 18 exercising hybrid recall mode with semantic querying across agents in a 4-node federated mesh without TLS, covering recall primitives and federation transport.</p>
+        <p><strong>What it demonstrated:</strong> Demonstrated that hybrid recall in semantic mode failed to retrieve Bob's relevant memory, resulting in incomplete sharing visible to Charlie.</p>
+      </section>
+      <section class="ai-insight">
+        <p class="tag">AI NHI analysis &middot; Claude Opus 4.7</p>
+        <h2>Hybrid recall failed to surface Bob's memory in semantic query.</h2>
+        <p class="verdict">FAIL — semantic query missed Bob's memory</p>
+        <h3>For three audiences</h3>
+        <div class="audiences">
+          <article><h4>Non-technical end users</h4><p>In this test, two agents shared memories about morning exercise routines, but a third agent only saw one of them when asking about it. This means the system isn't reliably sharing all related memories between agents. It's like a group chat where some messages get lost.</p></article>
+          <article><h4>C-level decision makers</h4><p>This isolated test on scenario 18 failed, indicating a high-risk regression in hybrid memory recall that undermines production readiness. Customer-facing claims about seamless AI-to-AI memory sharing are not viable until fixed; this patch likely introduced the issue compared to stable v0.6.2 baseline.</p></article>
+          <article><h4>Engineers &amp; architects</h4><p>Scenario S18 failed with hybrid recall not surfacing Bob's memory (marker bob-daybreak-2ec9df21) in semantic query, as seen_by_charlie=0 despite diag_list presence. Impacts semantic search primitive in federated mesh (W=2/N=4); probable root cause is embedding similarity threshold or quorum read failure in recall mode. Investigate probe F# for hybrid semantics and re-test post-fix.</p></article>
+        </div>
+        <h3>What changes going into the next campaign</h3>
+        <p>Apply fix for semantic query in hybrid mode and expand to full scenario suite for validation.</p>
+      </section>
+      <section class="tests-performed">
+        <h2>Tests performed in this run</h2>
+        <p class="muted">Every scenario that produced a JSON report in this campaign, in testbook order. Click a row's scenario id to jump to its full report below. See the <a href="../../tests/">Every test performed</a> page for the authoritative catalog.</p>
+        <table class="tests-table">
+          <thead><tr><th>ID</th><th>Title</th><th>Result</th><th>Reason</th></tr></thead>
+          <tbody>
+            <tr><td><a href="#scenario-18">S18</a></td><td>Semantic query expansion</td><td><span class="badge warn">?</span></td><td>semantic query did not surface bob's memory</td></tr>
+          </tbody>
+        </table>
+      </section>
+      <section class="phase" id="scenario-18">
+        <h2>Scenario 18 — Semantic query expansion <span class="badge fail">FAIL</span></h2>
+        <p class="muted"><strong>Reasons:</strong> semantic query did not surface bob's memory</p>
+        <details><summary>scenario-18.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"diag_list_alice_present": 1,
+	"diag_list_bob_present": 1,
+	"pass": false,
+	"query": "morning outdoor exercise routine",
+	"reason": "semantic query did not surface bob's memory",
+	"reasons": [
+		"semantic query did not surface bob's memory"
+	],
+	"recall_mode": "hybrid",
+	"rows_in_recall": 1,
+	"scenario": "18",
+	"skipped": false,
+	"tls_mode": "off",
+	"writers": [
+		{
+			"agent": "ai:alice",
+			"marker": "alice-sunrise-40e174e1",
+			"seen_by_charlie": 1
+		},
+		{
+			"agent": "ai:bob",
+			"marker": "bob-daybreak-2ec9df21",
+			"seen_by_charlie": 0
+		}
+	]
+}
+</pre>
+          <p><a href="./scenario-18.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-18.log (console trace)</summary>
+          <pre class="log">alice writes A on node-1
+bob writes B on node-2
+polling node-3 for both writes to propagate (max 30 s)
+  both writes visible after 1 s
+settle 3s for embedder + HNSW catch-up
+charlie queries on node-3 with semantically-related prompt
+  recall mode=hybrid returned 1 rows
+  charlie sees alice's memory: 1 (expected &gt;=1)
+  charlie sees bob's memory: 0 (expected &gt;=1)
+</pre>
+          <p><a href="./scenario-18.log">raw file</a></p>
+        </details>
+      </section>
+    <section>
+      <h2>All artifacts</h2>
+      <ul>
+        <li><a href="./a2a-baseline.json">a2a-baseline.json</a></li>
+        <li><a href="./a2a-summary.json">a2a-summary.json</a></li>
+        <li><a href="./ai-nhi-analysis.json">ai-nhi-analysis.json</a></li>
+        <li><a href="./campaign.meta.json">campaign.meta.json</a></li>
+        <li><a href="./f3-peer-a2a.json">f3-peer-a2a.json</a></li>
+        <li><a href="./scenario-18.json">scenario-18.json</a></li>
+        <li><a href="./scenario-18.log">scenario-18.log</a></li>
+      </ul>
+    </section>
+    <footer>
+      Generated by <code>scripts/generate_run_html.sh</code>.
+      Methodology: <a href="https://alphaonedev.github.io/ai-memory-ai2ai-gate/methodology/">alphaonedev.github.io/ai-memory-ai2ai-gate/methodology</a>.
+      Analysis source: <code>analysis/run-insights.json</code>.
+    </footer>
+  </main>
+</body>
+</html>

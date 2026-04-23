@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-ironclaw-v0.6.2-patch2-r25t-s18only",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "This isolated test on scenario 18 failed, indicating a high-risk regression in hybrid memory recall that undermines production readiness. Customer-facing claims about seamless AI-to-AI memory sharing are not viable until fixed; this patch likely introduced the issue compared to stable v0.6.2 baseline.",
+  "for_non_technical": "In this test, two agents shared memories about morning exercise routines, but a third agent only saw one of them when asking about it. This means the system isn't reliably sharing all related memories between agents. It's like a group chat where some messages get lost.",
+  "for_sme": "Scenario S18 failed with hybrid recall not surfacing Bob's memory (marker bob-daybreak-2ec9df21) in semantic query, as seen_by_charlie=0 despite diag_list presence. Impacts semantic search primitive in federated mesh (W=2/N=4); probable root cause is embedding similarity threshold or quorum read failure in recall mode. Investigate probe F# for hybrid semantics and re-test post-fix.",
+  "headline": "Hybrid recall failed to surface Bob's memory in semantic query.",
+  "next_run_change": "Apply fix for semantic query in hybrid mode and expand to full scenario suite for validation.",
+  "verdict": "FAIL \u2014 semantic query missed Bob's memory",
+  "what_it_proved": "Demonstrated that hybrid recall in semantic mode failed to retrieve Bob's relevant memory, resulting in incomplete sharing visible to Charlie.",
+  "what_it_tested": "Tested scenario 18 exercising hybrid recall mode with semantic querying across agents in a 4-node federated mesh without TLS, covering recall primitives and federation transport."
+}
