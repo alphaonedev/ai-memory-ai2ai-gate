@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-hermes-v0.6.2-patch2-r22-tls",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "The campaign failed entirely due to unrecovered scenario reports, elevating deployment risks for v0.6.2 with TLS and indicating the system is not production-ready. Customer-facing claims on memory sharing reliability cannot be validated from this run. No progress versus prior runs; prioritize CI harness investigation to unblock gating.",
+  "for_non_technical": "This test run didn't produce any results because no reports were collected. We couldn't determine if the AI agents can reliably share memories with each other. The setup needs to be fixed to run the tests properly next time.",
+  "for_sme": "No scenarios completed with failure mode of 'no scenario reports recovered', impacting all requested primitives across transports and frameworks. Probable root cause is a CI harness defect (harness_sha abf68d345ce88366e2d6ab1ba7ae003df5d3b31d) preventing report collection. All 35 requested testbook scenarios (S1 to S42 partial) effectively skipped.",
+  "headline": "Campaign failed: no scenario reports recovered.",
+  "next_run_change": "Fix the CI harness to ensure scenario reports are recovered and aggregated properly.",
+  "verdict": "FAIL \u2014 no scenario reports recovered",
+  "what_it_proved": "The run demonstrated a complete failure in the testing process, with no evidence of any scenarios being tested due to missing reports.",
+  "what_it_tested": "This campaign requested 35 scenarios covering AI memory sharing under TLS across various transports, frameworks, and primitives, but none were executed or reported."
+}
