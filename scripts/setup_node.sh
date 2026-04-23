@@ -258,7 +258,11 @@ if [ "$ROLE" = "memory-only" ]; then
   cat > /etc/ai-memory-a2a/env <<EOF
 NODE_INDEX=$NODE_INDEX
 ROLE=memory-only
-LOCAL_MEMORY_URL=http://127.0.0.1:9077
+TLS_MODE=$TLS_MODE
+LOCAL_MEMORY_URL=${SERVE_SCHEME}://localhost:9077
+TLS_CA=/etc/ai-memory-a2a/tls/ca.pem
+TLS_CLIENT_CERT=/etc/ai-memory-a2a/tls/client.pem
+TLS_CLIENT_KEY=/etc/ai-memory-a2a/tls/client.key
 EOF
   exit 0
 fi
@@ -744,7 +748,11 @@ NODE_INDEX=$NODE_INDEX
 ROLE=agent
 AGENT_TYPE=$AGENT_TYPE
 AGENT_ID=$AGENT_ID
-LOCAL_MEMORY_URL=http://127.0.0.1:9077
+TLS_MODE=$TLS_MODE
+LOCAL_MEMORY_URL=${SERVE_SCHEME}://localhost:9077
+TLS_CA=/etc/ai-memory-a2a/tls/ca.pem
+TLS_CLIENT_CERT=/etc/ai-memory-a2a/tls/client.pem
+TLS_CLIENT_KEY=/etc/ai-memory-a2a/tls/client.key
 MCP_CONFIG=/etc/ai-memory-a2a/mcp-config/config.json
 AI_MEMORY_AGENT_ID=$AGENT_ID
 EOF
