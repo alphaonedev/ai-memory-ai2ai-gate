@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-hermes-v0.6.2-patch2-r24-off",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "Core memory sharing exhibits low risk with high reliability, but persistent issues in semantic search and delta sync degrade production readiness for those features. Customer claims on full federation and search accuracy are not yet viable without fixes; this run shows no improvement over prior campaigns on these failure modes.",
+  "for_non_technical": "AI agents can usually share and access each other's memories reliably across the system. However, in some cases, searching for memories using meaning doesn't work as expected, and updating shared memories sometimes fails to sync properly. Overall, the system works well for basic sharing but has a couple of bugs in advanced features.",
+  "for_sme": "Failures occurred in S18 where semantic queries missed expected memories from alice and bob, and in S39 where delta sync returned 0/6 markers due to connection timeout (curl exit 28, node3 unreachable). Impacted primitives include semantic recall and delta endpoint; probable root causes are federation network instability or embedder config in the 4-node mesh (W=2/N=4). No other regressions noted across tested scenarios.",
+  "headline": "Federated memory sharing mostly reliable, fails in semantic search and delta sync.",
+  "next_run_change": "Debug node3 reachability and delta sync timeout in S39 before next run.",
+  "verdict": "PARTIAL \u2014 32/34 scenarios passed, failures in S18 and S39, S23 skipped.",
+  "what_it_proved": "Demonstrated consistent memory propagation and recall in core scenarios but revealed failures in semantic query recall and delta synchronization completeness.",
+  "what_it_tested": "Exercised 34 scenarios in 4-node mesh without TLS, covering CRUD operations, replication, recovery, search primitives, bulk imports, and federation axes over HTTP transport."
+}
