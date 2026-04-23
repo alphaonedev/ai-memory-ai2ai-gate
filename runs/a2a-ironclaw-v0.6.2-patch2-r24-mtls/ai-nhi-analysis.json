@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-ironclaw-v0.6.2-patch2-r24-mtls",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "Elevated risk from semantic search misses and delta-sync failures reduces production readiness, though basic federation holds. Customer claims on secure AI memory sharing are viable for core features but not advanced recall; no broad regressions vs. prior non-mTLS runs. Prioritize fixes to enable confident scaling.",
+  "for_non_technical": "Agents shared memories reliably in most tests, allowing them to access each other's information across the network. However, in some cases, searches failed to find relevant memories, and updates didn't sync properly to all agents. The system works well for basic sharing but needs improvements for full dependability.",
+  "for_sme": "S18 failed with semantic queries missing Alice and Bob's memories, impacting hybrid recall primitive; S39 failed on delta-sync returning 0/6 markers due to node3 unreachability (curl timeout). Probable root causes include mTLS cert issues or transient network partitions on node3. S23 skipped due to unparseable report; other primitives like consolidation (S5) and pubsub (S33) passed cleanly.",
+  "headline": "mTLS federation fails on semantic search and delta-sync",
+  "next_run_change": "Debug node3 mTLS connectivity and re-run with diagnostic probes on delta-sync before next campaign.",
+  "verdict": "FAIL \u2014 2/36 scenarios failed (S18, S39), 1 skipped (S23)",
+  "what_it_proved": "Demonstrated reliable memory propagation and primitives in 33 scenarios but exposed failures in semantic query recall and incomplete delta-sync under mTLS conditions.",
+  "what_it_tested": "Exercised 36 scenarios testing mTLS transport security, federation mesh sync, and primitives like semantic recall, delta queries, consolidation, pubsub, and bulk operations across 4-node topology."
+}
