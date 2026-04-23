@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-hermes-v0.6.2-patch2-r22b-tls",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "Persistent failures in semantic search and sync introduce reliability risks, delaying production readiness for advanced features. Core sharing claims hold viable for customer demos. No major improvements vs. prior TLS runs; investigate regressions.",
+  "for_non_technical": "AI agents shared memories reliably in most tests, allowing them to see and use each other's information across the network. However, some searches failed to find relevant memories, certain settings didn't reset properly, and updates didn't sync completely in a few cases.",
+  "for_sme": "Semantic query in S18 failed to surface memories from alice and bob, likely due to embedding or indexing issues. S35 showed child namespace rule persisting after clear, pointing to incomplete propagation in federation. S39 delta-sync returned 0/6 markers, probable timestamp or checkpoint mismatch; S20 skipped (mTLS req), S23 unparseable.",
+  "headline": "TLS federation fails in semantic search, rule clearing, and delta sync.",
+  "next_run_change": "Fix scenario 23 parsing and re-run to confirm resolutions for S18, S35, S39 failures.",
+  "verdict": "FAIL \u2014 3/36 scenarios red, 2 skipped (S20 mTLS-only, S23 unparseable).",
+  "what_it_proved": "Results showed core memory sharing and federation reliable in 31 scenarios but failed in semantic recall, namespace rule clearing, and delta synchronization.",
+  "what_it_tested": "Tested 36 scenarios exercising memory recall, linking, deletion, consolidation, semantic search, pubsub, and bulk ops over TLS transport in HTTP/Serve framework across 4-node federation primitives."
+}

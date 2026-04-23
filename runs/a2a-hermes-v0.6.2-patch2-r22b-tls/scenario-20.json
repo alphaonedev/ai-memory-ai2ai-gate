@@ -1,0 +1,1 @@
+{"agent_group": "hermes", "pass": null, "reason": "scenario 20 only runs under tls_mode=mtls (actual: tls)", "scenario": "20", "skipped": true, "tls_mode": "tls"}

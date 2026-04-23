@@ -1,0 +1,1 @@
+{"agent_group": "hermes", "dst_ns": "scenario38-dst-2954b7", "expected_rows": 5, "export_http_code": 200, "import_http_code": 200, "markers_preserved": 5, "pass": true, "reasons": [], "rows_exported": 5, "rows_in_destination": 5, "scenario": "38", "skipped": false, "src_ns": "scenario38-src-2954b7", "tls_mode": "tls"}
