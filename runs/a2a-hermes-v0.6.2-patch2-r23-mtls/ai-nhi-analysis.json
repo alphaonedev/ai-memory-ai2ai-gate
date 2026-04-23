@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-hermes-v0.6.2-patch2-r23-mtls",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "High risk due to complete campaign failure from missing reports, blocking validation of v0.6.2 under mTLS for production. Customer-facing claims on reliable AI memory federation remain unproven. Represents a CI reliability regression compared to prior runs.",
+  "for_non_technical": "This test run didn't work because no results from any of the planned checks were collected. We couldn't determine if agents can reliably share memories with each other. The problem seems to be in how the tests were set up or run.",
+  "for_sme": "No per-scenario reports recovered, indicating a harness failure in artifact collection (harness_sha: 89ac1adba1de2a6909ed00d21d62f2c9d11ff051). All 35 requested scenarios (S1, S1b, S2, S4-S6, S9-S18, S22-S25, S28-S42) effectively skipped. Probable root cause is a CI workflow issue in retrieving outputs from the 4-node federation mesh; no specific primitives or failure modes observable.",
+  "headline": "Campaign failed: no scenario reports recovered.",
+  "next_run_change": "Fix the report recovery and artifact upload logic in the CI workflow before re-running.",
+  "verdict": "FAIL \u2014 no scenario reports recovered",
+  "what_it_proved": "The run demonstrated a critical failure in the testing harness, as no scenario results were collected or reported.",
+  "what_it_tested": "Attempted to exercise 35 scenarios covering transport (mTLS), framework (federation mesh), and primitives like memory sharing, but no reports were recovered."
+}
