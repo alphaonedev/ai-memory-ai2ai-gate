@@ -1,0 +1,1 @@
+{"agent_group": "hermes", "bulk_http_code": "200", "bulk_size": 500, "namespace": "scenario40-bulk-c807d0", "pass": false, "per_peer_count": {"node_2": 499, "node_3": 500, "node_4": 500}, "reason": "node-2 saw 499/500 bulk rows after fanout", "reasons": ["node-2 saw 499/500 bulk rows after fanout"], "scenario": "40", "skipped": false, "tls_mode": "tls"}

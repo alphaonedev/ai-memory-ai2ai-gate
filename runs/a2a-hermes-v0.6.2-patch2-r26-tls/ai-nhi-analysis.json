@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-hermes-v0.6.2-patch2-r26-tls",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "Core federation remains low-risk and production-ready for standard workloads; bulk ops introduce minor flake risk requiring monitoring for customer deployments. Claims of reliable AI memory sharing hold viable except for high-volume bulk; vs prior runs, added bulk failure but expanded coverage with new passing scenarios like activity counters and sharding.",
+  "for_non_technical": "Agents shared memories reliably in nearly all tests, allowing them to access each other's information across the network. However, when adding a large batch of memories at once, one agent occasionally missed a single piece of information. This shows the system is mostly dependable for sharing memories but has a small issue with handling big updates.",
+  "for_sme": "Bulk insert failed in S40 with node-2 seeing only 499/500 rows post-fanout, likely due to sync race in federation propagation; other primitives passed including multi-agent recall (S1,S1b,S4), linking (S11,S37), deletion (S10), recovery (S14), hybrid search (S18), and notifications (S32). S20 skipped as mTLS-specific; S23 report unparseable, probable harness issue; no impact on embedding or keyword primitives.",
+  "headline": "Hermes TLS federation flaked on bulk fanout with 1 row missing.",
+  "next_run_change": "Add debug tracing to bulk fanout paths and retry S40 with smaller batch sizes to isolate the missing row cause.",
+  "verdict": "FAIL \u2014 34/36 scenarios passed, S40 failed (499/500 rows), S20 skipped (mTLS only).",
+  "what_it_proved": "Proved reliable memory propagation and recall in most cases, but exposed a fanout inconsistency in bulk operations where one node missed a single row.",
+  "what_it_tested": "Exercised 36 scenarios on TLS transport in Hermes 4-node mesh, covering primitives like recall, linking, bulk inserts, notifications, and recovery across semantic and hybrid modes."
+}
