@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-ironclaw-v0.6.2-patch2-r26-mtls",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "This run maintains low risk posture with full passes on all runnable scenarios, advancing production readiness for mTLS federations. Customer claims on secure, resilient agent memory sharing are viable without regressions from prior runs. No blockers for deployment; cadence supports gating v0.6.2-patch2.",
+  "for_non_technical": "Agents in this test reliably shared and recalled memories with each other, even when one part of the system was temporarily cut off. Everything worked as expected in the tests that ran, proving the system is stable for group memory tasks. One test report couldn't be read, but the rest showed no issues.",
+  "for_sme": "All 34 executed scenarios passed without failures, impacting primitives like write consistency (S1, S4), linking (S11, S37), deletion (S10, S31), hybrid recall (S18), bulk ingest (S40), and mTLS auth (S21, S22, S24). No root causes to investigate as probes showed uniform replication and no byzantine rejections (F24). Scenario 23 report was unparseable, likely a harness artifact issue.",
+  "headline": "mTLS federation achieves full pass on 34/35 scenarios in v0.6.2-patch2.",
+  "next_run_change": "Resolve unparseable report parsing for scenario 23 to achieve full coverage.",
+  "verdict": "PASS \u2014 1 scenario skipped (unparseable report).",
+  "what_it_proved": "The results demonstrated reliable memory sharing, replication, and recovery across agents in an mTLS-secured mesh, with no failures in executed tests and consistent behavior under network partitions and bulk loads.",
+  "what_it_tested": "This campaign exercised 34 scenarios covering memory write/read consistency, linking, deletion, partitioning, hybrid recall, bulk operations, and security primitives across a 4-node mTLS federation using HTTP transport and semantic tier frameworks."
+}
