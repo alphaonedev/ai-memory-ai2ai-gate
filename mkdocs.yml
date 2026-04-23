@@ -35,6 +35,7 @@ nav:
   - ai-memory integration: ai-memory-integration.md
   - Infrastructure versions: infrastructure.md
   - Test book: testbook.md
+  - v1.0 GA criteria: v1-ga-criteria.md
   - Every test performed: tests.md
   - Architecture: architecture.md
   - Runbook: runbook.md
