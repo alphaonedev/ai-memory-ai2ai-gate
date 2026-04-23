@@ -46,6 +46,18 @@ class Harness:
     node3_ip: str
     node4_ip: str = ""
     memory_node_ip: str = ""
+    # v0.6.2 (S39 RCA): DigitalOcean firewall allows port 9077 ONLY from
+    # within the VPC CIDR (terraform/main.tf:194). A scenario that does
+    # `ssh root@NODE3_IP "curl http://NODE1_IP:9077/..."` egresses via
+    # node-3's public gateway and hits node-1's PUBLIC interface → DO
+    # firewall drops the packet. Private (VPC) IPs are reachable on 9077
+    # from any droplet in the same VPC. Any scenario that needs to hit
+    # a peer's HTTP surface from WITHIN another droplet's shell must use
+    # these private IPs, not the public `.nodeN_ip`.
+    node1_priv: str = ""
+    node2_priv: str = ""
+    node3_priv: str = ""
+    node4_priv: str = ""  # aka memory_priv
     agent_group: str = "ironclaw"
     tls_mode: str = "off"
     scenario_id: str = ""
@@ -69,6 +81,10 @@ class Harness:
             node3_ip=os.environ["NODE3_IP"],
             node4_ip=os.environ.get("NODE4_IP", ""),
             memory_node_ip=os.environ.get("MEMORY_NODE_IP", ""),
+            node1_priv=os.environ.get("NODE1_PRIV", ""),
+            node2_priv=os.environ.get("NODE2_PRIV", ""),
+            node3_priv=os.environ.get("NODE3_PRIV", ""),
+            node4_priv=os.environ.get("MEMORY_PRIV", ""),
             agent_group=os.environ["AGENT_GROUP"],
             tls_mode=os.environ.get("TLS_MODE", "off"),
             scenario_id=scenario_id,

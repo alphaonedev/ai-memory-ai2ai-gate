@@ -57,14 +57,20 @@ def main() -> None:
     # block until the link is proven hot before issuing the /sync/since call.
     h.settle(15, reason="process resume + federation catchup")
     import shlex as _sh
+    # v0.6.2 (S39 RCA): DO firewall blocks port 9077 on PUBLIC interfaces
+    # (terraform main.tf:192-194). curl from node-3 TO node-1 must go via
+    # node-1's VPC PRIVATE IP so the packet stays inside the VPC and the
+    # firewall allows it. Using `.node1_ip` (public) → 15 s curl timeout
+    # → empty body → rows_returned_raw=0 on every v3r22/v3r23/v3r24 run.
+    peer_host = h.node1_priv or h.node1_ip  # back-compat fallback
     if h.tls_mode == "off":
-        health_cmd = f"curl -sSf --max-time 5 {_sh.quote(f'http://{h.node1_ip}:9077/api/v1/health')}"
+        health_cmd = f"curl -sSf --max-time 5 {_sh.quote(f'http://{peer_host}:9077/api/v1/health')}"
     else:
         health_cmd = (
             f"curl -sSf --max-time 5 --cacert /etc/ai-memory-a2a/tls/ca.pem "
             + ("--cert /etc/ai-memory-a2a/tls/client.pem --key /etc/ai-memory-a2a/tls/client.key "
                if h.tls_mode == "mtls" else "")
-            + f"{_sh.quote(f'https://{h.node1_ip}:9077/api/v1/health')}"
+            + f"{_sh.quote(f'https://{peer_host}:9077/api/v1/health')}"
         )
     health_ok = False
     import time as _t
@@ -84,9 +90,9 @@ def main() -> None:
     # failures have actionable detail instead of "returned 0/6".
     since_q = urllib.parse.quote(checkpoint)
     target = (
-        f"http://{h.node1_ip}:9077/api/v1/sync/since?since={since_q}&limit=500"
+        f"http://{peer_host}:9077/api/v1/sync/since?since={since_q}&limit=500"
         if h.tls_mode == "off"
-        else f"https://{h.node1_ip}:9077/api/v1/sync/since?since={since_q}&limit=500"
+        else f"https://{peer_host}:9077/api/v1/sync/since?since={since_q}&limit=500"
     )
     tls_flags = ""
     if h.tls_mode != "off":
