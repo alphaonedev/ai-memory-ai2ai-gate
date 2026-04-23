@@ -341,16 +341,80 @@ jobs:
           echo "client_key=$PWD/client/client.key" >> "$GITHUB_OUTPUT"
           echo "::notice::TLS material generated: tls_mode=$TLS_MODE"
 
+      # v0.6.2 (v3r24 perf): when AI_MEMORY_SOURCE_BUILD=true, compile
+      # ai-memory ONCE on the runner (ubuntu-24.04, binary-compatible with
+      # the ubuntu-24-04-x64 droplet image on glibc) and scp the resulting
+      # binary to each droplet. Eliminates 4× parallel cargo build on
+      # s-2vcpu-4gb (~15–20 min each → provision step dominates matrix
+      # wall-clock). Runner has a warm Rust cache so incremental builds
+      # finish in ~2–3 min; the scp itself is ~3 seconds per droplet.
+      - name: Install Rust toolchain (runner build)
+        if: github.event.inputs.ai_memory_source_build == 'true'
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo + target (runner build)
+        if: github.event.inputs.ai_memory_source_build == 'true'
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ai-memory-src -> target
+          shared-key: ai-memory-runner-build-${{ github.event.inputs.ai_memory_git_ref }}
+
+      - name: Build ai-memory binary (runner)
+        if: github.event.inputs.ai_memory_source_build == 'true'
+        timeout-minutes: 15
+        id: runner_build
+        run: |
+          set -e
+          AMR="${{ github.event.inputs.ai_memory_git_ref }}"
+          echo "::notice::building ai-memory binary on runner @ $AMR (build-once path)"
+          rm -rf ai-memory-src
+          git clone --depth 1 --branch "$AMR" \
+            https://github.com/alphaonedev/ai-memory-mcp.git ai-memory-src
+          pushd ai-memory-src >/dev/null
+          cargo build --release --locked --bin ai-memory
+          cp target/release/ai-memory "$GITHUB_WORKSPACE/ai-memory.prebuilt"
+          popd >/dev/null
+          size=$(stat -c %s ai-memory.prebuilt)
+          sha=$(sha256sum ai-memory.prebuilt | cut -d' ' -f1)
+          echo "::notice::ai-memory binary built: ${size} bytes, sha256=${sha:0:16}…"
+          echo "binary_path=$GITHUB_WORKSPACE/ai-memory.prebuilt" >> "$GITHUB_OUTPUT"
+
+      - name: Distribute ai-memory binary to droplets
+        if: github.event.inputs.ai_memory_source_build == 'true'
+        timeout-minutes: 5
+        run: |
+          set -e
+          PIDS=()
+          for ip in \
+            "${{ steps.wait.outputs.node1_ip }}" \
+            "${{ steps.wait.outputs.node2_ip }}" \
+            "${{ steps.wait.outputs.node3_ip }}" \
+            "${{ steps.wait.outputs.memory_ip }}"
+          do
+            (
+              scp -o StrictHostKeyChecking=no -q \
+                ai-memory.prebuilt root@"$ip":/tmp/ai-memory.prebuilt
+              ssh -o StrictHostKeyChecking=no root@"$ip" \
+                "chmod 755 /tmp/ai-memory.prebuilt && /tmp/ai-memory.prebuilt --version"
+              echo "  [n] binary staged + verified on $ip"
+            ) &
+            PIDS+=($!)
+          done
+          FAIL=0
+          for pid in "${PIDS[@]}"; do
+            wait "$pid" || FAIL=1
+          done
+          [ "$FAIL" = "0" ] || { echo "::error::binary distribution failed on one or more droplets"; exit 1; }
+          echo "::notice::ai-memory binary distributed + version-checked on all 4 droplets"
+
       - name: Provision all 4 nodes (federation mesh)
-        # 40 min (was 25): source-build of ai-memory with the rustls/hyper
-        # crate tree on 4× s-2vcpu-4gb droplets in parallel regularly spends
-        # 15–20 min in cargo; adding the hermes-install SSH→HTTPS fallback
-        # (~60 s per node) and occasional crates.io slowness pushed a v3r22
-        # hermes mtls run (24833746718) to exactly 25:00 with node-1 still
-        # installing. 40 min leaves headroom without softening the watchdog
-        # — a node that can't provision in 40 min is a real failure, not a
-        # timing miss. Also bumps §R2 watchdog table.
-        timeout-minutes: 40
+        # 40 min (was 25) originally bumped for source-build; now with the
+        # runner-build + binary distribution above, the per-droplet cargo
+        # build is skipped via /tmp/ai-memory.prebuilt (see setup_node.sh).
+        # Dropping back to 20 min now that provision is ~5–8 min/node
+        # instead of ~15–20. 20 min still leaves 2× headroom for the
+        # hermes-install + F1–F8 probe pipeline.
+        timeout-minutes: 20
         run: |
           set -e
           AMV=$(echo '${{ github.event.inputs.ai_memory_git_ref }}' | sed -e 's/^v//' -e 's|release/||')
