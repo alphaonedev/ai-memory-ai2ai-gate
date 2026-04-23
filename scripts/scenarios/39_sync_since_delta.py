@@ -50,25 +50,66 @@ def main() -> None:
 
     log("resuming ai-memory on node-3")
     h.ssh_exec(h.node3_ip, "pgrep -f 'ai-memory serve' | xargs -r kill -CONT", timeout=30)
-    h.settle(4, reason="process resume")
+    # v0.6.2 (S39 follow-up): 4s was the prior settle — empirically produced
+    # empty curl bodies under mtls with `diag_updated_since=null`, suggesting
+    # node-1's TLS/serve wasn't consistently ready to answer from node-3's
+    # vantage. Bump to 15s + actively poll node-1's health from node-3 so we
+    # block until the link is proven hot before issuing the /sync/since call.
+    h.settle(15, reason="process resume + federation catchup")
+    import shlex as _sh
+    if h.tls_mode == "off":
+        health_cmd = f"curl -sSf --max-time 5 {_sh.quote(f'http://{h.node1_ip}:9077/api/v1/health')}"
+    else:
+        health_cmd = (
+            f"curl -sSf --max-time 5 --cacert /etc/ai-memory-a2a/tls/ca.pem "
+            + ("--cert /etc/ai-memory-a2a/tls/client.pem --key /etc/ai-memory-a2a/tls/client.key "
+               if h.tls_mode == "mtls" else "")
+            + f"{_sh.quote(f'https://{h.node1_ip}:9077/api/v1/health')}"
+        )
+    health_ok = False
+    import time as _t
+    for attempt in range(10):
+        r = h.ssh_exec(h.node3_ip, health_cmd, timeout=10)
+        if r.returncode == 0 and '"ok"' in (r.stdout or ""):
+            health_ok = True
+            break
+        _t.sleep(2)
+    log(f"  node-3 → node-1 health reachable: {health_ok} (after {attempt+1} probes)")
 
     log(f"node-3 asks node-1 /api/v1/sync/since?since={checkpoint}")
     # Use a plain curl from node-3 (we don't want to inject node-3's own view).
     # `since` is RFC3339; `namespace` is filtered client-side (handler doesn't
     # accept it — it returns the full post-checkpoint delta capped at limit).
-    import shlex as _sh
+    # v0.6.2 (S39 follow-up): capture http_code + stderr so empty-body
+    # failures have actionable detail instead of "returned 0/6".
     since_q = urllib.parse.quote(checkpoint)
-    if h.tls_mode == "off":
-        cmd = f"curl -sS {_sh.quote(f'http://{h.node1_ip}:9077/api/v1/sync/since?since={since_q}&limit=500')}"
-    else:
-        cmd = (
-            f"curl -sS --cacert /etc/ai-memory-a2a/tls/ca.pem "
-            + ("--cert /etc/ai-memory-a2a/tls/client.pem --key /etc/ai-memory-a2a/tls/client.key "
-               if h.tls_mode == "mtls" else "")
-            + f"{_sh.quote(f'https://{h.node1_ip}:9077/api/v1/sync/since?since={since_q}&limit=500')}"
-        )
+    target = (
+        f"http://{h.node1_ip}:9077/api/v1/sync/since?since={since_q}&limit=500"
+        if h.tls_mode == "off"
+        else f"https://{h.node1_ip}:9077/api/v1/sync/since?since={since_q}&limit=500"
+    )
+    tls_flags = ""
+    if h.tls_mode != "off":
+        tls_flags = "--cacert /etc/ai-memory-a2a/tls/ca.pem "
+        if h.tls_mode == "mtls":
+            tls_flags += "--cert /etc/ai-memory-a2a/tls/client.pem --key /etc/ai-memory-a2a/tls/client.key "
+    cmd = (
+        f"curl -sS --max-time 15 -w '\\n__HTTP_CODE__%{{http_code}}__' "
+        f"{tls_flags}{_sh.quote(target)}"
+    )
     r = h.ssh_exec(h.node3_ip, cmd, timeout=30)
-    delta_body = (r.stdout or "").strip()
+    raw_stdout = (r.stdout or "")
+    curl_http_code = 0
+    delta_body = raw_stdout
+    if "__HTTP_CODE__" in raw_stdout:
+        delta_body, _, tail = raw_stdout.rpartition("__HTTP_CODE__")
+        try:
+            curl_http_code = int(tail.strip().rstrip("_"))
+        except ValueError:
+            curl_http_code = 0
+    delta_body = delta_body.strip()
+    curl_stderr = (r.stderr or "").strip()[:400]
+    log(f"  curl exit={r.returncode} http_code={curl_http_code} body_len={len(delta_body)} stderr={curl_stderr!r}")
 
     import json as _json
     returned = 0
@@ -117,6 +158,11 @@ def main() -> None:
         diag_updated_since=diag_updated_since,
         diag_earliest_updated_at=diag_earliest,
         diag_latest_updated_at=diag_latest,
+        diag_node3_health_reachable=health_ok,
+        diag_curl_exit=r.returncode,
+        diag_curl_http_code=curl_http_code,
+        diag_curl_body_head=(delta_body[:300] if delta_body else ""),
+        diag_curl_stderr=curl_stderr,
         reasons=reasons,
     )
 
