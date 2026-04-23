@@ -72,11 +72,20 @@ def main() -> None:
 
     import json as _json
     returned = 0
+    returned_raw = 0
     present = 0
+    diag_updated_since = None
+    diag_earliest = None
+    diag_latest = None
     try:
         parsed = _json.loads(delta_body) if delta_body else {}
         if isinstance(parsed, dict):
+            # PR alphaonedev/ai-memory-mcp#361 adds these diagnostic fields.
+            diag_updated_since = parsed.get("updated_since")
+            diag_earliest = parsed.get("earliest_updated_at")
+            diag_latest = parsed.get("latest_updated_at")
             pool = parsed.get("memories") or parsed.get("rows") or parsed.get("delta") or []
+            returned_raw = len(pool)
             # Client-side namespace filter — endpoint returns global delta.
             pool_ns = [m for m in pool if isinstance(m, dict) and m.get("namespace") == ns]
             returned = len(pool_ns)
@@ -87,7 +96,8 @@ def main() -> None:
     except _json.JSONDecodeError:
         pass
 
-    log(f"  /sync/since returned {returned} rows in ns={ns}; {present}/{N} match our markers")
+    log(f"  /sync/since raw={returned_raw} ns-filtered={returned}; {present}/{N} match our markers")
+    log(f"  diag: updated_since={diag_updated_since} earliest={diag_earliest} latest={diag_latest}")
 
     reasons: list[str] = []
     passed = True
@@ -103,6 +113,10 @@ def main() -> None:
         expected_markers=N,
         markers_present=present,
         rows_returned=returned,
+        rows_returned_raw=returned_raw,
+        diag_updated_since=diag_updated_since,
+        diag_earliest_updated_at=diag_earliest,
+        diag_latest_updated_at=diag_latest,
         reasons=reasons,
     )
 

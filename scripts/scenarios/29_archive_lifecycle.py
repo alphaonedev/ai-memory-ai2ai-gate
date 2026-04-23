@@ -34,15 +34,17 @@ def main() -> None:
     log(f"  M1 id={m1_id}")
     h.settle(5, reason="pre-archive replication")
 
-    log("alice archives M1 via DELETE /api/v1/memories/{id} (soft-delete → archive)")
-    # Archival is driven by DELETE /memories/{id}; the "/archive" verb
-    # is GET (list) / DELETE (purge). See main.rs:1130-1136.
+    log("alice archives M1 via POST /api/v1/archive (ai-memory-mcp PR #361)")
+    # PR alphaonedev/ai-memory-mcp#361 added POST /api/v1/archive for
+    # explicit archive-by-id with cross-cluster fanout via sync_push.archives.
+    # DELETE /memories/{id} is a HARD delete (no archive) per product design.
     _, arc_doc = h.http_on(
-        h.node1_ip, "DELETE", f"/api/v1/memories/{m1_id}",
+        h.node1_ip, "POST", "/api/v1/archive",
+        body={"ids": [m1_id], "reason": "scenario-29 archive probe"},
         agent_id="ai:alice", include_status=True,
     )
     archive_code = (arc_doc or {}).get("http_code", 0) if isinstance(arc_doc, dict) else 0
-    log(f"  archive (DELETE) returned HTTP {archive_code}")
+    log(f"  archive (POST) returned HTTP {archive_code}")
     h.settle(5, reason="archive propagation")
 
     log("bob queries /api/v1/archive on node-2")
@@ -74,9 +76,9 @@ def main() -> None:
 
     reasons: list[str] = []
     passed = True
-    if archive_code not in (200, 202, 204):
+    if archive_code not in (200, 201, 202, 204):
         passed = False
-        reasons.append(f"archive (DELETE /memories/{{id}}) returned HTTP {archive_code}")
+        reasons.append(f"archive POST returned HTTP {archive_code}")
     if not bob_sees_archived:
         passed = False
         reasons.append("bob did not see M1 in /api/v1/archive")
