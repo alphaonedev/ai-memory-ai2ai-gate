@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-ironclaw-v3r20-mtls-release-v0.6.2",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "High risk posture from mTLS-induced replication failures; system not production-ready for secure multi-agent deployments. Customer claims of robust memory federation are not viable until fixes. Versus prior runs, v0.6.2 regressed on mTLS propagation, introducing identity and fanout issues.",
+  "for_non_technical": "AI agents attempted to securely share memories across a network of computers, but many memories didn't get shared correctly. Features like searching for similar memories or updating them also failed in some cases. This means the agents can't reliably remember and access each other's information yet.",
+  "for_sme": "Core failures in S1 (MCP replication with identity mismatches per per_namespace_node4), S18 (semantic recall missing embeddings), S40 (bulk fanout incomplete at 200/500 per peer), S39 (delta-sync returned 0 rows), S29 (restore not propagating to node-4), S32 (notify delivery), S34 (moderation HTTP errors), S35 (rule inheritance). Probable roots: mTLS cert mismatches in cross-cluster auth (F# identity probes), incomplete async fanout in bulk/delta (S# replication primitives). Debug with targeted mTLS traces.",
+  "headline": "mTLS federation shows major memory replication failures.",
+  "next_run_change": "Isolate and fix mTLS identity propagation in cross-cluster scenarios before re-running.",
+  "verdict": "FAIL \u2014 8/37 scenarios failed, core propagation broken.",
+  "what_it_proved": "Proved unreliable cross-agent memory sharing under mTLS, with failures in replication, bulk fanout, delta-sync, and advanced primitives like moderation and restore.",
+  "what_it_tested": "Exercised memory write/read, semantic search, bulk ops, moderation, delta-sync, and mTLS security across HTTP transport in a 4-node federation mesh."
+}
