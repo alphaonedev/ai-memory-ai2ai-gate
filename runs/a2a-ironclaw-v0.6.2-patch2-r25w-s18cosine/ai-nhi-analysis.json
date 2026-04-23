@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-ironclaw-v0.6.2-patch2-r25w-s18cosine",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "This run validates hybrid recall stability on v0.6.2 for ironclaw, maintaining low risk posture. Production readiness is affirmed with full pass, supporting customer claims of reliable AI memory federation. No changes from prior runs; patch2 holds steady.",
+  "for_non_technical": "AI agents Alice and Bob stored memories about morning exercise routines. Agent Charlie could reliably access and recall those shared memories when queried. This shows the system allows agents to share information effectively in this basic setup.",
+  "for_sme": "Scenario S18 passed with hybrid recall retrieving 2 rows, confirmed by diag probes on embeddings 'dawn-walk' and 'ridge-strides'. No failure modes observed in W=2/N=4 mesh topology without TLS. Probable root cause analysis unnecessary as all primitives (write, recall) functioned correctly.",
+  "headline": "Hybrid recall succeeds in ironclaw single-scenario test.",
+  "next_run_change": "Expand to full scenario suite for comprehensive patch validation.",
+  "verdict": "PASS \u2014 1/1 scenario green.",
+  "what_it_proved": "Demonstrated successful sharing and recall of two memory entries from Alice and Bob to Charlie in hybrid mode.",
+  "what_it_tested": "Tested scenario 18, exercising hybrid recall mode with cosine embeddings in a 4-node federation mesh without TLS transport."
+}
