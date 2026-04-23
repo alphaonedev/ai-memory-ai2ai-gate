@@ -9,11 +9,22 @@ charlie issues /api/v1/recall with a semantic prompt and must see both
 markers. Tests HNSW + embedder across the federated mesh.
 
 RecallQuery reads the query string via `?context=<text>` (per
-ai-memory-mcp src/models.rs:210).  Prior `?q=` silently left context=None
-→ HTTP 400 → both markers counted as unseen.
+ai-memory-mcp src/models.rs:210).
+
+v3r25 evidence showed alice's memory surfaced on charlie but bob's
+did not (asymmetric). Root cause was fanout-or-embed race on node-3
+for the second write — 15 s flat-wait was enough for alice (first
+write, more post-settle time) but sometimes not for bob (written
+closer to the settle boundary).
+
+Fix in this iteration: poll for BOTH rows to be present on node-3's
+list_memories before issuing the semantic recall. Adds an upper
+wait of ~30 s (much less in practice). Without both rows present on
+the querying node, the semantic test has no chance.
 """
 
 import sys
+import time
 import urllib.parse
 import pathlib
 
@@ -39,14 +50,46 @@ def main() -> None:
     log("bob writes B on node-2")
     h.write_memory(h.node2_ip, "ai:bob", ns, title="ridge-strides",
                    content=content_b, tier="long")
-    h.settle(15, reason="fanout + index rebuild")
+
+    # v0.6.2 (S18 iteration): poll for BOTH writes to be visible on node-3
+    # BEFORE issuing the semantic recall. Previously a 15 s flat settle
+    # left a race window where the second write could be missing or
+    # unembedded on charlie's node, asymmetrically failing the second
+    # marker while the first passed.
+    log("polling node-3 for both writes to propagate (max 30 s)")
+    saw_a_pre = 0
+    saw_b_pre = 0
+    for attempt in range(30):
+        _, listing = h.http_on(h.node3_ip, "GET",
+                               f"/api/v1/memories?namespace={ns}&limit=50")
+        mems = []
+        if isinstance(listing, dict):
+            mems = listing.get("memories") or []
+        saw_a_pre = sum(1 for m in mems
+                        if isinstance(m, dict) and tag_a in (m.get("content") or ""))
+        saw_b_pre = sum(1 for m in mems
+                        if isinstance(m, dict) and tag_b in (m.get("content") or ""))
+        if saw_a_pre >= 1 and saw_b_pre >= 1:
+            log(f"  both writes visible after {attempt+1} s")
+            break
+        time.sleep(1)
+    else:
+        log(f"  WARN: after 30 s list on node-3 still has alice={saw_a_pre} bob={saw_b_pre}")
+
+    # Additional 3 s for embedding refresh + HNSW index update on node-3.
+    # sync_push completes the insert under the DB lock, then regenerates
+    # the embedding + updates HNSW asynchronously (handlers.rs:3039+) —
+    # short pad above that async window.
+    h.settle(3, reason="embedder + HNSW catch-up")
 
     log("charlie queries on node-3 with semantically-related prompt")
     q = urllib.parse.urlencode({"context": query, "namespace": ns, "limit": 20})
     _, resp = h.http_on(h.node3_ip, "GET", f"/api/v1/recall?{q}")
     memories = []
+    recall_mode = None
     if isinstance(resp, dict):
         memories = resp.get("memories") or []
+        recall_mode = resp.get("mode")  # "hybrid" | "keyword" per PR #366
     elif isinstance(resp, list):
         memories = resp
 
@@ -56,6 +99,7 @@ def main() -> None:
 
     saw_a = count_marker(tag_a)
     saw_b = count_marker(tag_b)
+    log(f"  recall mode={recall_mode} returned {len(memories)} rows")
     log(f"  charlie sees alice's memory: {saw_a} (expected >=1)")
     log(f"  charlie sees bob's memory: {saw_b} (expected >=1)")
 
@@ -72,6 +116,10 @@ def main() -> None:
         passed=passed,
         reason="; ".join(reasons) if reasons else "",
         query=query,
+        recall_mode=recall_mode,
+        rows_in_recall=len(memories),
+        diag_list_alice_present=saw_a_pre,
+        diag_list_bob_present=saw_b_pre,
         writers=[
             {"agent": "ai:alice", "marker": tag_a, "seen_by_charlie": saw_a},
             {"agent": "ai:bob", "marker": tag_b, "seen_by_charlie": saw_b},
