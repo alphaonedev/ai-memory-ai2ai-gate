@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-hermes-v0.6.2-patch2-r22b-mtls",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "mTLS integration enhances security posture without broad regressions, but failures in semantic search, namespace rules, and delta sync elevate production risk and undermine claims of seamless agent memory sharing. Compared to prior runs, semantic issues persist while new delta and rule bugs emerged, delaying readiness; focus engineering on these for viable customer deployment. Overall, the release shows progress in core reliability but requires targeted fixes before scaling.",
+  "for_non_technical": "Agents shared memories reliably in most tests, allowing different AI systems to access each other's information securely over the network. However, in some cases, searches failed to find relevant memories, certain settings didn't reset properly, and syncing recent changes didn't work as expected. The system is mostly dependable but needs improvements to handle these edge cases fully.",
+  "for_sme": "Key failures include S18 where semantic queries missed Alice's and Bob's memories (likely embedding or indexing issues), S35 with child namespace rules persisting post-clear (probable propagation or cache invalidation bug), and S39 yielding 0/6 expected delta rows (potential timestamp filtering or query logic error). Impacted primitives span semantic search, policy management, and delta APIs; S23 skipped due to unparseable report. Investigate with added logging on affected nodes to isolate root causes.",
+  "headline": "mTLS federation fails in semantic search, rules, and delta sync.",
+  "next_run_change": "Implement fixes for S18 semantic recall and S39 delta sync, then re-run with verbose logging on namespace operations.",
+  "verdict": "PARTIAL \u2014 3/36 failures, 1 skipped under mTLS.",
+  "what_it_proved": "Proved robust memory propagation in most federation scenarios but exposed defects in semantic query accuracy, namespace rule clearing, and delta synchronization completeness.",
+  "what_it_tested": "Exercised 36 scenarios testing mTLS-secured federation mesh across transport security, framework reliability, and primitives like semantic recall, namespace policies, delta sync, bulk ingestion, and inter-agent sharing."
+}
