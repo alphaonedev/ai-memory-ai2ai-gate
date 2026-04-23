@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-hermes-v0.6.2-patch2-r23-off",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "Core memory sharing shows low risk and production readiness for basic federation, but semantic search and delta-sync failures pose high risk, undermining claims of reliable advanced recall; viable for customer pilots excluding those features. Versus prior runs, this introduces new regressions in S18 and S39 despite patch2. Recommend gating release until fixes land.",
+  "for_non_technical": "In this test, AI agents mostly shared memories reliably with each other over the network. However, they sometimes failed to find shared memories when searching by meaning, and updates didn't always sync properly over time. Overall, the system works well for basic sharing but has bugs in advanced search and update features.",
+  "for_sme": "Semantic recall in S18 failed to surface expected markers (alice-sunrise-9d12706a, bob-daybreak-b5d75acf), likely due to embedding index corruption or query vector mismatch in all-MiniLM-L6-v2 model. Delta-sync in S39 returned 0/6 markers post-checkpoint, pointing to probable bugs in updated_since filtering or diag timestamp handling. S23 report unparseable, suggesting harness output parsing issues; no other primitives impacted, with clean passes on sharing (S1,S4), linking (S11,S37), and recovery (S14).",
+  "headline": "Federated memory sharing robust but semantic search and delta-sync fail.",
+  "next_run_change": "Add debug tracing to semantic query and delta endpoints before retesting failed scenarios.",
+  "verdict": "PARTIAL \u2014 32/34 scenarios passed, fails in S18 and S39, S23 skipped.",
+  "what_it_proved": "Demonstrated reliable multi-agent memory propagation and operations across most primitives, but revealed failures in semantic query recall and delta synchronization completeness.",
+  "what_it_tested": "Exercised 34 scenarios covering HTTP transport without TLS, core frameworks like federation mesh, and primitives including sharing, deletion, linking, versioning, recovery, semantic search, bulk ops, and delta-sync in a 4-node setup."
+}
