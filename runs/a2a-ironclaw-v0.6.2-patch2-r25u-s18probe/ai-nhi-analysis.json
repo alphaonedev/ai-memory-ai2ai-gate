@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-ironclaw-v0.6.2-patch2-r25u-s18probe",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "This run indicates high risk in the testing harness or infrastructure stability, as no results were produced, halting progress toward production readiness. Customer-facing claims on reliable AI-to-AI memory sharing remain unvalidated, with no changes from prior runs due to total execution failure. Prioritize debugging the CI workflow to resume gating releases.",
+  "for_non_technical": "The test was supposed to check if AI agents can reliably share memories with each other. Unfortunately, the test didn't run at all, so we don't know if agents can share memories reliably or not. This means we have no new information on whether the system works as intended.",
+  "for_sme": "The campaign failed entirely with 'no scenario reports recovered,' impacting all requested scenarios (S18) and leaving primitives like federation mesh untested. Probable root cause is in the harness (SHA 31d212c6581b7d98f2a8bdb44bf3c13617982a97) or infra provisioning, as nodes show empty IPs and timing data. No specific failure modes observed due to lack of reports; check workflow URL for logs. Testbook/probe identifiers unavailable without scenarios.",
+  "headline": "Campaign failed: no scenario reports recovered.",
+  "next_run_change": "Debug and fix the CI harness to ensure scenario reports are generated and recovered before the next campaign.",
+  "verdict": "FAIL \u2014 no scenarios executed or reported.",
+  "what_it_proved": "The results demonstrated a complete failure in test execution or reporting, proving nothing about AI memory functionality.",
+  "what_it_tested": "The campaign requested scenario 18 but recovered no reports, providing zero coverage across any transport, framework, or primitives."
+}
