@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-ironclaw-v3r21-mtls-release-v0.6.2",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "High risk posture due to failures in semantic search, notifications, and bulk operations, rendering v0.6.2 not production-ready for customer claims on advanced sharing. No major regressions from prior non-mTLS runs, but mTLS highlights auth and sync issues in complex primitives. Prioritize fixes to enable viable marketing of reliable AI memory federation.",
+  "for_non_technical": "Agents can reliably share simple memories with each other over a secure network, but features like searching by meaning or sending alerts sometimes fail. Large batches of data don't always spread correctly to all agents. Overall, the system works for basics but needs improvements for advanced uses.",
+  "for_sme": "Failures in S18 (semantic query missed memories), S32 (notify not delivered to inbox), S34 (approve 403, reject 404, no visibility), S35 (parent/child rule layering absent), S39 (delta returned 0/6 rows), S40 (peers saw only 200/500 bulk rows). Impacted primitives: hybrid search, pubsub notify, pending queue, ns hierarchy, delta API, bulk write; probable causes include embedding drift, mTLS auth mismatches, sync timing races, and fanout throttling. S23 skipped due to unparseable report.",
+  "headline": "v0.6.2 mTLS fails semantic, notify, rules, delta, bulk",
+  "next_run_change": "Patch bulk fanout to ensure full propagation before next campaign.",
+  "verdict": "FAIL \u2014 6/35 scenarios red, 1 skipped",
+  "what_it_proved": "Demonstrated solid basic replication but exposed unreliability in semantic recall, notifications, approvals, hierarchical rules, delta queries, and bulk fanout.",
+  "what_it_tested": "Tested memory sharing, search, linking, recovery, auth, sync, and bulk ops across mTLS transport in 4-node mesh covering core primitives and frameworks."
+}
