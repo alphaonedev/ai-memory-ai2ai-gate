@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-ironclaw-v0.6.2-patch2-r22-mtls",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "Risk posture elevated due to failures in semantic search and delta-sync, indicating not yet production-ready for features relying on those; customer claims about advanced recall and efficient syncing not viable. Compared to prior runs, mTLS integration holds steady, but these regressions highlight need for targeted fixes. Proceed with caution on deployments until resolved.",
+  "for_non_technical": "Agents can usually share and access each other's memories reliably across the network. However, searching for similar ideas doesn't always work, and some changes don't sync properly. Overall, the system is mostly dependable but has a few glitches that need fixing.",
+  "for_sme": "Failures in S18 (semantic query missed memories, likely embedding/indexing issue), S35 (child namespace rule persisted post-clear, probable cache/propagation bug), S39 (delta-sync returned 0 rows, possible timestamp filtering or replication lag root cause). Core primitives like write/read/delete robust, but impacts semantic and delta APIs. Probe F# for semantic recall and delta consistency in testbook.",
+  "headline": "mTLS federation reliable for basics but fails on semantic search and delta-sync",
+  "next_run_change": "Prioritize fixing delta-sync (S39) and semantic recall (S18) bugs, then re-run with added diagnostics on indexing and propagation.",
+  "verdict": "PARTIAL \u2014 3/35 scenarios failed, 1 skipped",
+  "what_it_proved": "Demonstrated strong core replication and security under mTLS but exposed bugs in semantic recall, namespace rule clearing, and delta-sync completeness.",
+  "what_it_tested": "Tested memory replication, deletion, linking, registration, versioning, recovery, promotion, semantic search, security features, and advanced ops like export/import, bulk insert, and pubsub across mTLS transport in a 4-node mesh covering core primitives and frameworks."
+}
