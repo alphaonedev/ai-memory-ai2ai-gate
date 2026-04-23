@@ -66,14 +66,16 @@ All cells now run on `release/v0.6.2` + `ai_memory_source_build=true` (v0.6.2 Pa
 
 | | off (34) | tls (35) | mtls (36) |
 |---|---|---|---|
-| **ironclaw** | ✅ v3r22 31/34 | ⚠️ v3r22 31/35 | ✅ v3r22 33/36 |
-| **hermes**   | ✅ v3r22 31/34 | ⚠️ v3r22 31/35 | ✅ v3r22 33/36 |
+| **ironclaw** | ✅ v3r23 32/34 | ⚠️ v3r23 32/35 | ✅ v3r23 34/36 |
+| **hermes**   | ✅ v3r23 32/34 | ⚠️ v3r23 32/35 | ✅ v3r23 34/36 |
 | **mixed**    | ⏸ terraform topology work | ⏸ topology | ⏸ topology |
 
-**v3r22 on `release/v0.6.2` + source-build + PR ai-memory-mcp#363 merged.** Framework-agnostic gains: +10 passes per cell vs v3r17 baseline (131 → 190 total passing scenarios across 6 cells). Residual failure set:
+**v3r23 on `release/v0.6.2` + source-build + PRs ai-memory-mcp#363 + #364 merged.** Framework-agnostic gains: +11 passes per cell vs v3r17 baseline (131 → 194 total passing scenarios across 6 cells). Residual failure set:
 
-- **off + mtls** (both frameworks): `S18, S35, S39`
-- **tls** (both frameworks): `S18, S20, S35, S39` — S20 failing on tls where it previously skipped is a v3r22 anomaly (see run 24835289587 + 24838304741).
+- **off + mtls** (both frameworks): `S18, S39`
+- **tls** (both frameworks): `S18, S20, S39` — S20 failing on tls (previously skipped) is a v3r22+ anomaly.
+
+Dispatch lesson learned at v3r23: **DigitalOcean droplet quota is shared across both agent_group concurrency queues.** At most 2 concurrent 4-node campaigns (ironclaw + hermes) can coexist; a 3rd simultaneous 4-droplet request returns 422. See memory `31aa45d5` RCA for hermes tls + r23b quota failures. Safe pattern: dispatch `off` pair → wait both → dispatch `mtls` pair → wait both → dispatch `tls` pair.
 
 Remaining 3 cells (mixed-framework row) are terraform topology-blocked, NOT ai-memory-mcp. **Streak counter: 0/3** — certification requires three consecutive full-matrix greens at 34/35/36 respectively (see [v1.0 GA criteria](docs/v1-ga-criteria.md)).
 
