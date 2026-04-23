@@ -1,0 +1,1 @@
+{"agent_group": "hermes", "charlie_view": {"agent_id": "ai:alice", "content": "v2-8a2dca48c5b348cf9b771807d21caed9"}, "m1_id": "12d72aa7-3174-42a5-9066-efe8ac366bf5", "pass": true, "put_http_code": 200, "reasons": [], "scenario": "9", "skipped": false, "tls_mode": "off", "v1_uuid": "v1-b2b1f36b62f34e1f87e42ba5cf183cd0", "v2_uuid": "v2-8a2dca48c5b348cf9b771807d21caed9"}
