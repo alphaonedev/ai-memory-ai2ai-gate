@@ -18,8 +18,23 @@ migration.)
 - [Agents](agents/ironclaw.md) · IronClaw (primary), Hermes, and OpenClaw (legacy) integration details
 - [Scenarios](scenarios/1-write-read.md) · 8 test groups covering the full memory surface
 - [Campaign runs](runs/) · live evidence dashboard
+- [v1.0 GA criteria](v1-ga-criteria.md) · the forward-looking contract every 0.6.x/0.7.x/0.8.x release steps toward
 - [Reproducing](reproducing.md) · run it yourself on your own DO account
 - [Security](security.md) · TLS, mTLS, dead-man switch, key custody
+
+---
+
+## Certification threshold
+
+A2A-gate certification requires **three consecutive `overall_pass = true` runs at full scenario coverage** (up to 36 scenarios under the [testbook v3.0.0](testbook.md) × [baseline v1.4.0](baseline.md) set — 36 at `mtls`, 35 at `tls`, 34 at `off`). Any single `overall_pass = false` resets the counter; there is no credit for partial green.
+
+**Current best:** `23 / 36` — held jointly by `a2a-ironclaw-v3r17-mtls` and `a2a-hermes-v3r17-mtls`, both on `release/v0.6.2` + source-build, v0.6.2 Patch 2 (mTLS proved end-to-end; the 13 unresolved scenarios are framework-level, identical across all 6 homogeneous cells).
+
+**Consecutive green streak:** 0 / 3.
+
+Testing is continuous; certification is forward-looking toward v1.0 GA. Every campaign run is published under [`runs/`](runs/) regardless of outcome — a red run is data, not a setback. See [v1.0 GA criteria](v1-ga-criteria.md) for what has to be true across ai-memory-mcp, ship-gate, and this repo for the `1.0` tag to cut.
+
+This replaces earlier release-notes language on v0.6.0 and v0.6.1. Those releases were *validated against* the A2A-gate (per-release, against live infrastructure) — not *certified by* it. Certification begins the first time three consecutive green runs land at 36/36 on each of the six homogeneous cells.
 
 ---
 
@@ -164,7 +179,16 @@ See [Security](security.md).
 
 ## Current status
 
-Scaffolding phase. See the [README](https://github.com/alphaonedev/ai-memory-ai2ai-gate)
-for the live status of the agent provisioning scripts, Terraform
-module, and per-scenario implementations. First real campaign run
-dispatches once v0.6.0 tags.
+Active on `release/v0.6.2` + source-build (v0.6.2 Patch 2, release freeze active).
+
+**Matrix** (2 frameworks × 3 transport modes, updated per campaign):
+
+| | off | tls | mtls |
+|---|---|---|---|
+| **ironclaw** | 21 / 34 (v3r5) | 22 / 35 (v3r17) | **23 / 36** (v3r17) |
+| **hermes**   | 21 / 34 (v3r7) | 21 / 35 (v3r17) | **23 / 36** (v3r17) |
+| **mixed**    | ⏸ topology      | ⏸ topology       | ⏸ topology        |
+
+6 of 9 cells return `overall_pass = true` under the *release-freeze / framework-agnostic* invariant; the remaining 3 (mixed row) are blocked on terraform topology work in this repo, not on ai-memory-mcp. A common 13-scenario framework-level failure set (`1, 12, 18, 28, 29, 30, 32, 33, 34, 35, 36, 39, 40`) is the gap between current-best and 36/36 certification (see [v1.0 GA criteria](v1-ga-criteria.md)).
+
+Every campaign run — green, red, cancelled — is archived under [`runs/`](runs/). The live [README](https://github.com/alphaonedev/ai-memory-ai2ai-gate) tracks the latest dispatch and any in-flight campaigns.
