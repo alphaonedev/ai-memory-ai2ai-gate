@@ -28,7 +28,7 @@ migration.)
 
 A2A-gate certification requires **three consecutive `overall_pass = true` runs at full scenario coverage** (up to 36 scenarios under the [testbook v3.0.0](testbook.md) × [baseline v1.4.0](baseline.md) set — 36 at `mtls`, 35 at `tls`, 34 at `off`). Any single `overall_pass = false` resets the counter; there is no credit for partial green.
 
-**Current best:** `23 / 36` — held jointly by `a2a-ironclaw-v3r17-mtls` and `a2a-hermes-v3r17-mtls`, both on `release/v0.6.2` + source-build, v0.6.2 Patch 2 (mTLS proved end-to-end; the 13 unresolved scenarios are framework-level, identical across all 6 homogeneous cells).
+**Current best:** `33 / 36` on mtls — held jointly by `a2a-ironclaw-v0.6.2-patch2-r22-mtls` and `a2a-hermes-v0.6.2-patch2-r22b-mtls`, both on `release/v0.6.2` + source-build, v0.6.2 Patch 2 (mTLS proved end-to-end). Prior best was 23/36 at v3r17; PR [ai-memory-mcp#363](https://github.com/alphaonedev/ai-memory-mcp/pull/363) (list cap + S34 pending fanout + S40 bulk-fanout verify) cleared 10 scenarios per cell.
 
 **Consecutive green streak:** 0 / 3.
 
@@ -183,12 +183,12 @@ Active on `release/v0.6.2` + source-build (v0.6.2 Patch 2, release freeze active
 
 **Matrix** (2 frameworks × 3 transport modes, updated per campaign):
 
-| | off | tls | mtls |
+| | off (34) | tls (35) | mtls (36) |
 |---|---|---|---|
-| **ironclaw** | 21 / 34 (v3r5) | 22 / 35 (v3r17) | **23 / 36** (v3r17) |
-| **hermes**   | 21 / 34 (v3r7) | 21 / 35 (v3r17) | **23 / 36** (v3r17) |
-| **mixed**    | ⏸ topology      | ⏸ topology       | ⏸ topology        |
+| **ironclaw** | 31 / 34 (v3r22) | 31 / 35 (v3r22) | **33 / 36** (v3r22) |
+| **hermes**   | 31 / 34 (v3r22) | 31 / 35 (v3r22) | **33 / 36** (v3r22) |
+| **mixed**    | ⏸ topology       | ⏸ topology        | ⏸ topology         |
 
-6 of 9 cells return `overall_pass = true` under the *release-freeze / framework-agnostic* invariant; the remaining 3 (mixed row) are blocked on terraform topology work in this repo, not on ai-memory-mcp. A common 13-scenario framework-level failure set (`1, 12, 18, 28, 29, 30, 32, 33, 34, 35, 36, 39, 40`) is the gap between current-best and 36/36 certification (see [v1.0 GA criteria](v1-ga-criteria.md)).
+6 of 9 cells pass their `overall_pass` substrate check under the *release-freeze / framework-agnostic* invariant; the remaining 3 (mixed row) are blocked on terraform topology work in this repo, not on ai-memory-mcp. No cell hits `overall_pass = true` yet — the residual framework-level failure set has shrunk to `S18, S35, S39` (off + mtls) / `S18, S20, S35, S39` (tls), down from 13 at v3r17. Closing any of {S18 semantic expansion, S35 namespace_meta scenario path, S20 on-tls gating, S39 ssh STOP/CONT reliability} narrows the gap to 36/36 and to the three-consecutive-green streak required for [certification](index.md#certification-threshold).
 
 Every campaign run — green, red, cancelled — is archived under [`runs/`](runs/). The live [README](https://github.com/alphaonedev/ai-memory-ai2ai-gate) tracks the latest dispatch and any in-flight campaigns.

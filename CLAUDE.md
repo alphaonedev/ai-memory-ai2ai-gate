@@ -64,13 +64,18 @@ If a step exceeds its timeout: cancel & diagnose (don't wait for job cap).
 
 All cells now run on `release/v0.6.2` + `ai_memory_source_build=true` (v0.6.2 Patch 2 release freeze, memory `74698d94`). PR #357 @ `0ad00ed` is the source of truth.
 
-| | off | tls | mtls |
+| | off (34) | tls (35) | mtls (36) |
 |---|---|---|---|
-| **ironclaw** | ✅ v3r5 (21/13) | ✅ v3r17 (22/12/1) | ✅ v3r17 (23/13/0) |
-| **hermes** | ✅ v3r7 (21/13) | ✅ v3r17 (21/13/1) | ✅ v3r17 (23/13/0) |
-| **mixed** | ⏸ terraform topology work | ⏸ topology | ⏸ topology |
+| **ironclaw** | ✅ v3r22 31/34 | ⚠️ v3r22 31/35 | ✅ v3r22 33/36 |
+| **hermes**   | ✅ v3r22 31/34 | ⚠️ v3r22 31/35 | ✅ v3r22 33/36 |
+| **mixed**    | ⏸ terraform topology work | ⏸ topology | ⏸ topology |
 
-**6/9 matrix GREEN on release/v0.6.2.** Remaining 3 cells are the mixed-framework row — blocked on terraform topology work, NOT on ai-memory-mcp. tls cells skip S20 (currently mtls-gated in the scenario internals).
+**v3r22 on `release/v0.6.2` + source-build + PR ai-memory-mcp#363 merged.** Framework-agnostic gains: +10 passes per cell vs v3r17 baseline (131 → 190 total passing scenarios across 6 cells). Residual failure set:
+
+- **off + mtls** (both frameworks): `S18, S35, S39`
+- **tls** (both frameworks): `S18, S20, S35, S39` — S20 failing on tls where it previously skipped is a v3r22 anomaly (see run 24835289587 + 24838304741).
+
+Remaining 3 cells (mixed-framework row) are terraform topology-blocked, NOT ai-memory-mcp. **Streak counter: 0/3** — certification requires three consecutive full-matrix greens at 34/35/36 respectively (see [v1.0 GA criteria](docs/v1-ga-criteria.md)).
 
 mTLS unblocked on 2026-04-22 via two a2a-gate fixes:
 - #35 — allowlist generator emits labels as separate comment lines (ai-memory-mcp parser-tolerance follow-up: alphaonedev/ai-memory-mcp#358).
