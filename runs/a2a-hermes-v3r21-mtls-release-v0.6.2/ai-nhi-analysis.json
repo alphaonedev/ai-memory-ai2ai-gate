@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-hermes-v3r21-mtls-release-v0.6.2",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "High risk posture from regressions in bulk processing and delta sync, undermining production readiness for high-volume use cases; customer claims of seamless agent memory sharing are not viable yet; failures increased vs. prior runs, likely due to mTLS overhead or fanout bugs.",
+  "for_non_technical": "In this secure setup, AI agents mostly shared memories reliably across the group, including during network issues. However, they failed to properly find memories through searches, handle large batches of information, or deliver some messages and updates over time.",
+  "for_sme": "Failures include S18 (semantic query missed alice/bob memories, probable embedding or indexing issue), S32 (notify not delivered to bob's inbox), S34 (approve 403/reject 404, auth misconfig; charlie missed approved row), S35 (parent/child rule layering broken), S39 (delta returned 0/6 markers, sync incomplete), S40 (bulk fanout stuck at 200/500 per node, likely replication throttle). Primitives impacted: semantic search, bulk insert, delta API, notify, pending queue, rules. Skipped S23 due to unparseable report.",
+  "headline": "mTLS v0.6.2 fails semantic search, bulk ops, delta sync, and notifications.",
+  "next_run_change": "Prioritize fixing bulk fanout (S40) with increased replication timeouts and debug tracing before next campaign.",
+  "verdict": "FAIL \u2014 6/35 scenarios red, 1 skipped (S23).",
+  "what_it_proved": "Demonstrated reliable basic memory sharing and replication but exposed failures in semantic recall, bulk fanout, delta synchronization, inbox delivery, pending approvals, and rule inheritance.",
+  "what_it_tested": "Exercised 35 scenarios covering basic sharing, semantic/keyword search, bulk imports, delta sync, notifications, rules, linking, and recovery under mTLS transport in 4-node federation with semantic tier primitives."
+}
