@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-hermes-v0.6.2-patch2-r22-off",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "This run highlights elevated risk from failures in semantic search, rule management, and delta sync, indicating the build is not yet production-ready and customer claims on reliable recall/search should be tempered. Compared to prior releases, these regressions in v0.6.2 suggest recent patches introduced instability in query and sync primitives. Recommend halting promotions until fixes are validated in next gated run.",
+  "for_non_technical": "The AI agents were able to share and remember information reliably in most tests, like storing and retrieving memories across the group. However, they struggled with finding similar ideas through searches, properly forgetting rules in sub-sections, and catching up on all changes when syncing. Overall, the system works well for basic sharing but has some gaps in advanced features.",
+  "for_sme": "Failures occurred in S18 (semantic query missed expected memories, likely embedding or indexing issue), S35 (child namespace rule persisted after clear, probable inheritance bug in rule propagation), and S39 (delta sync returned 0/6 markers, indicating incomplete change tracking or timestamp filtering error); S23 was skipped due to unparseable report. Impacted primitives include semantic recall, namespace policies, and delta APIs. Probable root causes tie to recent patch2 changes in query engine and sync logic\u2014recommend targeted probes F18, F35, F39 for repro and fix verification.",
+  "headline": "Hermes v0.6.2 fails in semantic search, rule clearing, and delta sync.",
+  "next_run_change": "Add diagnostic logging to semantic query and delta sync paths to isolate root causes in failed scenarios 18 and 39.",
+  "verdict": "FAIL \u2014 31/35 scenarios passed, 3 failed, 1 skipped.",
+  "what_it_proved": "Results demonstrated reliable memory sharing and replication in most core operations but exposed bugs in semantic query recall, namespace rule clearing in hierarchical setups, and incomplete delta synchronization.",
+  "what_it_tested": "Exercised 35 scenarios covering basic memory sharing, deletion, linking, versioning, recovery, semantic search, bulk operations, and namespace management across HTTP transport in a 4-node federation mesh, testing primitives like recalls, links, notifications, and syncs."
+}
