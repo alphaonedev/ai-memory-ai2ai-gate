@@ -1,0 +1,10 @@
+phase A: each of 3 agents writes 5 memories to scenario17-stats
+  ai:alice on 104.236.249.14
+  ai:bob on 45.55.146.148
+  ai:charlie on 45.55.200.119
+settle 15s for W=2 fanout
+phase B: querying count on every peer
+  node-1 count=15 (expected 15)
+  node-2 count=15 (expected 15)
+  node-3 count=15 (expected 15)
+  node-4 count=15 (expected 15)

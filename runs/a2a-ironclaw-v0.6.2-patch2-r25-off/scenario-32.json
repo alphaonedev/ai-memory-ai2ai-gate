@@ -1,0 +1,1 @@
+{"agent_group": "ironclaw", "bob_inbox_count": 1, "bob_sees_marker": true, "charlie_inbox_count": 0, "charlie_sees_marker": false, "marker": "inb-8d98b90d0e7f4f1c86857444eee3859f", "notify_http_code": 201, "pass": true, "reasons": [], "scenario": "32", "skipped": false, "tls_mode": "off"}
