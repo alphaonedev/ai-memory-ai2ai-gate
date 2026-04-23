@@ -217,16 +217,17 @@ if [ "$TLS_MODE" != "off" ]; then
   fi
 fi
 log "starting ai-memory serve scheme=$SERVE_SCHEME tls_mode=$TLS_MODE peers=$PEER_URLS"
-# --tier semantic is required for scenarios 18/22 (semantic recall) and
-# any feature above FTS5 keyword search. Without it, app.embedder is
-# None on the HTTP daemon, sync_push's embedding-refresh is a no-op,
-# and the HNSW index never receives peer writes — semantic recall on
-# any non-writer node returns empty. See ai-memory-mcp main.rs:1832
-# (effective_tier gate) + handlers.rs:2253 (refresh_on_sync_push).
+# ai-memory serve does NOT accept a --tier flag (that's only on mcp /
+# store / recall / list / forget subcommands). effective_tier() defaults
+# to "semantic" when no config.toml exists (config.rs:559), so the HTTP
+# daemon auto-attempts MiniLM embedder load on startup. If the embedder
+# download fails, an ERROR-level log appears at main.rs:953 ("EMBEDDER
+# LOAD FAILED") and scenario-18 falls back to keyword-only. If S18 ever
+# flakes, check /var/log/ai-memory-serve.log for that marker — likely a
+# HF Hub egress issue from the droplet.
 nohup ai-memory serve \
   --host 0.0.0.0 --port 9077 \
   --db /var/lib/ai-memory/a2a.db \
-  --tier semantic \
   --quorum-writes 2 \
   --quorum-peers "$PEER_URLS" \
   "${TLS_FLAGS[@]}" \
