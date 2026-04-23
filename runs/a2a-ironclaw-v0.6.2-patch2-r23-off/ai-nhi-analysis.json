@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-ironclaw-v0.6.2-patch2-r23-off",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "Risk posture remains elevated due to failures in semantic search and delta-sync, impacting production readiness for features relying on these; customer claims about reliable federation should be caveated until resolved. This run shows regression in scenario 18 (previously passing) and persistent issues in 39 vs. prior campaigns. Prioritize fixes to unblock v0.6.2-patch2 deployment.",
+  "for_non_technical": "The AI agents were able to share and remember information reliably in most tests, like storing and retrieving memories across different computers. However, in a couple of cases, the system failed to find or update shared memories correctly when using advanced search or syncing features. Overall, the sharing works well but needs fixes for full reliability.",
+  "for_sme": "Failures in S18 (semantic query missed alice/bob memories, likely embedding or indexing issue in hybrid recall) and S39 (delta-sync returned 0/6 markers, probable timestamp filtering or replication lag in federation layer). Primitives impacted include /api/v1/search (semantic) and /api/v1/delta; root cause may tie to embedder consistency or quorum reads under load (probe F#18, F#39). Scenario 23 unparseable, suggesting harness logging bugs. Recommend adding embedder health checks and delta timestamp fuzzing for next run.",
+  "headline": "Memory sharing mostly reliable but fails in semantic search and delta-sync.",
+  "next_run_change": "Instrument semantic search with embedding vector dumps and extend delta-sync timeouts to diagnose incompleteness.",
+  "verdict": "FAIL \u2014 2/35 scenarios red (18,39), 1 skipped (23).",
+  "what_it_proved": "Proved consistent memory propagation and recall in core operations but exposed bugs in semantic query recall and delta-sync completeness across the federation.",
+  "what_it_tested": "Exercised 35 scenarios covering memory insertion, recall, linking, deletion, recovery, bulk ops, semantic/keyword search, pubsub, and federation primitives over HTTP transport in a 4-node mesh without TLS."
+}
