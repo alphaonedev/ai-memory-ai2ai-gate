@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-hermes-v0.6.2-patch2-r24-mtls",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "Risk posture elevated due to failures in semantic search and delta-sync, impacting potential customer claims on reliable AI memory sharing; not yet production-ready for mTLS environments without mitigations. Compared to prior runs, mTLS introduces new failure modes not seen in non-secure setups, delaying viability for secure deployments. Recommend prioritizing fixes to maintain competitive edge in federated AI systems.",
+  "for_non_technical": "Agents mostly shared memories reliably across the network, ensuring data like thoughts or updates reached others quickly. However, in some cases involving searching for similar ideas or syncing changes during issues, the sharing didn't work as expected. Overall, the system is stable for basic sharing but needs fixes for advanced search and recovery features.",
+  "for_sme": "Failures in S18 show semantic queries missing expected memories from alice and bob, likely due to embedding inconsistencies or index issues under mTLS; S39 delta-sync returned 0/6 markers with connection timeout (curl exit 28), pointing to network partitioning or timeout configs in federation mesh. Primitives like basic recall (S1,S4), linking (S11), and bulk (S40) passed cleanly across nodes. Probable root causes: mTLS overhead affecting sync latencies (F# delta-timeout) and semantic index sync (F# embed-recall). Testbook identifiers: S18, S39; probes highlight node3 unreachability in S39 diag.",
+  "headline": "mTLS federation fails in semantic search and delta sync scenarios.",
+  "next_run_change": "Add diagnostics for semantic index consistency across nodes and increase delta-sync timeouts to isolate mTLS-specific issues.",
+  "verdict": "FAIL \u2014 2/34 scenarios failed (S18 semantic recall, S39 delta-sync); 1 skipped (S23).",
+  "what_it_proved": "Demonstrated reliable memory propagation and security in most cases but revealed inconsistencies in semantic query recall and incomplete delta-sync under mTLS.",
+  "what_it_tested": "Exercised 34 scenarios covering memory sharing, sync, security, and recovery in a 4-node mTLS federation mesh across HTTP transport, agent frameworks, and primitives like linking, consolidation, and bulk operations."
+}

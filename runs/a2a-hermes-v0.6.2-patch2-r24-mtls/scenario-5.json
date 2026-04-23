@@ -1,0 +1,1 @@
+{"agent_group": "hermes", "consolidate_http_code": 201, "consolidated_from_agents": ["ai:charlie", "ai:bob", "ai:alice"], "consolidated_id": "9533862b-6f3e-4488-a3c9-f7ac265e1e01", "pass": true, "reasons": [], "scenario": "5", "skipped": false, "tls_mode": "mtls"}
