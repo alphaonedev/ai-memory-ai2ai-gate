@@ -216,15 +216,42 @@ if [ "$TLS_MODE" != "off" ]; then
     LOCAL_CURL_FLAGS+=(--cert "$TLS_CLIENT_CERT" --key "$TLS_CLIENT_KEY")
   fi
 fi
+# v0.6.2 (S18): pre-download the MiniLM model into the ai-memory-mcp
+# hard-coded fallback path (src/embeddings.rs:20 FALLBACK_MODEL_SUBDIR).
+# If hf-hub egress from the droplet flakes at serve-startup, the
+# embedder falls through to `load_from_fallback()` and reads these
+# files off local disk. Previously scenario-18 silently black-holed —
+# semantic recall returned 0 rows because the embedder never loaded.
+MINILM_DIR="$HOME/.cache/huggingface/hub/models--sentence-transformers--all-MiniLM-L6-v2/snapshots/main"
+mkdir -p "$MINILM_DIR"
+if [ ! -s "$MINILM_DIR/model.safetensors" ]; then
+  log "pre-downloading MiniLM model into $MINILM_DIR (S18 embedder stability)"
+  for f in config.json tokenizer.json model.safetensors; do
+    for attempt in 1 2 3; do
+      if curl -sSfL --retry 3 --retry-delay 2 --max-time 120 \
+        -o "$MINILM_DIR/$f" \
+        "https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/$f"; then
+        break
+      fi
+      log "  MiniLM $f attempt $attempt failed — retrying"
+      sleep 5
+    done
+    [ -s "$MINILM_DIR/$f" ] || log "  WARN: $f empty after download — serve will attempt live hf-hub"
+  done
+  log "  MiniLM pre-download complete: $(ls -la "$MINILM_DIR" | wc -l) files, total $(du -sh "$MINILM_DIR" | cut -f1)"
+else
+  log "MiniLM already cached at $MINILM_DIR — reusing"
+fi
+
 log "starting ai-memory serve scheme=$SERVE_SCHEME tls_mode=$TLS_MODE peers=$PEER_URLS"
 # ai-memory serve does NOT accept a --tier flag (that's only on mcp /
 # store / recall / list / forget subcommands). effective_tier() defaults
 # to "semantic" when no config.toml exists (config.rs:559), so the HTTP
-# daemon auto-attempts MiniLM embedder load on startup. If the embedder
-# download fails, an ERROR-level log appears at main.rs:953 ("EMBEDDER
-# LOAD FAILED") and scenario-18 falls back to keyword-only. If S18 ever
-# flakes, check /var/log/ai-memory-serve.log for that marker — likely a
-# HF Hub egress issue from the droplet.
+# daemon auto-attempts MiniLM embedder load on startup. With the pre-
+# download above, even a flaky HF Hub egress falls through cleanly to
+# the on-disk fallback. If S18 STILL fails, check the
+# `agent_embedder_loaded_f8` attestation field in baseline.json — that's
+# the new gate.
 nohup ai-memory serve \
   --host 0.0.0.0 --port 9077 \
   --db /var/lib/ai-memory/a2a.db \
@@ -1349,6 +1376,35 @@ else
   log "PROBE F7: skipped (tls_mode=$TLS_MODE — only runs under mtls)"
 fi
 
+# ---- Probe F8: embedder loaded (S18 gate) -----------------------
+# v0.6.2 (S18 follow-up): `/api/v1/capabilities` reports
+# `features.embedder_loaded` — true iff the MiniLM model initialised
+# on serve startup. Without this gate, scenario-18 silently black-
+# holed: semantic recall returned 0 rows because the embedder never
+# loaded, but nothing in baseline told us that. F8 surfaces the
+# failure at baseline time so the operator sees "HF Hub egress failed
+# on node-2" instead of "S18 failed on node-3's query".
+f8_functional=true
+f8_reason=""
+log "PROBE F8: embedder loaded (semantic-layer readiness)"
+caps_url="${SERVE_SCHEME}://localhost:9077/api/v1/capabilities"
+caps_body=$(curl -sS --max-time 5 "${LOCAL_CURL_FLAGS[@]}" "$caps_url" 2>/dev/null || echo "")
+if [ -z "$caps_body" ]; then
+  f8_functional=false
+  f8_reason="capabilities endpoint unreachable"
+  log "  PROBE F8 FAIL — $f8_reason"
+else
+  embedder_loaded=$(echo "$caps_body" | jq -r '.features.embedder_loaded // false' 2>/dev/null)
+  if [ "$embedder_loaded" = "true" ]; then
+    log "  PROBE F8 OK — embedder_loaded=true"
+  else
+    f8_functional=false
+    f8_reason="embedder_loaded=false — check /var/log/ai-memory-serve.log for 'EMBEDDER LOAD FAILED' or HF Hub egress"
+    log "  PROBE F8 FAIL — $f8_reason"
+    log "    capabilities tail: $(echo "$caps_body" | tr '\000-\037' ' ' | tail -c 300)"
+  fi
+fi
+
 jq -n \
   --arg agent_type "$AGENT_TYPE" \
   --arg agent_id "$AGENT_ID" \
@@ -1391,6 +1447,8 @@ jq -n \
   --arg f6_reason "$f6_reason" \
   --argjson f7_functional "$f7_functional" \
   --arg f7_reason "$f7_reason" \
+  --argjson f8_functional "$f8_functional" \
+  --arg f8_reason "$f8_reason" \
   --arg f2a_uuid "$F2A_UUID" \
   --arg f2b_uuid "$F2B_UUID" \
   --arg config_sha256 "$config_sha256" \
@@ -1448,6 +1506,9 @@ jq -n \
       mtls_enforcement_f7:             $f7_functional,
       mtls_enforcement_f7_reason:      $f7_reason,
       _f6_f7_note:                     "F6 verifies the TLS 1.3 handshake against the local serve + CA chain. F7 verifies mTLS enforcement — anonymous client rejected, whitelisted client accepted. Both gate baseline_pass when tls_mode != off / mtls respectively.",
+      embedder_loaded_f8:              $f8_functional,
+      embedder_loaded_f8_reason:       $f8_reason,
+      _f8_note:                        "F8 verifies /api/v1/capabilities reports features.embedder_loaded=true — i.e. the MiniLM embedder initialised at serve startup. Gates baseline_pass unconditionally. Without this, scenario-18 silently black-holes (semantic recall returns 0 rows).",
       agent_mcp_ai_memory_canary:      $f2a_functional,
       canary_uuid:                     $f2a_uuid,
       canary_namespace:                "_baseline_canary_f2a"
@@ -1461,7 +1522,8 @@ jq -n \
       $tools_are_memory_only and $profile_locked and
       $xai_functional and $f2a_functional and $f4_functional and $f5_functional and
       ($tls_mode == "off" or $f6_functional) and
-      ($tls_mode != "mtls" or $f7_functional)
+      ($tls_mode != "mtls" or $f7_functional) and
+      $f8_functional
     )
   }' > /etc/ai-memory-a2a/baseline.json
 
