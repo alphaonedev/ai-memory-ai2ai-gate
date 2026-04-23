@@ -1,0 +1,1 @@
+{"agent_group": "hermes", "marker": "mtls-dd3563c9e89e42bca5f1a14f984fe934", "pass": true, "peers_see": {"node_2": 1, "node_3": 1}, "reasons": [], "scenario": "20", "skipped": false, "tls_mode": "mtls", "write_http_code": 201}

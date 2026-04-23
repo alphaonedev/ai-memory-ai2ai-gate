@@ -1,0 +1,1 @@
+{"agent_group": "hermes", "delete_http_code": 200, "m1_id": "efecafad-c3c3-4699-9c2f-e30557623fc0", "pass": true, "post_delete_hits": {"node-2": 0, "node-3": 0, "node-4": 0}, "post_delete_still_visible_peers": 0, "pre_delete_visible_peers": 3, "reasons": [], "scenario": "10", "skipped": false, "tls_mode": "mtls", "uuid": "d-793ee167c6a041f6a89e731903ffb9c8"}

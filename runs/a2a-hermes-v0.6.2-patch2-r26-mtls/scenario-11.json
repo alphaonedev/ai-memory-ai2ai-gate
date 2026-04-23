@@ -1,0 +1,1 @@
+{"agent_group": "hermes", "charlie_sees_link": 1, "link_http_code": 201, "m1_id": "8eb9615f-801a-48d5-8e32-f489274d51ef", "m2_id": "7470356e-0cf7-4490-9466-009e9e0e4de8", "pass": true, "reasons": [], "relation": "related_to", "scenario": "11", "skipped": false, "tls_mode": "mtls"}
