@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-ironclaw-v0.6.2-patch2-r23-tls",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "Risk posture elevated due to failures in semantic search and delta sync, delaying production readiness for customer claims on reliable AI memory federation. This run shows regression in semantic recall versus prior versions, with no improvement in delta features. Prioritize fixes to enable viable enterprise deployments.",
+  "for_non_technical": "Agents can usually share and access each other's memories reliably across the network. However, searching for memories using meaning sometimes misses them, and syncing recent changes doesn't always work. Overall, the system works well for basic sharing but has bugs in advanced features.",
+  "for_sme": "Scenario 18 failed due to semantic queries not surfacing expected memories from alice and bob (probe markers alice-sunrise-aced261d, bob-daybreak-29527085), likely embedder or indexing issues. Scenario 39 failed with delta returning 0/6 markers, indicating incomplete sync possibly from timestamp handling or replication lag (S39). Scenario 23 unparseable, suggesting reporting bugs; scenario 20 skipped as mtls-only.",
+  "headline": "TLS federation fails semantic search and delta sync.",
+  "next_run_change": "Implement fixes for semantic search recall and delta sync before re-running full suite.",
+  "verdict": "FAIL \u2014 2/35 failed, 1 skipped, 1 unparseable.",
+  "what_it_proved": "Demonstrated reliable memory sharing across most primitives but exposed failures in semantic query recall and delta synchronization under TLS.",
+  "what_it_tested": "Exercised 35 scenarios covering TLS transport, HTTP/gRPC frameworks, and primitives like recall, linking, deletion, partitioning, semantic search, bulk ops, and namespace management."
+}
