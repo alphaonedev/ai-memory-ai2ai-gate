@@ -49,13 +49,22 @@ def main() -> None:
     h.settle(6, reason="notification fanout")
 
     log("bob queries his inbox on node-2")
+    # Inbox response shape (ai-memory-mcp mcp.rs:2211): each message is
+    # {id, from, title, payload, priority, tier, created_at, read, ...}
+    # The notify `content` becomes the inbox `payload` — not `content`.
     bob_inbox = _inbox(h, h.node2_ip, "ai:bob")
-    bob_sees = any(marker in (m.get("content") or "") for m in bob_inbox if isinstance(m, dict))
+    bob_sees = any(
+        marker in (m.get("payload") or m.get("content") or "")
+        for m in bob_inbox if isinstance(m, dict)
+    )
     log(f"  bob inbox has {len(bob_inbox)} messages; sees marker: {bob_sees}")
 
     log("charlie queries his inbox on node-3 (must NOT see it)")
     charlie_inbox = _inbox(h, h.node3_ip, "ai:charlie")
-    charlie_sees = any(marker in (m.get("content") or "") for m in charlie_inbox if isinstance(m, dict))
+    charlie_sees = any(
+        marker in (m.get("payload") or m.get("content") or "")
+        for m in charlie_inbox if isinstance(m, dict)
+    )
     log(f"  charlie inbox has {len(charlie_inbox)} messages; sees marker: {charlie_sees}")
 
     reasons: list[str] = []
