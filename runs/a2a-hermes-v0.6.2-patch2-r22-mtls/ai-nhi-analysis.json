@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-hermes-v0.6.2-patch2-r22-mtls",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "This run poses high risk as it failed entirely with no results, indicating the system is not production ready and no customer claims can be validated. No progress or changes versus prior runs; immediate investigation into CI harness reliability is required to unblock gating. Resource allocation for debugging is advised to maintain release cadence.",
+  "for_non_technical": "This test run completely failed, so we have no information on whether agents can reliably share memories with each other. It looks like there was a problem in setting up the tests or gathering the results. We need to fix that before trying again.",
+  "for_sme": "Complete failure with 'no scenario reports recovered' as the reason, impacting all requested scenarios (1,1b,2,4-6,9-18,22-25,28-42) across federation mesh topology under mTLS. Primitives like memory sharing were not tested due to absent reports. Probable root cause is artifact collection failure in the CI workflow (harness_sha: 915cfdaf2de6605be8eaf0a02c4137f24544d229); no specific S# or F# identifiers available since scenarios array is empty.",
+  "headline": "MTLS campaign failed: no scenario reports recovered.",
+  "next_run_change": "Debug and fix report recovery mechanism in the CI harness to ensure scenario artifacts are collected.",
+  "verdict": "FAIL \u2014 no scenarios executed or reported.",
+  "what_it_proved": "The run demonstrated a critical harness or infrastructure issue preventing any scenario execution or result collection.",
+  "what_it_tested": "No scenarios were exercised, despite requesting 35 across various transport, framework, and primitive axes, due to report recovery failure."
+}

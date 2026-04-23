@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Campaign a2a-hermes-v0.6.2-patch2-r22-mtls — ai-memory A2A gate</title>
+  <style>
+    :root { --fg:#1a1a1a; --bg:#fff; --muted:#666; --pass:#1a8b3c; --fail:#b32222; --warn:#b36b00; --pass-bg:#e6f6ea; --fail-bg:#fceaea; --warn-bg:#fdf3e0; --border:#e0e0e0; --code-bg:#f7f7f9; --accent:#3952c8; --accent-bg:#eef1fd; }
+    @media (prefers-color-scheme: dark) { :root { --fg:#eaeaea; --bg:#181818; --muted:#a0a0a0; --pass:#4adc76; --fail:#ff6a6a; --warn:#ffb74d; --pass-bg:#153d23; --fail-bg:#401818; --warn-bg:#3a2d10; --border:#2a2a2a; --code-bg:#202028; --accent:#8da3ff; --accent-bg:#1c2140; } }
+    * { box-sizing:border-box; }
+    body { font:15px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; color:var(--fg); background:var(--bg); margin:0; }
+    main { max-width:960px; margin:0 auto; padding:2rem 1.25rem 4rem; }
+    header { border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.5rem; }
+    header p.crumb { color:var(--muted); font-size:13px; margin:0 0 .25rem; }
+    h1 { margin:.25rem 0 .75rem; font-size:1.85rem; }
+    h2 { margin:1.75rem 0 .5rem; font-size:1.2rem; border-bottom:1px solid var(--border); padding-bottom:.25rem; }
+    h3 { margin:1.25rem 0 .4rem; font-size:1rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; font-weight:600; }
+    h4 { margin:.5rem 0 .25rem; font-size:1rem; }
+    dl.meta { display:grid; grid-template-columns:max-content 1fr; gap:.35rem 1rem; margin:0; }
+    dl.meta dt { color:var(--muted); }
+    dl.meta dd { margin:0; }
+    table.nodes { width:100%; border-collapse:collapse; margin-top:.5rem; font-size:14px; }
+    table.nodes th, table.nodes td { border:1px solid var(--border); padding:.35rem .6rem; text-align:left; }
+    table.nodes th { background:var(--code-bg); font-weight:600; }
+    .badge { display:inline-block; padding:.15rem .55rem; border-radius:999px; font-size:12px; font-weight:600; letter-spacing:.03em; text-transform:uppercase; margin-left:.4rem; vertical-align:middle; }
+    .badge.pass { color:var(--pass); background:var(--pass-bg); }
+    .badge.fail { color:var(--fail); background:var(--fail-bg); }
+    .badge.warn { color:var(--warn); background:var(--warn-bg); }
+    .run-focus { background:var(--code-bg); border-left:4px solid var(--accent); padding:1rem 1.25rem; margin:1.5rem 0; border-radius:0 6px 6px 0; }
+    .run-focus h2 { border:none; margin:0 0 .5rem; padding:0; font-size:1.1rem; }
+    .run-focus p.label { color:var(--accent); font-size:12px; text-transform:uppercase; letter-spacing:.06em; font-weight:600; margin:0 0 .25rem; }
+    .ai-insight { background:var(--accent-bg); border-radius:8px; padding:1.25rem 1.5rem; margin:1.5rem 0 2rem; border-left:4px solid var(--accent); }
+    .ai-insight h2 { border:none; padding:0; margin-top:.25rem; }
+    .ai-insight p.tag { color:var(--accent); font-size:12px; text-transform:uppercase; letter-spacing:.08em; font-weight:600; margin:0 0 .25rem; }
+    .ai-insight p.verdict { font-size:1.05rem; margin:.5rem 0 1rem; }
+    .audiences { display:grid; grid-template-columns:1fr; gap:.75rem; margin-top:.5rem; }
+    @media (min-width: 720px) { .audiences { grid-template-columns:repeat(3,1fr); } }
+    .audiences article { background:var(--bg); border:1px solid var(--border); border-radius:6px; padding:.85rem 1rem; }
+    .audiences article h4 { margin-top:0; color:var(--accent); font-size:14px; }
+    details { border:1px solid var(--border); border-radius:6px; padding:.25rem .75rem; margin:.5rem 0; }
+    summary { cursor:pointer; padding:.45rem 0; font-weight:500; }
+    pre { background:var(--code-bg); padding:.75rem; border-radius:6px; overflow-x:auto; font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace; margin:.5rem 0; max-height:480px; }
+    pre.log { max-height:640px; }
+    a { color:var(--accent); } a:hover { text-decoration:underline; }
+    .muted { color:var(--muted); font-size:14px; }
+    footer { color:var(--muted); font-size:12px; border-top:1px solid var(--border); padding-top:1rem; margin-top:3rem; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="crumb"><a href="../">../ runs index</a></p>
+      <h1>Campaign a2a-hermes-v0.6.2-patch2-r22-mtls <span class="badge fail">FAIL</span></h1>
+      <dl class="meta">
+        <dt>Agent group</dt><dd><code>hermes</code> (homogeneous)</dd>
+        <dt>ai-memory ref</dt><dd><code>release/v0.6.2</code></dd>
+        <dt>Completed at</dt><dd>2026-04-23T12:57:26Z</dd>
+        <dt>Overall pass</dt><dd>false</dd>
+        <dt>Skipped reports</dt><dd>0</dd>
+      </dl>
+    </header>
+      <section class="infra">
+        <h2>Infrastructure</h2>
+        <dl class="meta">
+          <dt>Provider</dt><dd><code>digitalocean</code></dd>
+          <dt>Region</dt><dd><code>nyc3</code></dd>
+          <dt>Droplet size</dt><dd><code>s-2vcpu-4gb</code></dd>
+          <dt>Topology</dt><dd>4-node federation mesh (W=2/N=4)</dd>
+          <dt>Scenarios started</dt><dd></dd>
+          <dt>Scenarios ended</dt><dd></dd>
+          <dt>Dispatched by</dt><dd><code>alphaonedev</code></dd>
+          <dt>Harness SHA</dt><dd><code>915cfdaf2de6</code></dd>
+          <dt>Workflow run</dt><dd><a href="https://github.com/alphaonedev/ai-memory-ai2ai-gate/actions/runs/24833746718">https://github.com/alphaonedev/ai-memory-ai2ai-gate/actions/runs/24833746718</a></dd>
+        </dl>
+        <h3>Node roster</h3>
+        <table class="nodes">
+          <thead><tr><th>#</th><th>Role</th><th>Agent ID</th><th>Public IP</th><th>Private IP</th></tr></thead>
+          <tbody>
+<tr><td>1</td><td>agent</td><td><code>ai:alice</code></td><td><code>167.71.103.6</code></td><td><code>10.11.2.5</code></td></tr>
+<tr><td>2</td><td>agent</td><td><code>ai:bob</code></td><td><code>161.35.189.98</code></td><td><code>10.11.2.3</code></td></tr>
+<tr><td>3</td><td>agent</td><td><code>ai:charlie</code></td><td><code>134.209.32.17</code></td><td><code>10.11.2.4</code></td></tr>
+<tr><td>4</td><td>memory-only</td><td><code>—</code></td><td><code>174.138.69.116</code></td><td><code>10.11.2.2</code></td></tr>
+          </tbody>
+        </table>
+      </section>
+      <section class="run-focus">
+        <p class="label">Run focus</p>
+        <h2>MTLS campaign failed: no scenario reports recovered.</h2>
+        <p><strong>What this campaign tested:</strong> No scenarios were exercised, despite requesting 35 across various transport, framework, and primitive axes, due to report recovery failure.</p>
+        <p><strong>What it demonstrated:</strong> The run demonstrated a critical harness or infrastructure issue preventing any scenario execution or result collection.</p>
+      </section>
+      <section class="ai-insight">
+        <p class="tag">AI NHI analysis &middot; Claude Opus 4.7</p>
+        <h2>MTLS campaign failed: no scenario reports recovered.</h2>
+        <p class="verdict">FAIL — no scenarios executed or reported.</p>
+        <h3>For three audiences</h3>
+        <div class="audiences">
+          <article><h4>Non-technical end users</h4><p>This test run completely failed, so we have no information on whether agents can reliably share memories with each other. It looks like there was a problem in setting up the tests or gathering the results. We need to fix that before trying again.</p></article>
+          <article><h4>C-level decision makers</h4><p>This run poses high risk as it failed entirely with no results, indicating the system is not production ready and no customer claims can be validated. No progress or changes versus prior runs; immediate investigation into CI harness reliability is required to unblock gating. Resource allocation for debugging is advised to maintain release cadence.</p></article>
+          <article><h4>Engineers &amp; architects</h4><p>Complete failure with 'no scenario reports recovered' as the reason, impacting all requested scenarios (1,1b,2,4-6,9-18,22-25,28-42) across federation mesh topology under mTLS. Primitives like memory sharing were not tested due to absent reports. Probable root cause is artifact collection failure in the CI workflow (harness_sha: 915cfdaf2de6605be8eaf0a02c4137f24544d229); no specific S# or F# identifiers available since scenarios array is empty.</p></article>
+        </div>
+        <h3>What changes going into the next campaign</h3>
+        <p>Debug and fix report recovery mechanism in the CI harness to ensure scenario artifacts are collected.</p>
+      </section>
+    <section>
+      <h2>All artifacts</h2>
+      <ul>
+        <li><a href="./a2a-summary.json">a2a-summary.json</a></li>
+        <li><a href="./ai-nhi-analysis.json">ai-nhi-analysis.json</a></li>
+        <li><a href="./campaign.meta.json">campaign.meta.json</a></li>
+      </ul>
+    </section>
+    <footer>
+      Generated by <code>scripts/generate_run_html.sh</code>.
+      Methodology: <a href="https://alphaonedev.github.io/ai-memory-ai2ai-gate/methodology/">alphaonedev.github.io/ai-memory-ai2ai-gate/methodology</a>.
+      Analysis source: <code>analysis/run-insights.json</code>.
+    </footer>
+  </main>
+</body>
+</html>
