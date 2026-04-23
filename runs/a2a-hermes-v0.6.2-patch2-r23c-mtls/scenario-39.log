@@ -1,0 +1,10 @@
+checkpoint = 2026-04-23T18:01:06+00:00
+suspending ai-memory on node-3
+  !! ssh timeout (30s): root@45.55.168.255 pgrep -f 'ai-memory serve' | xargs -r kill -STOP
+alice + bob write 6 rows while node-3 is out
+resuming ai-memory on node-3
+settle 4s for process resume
+node-3 asks node-1 /api/v1/sync/since?since=2026-04-23T18:01:06+00:00
+  !! ssh timeout (30s): root@45.55.168.255 curl -sS --cacert /etc/ai-memory-a2a/tls/ca.pem --cert /etc/ai-memory-a2a/tls/client.pem --key /etc/ai-memory-a2a/tls/client.key 'https://134.209.160.158:9077/api/v1/sync/since?since=2026-04-23T18%3A01%3A06%2B00%3A00&limit=500'
+  /sync/since raw=0 ns-filtered=0; 0/6 match our markers
+  diag: updated_since=None earliest=None latest=None

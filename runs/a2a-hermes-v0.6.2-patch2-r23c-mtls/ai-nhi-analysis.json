@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-hermes-v0.6.2-patch2-r23c-mtls",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "Risk remains low for basic memory federation under mTLS, but semantic search and delta-sync failures block production readiness for those features. Customer claims on reliable semantic recall or efficient syncing are not viable yet. This run shows regression in delta-sync compared to prior patches, with new semantic issues emerging.",
+  "for_non_technical": "In this secure setup, AI agents mostly shared memories reliably across the network. However, searching for similar ideas sometimes missed key memories, and syncing recent changes didn't capture everything as expected. Overall, basic sharing works well, but advanced search needs improvement.",
+  "for_sme": "Scenario 18 failed due to semantic queries missing Alice's and Bob's markers, likely from embedding model inconsistencies or index corruption (probe F# semantic-recall). Scenario 39 delta-sync returned 0/6 expected markers, pointing to possible quorum read failures or timestamp filtering bugs (probe S# delta-incomplete). mTLS auth primitives held strong in S20-25; other failures absent, suggesting isolated issues in semantic tier.",
+  "headline": "mTLS federation stable except semantic search and delta-sync failures.",
+  "next_run_change": "Debug and patch delta-sync timestamp handling before re-running S39.",
+  "verdict": "PARTIAL \u2014 32/34 scenarios passed, 2 failed, 1 skipped.",
+  "what_it_proved": "Proved reliable core propagation and mTLS security but exposed gaps in semantic query accuracy and delta-sync completeness.",
+  "what_it_tested": "Exercised memory sharing, semantic recall, delta-sync, linking, versioning, bulk ops, and auth in 4-node mTLS federation over HTTP transport with semantic primitives."
+}
