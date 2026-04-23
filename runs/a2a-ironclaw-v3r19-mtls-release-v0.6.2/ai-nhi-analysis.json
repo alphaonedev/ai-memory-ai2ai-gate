@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-ironclaw-v3r19-mtls-release-v0.6.2",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "This run indicates high risk with zero test coverage, rendering the system not ready for production deployment. No customer-facing claims about reliability can be supported. Compared to prior runs, this represents a regression in test harness stability.",
+  "for_non_technical": "This test run completely failed to produce any results. We have no information on whether agents can reliably share memories with each other. The problem seems to be that the system couldn't collect any data from the tests.",
+  "for_sme": "All 35 requested scenarios (S1, S1b, S2, S4-S6, S9-S18, S22-S25, S28-S42) failed to produce reports, likely due to a harness issue in report recovery post-execution. No primitives or failure modes were tested; probable root cause is in the CI workflow at harness_sha 28875c272ce86d10b81466cec10ac4da7bf57b74. No specific F# probes triggered as execution didn't proceed to reporting.",
+  "headline": "Campaign failed: no scenario reports recovered.",
+  "next_run_change": "Debug and resolve the report recovery failure in the test harness before the next campaign.",
+  "verdict": "FAIL \u2014 zero scenarios executed or reported.",
+  "what_it_proved": "The run proved nothing about agent memory sharing as no results were collected or demonstrated.",
+  "what_it_tested": "No scenarios were exercised due to a failure in recovering any reports, despite requesting 35 scenarios covering various transport, framework, and primitive axes."
+}
