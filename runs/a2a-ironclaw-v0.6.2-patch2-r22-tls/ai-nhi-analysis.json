@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-ironclaw-v0.6.2-patch2-r22-tls",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "Risk posture elevated due to failures in semantic search, policy management, and delta sync, indicating not production-ready for features relying on those; core sharing claims are viable, but avoid customer promises on advanced recall or sync efficiency. Versus prior runs, this introduces new regressions in policies and delta, likely from recent patches. Prioritize fixes to maintain release cadence.",
+  "for_non_technical": "AI agents mostly share memories reliably across the network, remembering and accessing each other's information without issues in basic cases. However, they struggle to find related ideas through smart searches, properly clear access rules in grouped setups, and efficiently catch up on changes. Overall, the system works for simple sharing but has glitches in advanced features.",
+  "for_sme": "Failures include S18 where semantic queries missed expected memories (probable embedding index or rerank issue), S35 with child namespace rules persisting post-clear (likely incomplete recursive propagation), and S39 returning zero rows in delta sync despite changes (timestamp filter or query bug). Impacts hybrid_recall primitive, namespace policy APIs, and delta endpoint; S23 unparseable suggests harness logging flaw. Skipped S20 due to TLS mode mismatch.",
+  "headline": "TLS federation fails in semantic search, policy clear, delta sync.",
+  "next_run_change": "Enable mTLS mode to cover auth-focused scenarios like S20 and rerun failed ones post-fixes.",
+  "verdict": "FAIL \u2014 3 scenarios broken, 1 skipped (mTLS), 1 unparseable.",
+  "what_it_proved": "Demonstrated reliable basic memory propagation and most operations, but exposed bugs in semantic recall, hierarchical policy clearing, and delta synchronization completeness.",
+  "what_it_tested": "Tested memory sharing, linking, deletion, recovery, semantic/keyword search, bulk ops, policies, pubsub, and delta sync across TLS HTTP transport in a 4-node mesh, covering core primitives like put/get, relations, and federation sync."
+}
