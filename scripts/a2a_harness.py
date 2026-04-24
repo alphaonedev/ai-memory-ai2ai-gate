@@ -27,6 +27,13 @@ from typing import Any, Callable, Iterable, Sequence
 
 SSH_OPTS = ["-o", "StrictHostKeyChecking=no", "-o", "ConnectTimeout=10", "-o", "ServerAliveInterval=5"]
 
+# Body size above which HTTP request bodies are piped via ssh stdin +
+# `curl -d @-` instead of inlined into the ssh command argv.
+# Inlining a 1MB payload via `shlex.quote(json.dumps(body))` overflows
+# execve ARG_MAX (E2BIG) — exactly the pattern scenario 23
+# malicious_content_fuzz hit on the oversize payload.
+LARGE_BODY_THRESHOLD = 64 * 1024
+
 
 def log(msg: str) -> None:
     """Write a log line to stderr."""
@@ -164,13 +171,28 @@ class Harness:
         parts = [curl_prefix, "-X", method, shlex.quote(url)]
         for k, v in headers.items():
             parts += ["-H", shlex.quote(f"{k}: {v}")]
+
+        # Large bodies (> LARGE_BODY_THRESHOLD) are piped via ssh stdin and
+        # consumed by remote curl as `-d @-`. Inlining them via
+        # `shlex.quote(json.dumps(body))` works for small payloads but
+        # overflows execve ARG_MAX (E2BIG / errno 7 "Argument list too
+        # long") on 1MB-class payloads — exactly the pattern S23
+        # malicious_content_fuzz hit on the oversize payload. The
+        # threshold is conservative: 64 KB is well under the 128 KB
+        # single-arg cap on most Linux distros.
+        stdin_body: str | None = None
         if body is not None:
-            parts += ["-d", shlex.quote(json.dumps(body))]
+            body_json = json.dumps(body)
+            if len(body_json) > LARGE_BODY_THRESHOLD:
+                parts += ["-d", "@-"]
+                stdin_body = body_json
+            else:
+                parts += ["-d", shlex.quote(body_json)]
         if include_status:
             parts += ["-w", shlex.quote("\n__HTTP__%{http_code}")]
         remote_cmd = " ".join(parts)
 
-        result = self.ssh_exec(node_ip, remote_cmd, timeout=timeout)
+        result = self.ssh_exec(node_ip, remote_cmd, timeout=timeout, stdin=stdin_body)
         raw = (result.stdout or "").strip()
 
         if include_status:
