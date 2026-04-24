@@ -30,23 +30,19 @@ theme:
 
 nav:
   - Home: index.md
-  - AI NHI insights: insights.md
-  - Baseline configuration: baseline.md
-  - ai-memory integration: ai-memory-integration.md
-  - Infrastructure versions: infrastructure.md
-  - Test book: testbook.md
-  - v1.0 GA criteria: v1-ga-criteria.md
-  - Every test performed: tests.md
-  - Architecture: architecture.md
-  - Runbook: runbook.md
-  - Incidents: incidents.md
-  - Methodology: methodology.md
-  - Topology: topology.md
+  - Campaign runs: runs/
+  - Reproducing:
+      - Reproducing (DO): reproducing.md
+      - Local Docker mesh: local-docker-mesh.md
+  - Specification:
+      - Baseline configuration: baseline.md
+      - Test book: testbook.md
+      - Every test performed: tests.md
+      - v1.0 GA criteria: v1-ga-criteria.md
   - Agents:
       - IronClaw: agents/ironclaw.md
       - Hermes: agents/hermes.md
       - OpenClaw: agents/openclaw.md
-  - Local Docker mesh: local-docker-mesh.md
   - Scenarios:
       - 1. Per-agent write + read: scenarios/1-write-read.md
       - 2. Shared-context handoff: scenarios/2-handoff.md
@@ -56,9 +52,17 @@ nav:
       - 6. Contradiction detection: scenarios/6-contradiction.md
       - 7. Scoping visibility: scenarios/7-scoping.md
       - 8. Auto-tagging: scenarios/8-auto-tagging.md
-  - Campaign runs: runs/
-  - Reproducing: reproducing.md
-  - Security: security.md
+  - Architecture:
+      - Architecture: architecture.md
+      - Topology: topology.md
+      - Methodology: methodology.md
+      - ai-memory integration: ai-memory-integration.md
+      - Infrastructure versions: infrastructure.md
+  - Operations:
+      - Runbook: runbook.md
+      - Incidents: incidents.md
+      - Security: security.md
+  - AI NHI insights: insights.md
 
 markdown_extensions:
   - admonition
