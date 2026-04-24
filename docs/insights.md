@@ -1,11 +1,12 @@
 # AI NHI analysis — v0.6.2 certification window + local Docker mesh
 
-!!! success "🏆 v0.6.2 CERTIFIED — 2026-04-24"
-    Three consecutive full-testbook `overall_pass=true` runs on
-    `release/v0.6.2 @ 3e018d6` — across three heterogeneous agent
-    frameworks on two different infrastructure topologies.
-    **214 passing scenarios on the final run. Zero failures. Zero
-    partial greens.**
+!!! success "🏆 v0.6.2 A2A-CERTIFIED — 9/9 cells green — 2026-04-24"
+    Three consecutive full-testbook `overall_pass=true` runs **per cell**
+    across **three heterogeneous agent frameworks × three transport
+    modes = 9 cells**. All green. Zero partial passes. Published as a
+    single stable release across **five package channels** (crates.io,
+    Homebrew, Ubuntu PPA, Docker GHCR, Fedora COPR).
+    **324 passing scenarios on the final round set. Zero failures.**
     [**📦 Release v0.6.2**](https://github.com/alphaonedev/ai-memory-mcp/releases/tag/v0.6.2){ .md-button }
     [**📊 Runs dashboard**](../runs/){ .md-button }
     [**🐳 Reproduce locally**](../local-docker-mesh/){ .md-button }
@@ -29,32 +30,69 @@ software engineers** respectively.
 
 ## Certification verdict
 
-Three consecutive full-matrix `overall_pass=true` runs landed on
-`release/v0.6.2 @ 3e018d6`, satisfying the a2a-gate certification
-criterion. Cert window closed 2026-04-24 after ~3 hours of autonomous
-execution under durable AI NHI authority.
+Nine cells — three frameworks × three transport modes — each locked
+three consecutive `overall_pass=true` runs on `release/v0.6.2`. Cert
+window closed 2026-04-24.
 
 | Dimension | Result |
 |---|---|
-| **DigitalOcean matrix** (ironclaw + hermes × off/tls/mtls) | ✅ v3r28 / v3r29 / v3r30 all green |
-| **Local Docker matrix** (openclaw × off) | ✅ r1 / r2 / r3 all green |
-| **Consecutive green streak** | **3 / 3 → v0.6.2 CERTIFIED** |
-| **Max cell pass rate** | **37/37** on mtls, **35/35** on off + tls |
-| **Total passing scenarios across 6 cells of v3r30** | 214 |
+| **DigitalOcean matrix** (IronClaw + Hermes × off/tls/mtls) | ✅ v3r28 / v3r29 / v3r30 all green |
+| **Local Docker matrix** (OpenClaw × off) | ✅ r1 / r2 / r3 all green |
+| **Local Docker matrix** (OpenClaw × tls) | ✅ tls-r1 / tls-r2 / tls-r3 all green |
+| **Local Docker matrix** (OpenClaw × mtls) | ✅ mtls-r1 / mtls-r2 / mtls-r3 all green |
+| **Consecutive green streak** | **3 / 3 per cell × 9 cells → v0.6.2 CERTIFIED** |
+| **Max cell pass rate** | **37/37** on mtls (35 base + S20 + S21) · **35/35** on off + tls |
+| **Total passing scenarios, final round per cell** | **324** across 9 cells (3 × 35 + 3 × 35 + 3 × 37) |
+| **Cert-window PRs merged** | 13 total — 9 product + 4 harness |
+| **Package channels shipped** | 5 — crates.io / Homebrew / Ubuntu PPA / Docker GHCR / Fedora COPR |
 
-Cert-window PRs (four of them, all merged autonomously under operator
-directive "AI NHI has full engineering decision authority"):
+### Cert-window PRs (product side — `alphaonedev/ai-memory-mcp`)
 
-| # | Repo | Subject |
-|---|---|---|
-| [`ai-memory-mcp#368`](https://github.com/alphaonedev/ai-memory-mcp/pull/368) | product | S40 fanout retry-once + Idempotency-Key dedupe |
-| [`ai-memory-mcp#369`](https://github.com/alphaonedev/ai-memory-mcp/pull/369) | product | S40 `bulk_create` terminal catchup batch per peer |
-| [`ai-memory-ai2ai-gate#55`](https://github.com/alphaonedev/ai-memory-ai2ai-gate/pull/55) | harness | Drop S20 from the `tls` append list (mtls-only scenario) |
-| [`ai-memory-ai2ai-gate#56`](https://github.com/alphaonedev/ai-memory-ai2ai-gate/pull/56) | harness | Large HTTP bodies via ssh stdin (fixes S23 `OSError E2BIG`) |
+| # | Subject |
+|---|---|
+| [#325](https://github.com/alphaonedev/ai-memory-mcp/pull/325) | `create_link` fanout via quorum write |
+| [#326](https://github.com/alphaonedev/ai-memory-mcp/pull/326) | `consolidate` fanout (memory + deletions in one sync_push) |
+| [#327](https://github.com/alphaonedev/ai-memory-mcp/pull/327) | Embedder visibility + `/health` `embedder_ready` / `federation_enabled` |
+| [#363](https://github.com/alphaonedev/ai-memory-mcp/pull/363) | List cap 200→1000 + pending-action + namespace_meta fanout |
+| [#364](https://github.com/alphaonedev/ai-memory-mcp/pull/364) | `clear_namespace_standard` fanout symmetry |
+| [#366](https://github.com/alphaonedev/ai-memory-mcp/pull/366) | HTTP `/api/v1/recall` hybrid semantic when embedder loaded |
+| [#367](https://github.com/alphaonedev/ai-memory-mcp/pull/367) | Cosine threshold 0.3 → 0.2 in `recall_hybrid` |
+| [#368](https://github.com/alphaonedev/ai-memory-mcp/pull/368) | **S40 retry-once** on `AckOutcome::Fail` + Idempotency-Key |
+| [#369](https://github.com/alphaonedev/ai-memory-mcp/pull/369) | **S40 terminal catchup batch** per peer after `bulk_create` |
+| [#372](https://github.com/alphaonedev/ai-memory-mcp/pull/372) | CHANGELOG close for v0.6.2 |
+| [#373](https://github.com/alphaonedev/ai-memory-mcp/pull/373) | Back-merge `release/v0.6.2` → `develop` |
+| [#374](https://github.com/alphaonedev/ai-memory-mcp/pull/374) | CI: `pipx inject copr-cli rich` — unblocked Fedora COPR upload |
+| [#375](https://github.com/alphaonedev/ai-memory-mcp/pull/375) | Pages banner — prominent v0.6.2 + A2A-gate + ship-gate links |
 
-Plus [`ai-memory-ai2ai-gate#57`](https://github.com/alphaonedev/ai-memory-ai2ai-gate/pull/57)
-landing the local Docker mesh + OpenClaw first-class promotion +
-three rounds of local-docker cert evidence.
+### Cert-window PRs (harness side — `alphaonedev/ai-memory-ai2ai-gate`)
+
+| # | Subject |
+|---|---|
+| [#55](https://github.com/alphaonedev/ai-memory-ai2ai-gate/pull/55) | Drop S20 from `tls` append (mtls-only scenario) |
+| [#56](https://github.com/alphaonedev/ai-memory-ai2ai-gate/pull/56) | Large HTTP bodies via ssh stdin (fixes S23 `OSError E2BIG`) |
+| [#57](https://github.com/alphaonedev/ai-memory-ai2ai-gate/pull/57) | Local Docker mesh + OpenClaw first-class |
+| [#59](https://github.com/alphaonedev/ai-memory-ai2ai-gate/pull/59) | Baseline + F3 emission for local-docker runs |
+| [#60](https://github.com/alphaonedev/ai-memory-ai2ai-gate/pull/60) | Insights v0.6.2 cert rewrite |
+| [#62](https://github.com/alphaonedev/ai-memory-ai2ai-gate/pull/62) | Insights sharpen 3-audience communication |
+| [#63](https://github.com/alphaonedev/ai-memory-ai2ai-gate/pull/63) | Insights: Why A2A testing matters — value + use per audience |
+| [#64](https://github.com/alphaonedev/ai-memory-ai2ai-gate/pull/64) | **OpenClaw full-spectrum cert** — tls + mtls × 3 rounds each |
+| [#65](https://github.com/alphaonedev/ai-memory-ai2ai-gate/pull/65) | X/Twitter thread (operator-posted) |
+
+### Package channels shipped with v0.6.2
+
+| Channel | Install |
+|---|---|
+| **crates.io** | `cargo install ai-memory` |
+| **Homebrew** | `brew install alphaonedev/tap/ai-memory` |
+| **Ubuntu PPA** | `apt install ai-memory` |
+| **Docker GHCR** | `docker pull ghcr.io/alphaonedev/ai-memory-mcp:v0.6.2` |
+| **Fedora COPR** | `dnf copr enable alpha-one-ai/ai-memory && dnf install ai-memory` |
+
+All five channels published by the CI `release` + `crates-io` +
+`homebrew` + `ppa` + `docker` + `copr` jobs on the `v0.6.2` tag
+push. Fedora COPR was initially blocked by `copr-cli 2.5` missing
+its `rich` dep — fixed by [#374](https://github.com/alphaonedev/ai-memory-mcp/pull/374)
++ tag re-push.
 
 ---
 
