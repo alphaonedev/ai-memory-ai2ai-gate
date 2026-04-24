@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-ironclaw-v0.6.2-patch2-r30-mtls",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "Risk posture remains low with full pass; system is production-ready for secure federated deployments. Customer claims of reliable agent memory sharing are fully viable. No changes vs. prior runs; patch2 maintains stability.",
+  "for_non_technical": "The tests confirmed that AI agents can reliably share memories with each other across different computers using secure connections. Everything worked as expected, with no problems in storing, finding, or updating shared information. This means groups of AIs can depend on this system to remember things together without issues.",
+  "for_sme": "All scenarios passed with no failures, validating primitives like recall (S1, S1b, S4), deletion (S10), linking (S11, S37), recovery (S14), and security (S20-S25). No impacted areas or root causes; probes such as S18 (hybrid recall), S40 (bulk), S41 (activity) all green. Federation mesh held under mTLS with W=2/N=4 topology.",
+  "headline": "All federation tests passed cleanly in mTLS 4-node mesh.",
+  "next_run_change": "none \u2014 keep cadence.",
+  "verdict": "PASS \u2014 37/37 scenarios green.",
+  "what_it_proved": "Proved consistent, secure memory sharing and recall among agents in a distributed federation without data loss or inconsistencies.",
+  "what_it_tested": "Exercised core memory operations like write, recall, delete, link, consolidate, and advanced features including pubsub, sessions, and bulk ops across HTTP transport in mTLS mode, covering reliability, security, and recovery primitives."
+}
