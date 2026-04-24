@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-ironclaw-v0.6.2-patch2-r27-off",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "This run highlights a low-risk but production-blocking issue in bulk data ingestion, degrading reliability claims for high-throughput scenarios; readiness is partial until fixed. No broad regressions from prior runs, but customer-facing viability for federated bulk ops is not yet assured. Prioritizing a patch could enable confident v0.6.2 release.",
+  "for_non_technical": "The AI agents were able to share and recall memories correctly in almost all tests. However, when adding a large batch of memories at once, one of the computers missed a single memory, so sharing isn't fully reliable yet for big uploads. Overall, the system works well for normal use but needs fixing for handling lots of data quickly.",
+  "for_sme": "Failure mode in S40: bulk insert of 500 rows propagated to 499 on node-4 (memory-only), likely root cause is incomplete fanout or quorum timeout in W=2/N=4 topology. Impacts bulk primitive; other primitives like single inserts (S1/S4), deletes (S10), links (S11), and recovery (S14) passed cleanly. S23 report unparseable and skipped, suggesting harness logging issue.",
+  "headline": "Bulk insert missed one row on memory-only node in federation.",
+  "next_run_change": "Patch bulk fanout to ensure full replication before re-running, focusing on S40 isolation.",
+  "verdict": "FAIL \u2014 1/35 scenarios failed (S40 bulk), S23 skipped.",
+  "what_it_proved": "Demonstrated reliable propagation for most operations but exposed a replication flaw in bulk inserts, with 34/35 scenarios passing and one unparseable skip.",
+  "what_it_tested": "Tested agent-to-agent memory sharing in 4-node federation over HTTP without TLS, covering primitives like inserts, deletes, links, bulk ops, recovery, and queries across semantic and keyword axes."
+}

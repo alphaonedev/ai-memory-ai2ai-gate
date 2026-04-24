@@ -1,0 +1,1 @@
+{"agent_group": "ironclaw", "bulk_http_code": "200", "bulk_size": 500, "namespace": "scenario40-bulk-13f2a0", "pass": false, "per_peer_count": {"node_2": 500, "node_3": 500, "node_4": 499}, "reason": "node-4 saw 499/500 bulk rows after fanout", "reasons": ["node-4 saw 499/500 bulk rows after fanout"], "scenario": "40", "skipped": false, "tls_mode": "off"}

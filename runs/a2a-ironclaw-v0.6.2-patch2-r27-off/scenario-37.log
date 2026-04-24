@@ -1,0 +1,5 @@
+alice writes M1 + M2 + links M1→M2
+  M1=ea9775fd-7915-48ae-8c61-864f4c653d87 M2=8d744f8c-483b-426d-a668-c9cac2c43373
+settle 6s for link fanout
+charlie queries /api/v1/links/M1 (forward)
+charlie queries /api/v1/links/M2 (reverse)

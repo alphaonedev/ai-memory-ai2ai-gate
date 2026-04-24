@@ -1,0 +1,1 @@
+{"agent_group": "ironclaw", "consolidate_http_code": 201, "consolidated_from_agents": ["ai:charlie", "ai:bob", "ai:alice"], "consolidated_id": "0c0e11c4-fa52-468c-8000-ce124dfad165", "pass": true, "reasons": [], "scenario": "5", "skipped": false, "tls_mode": "off"}
