@@ -70,7 +70,7 @@ All cells run on `release/v0.6.2` + `ai_memory_source_build=true` on DigitalOcea
 |---|---|---|---|
 | **ironclaw (DO)** | ✅ v3r30 35/35 | ✅ v3r30 35/35 | ✅ v3r30 37/37 |
 | **hermes (DO)** | ✅ v3r30 35/35 | ✅ v3r30 35/35 | ✅ v3r30 37/37 |
-| **openclaw (local-docker)** | ✅ r3 35/35 | ⏸ Phase 3 scope | ⏸ Phase 3 scope |
+| **openclaw (local-docker)** | ✅ r3 35/35 | ✅ tls-r3 35/35 | ✅ mtls-r3 37/37 |
 | **mixed** | ⏸ terraform topology work | ⏸ topology | ⏸ topology |
 
 **v0.6.2 CERTIFIED 2026-04-24** — streak 3/3 achieved on DO (v3r28/r29/r30) + three consecutive full-testbook greens for openclaw on local-docker (`a2a-openclaw-v0.6.2-local-docker-{r1,r2,r3}`). Cert run head commit on `release/v0.6.2`: `3e018d6` (PRs ai-memory-mcp#368 + #369 S40 fanout retry + terminal catchup batch). Harness updates in this cycle: ai-memory-ai2ai-gate#55 (drop S20 from tls append), #56 (S23 large-body-via-ssh-stdin), plus the harness `TOPOLOGY=local-docker` fork.

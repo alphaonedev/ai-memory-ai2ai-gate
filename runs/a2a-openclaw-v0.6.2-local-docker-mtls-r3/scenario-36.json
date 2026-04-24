@@ -1,0 +1,1 @@
+{"agent_group": "openclaw", "pass": true, "reasons": [], "scenario": "36", "session_id": "bdd70002-5edd-4d6a-9fff-4245f2c590e0", "session_tagged_rows_on_bob": 2, "skipped": false, "start_http_code": 200, "tls_mode": "mtls"}

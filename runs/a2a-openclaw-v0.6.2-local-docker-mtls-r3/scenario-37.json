@@ -1,0 +1,1 @@
+{"agent_group": "openclaw", "forward_has_target": true, "m1": "8a9dac0e-b84d-4ce9-84db-3bf3ebe5cd36", "m2": "27f299fa-fce2-4bcd-8ee9-7a1224c6252b", "pass": true, "reasons": [], "reverse_has_source": true, "scenario": "37", "skipped": false, "tls_mode": "mtls"}

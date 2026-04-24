@@ -613,15 +613,23 @@ why.
 |---|---|---|---|
 | **ironclaw (DO)** | ✅ v3r30 35/35 | ✅ v3r30 35/35 | ✅ v3r30 37/37 |
 | **hermes (DO)** | ✅ v3r30 35/35 | ✅ v3r30 35/35 | ✅ v3r30 37/37 |
-| **openclaw (local-docker)** | ✅ r3 35/35 | ⏸ Phase 3 | ⏸ Phase 3 |
+| **openclaw (local-docker)** | ✅ r3 35/35 | ✅ tls-r3 35/35 | ✅ mtls-r3 37/37 |
 | **mixed (DO)** | ⏸ terraform topology | ⏸ | ⏸ |
+
+**OpenClaw full-spectrum cert (2026-04-24):** tls + mtls on local
+Docker closed with **3/3 × 2 modes**. All 6 rounds `overall_pass=true`
+with pristine volumes (`docker compose down -v` + fresh ephemeral CA
+per round). S20 (`mtls_happy_path`) and S21 (`mtls_anonymous_rejected`)
+are mtls-only by design — appended only under `tls_mode=mtls`, matching
+ai-memory-ai2ai-gate PR #55.
 
 ## Forward-looking work
 
-1. **Local-docker TLS + mTLS** — ephemeral CA generation + cert
-   volume-mount design to unblock the full `openclaw × {off,tls,mtls}`
-   matrix locally. Phase 3 scope per
-   [docs/local-docker-mesh.md](local-docker-mesh.md).
+1. **Local-docker TLS + mTLS — DONE (2026-04-24).** Ephemeral CA
+   generation via `docker/gen-tls.sh` + per-node cert volume-mount +
+   `TLS_MODE`-aware entrypoint + `healthcheck.sh` wrapper landed
+   and the full `openclaw × {off,tls,mtls}` matrix is green (3/3
+   per mode, evidence committed under `runs/a2a-openclaw-v0.6.2-local-docker-*`).
 
 2. **Mixed-framework row** — terraform topology work for a
    heterogeneous VPC that provisions `ai:alice@ironclaw` +

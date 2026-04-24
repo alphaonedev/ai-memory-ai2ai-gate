@@ -1,0 +1,1 @@
+{"agent_group": "openclaw", "consolidate_http_code": 201, "consolidated_from_agents": ["ai:charlie", "ai:bob", "ai:alice"], "consolidated_id": "503b8a90-8509-4f4f-b611-acd2b69b8833", "pass": true, "reasons": [], "scenario": "5", "skipped": false, "tls_mode": "tls"}

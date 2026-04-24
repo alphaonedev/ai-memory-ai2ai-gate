@@ -21,8 +21,17 @@
 #   exit 0 on pass/fail/skip; non-zero = hard crash
 set -euo pipefail
 
-CAMPAIGN_ID="${1:?usage: run-testbook.sh <campaign-id> [<scenarios>]}"
+CAMPAIGN_ID="${1:?usage: run-testbook.sh <campaign-id> [<scenarios>] [<tls_mode>]}"
 SCENARIOS_ARG="${2:-1 1b 2 4 5 6 9 10 11 12 13 14 15 16 17 18 22 23 24 25 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42}"
+TLS_MODE_ARG="${3:-off}"
+case "$TLS_MODE_ARG" in off|tls|mtls) ;; *) echo "tls_mode must be off|tls|mtls, got '$TLS_MODE_ARG'" >&2; exit 2 ;; esac
+# S20 `mtls_happy_path` and S21 `mtls_anonymous_rejected` are mtls-only
+# (they self-gate with "only runs under tls_mode=mtls"). Append them
+# only for mtls — matches ai-memory-ai2ai-gate PR #55 on the DO side.
+case "$TLS_MODE_ARG" in
+  mtls) SCENARIOS_ARG="$SCENARIOS_ARG 20 21" ;;
+esac
+SCENARIOS_ARG=$(printf '%s\n' $SCENARIOS_ARG | awk 'NF && !seen[$0]++' | paste -sd' ' -)
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$HERE/.." && pwd)"
@@ -53,21 +62,21 @@ log "mesh 4/4 healthy"
 #      handles close, files truly gone, entrypoint re-runs and
 #      brings serve up on a fresh DB
 #   3) Poll for /health on each node
-log "resetting database state across 4 nodes for a pristine round"
+log "resetting database state across 4 nodes for a pristine round (tls_mode=$TLS_MODE_ARG)"
 for i in 1 2 3 4; do
   docker exec "a2a-node-$i" rm -f /var/lib/ai-memory/a2a.db /var/lib/ai-memory/a2a.db-wal /var/lib/ai-memory/a2a.db-shm 2>/dev/null || true
 done
 docker restart a2a-node-1 a2a-node-2 a2a-node-3 a2a-node-4 >/dev/null
-log "containers restarted — waiting for health"
+log "containers restarted — waiting for health (scheme based on tls_mode)"
 for i in 1 2 3 4; do
   for attempt in $(seq 1 90); do
-    if docker exec "a2a-node-$i" curl -sSf http://127.0.0.1:9077/api/v1/health 2>/dev/null | grep -q '"ok"'; then
+    if docker exec "a2a-node-$i" /usr/local/bin/healthcheck.sh 2>/dev/null; then
       break
     fi
     sleep 1
   done
-  docker exec "a2a-node-$i" curl -sSf http://127.0.0.1:9077/api/v1/health 2>/dev/null | grep -q '"ok"' \
-    || fail "a2a-node-$i did not return /health after state reset"
+  docker exec "a2a-node-$i" /usr/local/bin/healthcheck.sh 2>/dev/null \
+    || fail "a2a-node-$i did not return /health after state reset (tls_mode=$TLS_MODE_ARG)"
 done
 log "state reset done — all 4 nodes fresh + healthy"
 
@@ -75,10 +84,11 @@ log "state reset done — all 4 nodes fresh + healthy"
 # Emitted BEFORE scenarios run so the Pages dashboard can show the
 # Baseline + F3 peer A2A columns GREEN on local-docker campaigns.
 log "emitting a2a-baseline.json"
-python3 - "$RUN_DIR" <<'PY'
+python3 - "$RUN_DIR" "$TLS_MODE_ARG" <<'PY'
 import json, subprocess, sys, os, pathlib
 
 run_dir = pathlib.Path(sys.argv[1])
+tls_mode = sys.argv[2] if len(sys.argv) > 2 else "off"
 def dx(container, *cmd):
     r = subprocess.run(["docker","exec",container,*cmd],capture_output=True,text=True,timeout=30)
     return r.stdout.strip()
@@ -87,7 +97,10 @@ per_node = []
 for i in (1,2,3,4):
     c = f"a2a-node-{i}"
     amver = dx(c,"ai-memory","--version").split()[-1] if dx(c,"ai-memory","--version") else "?"
-    health_ok = '"ok"' in dx(c,"curl","-sSf","http://127.0.0.1:9077/api/v1/health")
+    # Use baked healthcheck.sh so TLS_MODE + curl flags are correct regardless of off/tls/mtls.
+    health_ok = subprocess.run(
+        ["docker","exec",c,"/usr/local/bin/healthcheck.sh"],
+        capture_output=True,text=True,timeout=30).returncode == 0
     peer_urls = dx(c,"sh","-c","grep ^PEER_URLS= /etc/ai-memory-a2a/env | cut -d= -f2-") \
                  or dx(c,"sh","-c","printenv PEER_URLS") or ""
     role = dx(c,"sh","-c","grep ^ROLE= /etc/ai-memory-a2a/env | cut -d= -f2-") or "memory-only"
@@ -154,11 +167,12 @@ PY
 # --- F3 peer-replication canary (matches DO f3-peer-a2a.json) -------
 # Writer posts a canary on node-1; verify propagation to peers before
 # scenarios run. Distinct namespace so it can't collide with any scenario.
-log "running F3 peer-A2A canary"
-python3 - "$RUN_DIR" <<'PY'
+log "running F3 peer-A2A canary (tls_mode=$TLS_MODE_ARG)"
+python3 - "$RUN_DIR" "$TLS_MODE_ARG" <<'PY'
 import json, subprocess, sys, pathlib, uuid, time
 
 run_dir = pathlib.Path(sys.argv[1])
+tls_mode = sys.argv[2] if len(sys.argv) > 2 else "off"
 canary_uuid = str(uuid.uuid4())
 namespace = "_baseline_peer_canary"
 title = f"f3-canary-{canary_uuid}"
@@ -167,17 +181,27 @@ def dx(container, cmd, timeout=30):
     return subprocess.run(["docker","exec",container,"sh","-c",cmd],
                           capture_output=True,text=True,timeout=timeout)
 
+# Scheme + tls flags vary per tls_mode.
+if tls_mode == "off":
+    base = "http://127.0.0.1:9077"
+    flags = ""
+else:
+    base = "https://localhost:9077"
+    flags = "--cacert /etc/ai-memory-a2a/tls/ca.pem --resolve localhost:9077:127.0.0.1"
+    if tls_mode == "mtls":
+        flags += " --cert /etc/ai-memory-a2a/tls/client.pem --key /etc/ai-memory-a2a/tls/client.key"
+
 body = json.dumps({"tier":"long","namespace":namespace,"title":title,
                    "content":f"F3 peer canary {canary_uuid}","tags":[],
                    "priority":5,"confidence":1.0,"source":"api"})
 write = dx("a2a-node-1",
-    f"curl -sSf -X POST -H 'Content-Type: application/json' -H 'X-Agent-Id: ai:alice' "
-    f"--data {json.dumps(body)!s} http://127.0.0.1:9077/api/v1/memories")
+    f"curl -sSf {flags} -X POST -H 'Content-Type: application/json' -H 'X-Agent-Id: ai:alice' "
+    f"--data {json.dumps(body)!s} {base}/api/v1/memories")
 time.sleep(5)
 peers_seen = {}
 for i in (2,3,4):
     r = dx(f"a2a-node-{i}",
-        f"curl -sSf 'http://127.0.0.1:9077/api/v1/memories?namespace={namespace}&limit=50'")
+        f"curl -sSf {flags} '{base}/api/v1/memories?namespace={namespace}&limit=50'")
     try:
         d = json.loads(r.stdout)
         mems = d.get("memories") or d.get("items") or []
@@ -219,7 +243,7 @@ export NODE2_PRIV="10.88.1.12"
 export NODE3_PRIV="10.88.1.13"
 export MEMORY_PRIV="10.88.1.14"
 export AGENT_GROUP="openclaw"
-export TLS_MODE="off"
+export TLS_MODE="$TLS_MODE_ARG"
 
 SCENARIOS_RUN=()
 for s in $SCENARIOS_ARG; do

@@ -1,0 +1,5 @@
+attempting anonymous HTTPS POST to node-1 (must be rejected)
+  anonymous probe result: code=curl: (56) OpenSSL SSL_read: OpenSSL/3.0.13: error:0A00045C:SSL routines::tlsv13 alert certificate required, errno 0
+000 msg=OpenSSL SSL_read: OpenSSL/3.0.13: error:0A00045C:SSL routines::tlsv13 alert certificate required, errno 0
+settle 3s for let any leak land before checking namespace
+  post-probe count for namespace=scenario21: 0 (must be 0)

@@ -14,6 +14,10 @@ phase-reports/
 # by `cargo build --release` and not suitable for committing.
 docker/bin/ai-memory
 
+# Ephemeral TLS material generated per cert round by docker/gen-tls.sh.
+# CA private keys + server/client keys must NEVER be committed.
+docker/tls/
+
 # Editor / OS noise
 *.swp
 .DS_Store

@@ -1,0 +1,1 @@
+{"agent_group": "openclaw", "marker": "mtls-669364fae8d84569a9ed3347b24eeda0", "pass": true, "peers_see": {"node_2": 1, "node_3": 1}, "reasons": [], "scenario": "20", "skipped": false, "tls_mode": "mtls", "write_http_code": 201}
