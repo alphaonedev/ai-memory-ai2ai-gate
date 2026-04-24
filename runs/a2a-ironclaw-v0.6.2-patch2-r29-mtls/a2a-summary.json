@@ -1,0 +1,847 @@
+{
+  "campaign_id": "a2a-ironclaw-v0.6.2-patch2-r29-mtls",
+  "agent_group": "ironclaw",
+  "ai_memory_git_ref": "release/v0.6.2",
+  "completed_at": "2026-04-24T05:21:25Z",
+  "overall_pass": true,
+  "scenarios": [
+    {
+      "agent_group": "ironclaw",
+      "expected_per_reader": 20,
+      "pass": true,
+      "per_agent": {
+        "ai:alice": {
+          "recall": 20
+        },
+        "ai:bob": {
+          "recall": 20
+        },
+        "ai:charlie": {
+          "recall": 20
+        }
+      },
+      "per_namespace_node4": {
+        "scenario1-ai:alice": {
+          "count": 10,
+          "wrong_agent_id": 0
+        },
+        "scenario1-ai:bob": {
+          "count": 10,
+          "wrong_agent_id": 0
+        },
+        "scenario1-ai:charlie": {
+          "count": 10,
+          "wrong_agent_id": 0
+        }
+      },
+      "reasons": [],
+      "scenario": "1",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "ironclaw",
+      "delete_http_code": 200,
+      "m1_id": "cdadbeb4-7ce2-40ea-995a-d95469fcef92",
+      "pass": true,
+      "post_delete_hits": {
+        "node-2": 0,
+        "node-3": 0,
+        "node-4": 0
+      },
+      "post_delete_still_visible_peers": 0,
+      "pre_delete_visible_peers": 3,
+      "reasons": [],
+      "scenario": "10",
+      "skipped": false,
+      "tls_mode": "mtls",
+      "uuid": "d-64dddca7d1784464855ef344abd7022d"
+    },
+    {
+      "agent_group": "ironclaw",
+      "charlie_sees_link": 1,
+      "link_http_code": 201,
+      "m1_id": "74421c8d-3d3d-4222-b8ee-83bf0eb129db",
+      "m2_id": "8bbed542-f605-489d-bbc4-b6cbf5ec5e01",
+      "pass": true,
+      "reasons": [],
+      "relation": "related_to",
+      "scenario": "11",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "ironclaw",
+      "pass": true,
+      "peers_see": {
+        "node_2": 1,
+        "node_3": 1,
+        "node_4": 1
+      },
+      "reasons": [],
+      "register_http_code": 201,
+      "registered_agent": "ai:dave-probe-2e06807b",
+      "scenario": "12",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "ironclaw",
+      "m1_id": "d81faa70-4648-493e-9074-5d49f60625c8",
+      "pass": true,
+      "peer_view": {
+        "node_1": "va-667ff1e5839442b39461020b13a0c609",
+        "node_2": "va-667ff1e5839442b39461020b13a0c609",
+        "node_3": "va-667ff1e5839442b39461020b13a0c609",
+        "node_4": "va-667ff1e5839442b39461020b13a0c609"
+      },
+      "reasons": [],
+      "scenario": "13",
+      "skipped": false,
+      "submitted": {
+        "v0": "v0-09de4352c2ad46f18bede10169ef7be5",
+        "vA_alice": "va-667ff1e5839442b39461020b13a0c609",
+        "vB_bob": "vb-03b93985e3434f23bc36e00c847d7ee8"
+      },
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "ironclaw",
+      "expected_post_recovery": 20,
+      "node3_saw": 20,
+      "partition_target": "node-3",
+      "pass": true,
+      "reasons": [],
+      "scenario": "14",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "ironclaw",
+      "pass": true,
+      "reasons": [],
+      "scenario": "15",
+      "skipped": false,
+      "tls_mode": "mtls",
+      "uuid": "ryw-878e65e3f8e04f1f8fa848a03933b5c6",
+      "writer_sees_own_write": 1
+    },
+    {
+      "agent_group": "ironclaw",
+      "bob_sees_tier": "long",
+      "m1_id": "349f5f1e-b527-49d3-8ee6-5b4830387911",
+      "pass": true,
+      "promote_http_code": 200,
+      "reasons": [],
+      "scenario": "16",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "ironclaw",
+      "expected_count": 15,
+      "pass": true,
+      "per_peer": {
+        "node_1": 15,
+        "node_2": 15,
+        "node_3": 15,
+        "node_4": 15
+      },
+      "reasons": [],
+      "scenario": "17",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "ironclaw",
+      "diag_list_alice_present": 1,
+      "diag_list_bob_present": 1,
+      "diag_node3_embedding_probe": "dawn-walk|1536|BYTES | ridge-strides|1536|BYTES",
+      "pass": true,
+      "query": "morning outdoor exercise routine",
+      "reasons": [],
+      "recall_mode": "hybrid",
+      "rows_in_recall": 2,
+      "scenario": "18",
+      "skipped": false,
+      "tls_mode": "mtls",
+      "writers": [
+        {
+          "agent": "ai:alice",
+          "marker": "alice-sunrise-b971ec13",
+          "seen_by_charlie": 1
+        },
+        {
+          "agent": "ai:bob",
+          "marker": "bob-daybreak-241260ed",
+          "seen_by_charlie": 1
+        }
+      ]
+    },
+    {
+      "agent_group": "ironclaw",
+      "expected_per_reader": 20,
+      "pass": true,
+      "path": "serve-http",
+      "per_agent": {
+        "ai:alice": {
+          "recall": 20
+        },
+        "ai:bob": {
+          "recall": 20
+        },
+        "ai:charlie": {
+          "recall": 20
+        }
+      },
+      "per_namespace_node4": {
+        "scenario1b-ai:alice": {
+          "count": 10,
+          "wrong_agent_id": 0
+        },
+        "scenario1b-ai:bob": {
+          "count": 10,
+          "wrong_agent_id": 0
+        },
+        "scenario1b-ai:charlie": {
+          "count": 10,
+          "wrong_agent_id": 0
+        }
+      },
+      "reasons": [],
+      "scenario": "1b",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "ack_uuid": "a-023f99ca5fcf4c30934cb9a0827a9839",
+      "agent_group": "ironclaw",
+      "handoff_uuid": "h-18c8c6d05ba14178a2437884cd4fd553",
+      "pass": true,
+      "path": "serve-http",
+      "per_agent": {
+        "ai:alice": {
+          "sees_ack": 1
+        },
+        "ai:bob": {
+          "sees_handoff": 1
+        }
+      },
+      "reasons": [],
+      "scenario": "2",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "ironclaw",
+      "marker": "mtls-9e7609e86650412a8bc06001b51fcc05",
+      "pass": true,
+      "peers_see": {
+        "node_2": 1,
+        "node_3": 1
+      },
+      "reasons": [],
+      "scenario": "20",
+      "skipped": false,
+      "tls_mode": "mtls",
+      "write_http_code": 201
+    },
+    {
+      "agent_group": "ironclaw",
+      "anonymous_probe": {
+        "curl_message": "OpenSSL SSL_read: OpenSSL/3.0.13: error:0A00045C:SSL routines::tlsv13 alert certificate required, errno 0",
+        "http_code": "curl: (56) OpenSSL SSL_read: OpenSSL/3.0.13: error:0A00045C:SSL routines::tlsv13 alert certificate required, errno 0\n000"
+      },
+      "namespace_count_after_attempt": 0,
+      "pass": true,
+      "reasons": [],
+      "scenario": "21",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "ironclaw",
+      "pass": true,
+      "reasons": [],
+      "scenario": "22",
+      "skipped": false,
+      "tests": {
+        "body_vs_header_conflict": {
+          "acceptable": [
+            "ai:body-wins",
+            "ai:attacker"
+          ],
+          "stored_agent_id": "ai:attacker"
+        },
+        "header_only": {
+          "expected": "ai:alice",
+          "stored_agent_id": "ai:alice"
+        }
+      },
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "ironclaw",
+      "pass": true,
+      "payloads": {
+        "html": {
+          "input_bytes": 66,
+          "roundtrip_bytes": 66,
+          "write_http": 201
+        },
+        "oversize": {
+          "input_bytes": 1048576,
+          "roundtrip_bytes": 0,
+          "write_http": 400
+        },
+        "sql": {
+          "input_bytes": 61,
+          "roundtrip_bytes": 61,
+          "write_http": 201
+        },
+        "unicode": {
+          "input_bytes": 19,
+          "roundtrip_bytes": 19,
+          "write_http": 201
+        }
+      },
+      "payloads_note": "accept+faithful OR 4xx reject both acceptable for oversize",
+      "reasons": [],
+      "scenario": "23",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "ironclaw",
+      "byzantine_marker": "bz-e0d619bd1ec64c7c9dcd5dcab2213ebc",
+      "pass": true,
+      "reasons": [],
+      "scenario": "24",
+      "skipped": false,
+      "stored_metadata_agent_id": "REJECTED_BY_SERVER",
+      "sync_push_http_code": "422",
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "ironclaw",
+      "clock_offset_seconds": 300,
+      "marker": "ck-dde6322866044baa9c96bb51177c0a84",
+      "pass": true,
+      "reasons": [],
+      "scenario": "25",
+      "seen_on": {
+        "node_1": 1,
+        "node_3": 1
+      },
+      "skipped": false,
+      "target_node": "node-3",
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "ironclaw",
+      "pass": true,
+      "peer_hits": {
+        "node_2": 1,
+        "node_3": 1
+      },
+      "reasons": [],
+      "scenario": "28",
+      "skipped": false,
+      "tls_mode": "mtls",
+      "token": "kwsearcha0b3151436"
+    },
+    {
+      "agent_group": "ironclaw",
+      "archive_http_code": 200,
+      "bob_sees_archived": true,
+      "m1_id": "483d88a1-4e79-49a7-beab-a4b7234f823b",
+      "node4_active_rows": 1,
+      "pass": true,
+      "reasons": [],
+      "restore_http_code": 200,
+      "scenario": "29",
+      "skipped": false,
+      "stats_shape_ok": true,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "ironclaw",
+      "pass": true,
+      "peer_views": {
+        "node_1": {
+          "_path": "/api/v1/capabilities",
+          "features": {
+            "auto_consolidation": false,
+            "auto_tagging": false,
+            "contradiction_analysis": false,
+            "cross_encoder_reranking": false,
+            "embedder_loaded": true,
+            "hybrid_recall": true,
+            "keyword_search": true,
+            "memory_reflection": false,
+            "query_expansion": false,
+            "semantic_search": true
+          },
+          "models": {
+            "cross_encoder": "none",
+            "embedding": "sentence-transformers/all-MiniLM-L6-v2",
+            "embedding_dim": 384,
+            "llm": "none"
+          },
+          "tier": "semantic",
+          "version": "0.6.2"
+        },
+        "node_2": {
+          "_path": "/api/v1/capabilities",
+          "features": {
+            "auto_consolidation": false,
+            "auto_tagging": false,
+            "contradiction_analysis": false,
+            "cross_encoder_reranking": false,
+            "embedder_loaded": true,
+            "hybrid_recall": true,
+            "keyword_search": true,
+            "memory_reflection": false,
+            "query_expansion": false,
+            "semantic_search": true
+          },
+          "models": {
+            "cross_encoder": "none",
+            "embedding": "sentence-transformers/all-MiniLM-L6-v2",
+            "embedding_dim": 384,
+            "llm": "none"
+          },
+          "tier": "semantic",
+          "version": "0.6.2"
+        },
+        "node_3": {
+          "_path": "/api/v1/capabilities",
+          "features": {
+            "auto_consolidation": false,
+            "auto_tagging": false,
+            "contradiction_analysis": false,
+            "cross_encoder_reranking": false,
+            "embedder_loaded": true,
+            "hybrid_recall": true,
+            "keyword_search": true,
+            "memory_reflection": false,
+            "query_expansion": false,
+            "semantic_search": true
+          },
+          "models": {
+            "cross_encoder": "none",
+            "embedding": "sentence-transformers/all-MiniLM-L6-v2",
+            "embedding_dim": 384,
+            "llm": "none"
+          },
+          "tier": "semantic",
+          "version": "0.6.2"
+        },
+        "node_4": {
+          "_path": "/api/v1/capabilities",
+          "features": {
+            "auto_consolidation": false,
+            "auto_tagging": false,
+            "contradiction_analysis": false,
+            "cross_encoder_reranking": false,
+            "embedder_loaded": true,
+            "hybrid_recall": true,
+            "keyword_search": true,
+            "memory_reflection": false,
+            "query_expansion": false,
+            "semantic_search": true
+          },
+          "models": {
+            "cross_encoder": "none",
+            "embedding": "sentence-transformers/all-MiniLM-L6-v2",
+            "embedding_dim": 384,
+            "llm": "none"
+          },
+          "tier": "semantic",
+          "version": "0.6.2"
+        }
+      },
+      "reasons": [],
+      "scenario": "30",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "ironclaw",
+      "expected_live": 2,
+      "forget_http_code": 400,
+      "gc_http_code": 200,
+      "live_markers_per_peer": {
+        "node_1": 2,
+        "node_2": 2,
+        "node_3": 2,
+        "node_4": 2
+      },
+      "pass": true,
+      "reasons": [],
+      "scenario": "31",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "ironclaw",
+      "bob_inbox_count": 1,
+      "bob_sees_marker": true,
+      "charlie_inbox_count": 0,
+      "charlie_sees_marker": false,
+      "marker": "inb-30d272689da141e9ae2dd2446b95f884",
+      "notify_http_code": 201,
+      "pass": true,
+      "reasons": [],
+      "scenario": "32",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "ironclaw",
+      "m1_delivered": 1,
+      "namespace": "scenario33-pubsub-1d7f86",
+      "ns_in_subs_after": false,
+      "ns_in_subs_before": true,
+      "pass": true,
+      "reasons": [],
+      "scenario": "33",
+      "skipped": false,
+      "subscribe_http_code": 201,
+      "subscriptions_after_count": 0,
+      "subscriptions_before_count": 1,
+      "tls_mode": "mtls",
+      "unsubscribe_http_code": 200
+    },
+    {
+      "agent_group": "ironclaw",
+      "approve_http_code": 200,
+      "charlie_sees": {
+        "approved": 1,
+        "rejected": 0
+      },
+      "namespace": "scenario34-pending-e8933d",
+      "pass": true,
+      "pending_queue_count": 2,
+      "reasons": [],
+      "reject_http_code": 200,
+      "scenario": "34",
+      "set_standard_http_code": 201,
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "ironclaw",
+      "child_ns": "scenario35-parent-1677e3/child",
+      "clear_http_code": 200,
+      "get_standard_http_code": 200,
+      "parent_ns": "scenario35-parent-1677e3",
+      "pass": true,
+      "post_clear_has_child_rule": false,
+      "reasons": [],
+      "scenario": "35",
+      "sees_child_rule": true,
+      "sees_parent_rule": true,
+      "set_child_http_code": 201,
+      "set_parent_http_code": 201,
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "ironclaw",
+      "pass": true,
+      "reasons": [],
+      "scenario": "36",
+      "session_id": "5646146c-a3bb-4bd0-8493-7e6384893d24",
+      "session_tagged_rows_on_bob": 2,
+      "skipped": false,
+      "start_http_code": 200,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "ironclaw",
+      "forward_has_target": true,
+      "m1": "9a08ba2e-87fe-41df-addf-b93d0d38f145",
+      "m2": "b6cba3e8-07ae-47f6-a961-d98caa0e220d",
+      "pass": true,
+      "reasons": [],
+      "reverse_has_source": true,
+      "scenario": "37",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "ironclaw",
+      "dst_ns": "scenario38-dst-acab62",
+      "expected_rows": 5,
+      "export_http_code": 200,
+      "import_http_code": 200,
+      "markers_preserved": 5,
+      "pass": true,
+      "reasons": [],
+      "rows_exported": 5,
+      "rows_in_destination": 5,
+      "scenario": "38",
+      "skipped": false,
+      "src_ns": "scenario38-src-acab62",
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "ironclaw",
+      "checkpoint": "2026-04-24T05:18:49+00:00",
+      "diag_curl_body_head": "{\"count\":6,\"earliest_updated_at\":\"2026-04-24T05:19:22.308588695+00:00\",\"latest_updated_at\":\"2026-04-24T05:19:25.252464961+00:00\",\"limit\":500,\"memories\":[{\"access_count\":0,\"confidence\":1.0,\"content\":\"marker=delta-0-547d5f27e6d746438953ea32a6f535e4\",\"created_at\":\"2026-04-24T05:19:22.308588695+00:00\",\"",
+      "diag_curl_exit": 0,
+      "diag_curl_http_code": 200,
+      "diag_curl_stderr": "",
+      "diag_earliest_updated_at": "2026-04-24T05:19:22.308588695+00:00",
+      "diag_latest_updated_at": "2026-04-24T05:19:25.252464961+00:00",
+      "diag_node3_health_reachable": true,
+      "diag_updated_since": "2026-04-24T05:18:49+00:00",
+      "expected_markers": 6,
+      "markers_present": 6,
+      "namespace": "scenario39-delta-42d76a",
+      "pass": true,
+      "reasons": [],
+      "rows_returned": 6,
+      "rows_returned_raw": 6,
+      "scenario": "39",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "ironclaw",
+      "expected_per_agent": 30,
+      "pass": true,
+      "per_agent": {
+        "ai:alice": {
+          "count": 30,
+          "wrong_agent_id": 0
+        },
+        "ai:bob": {
+          "count": 30,
+          "wrong_agent_id": 0
+        },
+        "ai:charlie": {
+          "count": 30,
+          "wrong_agent_id": 0
+        }
+      },
+      "reasons": [],
+      "scenario": "4",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "ironclaw",
+      "bulk_http_code": "200",
+      "bulk_size": 500,
+      "namespace": "scenario40-bulk-39299f",
+      "pass": true,
+      "per_peer_count": {
+        "node_2": 500,
+        "node_3": 500,
+        "node_4": 500
+      },
+      "reasons": [],
+      "scenario": "40",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "activity_namespace": "scenario41-activity-ae39ed",
+      "agent_group": "ironclaw",
+      "pass": true,
+      "per_peer": {
+        "node_1": {
+          "counters_t0": 10,
+          "counters_t1": 10,
+          "regressed_keys": 0
+        },
+        "node_2": {
+          "counters_t0": 10,
+          "counters_t1": 10,
+          "regressed_keys": 0
+        },
+        "node_3": {
+          "counters_t0": 7,
+          "counters_t1": 7,
+          "regressed_keys": 0
+        }
+      },
+      "reasons": [],
+      "scenario": "41",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "ironclaw",
+      "namespaces": [
+        "scenario42-505116-0",
+        "scenario42-505116-1",
+        "scenario42-505116-2"
+      ],
+      "pass": true,
+      "per_peer": {
+        "node_1": {
+          "scenario42-505116-0": 2,
+          "scenario42-505116-1": 2,
+          "scenario42-505116-2": 2
+        },
+        "node_2": {
+          "scenario42-505116-0": 2,
+          "scenario42-505116-1": 2,
+          "scenario42-505116-2": 2
+        },
+        "node_3": {
+          "scenario42-505116-0": 2,
+          "scenario42-505116-1": 2,
+          "scenario42-505116-2": 2
+        },
+        "node_4": {
+          "scenario42-505116-0": 2,
+          "scenario42-505116-1": 2,
+          "scenario42-505116-2": 2
+        }
+      },
+      "reasons": [],
+      "scenario": "42",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "ironclaw",
+      "consolidate_http_code": 201,
+      "consolidated_from_agents": [
+        "ai:charlie",
+        "ai:bob",
+        "ai:alice"
+      ],
+      "consolidated_id": "e29bb6e6-25ba-4413-bc7a-1645522817d6",
+      "pass": true,
+      "reasons": [],
+      "scenario": "5",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "ironclaw",
+      "alice_id": "dcd3feae-2884-4b8a-97e2-1e38724159e8",
+      "bob_id": "44751cbc-7149-4157-9851-72fce6f4ab35",
+      "charlie_sees_both_memories": true,
+      "charlie_sees_contradicts_link": true,
+      "detect_http_code": 200,
+      "pass": true,
+      "reasons": [],
+      "scenario": "6",
+      "skipped": false,
+      "tls_mode": "mtls",
+      "topic": "sky-color-1b83efa3"
+    },
+    {
+      "agent_group": "ironclaw",
+      "charlie_view": {
+        "agent_id": "ai:alice",
+        "content": "v2-644d09c6424d4d90aba7280c8ba5e017"
+      },
+      "m1_id": "e9169b84-08b7-4e73-9afe-f819c6c0e3a4",
+      "pass": true,
+      "put_http_code": 200,
+      "reasons": [],
+      "scenario": "9",
+      "skipped": false,
+      "tls_mode": "mtls",
+      "v1_uuid": "v1-8268a12d80fa42e99d723c41d03a8e3d",
+      "v2_uuid": "v2-644d09c6424d4d90aba7280c8ba5e017"
+    }
+  ],
+  "reasons": [],
+  "meta": {
+    "campaign_id": "a2a-ironclaw-v0.6.2-patch2-r29-mtls",
+    "agent_group": "ironclaw",
+    "ai_memory_git_ref": "release/v0.6.2",
+    "infra": {
+      "provider": "digitalocean",
+      "region": "nyc3",
+      "droplet_size": "s-2vcpu-4gb",
+      "topology": "4-node federation mesh (W=2/N=4)",
+      "nodes": [
+        {
+          "index": 1,
+          "role": "agent",
+          "agent_id": "ai:alice",
+          "public_ip": "157.245.213.165",
+          "private_ip": "10.10.2.2"
+        },
+        {
+          "index": 2,
+          "role": "agent",
+          "agent_id": "ai:bob",
+          "public_ip": "104.131.170.128",
+          "private_ip": "10.10.2.5"
+        },
+        {
+          "index": 3,
+          "role": "agent",
+          "agent_id": "ai:charlie",
+          "public_ip": "165.227.105.24",
+          "private_ip": "10.10.2.4"
+        },
+        {
+          "index": 4,
+          "role": "memory-only",
+          "agent_id": null,
+          "public_ip": "164.90.134.87",
+          "private_ip": "10.10.2.3"
+        }
+      ]
+    },
+    "scenarios_requested": [
+      "1",
+      "1b",
+      "2",
+      "4",
+      "5",
+      "6",
+      "9",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14",
+      "15",
+      "16",
+      "17",
+      "18",
+      "22",
+      "23",
+      "24",
+      "25",
+      "28",
+      "29",
+      "30",
+      "31",
+      "32",
+      "33",
+      "34",
+      "35",
+      "36",
+      "37",
+      "38",
+      "39",
+      "40",
+      "41",
+      "42"
+    ],
+    "timing": {
+      "started_at": "2026-04-24T05:10:08Z",
+      "ended_at": "2026-04-24T05:21:25Z"
+    },
+    "ci": {
+      "actor": "alphaonedev",
+      "workflow_url": "https://github.com/alphaonedev/ai-memory-ai2ai-gate/actions/runs/24873094389",
+      "harness_sha": "aec5dad3c622c042954e0fab95f83d56a78fe535",
+      "runner_os": "Linux"
+    }
+  },
+  "skipped_reports": []
+}
