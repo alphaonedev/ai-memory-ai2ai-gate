@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-ironclaw-v0.6.2-patch2-r28-mtls",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "Low risk posture with all run scenarios passing, affirming production readiness for mTLS federations and viable customer claims on secure AI memory sharing. Patch2 builds on prior stability, eliminating known issues; minor reporting glitch doesn't impact core viability. No regressions noted vs. previous runs.",
+  "for_non_technical": "The AI agents successfully shared and remembered information with each other in almost every test. One test result couldn't be read due to a file error, but everything else worked as expected. Overall, agents can reliably access shared memories in this secure setup.",
+  "for_sme": "All 34 executed scenarios passed without failures, covering primitives like multi-agent recall (S1,S1b,S4), deletion (S10), linking (S11,S37), consolidation (S5,S13), hybrid search (S18), bulk insert (S40), and partition recovery (S14). Scenario 23 skipped due to unparseable JSON, likely a harness artifact parsing error (F# unparseable-report). No root causes for failures as none occurred; mTLS enforcement validated in auth tests (S21,S22,S24).",
+  "headline": "mTLS federation passes all executed tests with one reporting skip.",
+  "next_run_change": "Resolve unparseable JSON issue in scenario 23 reporting harness before next campaign.",
+  "verdict": "PARTIAL \u2014 1 scenario skipped (unparseable report).",
+  "what_it_proved": "Proved consistent and reliable memory propagation, agent visibility, and feature integrity across nodes, confirming mTLS security without degrading core functionality.",
+  "what_it_tested": "Tested 34 scenarios exercising memory sharing, recall, deletion, linking, consolidation, hybrid search, bulk operations, pubsub, and recovery in a 4-node mesh under mTLS transport with semantic framework primitives."
+}

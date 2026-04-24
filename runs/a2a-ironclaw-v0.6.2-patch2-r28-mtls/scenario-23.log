@@ -1,0 +1,29 @@
+payload sql: 61 bytes
+payload html: 66 bytes
+payload oversize: 1048576 bytes
+Traceback (most recent call last):
+  File "/home/runner/work/ai-memory-ai2ai-gate/ai-memory-ai2ai-gate/scripts/scenarios/23_malicious_content_fuzz.py", line 106, in <module>
+    main()
+  File "/home/runner/work/ai-memory-ai2ai-gate/ai-memory-ai2ai-gate/scripts/scenarios/23_malicious_content_fuzz.py", line 49, in main
+    rc, write_doc = h.write_memory(
+                    ^^^^^^^^^^^^^^^
+  File "/home/runner/work/ai-memory-ai2ai-gate/ai-memory-ai2ai-gate/scripts/a2a_harness.py", line 218, in write_memory
+    return self.http_on(node_ip, "POST", "/api/v1/memories",
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/ai-memory-ai2ai-gate/ai-memory-ai2ai-gate/scripts/a2a_harness.py", line 173, in http_on
+    result = self.ssh_exec(node_ip, remote_cmd, timeout=timeout)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/ai-memory-ai2ai-gate/ai-memory-ai2ai-gate/scripts/a2a_harness.py", line 119, in ssh_exec
+    return self._run(cmd, timeout=timeout, stdin=stdin)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/ai-memory-ai2ai-gate/ai-memory-ai2ai-gate/scripts/a2a_harness.py", line 103, in _run
+    return subprocess.run(
+           ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/usr/lib/python3.12/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+OSError: [Errno 7] Argument list too long: 'ssh'
