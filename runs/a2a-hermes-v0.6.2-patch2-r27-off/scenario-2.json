@@ -1,0 +1,1 @@
+{"ack_uuid": "a-cddb5cee4cc748a39c5b43dfbd556fb9", "agent_group": "hermes", "handoff_uuid": "h-c03a3fd146ff40d195e34d99541a6341", "pass": true, "path": "serve-http", "per_agent": {"ai:alice": {"sees_ack": 1}, "ai:bob": {"sees_handoff": 1}}, "reasons": [], "scenario": "2", "skipped": false, "tls_mode": "off"}
