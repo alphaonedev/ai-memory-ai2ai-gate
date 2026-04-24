@@ -1,0 +1,13 @@
+alice sets namespace standard on scenario34-pending-1b813e: write=approve, approver=ai:bob
+  set-standard returned HTTP 201
+settle 2s for standard settle
+alice writes two memories into the governed namespace (should land in pending)
+  p1=4cc69e77-2c55-4afe-a96d-266341f52365 p2=60c7dd29-ea6b-4007-9372-d2475600a451
+settle 4s for pending queue settle
+bob lists pending on node-2
+  pending queue has 2 entries
+bob approves p1, rejects p2
+  approve HTTP 200; reject HTTP 200
+settle 5s for decision fanout
+charlie reads the namespace — expects ONLY approved marker
+  charlie sees approved=1 rejected=0

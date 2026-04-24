@@ -1,0 +1,820 @@
+{
+  "campaign_id": "a2a-hermes-v0.6.2-patch2-r29-tls",
+  "agent_group": "hermes",
+  "ai_memory_git_ref": "release/v0.6.2",
+  "completed_at": "2026-04-24T04:59:21Z",
+  "overall_pass": true,
+  "scenarios": [
+    {
+      "agent_group": "hermes",
+      "expected_per_reader": 20,
+      "pass": true,
+      "per_agent": {
+        "ai:alice": {
+          "recall": 20
+        },
+        "ai:bob": {
+          "recall": 20
+        },
+        "ai:charlie": {
+          "recall": 20
+        }
+      },
+      "per_namespace_node4": {
+        "scenario1-ai:alice": {
+          "count": 10,
+          "wrong_agent_id": 0
+        },
+        "scenario1-ai:bob": {
+          "count": 10,
+          "wrong_agent_id": 0
+        },
+        "scenario1-ai:charlie": {
+          "count": 10,
+          "wrong_agent_id": 0
+        }
+      },
+      "reasons": [],
+      "scenario": "1",
+      "skipped": false,
+      "tls_mode": "tls"
+    },
+    {
+      "agent_group": "hermes",
+      "delete_http_code": 200,
+      "m1_id": "37967641-bd65-44bc-89da-d2ffd8e5f91c",
+      "pass": true,
+      "post_delete_hits": {
+        "node-2": 0,
+        "node-3": 0,
+        "node-4": 0
+      },
+      "post_delete_still_visible_peers": 0,
+      "pre_delete_visible_peers": 3,
+      "reasons": [],
+      "scenario": "10",
+      "skipped": false,
+      "tls_mode": "tls",
+      "uuid": "d-056c60b0a69b4fa99f03c6722fac461d"
+    },
+    {
+      "agent_group": "hermes",
+      "charlie_sees_link": 1,
+      "link_http_code": 201,
+      "m1_id": "08ab6399-d35b-48d4-90f1-91a67ccae1ad",
+      "m2_id": "2cf78887-d4c8-4709-b022-bc21607592ee",
+      "pass": true,
+      "reasons": [],
+      "relation": "related_to",
+      "scenario": "11",
+      "skipped": false,
+      "tls_mode": "tls"
+    },
+    {
+      "agent_group": "hermes",
+      "pass": true,
+      "peers_see": {
+        "node_2": 1,
+        "node_3": 1,
+        "node_4": 1
+      },
+      "reasons": [],
+      "register_http_code": 201,
+      "registered_agent": "ai:dave-probe-fe65d73d",
+      "scenario": "12",
+      "skipped": false,
+      "tls_mode": "tls"
+    },
+    {
+      "agent_group": "hermes",
+      "m1_id": "79fc6ddc-176d-4925-8c13-45cbb8070949",
+      "pass": true,
+      "peer_view": {
+        "node_1": "vb-b88f1c9c961e481d9363404c53ed20f3",
+        "node_2": "vb-b88f1c9c961e481d9363404c53ed20f3",
+        "node_3": "vb-b88f1c9c961e481d9363404c53ed20f3",
+        "node_4": "vb-b88f1c9c961e481d9363404c53ed20f3"
+      },
+      "reasons": [],
+      "scenario": "13",
+      "skipped": false,
+      "submitted": {
+        "v0": "v0-9a97085636c445cd9203deb30ac07a7d",
+        "vA_alice": "va-7be801f3ac634574be031d7c2fe128f9",
+        "vB_bob": "vb-b88f1c9c961e481d9363404c53ed20f3"
+      },
+      "tls_mode": "tls"
+    },
+    {
+      "agent_group": "hermes",
+      "expected_post_recovery": 20,
+      "node3_saw": 20,
+      "partition_target": "node-3",
+      "pass": true,
+      "reasons": [],
+      "scenario": "14",
+      "skipped": false,
+      "tls_mode": "tls"
+    },
+    {
+      "agent_group": "hermes",
+      "pass": true,
+      "reasons": [],
+      "scenario": "15",
+      "skipped": false,
+      "tls_mode": "tls",
+      "uuid": "ryw-716c4e2dd2664f2d8ba2e68328911d75",
+      "writer_sees_own_write": 1
+    },
+    {
+      "agent_group": "hermes",
+      "bob_sees_tier": "long",
+      "m1_id": "74931404-ad34-422c-a607-46dd65c03721",
+      "pass": true,
+      "promote_http_code": 200,
+      "reasons": [],
+      "scenario": "16",
+      "skipped": false,
+      "tls_mode": "tls"
+    },
+    {
+      "agent_group": "hermes",
+      "expected_count": 15,
+      "pass": true,
+      "per_peer": {
+        "node_1": 15,
+        "node_2": 15,
+        "node_3": 15,
+        "node_4": 15
+      },
+      "reasons": [],
+      "scenario": "17",
+      "skipped": false,
+      "tls_mode": "tls"
+    },
+    {
+      "agent_group": "hermes",
+      "diag_list_alice_present": 1,
+      "diag_list_bob_present": 1,
+      "diag_node3_embedding_probe": "dawn-walk|1536|BYTES | ridge-strides|1536|BYTES",
+      "pass": true,
+      "query": "morning outdoor exercise routine",
+      "reasons": [],
+      "recall_mode": "hybrid",
+      "rows_in_recall": 2,
+      "scenario": "18",
+      "skipped": false,
+      "tls_mode": "tls",
+      "writers": [
+        {
+          "agent": "ai:alice",
+          "marker": "alice-sunrise-e35c0e08",
+          "seen_by_charlie": 1
+        },
+        {
+          "agent": "ai:bob",
+          "marker": "bob-daybreak-56b8bf3b",
+          "seen_by_charlie": 1
+        }
+      ]
+    },
+    {
+      "agent_group": "hermes",
+      "expected_per_reader": 20,
+      "pass": true,
+      "path": "serve-http",
+      "per_agent": {
+        "ai:alice": {
+          "recall": 20
+        },
+        "ai:bob": {
+          "recall": 20
+        },
+        "ai:charlie": {
+          "recall": 20
+        }
+      },
+      "per_namespace_node4": {
+        "scenario1b-ai:alice": {
+          "count": 10,
+          "wrong_agent_id": 0
+        },
+        "scenario1b-ai:bob": {
+          "count": 10,
+          "wrong_agent_id": 0
+        },
+        "scenario1b-ai:charlie": {
+          "count": 10,
+          "wrong_agent_id": 0
+        }
+      },
+      "reasons": [],
+      "scenario": "1b",
+      "skipped": false,
+      "tls_mode": "tls"
+    },
+    {
+      "ack_uuid": "a-daadd99f7dda43d086ab4cc04e8a7716",
+      "agent_group": "hermes",
+      "handoff_uuid": "h-44836882957e49978e9a2b5281711bfb",
+      "pass": true,
+      "path": "serve-http",
+      "per_agent": {
+        "ai:alice": {
+          "sees_ack": 1
+        },
+        "ai:bob": {
+          "sees_handoff": 1
+        }
+      },
+      "reasons": [],
+      "scenario": "2",
+      "skipped": false,
+      "tls_mode": "tls"
+    },
+    {
+      "agent_group": "hermes",
+      "pass": true,
+      "reasons": [],
+      "scenario": "22",
+      "skipped": false,
+      "tests": {
+        "body_vs_header_conflict": {
+          "acceptable": [
+            "ai:body-wins",
+            "ai:attacker"
+          ],
+          "stored_agent_id": "ai:attacker"
+        },
+        "header_only": {
+          "expected": "ai:alice",
+          "stored_agent_id": "ai:alice"
+        }
+      },
+      "tls_mode": "tls"
+    },
+    {
+      "agent_group": "hermes",
+      "pass": true,
+      "payloads": {
+        "html": {
+          "input_bytes": 66,
+          "roundtrip_bytes": 66,
+          "write_http": 201
+        },
+        "oversize": {
+          "input_bytes": 1048576,
+          "roundtrip_bytes": 0,
+          "write_http": 400
+        },
+        "sql": {
+          "input_bytes": 61,
+          "roundtrip_bytes": 61,
+          "write_http": 201
+        },
+        "unicode": {
+          "input_bytes": 19,
+          "roundtrip_bytes": 19,
+          "write_http": 201
+        }
+      },
+      "payloads_note": "accept+faithful OR 4xx reject both acceptable for oversize",
+      "reasons": [],
+      "scenario": "23",
+      "skipped": false,
+      "tls_mode": "tls"
+    },
+    {
+      "agent_group": "hermes",
+      "byzantine_marker": "bz-d30ee7409da143ea9068068eea83a077",
+      "pass": true,
+      "reasons": [],
+      "scenario": "24",
+      "skipped": false,
+      "stored_metadata_agent_id": "REJECTED_BY_SERVER",
+      "sync_push_http_code": "422",
+      "tls_mode": "tls"
+    },
+    {
+      "agent_group": "hermes",
+      "clock_offset_seconds": 300,
+      "marker": "ck-4c60898f341a4e0ab0a3308ea53ebee7",
+      "pass": true,
+      "reasons": [],
+      "scenario": "25",
+      "seen_on": {
+        "node_1": 1,
+        "node_3": 1
+      },
+      "skipped": false,
+      "target_node": "node-3",
+      "tls_mode": "tls"
+    },
+    {
+      "agent_group": "hermes",
+      "pass": true,
+      "peer_hits": {
+        "node_2": 1,
+        "node_3": 1
+      },
+      "reasons": [],
+      "scenario": "28",
+      "skipped": false,
+      "tls_mode": "tls",
+      "token": "kwsearch11e7f3e7df"
+    },
+    {
+      "agent_group": "hermes",
+      "archive_http_code": 200,
+      "bob_sees_archived": true,
+      "m1_id": "c07e5ede-0012-4e3c-931a-f6e8f984c6a9",
+      "node4_active_rows": 1,
+      "pass": true,
+      "reasons": [],
+      "restore_http_code": 200,
+      "scenario": "29",
+      "skipped": false,
+      "stats_shape_ok": true,
+      "tls_mode": "tls"
+    },
+    {
+      "agent_group": "hermes",
+      "pass": true,
+      "peer_views": {
+        "node_1": {
+          "_path": "/api/v1/capabilities",
+          "features": {
+            "auto_consolidation": false,
+            "auto_tagging": false,
+            "contradiction_analysis": false,
+            "cross_encoder_reranking": false,
+            "embedder_loaded": true,
+            "hybrid_recall": true,
+            "keyword_search": true,
+            "memory_reflection": false,
+            "query_expansion": false,
+            "semantic_search": true
+          },
+          "models": {
+            "cross_encoder": "none",
+            "embedding": "sentence-transformers/all-MiniLM-L6-v2",
+            "embedding_dim": 384,
+            "llm": "none"
+          },
+          "tier": "semantic",
+          "version": "0.6.2"
+        },
+        "node_2": {
+          "_path": "/api/v1/capabilities",
+          "features": {
+            "auto_consolidation": false,
+            "auto_tagging": false,
+            "contradiction_analysis": false,
+            "cross_encoder_reranking": false,
+            "embedder_loaded": true,
+            "hybrid_recall": true,
+            "keyword_search": true,
+            "memory_reflection": false,
+            "query_expansion": false,
+            "semantic_search": true
+          },
+          "models": {
+            "cross_encoder": "none",
+            "embedding": "sentence-transformers/all-MiniLM-L6-v2",
+            "embedding_dim": 384,
+            "llm": "none"
+          },
+          "tier": "semantic",
+          "version": "0.6.2"
+        },
+        "node_3": {
+          "_path": "/api/v1/capabilities",
+          "features": {
+            "auto_consolidation": false,
+            "auto_tagging": false,
+            "contradiction_analysis": false,
+            "cross_encoder_reranking": false,
+            "embedder_loaded": true,
+            "hybrid_recall": true,
+            "keyword_search": true,
+            "memory_reflection": false,
+            "query_expansion": false,
+            "semantic_search": true
+          },
+          "models": {
+            "cross_encoder": "none",
+            "embedding": "sentence-transformers/all-MiniLM-L6-v2",
+            "embedding_dim": 384,
+            "llm": "none"
+          },
+          "tier": "semantic",
+          "version": "0.6.2"
+        },
+        "node_4": {
+          "_path": "/api/v1/capabilities",
+          "features": {
+            "auto_consolidation": false,
+            "auto_tagging": false,
+            "contradiction_analysis": false,
+            "cross_encoder_reranking": false,
+            "embedder_loaded": true,
+            "hybrid_recall": true,
+            "keyword_search": true,
+            "memory_reflection": false,
+            "query_expansion": false,
+            "semantic_search": true
+          },
+          "models": {
+            "cross_encoder": "none",
+            "embedding": "sentence-transformers/all-MiniLM-L6-v2",
+            "embedding_dim": 384,
+            "llm": "none"
+          },
+          "tier": "semantic",
+          "version": "0.6.2"
+        }
+      },
+      "reasons": [],
+      "scenario": "30",
+      "skipped": false,
+      "tls_mode": "tls"
+    },
+    {
+      "agent_group": "hermes",
+      "expected_live": 2,
+      "forget_http_code": 400,
+      "gc_http_code": 200,
+      "live_markers_per_peer": {
+        "node_1": 2,
+        "node_2": 2,
+        "node_3": 2,
+        "node_4": 2
+      },
+      "pass": true,
+      "reasons": [],
+      "scenario": "31",
+      "skipped": false,
+      "tls_mode": "tls"
+    },
+    {
+      "agent_group": "hermes",
+      "bob_inbox_count": 1,
+      "bob_sees_marker": true,
+      "charlie_inbox_count": 0,
+      "charlie_sees_marker": false,
+      "marker": "inb-74293624a4774b8dad4f3bb97e2f1086",
+      "notify_http_code": 201,
+      "pass": true,
+      "reasons": [],
+      "scenario": "32",
+      "skipped": false,
+      "tls_mode": "tls"
+    },
+    {
+      "agent_group": "hermes",
+      "m1_delivered": 1,
+      "namespace": "scenario33-pubsub-7e6008",
+      "ns_in_subs_after": false,
+      "ns_in_subs_before": true,
+      "pass": true,
+      "reasons": [],
+      "scenario": "33",
+      "skipped": false,
+      "subscribe_http_code": 201,
+      "subscriptions_after_count": 0,
+      "subscriptions_before_count": 1,
+      "tls_mode": "tls",
+      "unsubscribe_http_code": 200
+    },
+    {
+      "agent_group": "hermes",
+      "approve_http_code": 200,
+      "charlie_sees": {
+        "approved": 1,
+        "rejected": 0
+      },
+      "namespace": "scenario34-pending-1b813e",
+      "pass": true,
+      "pending_queue_count": 2,
+      "reasons": [],
+      "reject_http_code": 200,
+      "scenario": "34",
+      "set_standard_http_code": 201,
+      "skipped": false,
+      "tls_mode": "tls"
+    },
+    {
+      "agent_group": "hermes",
+      "child_ns": "scenario35-parent-59a0d3/child",
+      "clear_http_code": 200,
+      "get_standard_http_code": 200,
+      "parent_ns": "scenario35-parent-59a0d3",
+      "pass": true,
+      "post_clear_has_child_rule": false,
+      "reasons": [],
+      "scenario": "35",
+      "sees_child_rule": true,
+      "sees_parent_rule": true,
+      "set_child_http_code": 201,
+      "set_parent_http_code": 201,
+      "skipped": false,
+      "tls_mode": "tls"
+    },
+    {
+      "agent_group": "hermes",
+      "pass": true,
+      "reasons": [],
+      "scenario": "36",
+      "session_id": "bad22006-7238-4192-ab67-a3c0133074dd",
+      "session_tagged_rows_on_bob": 2,
+      "skipped": false,
+      "start_http_code": 200,
+      "tls_mode": "tls"
+    },
+    {
+      "agent_group": "hermes",
+      "forward_has_target": true,
+      "m1": "cf90a42e-6e20-48cf-97b3-ef9792b50bb4",
+      "m2": "c2a54318-dd89-4da9-b9bb-a886ee635b9f",
+      "pass": true,
+      "reasons": [],
+      "reverse_has_source": true,
+      "scenario": "37",
+      "skipped": false,
+      "tls_mode": "tls"
+    },
+    {
+      "agent_group": "hermes",
+      "dst_ns": "scenario38-dst-540d08",
+      "expected_rows": 5,
+      "export_http_code": 200,
+      "import_http_code": 200,
+      "markers_preserved": 5,
+      "pass": true,
+      "reasons": [],
+      "rows_exported": 5,
+      "rows_in_destination": 5,
+      "scenario": "38",
+      "skipped": false,
+      "src_ns": "scenario38-src-540d08",
+      "tls_mode": "tls"
+    },
+    {
+      "agent_group": "hermes",
+      "checkpoint": "2026-04-24T04:57:12+00:00",
+      "diag_curl_body_head": "{\"count\":6,\"earliest_updated_at\":\"2026-04-24T04:57:44.919440071+00:00\",\"latest_updated_at\":\"2026-04-24T04:57:47.524049130+00:00\",\"limit\":500,\"memories\":[{\"access_count\":0,\"confidence\":1.0,\"content\":\"marker=delta-0-decd067c691a43cd8df4574e378b62e1\",\"created_at\":\"2026-04-24T04:57:44.919440071+00:00\",\"",
+      "diag_curl_exit": 0,
+      "diag_curl_http_code": 200,
+      "diag_curl_stderr": "",
+      "diag_earliest_updated_at": "2026-04-24T04:57:44.919440071+00:00",
+      "diag_latest_updated_at": "2026-04-24T04:57:47.524049130+00:00",
+      "diag_node3_health_reachable": true,
+      "diag_updated_since": "2026-04-24T04:57:12+00:00",
+      "expected_markers": 6,
+      "markers_present": 6,
+      "namespace": "scenario39-delta-44c985",
+      "pass": true,
+      "reasons": [],
+      "rows_returned": 6,
+      "rows_returned_raw": 6,
+      "scenario": "39",
+      "skipped": false,
+      "tls_mode": "tls"
+    },
+    {
+      "agent_group": "hermes",
+      "expected_per_agent": 30,
+      "pass": true,
+      "per_agent": {
+        "ai:alice": {
+          "count": 30,
+          "wrong_agent_id": 0
+        },
+        "ai:bob": {
+          "count": 30,
+          "wrong_agent_id": 0
+        },
+        "ai:charlie": {
+          "count": 30,
+          "wrong_agent_id": 0
+        }
+      },
+      "reasons": [],
+      "scenario": "4",
+      "skipped": false,
+      "tls_mode": "tls"
+    },
+    {
+      "agent_group": "hermes",
+      "bulk_http_code": "200",
+      "bulk_size": 500,
+      "namespace": "scenario40-bulk-ef3ef3",
+      "pass": true,
+      "per_peer_count": {
+        "node_2": 500,
+        "node_3": 500,
+        "node_4": 500
+      },
+      "reasons": [],
+      "scenario": "40",
+      "skipped": false,
+      "tls_mode": "tls"
+    },
+    {
+      "activity_namespace": "scenario41-activity-637a35",
+      "agent_group": "hermes",
+      "pass": true,
+      "per_peer": {
+        "node_1": {
+          "counters_t0": 10,
+          "counters_t1": 10,
+          "regressed_keys": 0
+        },
+        "node_2": {
+          "counters_t0": 10,
+          "counters_t1": 10,
+          "regressed_keys": 0
+        },
+        "node_3": {
+          "counters_t0": 7,
+          "counters_t1": 7,
+          "regressed_keys": 0
+        }
+      },
+      "reasons": [],
+      "scenario": "41",
+      "skipped": false,
+      "tls_mode": "tls"
+    },
+    {
+      "agent_group": "hermes",
+      "namespaces": [
+        "scenario42-8adcbe-0",
+        "scenario42-8adcbe-1",
+        "scenario42-8adcbe-2"
+      ],
+      "pass": true,
+      "per_peer": {
+        "node_1": {
+          "scenario42-8adcbe-0": 2,
+          "scenario42-8adcbe-1": 2,
+          "scenario42-8adcbe-2": 2
+        },
+        "node_2": {
+          "scenario42-8adcbe-0": 2,
+          "scenario42-8adcbe-1": 2,
+          "scenario42-8adcbe-2": 2
+        },
+        "node_3": {
+          "scenario42-8adcbe-0": 2,
+          "scenario42-8adcbe-1": 2,
+          "scenario42-8adcbe-2": 2
+        },
+        "node_4": {
+          "scenario42-8adcbe-0": 2,
+          "scenario42-8adcbe-1": 2,
+          "scenario42-8adcbe-2": 2
+        }
+      },
+      "reasons": [],
+      "scenario": "42",
+      "skipped": false,
+      "tls_mode": "tls"
+    },
+    {
+      "agent_group": "hermes",
+      "consolidate_http_code": 201,
+      "consolidated_from_agents": [
+        "ai:charlie",
+        "ai:bob",
+        "ai:alice"
+      ],
+      "consolidated_id": "c7abeb22-8147-42ca-89ef-576117932054",
+      "pass": true,
+      "reasons": [],
+      "scenario": "5",
+      "skipped": false,
+      "tls_mode": "tls"
+    },
+    {
+      "agent_group": "hermes",
+      "alice_id": "6bf32bc8-7f5f-4f4f-90c9-44fec0e0d264",
+      "bob_id": "50aceaec-49f4-429c-a3e4-5f0129f9f90d",
+      "charlie_sees_both_memories": true,
+      "charlie_sees_contradicts_link": true,
+      "detect_http_code": 200,
+      "pass": true,
+      "reasons": [],
+      "scenario": "6",
+      "skipped": false,
+      "tls_mode": "tls",
+      "topic": "sky-color-daf3d59b"
+    },
+    {
+      "agent_group": "hermes",
+      "charlie_view": {
+        "agent_id": "ai:alice",
+        "content": "v2-a097732f4e9741a793fc6ae2a29976ea"
+      },
+      "m1_id": "1589856a-8777-405e-a45b-6bb8ce03ecc2",
+      "pass": true,
+      "put_http_code": 200,
+      "reasons": [],
+      "scenario": "9",
+      "skipped": false,
+      "tls_mode": "tls",
+      "v1_uuid": "v1-dd1d753430cf402f8bf09bdf9ba15b33",
+      "v2_uuid": "v2-a097732f4e9741a793fc6ae2a29976ea"
+    }
+  ],
+  "reasons": [],
+  "meta": {
+    "campaign_id": "a2a-hermes-v0.6.2-patch2-r29-tls",
+    "agent_group": "hermes",
+    "ai_memory_git_ref": "release/v0.6.2",
+    "infra": {
+      "provider": "digitalocean",
+      "region": "nyc3",
+      "droplet_size": "s-2vcpu-4gb",
+      "topology": "4-node federation mesh (W=2/N=4)",
+      "nodes": [
+        {
+          "index": 1,
+          "role": "agent",
+          "agent_id": "ai:alice",
+          "public_ip": "161.35.138.58",
+          "private_ip": "10.11.1.4"
+        },
+        {
+          "index": 2,
+          "role": "agent",
+          "agent_id": "ai:bob",
+          "public_ip": "157.245.8.221",
+          "private_ip": "10.11.1.5"
+        },
+        {
+          "index": 3,
+          "role": "agent",
+          "agent_id": "ai:charlie",
+          "public_ip": "104.236.211.131",
+          "private_ip": "10.11.1.3"
+        },
+        {
+          "index": 4,
+          "role": "memory-only",
+          "agent_id": null,
+          "public_ip": "104.131.38.162",
+          "private_ip": "10.11.1.2"
+        }
+      ]
+    },
+    "scenarios_requested": [
+      "1",
+      "1b",
+      "2",
+      "4",
+      "5",
+      "6",
+      "9",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14",
+      "15",
+      "16",
+      "17",
+      "18",
+      "22",
+      "23",
+      "24",
+      "25",
+      "28",
+      "29",
+      "30",
+      "31",
+      "32",
+      "33",
+      "34",
+      "35",
+      "36",
+      "37",
+      "38",
+      "39",
+      "40",
+      "41",
+      "42"
+    ],
+    "timing": {
+      "started_at": "2026-04-24T04:47:54Z",
+      "ended_at": "2026-04-24T04:59:20Z"
+    },
+    "ci": {
+      "actor": "alphaonedev",
+      "workflow_url": "https://github.com/alphaonedev/ai-memory-ai2ai-gate/actions/runs/24872347372",
+      "harness_sha": "ad3db57b6a3308074f7a9a08e42744a8ba118229",
+      "runner_os": "Linux"
+    }
+  },
+  "skipped_reports": []
+}

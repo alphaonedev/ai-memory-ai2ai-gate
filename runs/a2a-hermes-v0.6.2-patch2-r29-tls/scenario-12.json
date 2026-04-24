@@ -1,0 +1,1 @@
+{"agent_group": "hermes", "pass": true, "peers_see": {"node_2": 1, "node_3": 1, "node_4": 1}, "reasons": [], "register_http_code": 201, "registered_agent": "ai:dave-probe-fe65d73d", "scenario": "12", "skipped": false, "tls_mode": "tls"}
