@@ -1,0 +1,4 @@
+  node-1 capabilities: ['features', 'models', 'tier', 'version', '_path']
+  node-2 capabilities: ['features', 'models', 'tier', 'version', '_path']
+  node-3 capabilities: ['features', 'models', 'tier', 'version', '_path']
+  node-4 capabilities: ['features', 'models', 'tier', 'version', '_path']

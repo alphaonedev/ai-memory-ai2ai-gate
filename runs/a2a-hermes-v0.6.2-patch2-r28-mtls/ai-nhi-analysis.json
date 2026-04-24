@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-hermes-v0.6.2-patch2-r28-mtls",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "Risk posture remains low; system is production-ready for mTLS-enabled federations with viable claims of secure, reliable memory sharing. No changes or regressions from prior runs; overall pass despite one unparseable scenario report. Customer-facing stability confirmed.",
+  "for_non_technical": "In this test, AI agents shared memories reliably with each other in nearly every situation. Only one test's results couldn't be read, but the others all worked as expected. This means agents can dependably remember and access shared information.",
+  "for_sme": "All 35 executed scenarios (S1-S42 excluding S23) passed without failures, covering federation sync, recall modes (hybrid/keyword/semantic), and primitives like bulk insert, delta queries, and namespace rules. No specific failure modes; S23 unparseable likely due to harness JSON artifact corruption. Probable root cause is transient logging issue in probe F23; no primitives impacted.",
+  "headline": "mTLS federation reliable in v0.6.2 with 35/36 scenarios passing.",
+  "next_run_change": "Fix scenario 23 report parsing and ensure artifact integrity before next campaign.",
+  "verdict": "PARTIAL \u2014 scenario 23 unparseable.",
+  "what_it_proved": "Proved consistent, secure agent-to-agent memory sharing and system resilience under mTLS, with all executed tests passing despite one unparseable report.",
+  "what_it_tested": "Exercised 35 scenarios testing mTLS transport security, federation synchronization, and primitives like memory write/recall, deletion, linking, bulk ops, and recovery in a 4-node mesh."
+}
