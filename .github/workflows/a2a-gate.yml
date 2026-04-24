@@ -613,7 +613,13 @@ jobs:
           BASE="${{ github.event.inputs.scenarios }}"
           EXTRA=""
           case "${TLS_MODE}" in
-            tls)  EXTRA="$EXTRA 20" ;;
+            # S20 mtls_happy_path requires a client cert — applicable to
+            # mtls only. Earlier the tls branch also appended S20 which
+            # caused the scenario to self-skip every tls run (spec count
+            # 35 but only 34 usable results). Dropped in 2026-04-24 per
+            # discussion on issue — v3r28 tls cells were 34/34 real pass
+            # with S20 as a bookkeeping skip; removing the append makes
+            # the denominator honest.
             mtls) EXTRA="$EXTRA 20 21" ;;
           esac
           case "${AGENT_GROUP}" in

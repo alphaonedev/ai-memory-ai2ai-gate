@@ -183,7 +183,7 @@ Active on `release/v0.6.2` + source-build (v0.6.2 Patch 2, release freeze active
 
 **Matrix** (2 frameworks × 3 transport modes, updated per campaign):
 
-| | off (34) | tls (35) | mtls (36) |
+| | off (34) | tls (34) | mtls (36) |
 |---|---|---|---|
 | **ironclaw** | 32 / 34 (v3r23) | 32 / 35 (v3r23) | **34 / 36** (v3r23) |
 | **hermes**   | 32 / 34 (v3r23) | 32 / 35 (v3r23) | **34 / 36** (v3r23) |

@@ -66,7 +66,7 @@ If a step exceeds its timeout: cancel & diagnose (don't wait for job cap).
 
 All cells now run on `release/v0.6.2` + `ai_memory_source_build=true` (v0.6.2 Patch 2 release freeze, memory `74698d94`). PR #357 @ `0ad00ed` is the source of truth.
 
-| | off (34) | tls (35) | mtls (36) |
+| | off (34) | tls (34) | mtls (36) |
 |---|---|---|---|
 | **ironclaw** | ✅ v3r23 32/34 | ⚠️ v3r23 32/35 | ✅ v3r23 34/36 |
 | **hermes**   | ✅ v3r23 32/34 | ⚠️ v3r23 32/35 | ✅ v3r23 34/36 |
