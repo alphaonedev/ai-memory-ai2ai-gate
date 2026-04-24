@@ -171,7 +171,7 @@ jobs:
               "$rows_hermes"
             if [ -s "$rows_openclaw" ]; then
               emit_section "OpenClaw campaigns" \
-                "All agent droplets / containers in each campaign run OpenClaw (Python). First-class as of 2026-04-24. Campaigns suffixed \`-local-docker-*\` use the 4-node Docker mesh per docs/local-docker-mesh.md; others use DO General Purpose tier droplets." \
+                "All agent droplets / containers in each campaign run OpenClaw (Python). First-class as of 2026-04-24.<br/><br/>**⚠ Infrastructure note:** campaigns suffixed \`-local-docker-*\` were run on a **4-node Docker mesh on a single workstation** (3 openclaw containers + 1 memory-only aggregator, 16 GB per openclaw container). **No DigitalOcean infrastructure was provisioned for these runs** — they are fully local and reproducible per [docs/local-docker-mesh.md](../local-docker-mesh/). Other openclaw campaigns use DO General Purpose tier droplets." \
                 "$rows_openclaw"
             fi
           } > docs/runs/index.md

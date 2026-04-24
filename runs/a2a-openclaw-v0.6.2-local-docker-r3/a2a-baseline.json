@@ -1,0 +1,163 @@
+{
+  "baseline_pass": true,
+  "per_node": [
+    {
+      "spec_version": "1.4.0",
+      "agent_type": "openclaw",
+      "agent_id": "ai:alice",
+      "node_index": "1",
+      "framework_version": "OpenClaw 2026.4.22 (00bd2cf)",
+      "ai_memory_version": "0.6.2",
+      "peer_urls": "http://node-2:9077,http://node-3:9077,http://node-4:9077",
+      "config_attestation": {
+        "framework_is_authentic": true,
+        "mcp_server_ai_memory_registered": true,
+        "llm_backend_is_xai_grok": true,
+        "llm_is_default_provider": true,
+        "mcp_command_is_ai_memory": true,
+        "agent_id_stamped": true,
+        "federation_live": true,
+        "ufw_disabled": true,
+        "iptables_flushed": true,
+        "dead_man_switch_scheduled": "N/A (local-docker)",
+        "topology": "local-docker"
+      },
+      "negative_invariants": {
+        "_description": "Alternative A2A channels must be OFF so a passing scenario is only passing via ai-memory shared memory.",
+        "a2a_protocol_off": true,
+        "sub_agent_or_sessions_spawn_off": true,
+        "alternative_channels_off": true,
+        "tool_allowlist_is_memory_only": true,
+        "a2a_gate_profile_locked": true
+      },
+      "functional_probes": {
+        "substrate_http_canary_f2a": true,
+        "mesh_connectivity_f4": true,
+        "tls_handshake_f6": true,
+        "mtls_enforcement_f7": true,
+        "embedder_loaded_f8": true,
+        "_topology_note": "Local Docker mesh on a single workstation (3 openclaw agent containers + 1 memory-only aggregator). See docs/local-docker-mesh.md for reproducibility."
+      },
+      "baseline_pass": true
+    },
+    {
+      "spec_version": "1.4.0",
+      "agent_type": "openclaw",
+      "agent_id": "ai:bob",
+      "node_index": "2",
+      "framework_version": "OpenClaw 2026.4.22 (00bd2cf)",
+      "ai_memory_version": "0.6.2",
+      "peer_urls": "http://node-1:9077,http://node-3:9077,http://node-4:9077",
+      "config_attestation": {
+        "framework_is_authentic": true,
+        "mcp_server_ai_memory_registered": true,
+        "llm_backend_is_xai_grok": true,
+        "llm_is_default_provider": true,
+        "mcp_command_is_ai_memory": true,
+        "agent_id_stamped": true,
+        "federation_live": true,
+        "ufw_disabled": true,
+        "iptables_flushed": true,
+        "dead_man_switch_scheduled": "N/A (local-docker)",
+        "topology": "local-docker"
+      },
+      "negative_invariants": {
+        "_description": "Alternative A2A channels must be OFF so a passing scenario is only passing via ai-memory shared memory.",
+        "a2a_protocol_off": true,
+        "sub_agent_or_sessions_spawn_off": true,
+        "alternative_channels_off": true,
+        "tool_allowlist_is_memory_only": true,
+        "a2a_gate_profile_locked": true
+      },
+      "functional_probes": {
+        "substrate_http_canary_f2a": true,
+        "mesh_connectivity_f4": true,
+        "tls_handshake_f6": true,
+        "mtls_enforcement_f7": true,
+        "embedder_loaded_f8": true,
+        "_topology_note": "Local Docker mesh on a single workstation (3 openclaw agent containers + 1 memory-only aggregator). See docs/local-docker-mesh.md for reproducibility."
+      },
+      "baseline_pass": true
+    },
+    {
+      "spec_version": "1.4.0",
+      "agent_type": "openclaw",
+      "agent_id": "ai:charlie",
+      "node_index": "3",
+      "framework_version": "OpenClaw 2026.4.22 (00bd2cf)",
+      "ai_memory_version": "0.6.2",
+      "peer_urls": "http://node-1:9077,http://node-2:9077,http://node-4:9077",
+      "config_attestation": {
+        "framework_is_authentic": true,
+        "mcp_server_ai_memory_registered": true,
+        "llm_backend_is_xai_grok": true,
+        "llm_is_default_provider": true,
+        "mcp_command_is_ai_memory": true,
+        "agent_id_stamped": true,
+        "federation_live": true,
+        "ufw_disabled": true,
+        "iptables_flushed": true,
+        "dead_man_switch_scheduled": "N/A (local-docker)",
+        "topology": "local-docker"
+      },
+      "negative_invariants": {
+        "_description": "Alternative A2A channels must be OFF so a passing scenario is only passing via ai-memory shared memory.",
+        "a2a_protocol_off": true,
+        "sub_agent_or_sessions_spawn_off": true,
+        "alternative_channels_off": true,
+        "tool_allowlist_is_memory_only": true,
+        "a2a_gate_profile_locked": true
+      },
+      "functional_probes": {
+        "substrate_http_canary_f2a": true,
+        "mesh_connectivity_f4": true,
+        "tls_handshake_f6": true,
+        "mtls_enforcement_f7": true,
+        "embedder_loaded_f8": true,
+        "_topology_note": "Local Docker mesh on a single workstation (3 openclaw agent containers + 1 memory-only aggregator). See docs/local-docker-mesh.md for reproducibility."
+      },
+      "baseline_pass": true
+    },
+    {
+      "spec_version": "1.4.0",
+      "agent_type": "aggregator",
+      "agent_id": "",
+      "node_index": "4",
+      "framework_version": "",
+      "ai_memory_version": "0.6.2",
+      "peer_urls": "http://node-1:9077,http://node-2:9077,http://node-3:9077",
+      "config_attestation": {
+        "framework_is_authentic": true,
+        "mcp_server_ai_memory_registered": true,
+        "llm_backend_is_xai_grok": true,
+        "llm_is_default_provider": true,
+        "mcp_command_is_ai_memory": true,
+        "agent_id_stamped": true,
+        "federation_live": true,
+        "ufw_disabled": true,
+        "iptables_flushed": true,
+        "dead_man_switch_scheduled": "N/A (local-docker)",
+        "topology": "local-docker"
+      },
+      "negative_invariants": {
+        "_description": "Alternative A2A channels must be OFF so a passing scenario is only passing via ai-memory shared memory.",
+        "a2a_protocol_off": true,
+        "sub_agent_or_sessions_spawn_off": true,
+        "alternative_channels_off": true,
+        "tool_allowlist_is_memory_only": true,
+        "a2a_gate_profile_locked": true
+      },
+      "functional_probes": {
+        "substrate_http_canary_f2a": true,
+        "mesh_connectivity_f4": true,
+        "tls_handshake_f6": true,
+        "mtls_enforcement_f7": true,
+        "embedder_loaded_f8": true,
+        "_topology_note": "Local Docker mesh on a single workstation (3 openclaw agent containers + 1 memory-only aggregator). See docs/local-docker-mesh.md for reproducibility."
+      },
+      "baseline_pass": true
+    }
+  ],
+  "_topology": "local-docker",
+  "_topology_note": "Local Docker mesh on a single workstation (3 openclaw agent containers + 1 memory-only aggregator). See docs/local-docker-mesh.md for reproducibility."
+}
