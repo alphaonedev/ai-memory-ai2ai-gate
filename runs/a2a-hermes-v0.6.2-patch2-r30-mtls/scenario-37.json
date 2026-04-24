@@ -1,0 +1,1 @@
+{"agent_group": "hermes", "forward_has_target": true, "m1": "c02a4e0f-be27-4439-b10b-d75fd2acf66e", "m2": "3a5cc751-bbff-4ed8-bfd7-2c6b0db3336e", "pass": true, "reasons": [], "reverse_has_source": true, "scenario": "37", "skipped": false, "tls_mode": "mtls"}
