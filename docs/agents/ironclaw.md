@@ -12,10 +12,10 @@ OpenClaw is a Python-based agent framework whose install-time
 dependency graph pulls ~8 GB of ML / native packages. The a2a-gate
 harness consistently OOM'd during openclaw install on anything
 smaller than a DO 16 GB droplet (see `docs/incidents.md` r18). DO's
-General Purpose 16 GB slug is account-tier-restricted; the retired
-Basic `s-4vcpu-16gb` slug was renamed, Intel/AMD variants top out
-at 8 GB on Basic tier. Openclaw effectively required a paid
-account-tier upgrade to run end-to-end.
+General Purpose 16 GB slug is account-tier-restricted. Two paths
+out: (a) pay for the tier bump, or (b) run openclaw via the
+[local Docker mesh](../local-docker-mesh.md) which allocates 16 GB
+per container on a single workstation — no DO bill required.
 
 IronClaw is a Rust reimplementation from NEAR AI, advertising
 feature parity for agentic-loops + tool-use + MCP-client. Observed

@@ -1,0 +1,13 @@
+phase A: each agent writes 10 memories via MCP
+  ai:alice on a2a-node-1
+  ai:bob on a2a-node-2
+  ai:charlie on a2a-node-3
+settle 15s for W=2/N=4 convergence
+phase B: each agent counts rows in the OTHER two namespaces
+  ai:alice recalled 20 rows from the other two namespaces
+  ai:bob recalled 20 rows from the other two namespaces
+  ai:charlie recalled 20 rows from the other two namespaces
+phase C: cross-cluster identity check on node-4
+  ns=scenario1-ai:alice count=10 wrong_agent_id=0
+  ns=scenario1-ai:bob count=10 wrong_agent_id=0
+  ns=scenario1-ai:charlie count=10 wrong_agent_id=0

@@ -1,0 +1,71 @@
+# Copyright 2026 AlphaOne LLC
+# SPDX-License-Identifier: Apache-2.0
+#
+# Base ai-memory node image. Same ubuntu:24.04 footprint the DO
+# droplets run, with runtime deps only — no agent framework.
+#
+# Build context expects `ai-memory` binary at ./bin/ai-memory (produced
+# on the host by `cargo build --release` so we don't pay the 4-5 min
+# cargo compile per container).
+#
+# BUILD-TIME NETWORK NOTE: on hosts running Tailscale, the default
+# docker bridge's MASQUERADE out-interface gets dropped by Tailscale's
+# fwmark 0x80000/0xff0000 "unreachable" rule, breaking apt/curl in
+# the build container. Build with `--network host` to route the apt
+# fetch directly through the host's network namespace:
+#
+#   docker build --network host -t ai-memory-base:local -f Dockerfile.base .
+#
+# Once built, the runtime compose stack uses a user-defined bridge
+# which the issue does not affect for intra-mesh traffic.
+FROM ubuntu:24.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Default Docker bridge gives containers 8.8.8.8 which returns IPv6 first
+# for archive.ubuntu.com; Docker's bridge is IPv4-only so the container
+# gets AAAA records but no route. Force apt to IPv4 to avoid the silent
+# AAAA-then-hang pattern that wedged the first build.
+RUN echo 'Acquire::ForceIPv4 "true";' > /etc/apt/apt.conf.d/99force-ipv4 && \
+    apt-get update && apt-get install -y --no-install-recommends \
+      ca-certificates \
+      curl \
+      jq \
+      sqlite3 \
+      python3 \
+      python3-pip \
+      nodejs \
+      npm \
+      git \
+      netcat-openbsd \
+      iproute2 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY bin/ai-memory /usr/local/bin/ai-memory
+RUN chmod 0755 /usr/local/bin/ai-memory && /usr/local/bin/ai-memory --version
+
+# Pre-download MiniLM into the embedder's hard-coded fallback path so
+# `ai-memory serve` doesn't hang on hf-hub download at startup. Matches
+# setup_node.sh:236-255 — critical for S18 semantic recall and
+# required for the default `effective_tier()` = semantic path to bind
+# the HTTP socket without a live egress dependency. Without this the
+# serve process silently blocks on hf-hub before reaching `listen`.
+RUN mkdir -p /root/.cache/huggingface/hub/models--sentence-transformers--all-MiniLM-L6-v2/snapshots/main \
+    && cd /root/.cache/huggingface/hub/models--sentence-transformers--all-MiniLM-L6-v2/snapshots/main \
+    && for f in config.json tokenizer.json model.safetensors; do \
+         curl -sSfL --retry 3 --retry-delay 2 --max-time 120 \
+           -o "$f" \
+           "https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/$f" \
+         || { echo "FATAL: MiniLM $f pre-download failed"; exit 1; }; \
+       done \
+    && ls -la /root/.cache/huggingface/hub/models--sentence-transformers--all-MiniLM-L6-v2/snapshots/main
+
+RUN mkdir -p /var/lib/ai-memory /etc/ai-memory-a2a /var/log
+
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY drive_agent.sh /root/drive_agent.sh
+RUN chmod 0755 /usr/local/bin/entrypoint.sh /root/drive_agent.sh
+
+EXPOSE 9077
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

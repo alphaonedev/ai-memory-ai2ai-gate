@@ -1,0 +1,817 @@
+{
+  "campaign_id": "a2a-openclaw-v0.6.2-local-docker-r3",
+  "agent_group": "openclaw",
+  "ai_memory_git_ref": "release/v0.6.2",
+  "completed_at": "2026-04-24T14:11:06Z",
+  "overall_pass": true,
+  "scenarios": [
+    {
+      "agent_group": "openclaw",
+      "expected_per_reader": 20,
+      "pass": true,
+      "per_agent": {
+        "ai:alice": {
+          "recall": 20
+        },
+        "ai:bob": {
+          "recall": 20
+        },
+        "ai:charlie": {
+          "recall": 20
+        }
+      },
+      "per_namespace_node4": {
+        "scenario1-ai:alice": {
+          "count": 10,
+          "wrong_agent_id": 0
+        },
+        "scenario1-ai:bob": {
+          "count": 10,
+          "wrong_agent_id": 0
+        },
+        "scenario1-ai:charlie": {
+          "count": 10,
+          "wrong_agent_id": 0
+        }
+      },
+      "reasons": [],
+      "scenario": "1",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "openclaw",
+      "delete_http_code": 200,
+      "m1_id": "bc0c1869-c28b-4e16-baaf-bc730e422015",
+      "pass": true,
+      "post_delete_hits": {
+        "node-2": 0,
+        "node-3": 0,
+        "node-4": 0
+      },
+      "post_delete_still_visible_peers": 0,
+      "pre_delete_visible_peers": 3,
+      "reasons": [],
+      "scenario": "10",
+      "skipped": false,
+      "tls_mode": "off",
+      "uuid": "d-4b078b50c47242b886ecac9db58b70a1"
+    },
+    {
+      "agent_group": "openclaw",
+      "charlie_sees_link": 1,
+      "link_http_code": 201,
+      "m1_id": "41bd2010-bdc4-47bd-b912-7990185800c0",
+      "m2_id": "32da7804-b110-462c-8da5-96f02094f765",
+      "pass": true,
+      "reasons": [],
+      "relation": "related_to",
+      "scenario": "11",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "openclaw",
+      "pass": true,
+      "peers_see": {
+        "node_2": 1,
+        "node_3": 1,
+        "node_4": 1
+      },
+      "reasons": [],
+      "register_http_code": 201,
+      "registered_agent": "ai:dave-probe-5b6a8726",
+      "scenario": "12",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "openclaw",
+      "m1_id": "96cd3044-a503-42d0-833b-776c5e76765d",
+      "pass": true,
+      "peer_view": {
+        "node_1": "va-4f3f9fd3bf974643916a8970ac0ce3bd",
+        "node_2": "va-4f3f9fd3bf974643916a8970ac0ce3bd",
+        "node_3": "va-4f3f9fd3bf974643916a8970ac0ce3bd",
+        "node_4": "va-4f3f9fd3bf974643916a8970ac0ce3bd"
+      },
+      "reasons": [],
+      "scenario": "13",
+      "skipped": false,
+      "submitted": {
+        "v0": "v0-341fd0ba3a774e3b97c4eddda153507e",
+        "vA_alice": "va-4f3f9fd3bf974643916a8970ac0ce3bd",
+        "vB_bob": "vb-6f9680dfaf0c4233bab0bedc4055eeca"
+      },
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "openclaw",
+      "expected_post_recovery": 20,
+      "node3_saw": 20,
+      "partition_target": "node-3",
+      "pass": true,
+      "reasons": [],
+      "scenario": "14",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "openclaw",
+      "pass": true,
+      "reasons": [],
+      "scenario": "15",
+      "skipped": false,
+      "tls_mode": "off",
+      "uuid": "ryw-c9574e4e4bc34e4a9185ed3cf1ab4d6f",
+      "writer_sees_own_write": 1
+    },
+    {
+      "agent_group": "openclaw",
+      "bob_sees_tier": "long",
+      "m1_id": "8bb4d29d-4335-4da1-9187-b8671a78f0ef",
+      "pass": true,
+      "promote_http_code": 200,
+      "reasons": [],
+      "scenario": "16",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "openclaw",
+      "expected_count": 15,
+      "pass": true,
+      "per_peer": {
+        "node_1": 15,
+        "node_2": 15,
+        "node_3": 15,
+        "node_4": 15
+      },
+      "reasons": [],
+      "scenario": "17",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "openclaw",
+      "diag_list_alice_present": 1,
+      "diag_list_bob_present": 1,
+      "diag_node3_embedding_probe": "dawn-walk|1536|BYTES | ridge-strides|1536|BYTES",
+      "pass": true,
+      "query": "morning outdoor exercise routine",
+      "reasons": [],
+      "recall_mode": "hybrid",
+      "rows_in_recall": 2,
+      "scenario": "18",
+      "skipped": false,
+      "tls_mode": "off",
+      "writers": [
+        {
+          "agent": "ai:alice",
+          "marker": "alice-sunrise-f8e8cecc",
+          "seen_by_charlie": 1
+        },
+        {
+          "agent": "ai:bob",
+          "marker": "bob-daybreak-4f70a87a",
+          "seen_by_charlie": 1
+        }
+      ]
+    },
+    {
+      "agent_group": "openclaw",
+      "expected_per_reader": 20,
+      "pass": true,
+      "path": "serve-http",
+      "per_agent": {
+        "ai:alice": {
+          "recall": 20
+        },
+        "ai:bob": {
+          "recall": 20
+        },
+        "ai:charlie": {
+          "recall": 20
+        }
+      },
+      "per_namespace_node4": {
+        "scenario1b-ai:alice": {
+          "count": 10,
+          "wrong_agent_id": 0
+        },
+        "scenario1b-ai:bob": {
+          "count": 10,
+          "wrong_agent_id": 0
+        },
+        "scenario1b-ai:charlie": {
+          "count": 10,
+          "wrong_agent_id": 0
+        }
+      },
+      "reasons": [],
+      "scenario": "1b",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "ack_uuid": "a-487a9410ff974f76a24b14fb69de3825",
+      "agent_group": "openclaw",
+      "handoff_uuid": "h-cbf1ffd69b6a4afcb14d30ebe19c78f1",
+      "pass": true,
+      "path": "serve-http",
+      "per_agent": {
+        "ai:alice": {
+          "sees_ack": 1
+        },
+        "ai:bob": {
+          "sees_handoff": 1
+        }
+      },
+      "reasons": [],
+      "scenario": "2",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "openclaw",
+      "pass": true,
+      "reasons": [],
+      "scenario": "22",
+      "skipped": false,
+      "tests": {
+        "body_vs_header_conflict": {
+          "acceptable": [
+            "ai:body-wins",
+            "ai:attacker"
+          ],
+          "stored_agent_id": "ai:attacker"
+        },
+        "header_only": {
+          "expected": "ai:alice",
+          "stored_agent_id": "ai:alice"
+        }
+      },
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "openclaw",
+      "pass": true,
+      "payloads": {
+        "html": {
+          "input_bytes": 66,
+          "roundtrip_bytes": 66,
+          "write_http": 201
+        },
+        "oversize": {
+          "input_bytes": 1048576,
+          "roundtrip_bytes": 0,
+          "write_http": 400
+        },
+        "sql": {
+          "input_bytes": 61,
+          "roundtrip_bytes": 61,
+          "write_http": 201
+        },
+        "unicode": {
+          "input_bytes": 19,
+          "roundtrip_bytes": 19,
+          "write_http": 201
+        }
+      },
+      "payloads_note": "accept+faithful OR 4xx reject both acceptable for oversize",
+      "reasons": [],
+      "scenario": "23",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "openclaw",
+      "byzantine_marker": "bz-17bf0ef5da854ac489475721f5c38765",
+      "pass": true,
+      "reasons": [],
+      "scenario": "24",
+      "skipped": false,
+      "stored_metadata_agent_id": "REJECTED_BY_SERVER",
+      "sync_push_http_code": "422",
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "openclaw",
+      "clock_offset_seconds": 300,
+      "marker": "ck-0c18e7aa8bee478fa816d23c087e8103",
+      "pass": true,
+      "reasons": [],
+      "scenario": "25",
+      "seen_on": {
+        "node_1": 1,
+        "node_3": 1
+      },
+      "skipped": false,
+      "target_node": "node-3",
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "openclaw",
+      "pass": true,
+      "peer_hits": {
+        "node_2": 1,
+        "node_3": 1
+      },
+      "reasons": [],
+      "scenario": "28",
+      "skipped": false,
+      "tls_mode": "off",
+      "token": "kwsearchf61033c2d3"
+    },
+    {
+      "agent_group": "openclaw",
+      "archive_http_code": 200,
+      "bob_sees_archived": true,
+      "m1_id": "663409ce-cfee-44c8-b627-02d11edc70e2",
+      "node4_active_rows": 1,
+      "pass": true,
+      "reasons": [],
+      "restore_http_code": 200,
+      "scenario": "29",
+      "skipped": false,
+      "stats_shape_ok": true,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "openclaw",
+      "pass": true,
+      "peer_views": {
+        "node_1": {
+          "_path": "/api/v1/capabilities",
+          "features": {
+            "auto_consolidation": false,
+            "auto_tagging": false,
+            "contradiction_analysis": false,
+            "cross_encoder_reranking": false,
+            "embedder_loaded": true,
+            "hybrid_recall": true,
+            "keyword_search": true,
+            "memory_reflection": false,
+            "query_expansion": false,
+            "semantic_search": true
+          },
+          "models": {
+            "cross_encoder": "none",
+            "embedding": "sentence-transformers/all-MiniLM-L6-v2",
+            "embedding_dim": 384,
+            "llm": "none"
+          },
+          "tier": "semantic",
+          "version": "0.6.2"
+        },
+        "node_2": {
+          "_path": "/api/v1/capabilities",
+          "features": {
+            "auto_consolidation": false,
+            "auto_tagging": false,
+            "contradiction_analysis": false,
+            "cross_encoder_reranking": false,
+            "embedder_loaded": true,
+            "hybrid_recall": true,
+            "keyword_search": true,
+            "memory_reflection": false,
+            "query_expansion": false,
+            "semantic_search": true
+          },
+          "models": {
+            "cross_encoder": "none",
+            "embedding": "sentence-transformers/all-MiniLM-L6-v2",
+            "embedding_dim": 384,
+            "llm": "none"
+          },
+          "tier": "semantic",
+          "version": "0.6.2"
+        },
+        "node_3": {
+          "_path": "/api/v1/capabilities",
+          "features": {
+            "auto_consolidation": false,
+            "auto_tagging": false,
+            "contradiction_analysis": false,
+            "cross_encoder_reranking": false,
+            "embedder_loaded": true,
+            "hybrid_recall": true,
+            "keyword_search": true,
+            "memory_reflection": false,
+            "query_expansion": false,
+            "semantic_search": true
+          },
+          "models": {
+            "cross_encoder": "none",
+            "embedding": "sentence-transformers/all-MiniLM-L6-v2",
+            "embedding_dim": 384,
+            "llm": "none"
+          },
+          "tier": "semantic",
+          "version": "0.6.2"
+        },
+        "node_4": {
+          "_path": "/api/v1/capabilities",
+          "features": {
+            "auto_consolidation": false,
+            "auto_tagging": false,
+            "contradiction_analysis": false,
+            "cross_encoder_reranking": false,
+            "embedder_loaded": true,
+            "hybrid_recall": true,
+            "keyword_search": true,
+            "memory_reflection": false,
+            "query_expansion": false,
+            "semantic_search": true
+          },
+          "models": {
+            "cross_encoder": "none",
+            "embedding": "sentence-transformers/all-MiniLM-L6-v2",
+            "embedding_dim": 384,
+            "llm": "none"
+          },
+          "tier": "semantic",
+          "version": "0.6.2"
+        }
+      },
+      "reasons": [],
+      "scenario": "30",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "openclaw",
+      "expected_live": 2,
+      "forget_http_code": 400,
+      "gc_http_code": 200,
+      "live_markers_per_peer": {
+        "node_1": 2,
+        "node_2": 2,
+        "node_3": 2,
+        "node_4": 2
+      },
+      "pass": true,
+      "reasons": [],
+      "scenario": "31",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "openclaw",
+      "bob_inbox_count": 1,
+      "bob_sees_marker": true,
+      "charlie_inbox_count": 0,
+      "charlie_sees_marker": false,
+      "marker": "inb-d05dce01b3ec42ee82d30accc844bbf5",
+      "notify_http_code": 201,
+      "pass": true,
+      "reasons": [],
+      "scenario": "32",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "openclaw",
+      "m1_delivered": 1,
+      "namespace": "scenario33-pubsub-7ac176",
+      "ns_in_subs_after": false,
+      "ns_in_subs_before": true,
+      "pass": true,
+      "reasons": [],
+      "scenario": "33",
+      "skipped": false,
+      "subscribe_http_code": 201,
+      "subscriptions_after_count": 0,
+      "subscriptions_before_count": 1,
+      "tls_mode": "off",
+      "unsubscribe_http_code": 200
+    },
+    {
+      "agent_group": "openclaw",
+      "approve_http_code": 200,
+      "charlie_sees": {
+        "approved": 1,
+        "rejected": 0
+      },
+      "namespace": "scenario34-pending-d6ce92",
+      "pass": true,
+      "pending_queue_count": 2,
+      "reasons": [],
+      "reject_http_code": 200,
+      "scenario": "34",
+      "set_standard_http_code": 201,
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "openclaw",
+      "child_ns": "scenario35-parent-24d733/child",
+      "clear_http_code": 200,
+      "get_standard_http_code": 200,
+      "parent_ns": "scenario35-parent-24d733",
+      "pass": true,
+      "post_clear_has_child_rule": false,
+      "reasons": [],
+      "scenario": "35",
+      "sees_child_rule": true,
+      "sees_parent_rule": true,
+      "set_child_http_code": 201,
+      "set_parent_http_code": 201,
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "openclaw",
+      "pass": true,
+      "reasons": [],
+      "scenario": "36",
+      "session_id": "fedb2223-9044-4a74-b4b7-84ef44420931",
+      "session_tagged_rows_on_bob": 2,
+      "skipped": false,
+      "start_http_code": 200,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "openclaw",
+      "forward_has_target": true,
+      "m1": "34fd8452-610a-474e-be62-f6b68499d7cb",
+      "m2": "583e4f87-d13a-4762-b742-f1d9e08da30e",
+      "pass": true,
+      "reasons": [],
+      "reverse_has_source": true,
+      "scenario": "37",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "openclaw",
+      "dst_ns": "scenario38-dst-39186f",
+      "expected_rows": 5,
+      "export_http_code": 200,
+      "import_http_code": 200,
+      "markers_preserved": 5,
+      "pass": true,
+      "reasons": [],
+      "rows_exported": 5,
+      "rows_in_destination": 5,
+      "scenario": "38",
+      "skipped": false,
+      "src_ns": "scenario38-src-39186f",
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "openclaw",
+      "checkpoint": "2026-04-24T14:09:06+00:00",
+      "diag_curl_body_head": "{\"count\":6,\"earliest_updated_at\":\"2026-04-24T14:09:38.282777032+00:00\",\"latest_updated_at\":\"2026-04-24T14:09:39.129652815+00:00\",\"limit\":500,\"memories\":[{\"access_count\":0,\"confidence\":1.0,\"content\":\"marker=delta-0-731632682d10489ebc6d36e4bd4b2357\",\"created_at\":\"2026-04-24T14:09:38.282777032+00:00\",\"",
+      "diag_curl_exit": 0,
+      "diag_curl_http_code": 200,
+      "diag_curl_stderr": "",
+      "diag_earliest_updated_at": "2026-04-24T14:09:38.282777032+00:00",
+      "diag_latest_updated_at": "2026-04-24T14:09:39.129652815+00:00",
+      "diag_node3_health_reachable": true,
+      "diag_updated_since": "2026-04-24T14:09:06+00:00",
+      "expected_markers": 6,
+      "markers_present": 6,
+      "namespace": "scenario39-delta-e90f98",
+      "pass": true,
+      "reasons": [],
+      "rows_returned": 6,
+      "rows_returned_raw": 6,
+      "scenario": "39",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "openclaw",
+      "expected_per_agent": 30,
+      "pass": true,
+      "per_agent": {
+        "ai:alice": {
+          "count": 30,
+          "wrong_agent_id": 0
+        },
+        "ai:bob": {
+          "count": 30,
+          "wrong_agent_id": 0
+        },
+        "ai:charlie": {
+          "count": 30,
+          "wrong_agent_id": 0
+        }
+      },
+      "reasons": [],
+      "scenario": "4",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "openclaw",
+      "bulk_http_code": "200",
+      "bulk_size": 500,
+      "namespace": "scenario40-bulk-9634a0",
+      "pass": true,
+      "per_peer_count": {
+        "node_2": 500,
+        "node_3": 500,
+        "node_4": 500
+      },
+      "reasons": [],
+      "scenario": "40",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "activity_namespace": "scenario41-activity-495e42",
+      "agent_group": "openclaw",
+      "pass": true,
+      "per_peer": {
+        "node_1": {
+          "counters_t0": 8,
+          "counters_t1": 8,
+          "regressed_keys": 0
+        },
+        "node_2": {
+          "counters_t0": 8,
+          "counters_t1": 8,
+          "regressed_keys": 0
+        },
+        "node_3": {
+          "counters_t0": 7,
+          "counters_t1": 7,
+          "regressed_keys": 0
+        }
+      },
+      "reasons": [],
+      "scenario": "41",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "openclaw",
+      "namespaces": [
+        "scenario42-7f4bc8-0",
+        "scenario42-7f4bc8-1",
+        "scenario42-7f4bc8-2"
+      ],
+      "pass": true,
+      "per_peer": {
+        "node_1": {
+          "scenario42-7f4bc8-0": 2,
+          "scenario42-7f4bc8-1": 2,
+          "scenario42-7f4bc8-2": 2
+        },
+        "node_2": {
+          "scenario42-7f4bc8-0": 2,
+          "scenario42-7f4bc8-1": 2,
+          "scenario42-7f4bc8-2": 2
+        },
+        "node_3": {
+          "scenario42-7f4bc8-0": 2,
+          "scenario42-7f4bc8-1": 2,
+          "scenario42-7f4bc8-2": 2
+        },
+        "node_4": {
+          "scenario42-7f4bc8-0": 2,
+          "scenario42-7f4bc8-1": 2,
+          "scenario42-7f4bc8-2": 2
+        }
+      },
+      "reasons": [],
+      "scenario": "42",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "openclaw",
+      "consolidate_http_code": 201,
+      "consolidated_from_agents": [
+        "ai:charlie",
+        "ai:bob",
+        "ai:alice"
+      ],
+      "consolidated_id": "8db8ba29-765c-4572-8f88-4b8afa763f11",
+      "pass": true,
+      "reasons": [],
+      "scenario": "5",
+      "skipped": false,
+      "tls_mode": "off"
+    },
+    {
+      "agent_group": "openclaw",
+      "alice_id": "ecde7b3a-7a16-4113-a809-b0822de9715c",
+      "bob_id": "3db74173-6926-4fec-9adf-4e99109b120e",
+      "charlie_sees_both_memories": true,
+      "charlie_sees_contradicts_link": true,
+      "detect_http_code": 200,
+      "pass": true,
+      "reasons": [],
+      "scenario": "6",
+      "skipped": false,
+      "tls_mode": "off",
+      "topic": "sky-color-ac9a41d8"
+    },
+    {
+      "agent_group": "openclaw",
+      "charlie_view": {
+        "agent_id": "ai:alice",
+        "content": "v2-0d3a5bad071f476ab05ed7748108c756"
+      },
+      "m1_id": "aeea1e58-ddb4-4e2b-9e1d-79decd752bab",
+      "pass": true,
+      "put_http_code": 200,
+      "reasons": [],
+      "scenario": "9",
+      "skipped": false,
+      "tls_mode": "off",
+      "v1_uuid": "v1-861cd5fbd5c14e5b9ee30487d574e949",
+      "v2_uuid": "v2-0d3a5bad071f476ab05ed7748108c756"
+    }
+  ],
+  "reasons": [],
+  "skipped_reports": [],
+  "meta": {
+    "campaign_id": "a2a-openclaw-v0.6.2-local-docker-r3",
+    "agent_group": "openclaw",
+    "ai_memory_git_ref": "release/v0.6.2",
+    "topology": "local-docker",
+    "infra": {
+      "provider": "local-docker",
+      "host": "pop-os",
+      "mesh_topology": "4-node bridge (3 openclaw agents + 1 memory-only aggregator)",
+      "nodes": [
+        {
+          "index": 1,
+          "role": "agent",
+          "agent_id": "ai:alice",
+          "container": "a2a-node-1",
+          "private_ip": "10.88.1.11"
+        },
+        {
+          "index": 2,
+          "role": "agent",
+          "agent_id": "ai:bob",
+          "container": "a2a-node-2",
+          "private_ip": "10.88.1.12"
+        },
+        {
+          "index": 3,
+          "role": "agent",
+          "agent_id": "ai:charlie",
+          "container": "a2a-node-3",
+          "private_ip": "10.88.1.13"
+        },
+        {
+          "index": 4,
+          "role": "memory-only",
+          "container": "a2a-node-4",
+          "private_ip": "10.88.1.14"
+        }
+      ]
+    },
+    "scenarios_requested": [
+      "1",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14",
+      "15",
+      "16",
+      "17",
+      "18",
+      "1b",
+      "2",
+      "22",
+      "23",
+      "24",
+      "25",
+      "28",
+      "29",
+      "30",
+      "31",
+      "32",
+      "33",
+      "34",
+      "35",
+      "36",
+      "37",
+      "38",
+      "39",
+      "4",
+      "40",
+      "41",
+      "42",
+      "5",
+      "6",
+      "9"
+    ],
+    "timing": {
+      "start": "2026-04-24T14:01:12Z",
+      "end": "2026-04-24T14:11:06Z"
+    },
+    "ci": {
+      "runner": "local-docker",
+      "operator": "AI NHI (Claude Opus 4.7)"
+    }
+  }
+}

@@ -1,0 +1,35 @@
+# Copyright 2026 AlphaOne LLC
+# SPDX-License-Identifier: Apache-2.0
+#
+# OpenClaw agent image, extends ai-memory-base.
+#
+# The DO droplet installer (setup_node.sh:380-420) notes that
+# `openclaw.ai/install.sh` is the KNOWN-WORKING path — npm install -g
+# openclaw hangs 20+ minutes on 4GB nodes. We follow the same pattern
+# but with a larger heap budget (container RAM is gated at compose-time,
+# not droplet-fixed).
+#
+# install.sh exits non-zero on a non-TTY (the post-install wizard
+# fails); we tolerate the exit and assert `openclaw --version` succeeds
+# as the real completion gate.
+ARG AI_MEMORY_BASE=ai-memory-base:local
+FROM ${AI_MEMORY_BASE}
+
+ENV NODE_OPTIONS=--max-old-space-size=4096
+
+RUN set -eux; \
+    ( curl -fsSL --max-time 60 https://openclaw.ai/install.sh | \
+        bash -s -- --install-method git ) \
+      || echo "[openclaw-install] install.sh exit non-zero (expected — post-install wizard fails non-TTY)"; \
+    if ! command -v openclaw >/dev/null 2>&1; then \
+      npm install -g openclaw \
+        || { echo "FATAL: npm fallback for openclaw also failed"; exit 1; }; \
+    fi; \
+    if [ ! -x /usr/local/bin/openclaw ]; then \
+      OC=$(command -v openclaw || find /root/.openclaw /usr/local/lib/node_modules /usr/lib/node_modules -maxdepth 6 -name openclaw -type f -executable 2>/dev/null | head -1); \
+      [ -n "$OC" ] && ln -sf "$OC" /usr/local/bin/openclaw; \
+    fi; \
+    openclaw --version 2>&1 | head -1
+
+# OpenClaw config + MCP registration written at container start by
+# entrypoint.sh — needs XAI_API_KEY and AGENT_ID from env.

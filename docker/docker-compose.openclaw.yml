@@ -1,0 +1,157 @@
+# Copyright 2026 AlphaOne LLC
+# SPDX-License-Identifier: Apache-2.0
+#
+# Local 4-node openclaw + ai-memory mesh — mirrors the DO topology
+# (3 agent nodes + 1 memory-only aggregator, W=2 of N=4 quorum).
+#
+# Bring-up:
+#   cd docker/
+#   # Build base (ai-memory binary must be staged at ./bin/ai-memory):
+#   docker build -t ai-memory-base:local -f Dockerfile.base .
+#   # Build openclaw image on top:
+#   docker build -t ai-memory-openclaw:local \
+#     --build-arg AI_MEMORY_BASE=ai-memory-base:local \
+#     -f Dockerfile.openclaw .
+#   # Start mesh:
+#   XAI_API_KEY=$YOUR_KEY docker compose -f docker-compose.openclaw.yml up -d
+#   # Wait for all 4 nodes healthy, then drive scenarios via
+#   # `docker exec a2a-node-1 ...` — see scripts/a2a_harness.py for the
+#   # scenario driver.
+#
+# Network: fixed /24 on a bridge so peer URLs are stable. Each node
+# has a DNS name (node-1..4) via docker's embedded DNS; we use those
+# names in PEER_URLS so the config survives a `docker compose down && up`.
+
+name: a2a-openclaw-local
+
+networks:
+  mesh:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.88.1.0/24
+          gateway: 10.88.1.1
+
+services:
+  node-1:
+    image: ai-memory-openclaw:local
+    container_name: a2a-node-1
+    hostname: node-1
+    networks:
+      mesh:
+        ipv4_address: 10.88.1.11
+    environment:
+      NODE_INDEX: "1"
+      ROLE: "agent"
+      AGENT_TYPE: "openclaw"
+      AGENT_ID: "ai:alice"
+      PEER_URLS: "http://node-2:9077,http://node-3:9077,http://node-4:9077"
+      TLS_MODE: "off"
+      XAI_API_KEY: "${XAI_API_KEY:?XAI_API_KEY env var required}"
+      A2A_GATE_LLM_MODEL: "${A2A_GATE_LLM_MODEL:-grok-4-0709}"
+      NODE_OPTIONS: "--max-old-space-size=12288"
+    mem_limit: 16g
+    memswap_limit: 16g
+    volumes:
+      - node-1-data:/var/lib/ai-memory
+      - ./entrypoint.sh:/usr/local/bin/entrypoint.sh:ro
+      - ./drive_agent.sh:/root/drive_agent.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:9077/api/v1/health | grep -q ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 60s
+
+  node-2:
+    image: ai-memory-openclaw:local
+    container_name: a2a-node-2
+    hostname: node-2
+    networks:
+      mesh:
+        ipv4_address: 10.88.1.12
+    environment:
+      NODE_INDEX: "2"
+      ROLE: "agent"
+      AGENT_TYPE: "openclaw"
+      AGENT_ID: "ai:bob"
+      PEER_URLS: "http://node-1:9077,http://node-3:9077,http://node-4:9077"
+      TLS_MODE: "off"
+      XAI_API_KEY: "${XAI_API_KEY:?XAI_API_KEY env var required}"
+      A2A_GATE_LLM_MODEL: "${A2A_GATE_LLM_MODEL:-grok-4-0709}"
+      NODE_OPTIONS: "--max-old-space-size=12288"
+    mem_limit: 16g
+    memswap_limit: 16g
+    volumes:
+      - node-2-data:/var/lib/ai-memory
+      - ./entrypoint.sh:/usr/local/bin/entrypoint.sh:ro
+      - ./drive_agent.sh:/root/drive_agent.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:9077/api/v1/health | grep -q ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 60s
+
+  node-3:
+    image: ai-memory-openclaw:local
+    container_name: a2a-node-3
+    hostname: node-3
+    networks:
+      mesh:
+        ipv4_address: 10.88.1.13
+    environment:
+      NODE_INDEX: "3"
+      ROLE: "agent"
+      AGENT_TYPE: "openclaw"
+      AGENT_ID: "ai:charlie"
+      PEER_URLS: "http://node-1:9077,http://node-2:9077,http://node-4:9077"
+      TLS_MODE: "off"
+      XAI_API_KEY: "${XAI_API_KEY:?XAI_API_KEY env var required}"
+      A2A_GATE_LLM_MODEL: "${A2A_GATE_LLM_MODEL:-grok-4-0709}"
+      NODE_OPTIONS: "--max-old-space-size=12288"
+    mem_limit: 16g
+    memswap_limit: 16g
+    volumes:
+      - node-3-data:/var/lib/ai-memory
+      - ./entrypoint.sh:/usr/local/bin/entrypoint.sh:ro
+      - ./drive_agent.sh:/root/drive_agent.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:9077/api/v1/health | grep -q ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 60s
+
+  node-4:
+    # Aggregator / memory-only — no agent framework needed, so the
+    # lighter base image is enough.
+    image: ai-memory-base:local
+    container_name: a2a-node-4
+    hostname: node-4
+    networks:
+      mesh:
+        ipv4_address: 10.88.1.14
+    environment:
+      NODE_INDEX: "4"
+      ROLE: "memory-only"
+      PEER_URLS: "http://node-1:9077,http://node-2:9077,http://node-3:9077"
+      TLS_MODE: "off"
+    mem_limit: 4g
+    memswap_limit: 4g
+    volumes:
+      - node-4-data:/var/lib/ai-memory
+      - ./entrypoint.sh:/usr/local/bin/entrypoint.sh:ro
+      - ./drive_agent.sh:/root/drive_agent.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:9077/api/v1/health | grep -q ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 30s
+
+volumes:
+  node-1-data:
+  node-2-data:
+  node-3-data:
+  node-4-data:

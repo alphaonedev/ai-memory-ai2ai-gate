@@ -59,7 +59,7 @@ jobs:
           # OpenClaw legacy — retained per docs/baseline.md §4).
           rows_ironclaw=$(mktemp)
           rows_hermes=$(mktemp)
-          rows_legacy=$(mktemp)
+          rows_openclaw=$(mktemp)
           while IFS='|' read -r _ts dir; do
             [ -z "$dir" ] && continue
             name=$(basename "$dir")
@@ -117,12 +117,13 @@ jobs:
             case "$name" in
               a2a-ironclaw-*) echo "$row" >> "$rows_ironclaw" ;;
               a2a-hermes-*)   echo "$row" >> "$rows_hermes" ;;
-              a2a-openclaw-*) echo "$row" >> "$rows_legacy" ;;
+              a2a-openclaw-*) echo "$row" >> "$rows_openclaw" ;;
               *)
                 case "$group" in
                   ironclaw) echo "$row" >> "$rows_ironclaw" ;;
                   hermes)   echo "$row" >> "$rows_hermes" ;;
-                  *)        echo "$row" >> "$rows_legacy" ;;
+                  openclaw) echo "$row" >> "$rows_openclaw" ;;
+                  *)        echo "$row" >> "$rows_openclaw" ;;
                 esac
                 ;;
             esac
@@ -154,11 +155,13 @@ jobs:
             echo "— open the evidence page for the raw trace."
             echo
             echo "Runs are grouped by agent framework. **IronClaw** (Rust,"
-            echo "AlphaOne) is the primary agent as of 2026-04-21."
-            echo "**Hermes** (Python, Nous Research) is the second primary"
-            echo "agent used for cross-stack comparison. **OpenClaw** runs"
-            echo "are retained for historical dispatch reproduction — see"
-            echo "[docs/baseline.md §4](../baseline/#4-agent-framework-install--authentic-upstream-binaries)."
+            echo "AlphaOne), **Hermes** (Python, NousResearch), and"
+            echo "**OpenClaw** (Python, openclaw.ai) are all first-class"
+            echo "agents in active per-release campaigns. OpenClaw runs"
+            echo "labelled \`*-local-docker-*\` use the local Docker mesh"
+            echo "(see [docs/local-docker-mesh.md](../local-docker-mesh/))"
+            echo "which allocates 16 GB per container on a single"
+            echo "workstation — no DO General Purpose tier required."
             echo
             emit_section "IronClaw campaigns" \
               "All agent droplets in each campaign run IronClaw (Rust). Primary agent." \
@@ -166,13 +169,13 @@ jobs:
             emit_section "Hermes campaigns" \
               "All agent droplets in each campaign run Hermes (Python). Primary agent." \
               "$rows_hermes"
-            if [ -s "$rows_legacy" ]; then
-              emit_section "OpenClaw campaigns (legacy)" \
-                "OpenClaw is retained for historical dispatch reproduction only. Not run per-release." \
-                "$rows_legacy"
+            if [ -s "$rows_openclaw" ]; then
+              emit_section "OpenClaw campaigns" \
+                "All agent droplets / containers in each campaign run OpenClaw (Python). First-class as of 2026-04-24. Campaigns suffixed \`-local-docker-*\` use the 4-node Docker mesh per docs/local-docker-mesh.md; others use DO General Purpose tier droplets." \
+                "$rows_openclaw"
             fi
           } > docs/runs/index.md
-          rm -f "$rows_ironclaw" "$rows_hermes" "$rows_legacy"
+          rm -f "$rows_ironclaw" "$rows_hermes" "$rows_openclaw"
 
       - name: Regenerate per-run index.html (pick up generator upgrades)
         run: |

@@ -64,22 +64,18 @@ If a step exceeds its timeout: cancel & diagnose (don't wait for job cap).
 
 ### §R4. testbook v3.0.0 matrix status (live)
 
-All cells now run on `release/v0.6.2` + `ai_memory_source_build=true` (v0.6.2 Patch 2 release freeze, memory `74698d94`). PR #357 @ `0ad00ed` is the source of truth.
+All cells run on `release/v0.6.2` + `ai_memory_source_build=true` on DigitalOcean and, for openclaw, also on the [local Docker mesh](docs/local-docker-mesh.md).
 
-| | off (34) | tls (34) | mtls (36) |
+| | off | tls | mtls |
 |---|---|---|---|
-| **ironclaw** | ✅ v3r23 32/34 | ⚠️ v3r23 32/35 | ✅ v3r23 34/36 |
-| **hermes**   | ✅ v3r23 32/34 | ⚠️ v3r23 32/35 | ✅ v3r23 34/36 |
-| **mixed**    | ⏸ terraform topology work | ⏸ topology | ⏸ topology |
+| **ironclaw (DO)** | ✅ v3r30 35/35 | ✅ v3r30 35/35 | ✅ v3r30 37/37 |
+| **hermes (DO)** | ✅ v3r30 35/35 | ✅ v3r30 35/35 | ✅ v3r30 37/37 |
+| **openclaw (local-docker)** | ✅ r3 35/35 | ⏸ Phase 3 scope | ⏸ Phase 3 scope |
+| **mixed** | ⏸ terraform topology work | ⏸ topology | ⏸ topology |
 
-**v3r23 on `release/v0.6.2` + source-build + PRs ai-memory-mcp#363 + #364 merged.** Framework-agnostic gains: +11 passes per cell vs v3r17 baseline (131 → 194 total passing scenarios across 6 cells). Residual failure set:
+**v0.6.2 CERTIFIED 2026-04-24** — streak 3/3 achieved on DO (v3r28/r29/r30) + three consecutive full-testbook greens for openclaw on local-docker (`a2a-openclaw-v0.6.2-local-docker-{r1,r2,r3}`). Cert run head commit on `release/v0.6.2`: `3e018d6` (PRs ai-memory-mcp#368 + #369 S40 fanout retry + terminal catchup batch). Harness updates in this cycle: ai-memory-ai2ai-gate#55 (drop S20 from tls append), #56 (S23 large-body-via-ssh-stdin), plus the harness `TOPOLOGY=local-docker` fork.
 
-- **off + mtls** (both frameworks): `S18, S39`
-- **tls** (both frameworks): `S18, S20, S39` — S20 failing on tls (previously skipped) is a v3r22+ anomaly.
-
-Dispatch lesson learned at v3r23: **DigitalOcean droplet quota is shared across both agent_group concurrency queues.** At most 2 concurrent 4-node campaigns (ironclaw + hermes) can coexist; a 3rd simultaneous 4-droplet request returns 422. See memory `31aa45d5` RCA for hermes tls + r23b quota failures. Safe pattern: dispatch `off` pair → wait both → dispatch `mtls` pair → wait both → dispatch `tls` pair.
-
-Remaining 3 cells (mixed-framework row) are terraform topology-blocked, NOT ai-memory-mcp. **Streak counter: 0/3** — certification requires three consecutive full-matrix greens at 34/35/36 respectively (see [v1.0 GA criteria](docs/v1-ga-criteria.md)).
+Dispatch lesson: **DO droplet quota is shared across both agent_group concurrency queues.** At most 2 concurrent 4-node campaigns can coexist. Safe pattern: dispatch `off` pair → wait both → dispatch `tls` pair → wait both → dispatch `mtls` pair. Local-docker mesh has no DO quota — runs can dispatch back-to-back instantly.
 
 mTLS unblocked on 2026-04-22 via two a2a-gate fixes:
 - #35 — allowlist generator emits labels as separate comment lines (ai-memory-mcp parser-tolerance follow-up: alphaonedev/ai-memory-mcp#358).

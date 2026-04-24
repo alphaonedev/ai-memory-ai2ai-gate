@@ -26,7 +26,7 @@ The scenario corpus is partitioned into suites so failures are diagnostically lo
 | **D. Scope + Governance** | S7, S8, S12 | Scope enforcement matrix, auto-tag pipeline, agent registration (Task 1.3) |
 | **E. Resilience + Observability** | S13, S14, S15, S17, S18 | Concurrent contention, partition tolerance, read-your-writes, stats consistency, semantic query expansion |
 | **F. Topology variants** | S4, S19 | Quorum-under-load, SAME-NODE A2A (two agents sharing one droplet's ai-memory) |
-| **G. Transport + Adversarial + Cross-framework** (v3.0.0) | S20, S21, S22, S23, S24, S25, S26, S27 | mTLS happy-path, anonymous rejected, identity spoofing, malicious content fuzz, Byzantine peer, clock skew, mixed ironclaw+hermes, legacy OpenClaw regression |
+| **G. Transport + Adversarial + Cross-framework** (v3.0.0) | S20, S21, S22, S23, S24, S25, S26, S27 | mTLS happy-path, anonymous rejected, identity spoofing, malicious content fuzz, Byzantine peer, clock skew, mixed ironclaw+hermes, OpenClaw regression |
 | **H. Uncovered primitives — 100% MCP surface** (v3.0.0) | S28, S29, S30, S31, S32, S33, S34, S35, S36, S37 | `memory_search`, archive lifecycle, `capabilities`, `gc`, `inbox`+`notify`, pub/sub, pending governance, namespace standards, `session_start`, `get_links` bidirectional |
 | **I. HTTP-only endpoints — 100% REST surface** (v3.0.0) | S38, S39, S40, S41, S42 | `/export`+`/import`, `/sync/since` delta sync, `/memories/bulk`, `/metrics`, `/namespaces` |
 

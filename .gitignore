@@ -10,6 +10,10 @@ __pycache__/
 phase-reports/
 /tmp-*
 
+# Docker build context — staged ai-memory binary is produced out-of-tree
+# by `cargo build --release` and not suitable for committing.
+docker/bin/ai-memory
+
 # Editor / OS noise
 *.swp
 .DS_Store

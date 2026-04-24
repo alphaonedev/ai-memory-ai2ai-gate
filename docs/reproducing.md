@@ -105,7 +105,7 @@ baseline violation without paying DO costs.
 
 - Ubuntu 24.04 LTS host (local VM, dedicated box, single DO droplet)
 - Root or sudo
-- Outbound network access to `api.x.ai`, `github.com`, `raw.githubusercontent.com`, and (if using legacy openclaw group) `openclaw.ai`
+- Outbound network access to `api.x.ai`, `github.com`, `raw.githubusercontent.com`, and `openclaw.ai` (for the openclaw group)
 - An xAI API key
 
 ### B.2 Clone the repo
@@ -120,7 +120,7 @@ cd ai-memory-ai2ai-gate
 ```sh
 export NODE_INDEX=5
 export ROLE=agent
-export AGENT_TYPE=ironclaw              # or hermes (openclaw legacy only)
+export AGENT_TYPE=ironclaw              # or hermes, or openclaw
 export AGENT_ID=ai:dave                 # any ai:-prefixed id
 export PEER_URLS="http://<peer-1>:9077,http://<peer-2>:9077,http://<peer-3>:9077"
 export AI_MEMORY_VERSION=0.6.1
@@ -137,7 +137,7 @@ The script will:
 4. Set an 8-hour `shutdown -P +480` dead-man switch (skip on local machines)
 5. Install `ai-memory` v0.6.1 binary
 6. Start `ai-memory serve` in federation mode on `0.0.0.0:9077`
-7. Install the agent framework (authentic upstream — `nearai/ironclaw` OR `NousResearch/hermes-agent`, or legacy `openclaw/openclaw`)
+7. Install the agent framework (authentic upstream — `nearai/ironclaw`, `NousResearch/hermes-agent`, or `openclaw/openclaw`)
 8. Write framework config with full baseline lock-down — xAI Grok as the only LLM, ai-memory as the only MCP server, every alternative A2A channel disabled
 9. **PROBE F1** — xAI Grok reachability + auth (direct `POST /v1/chat/completions`, expects non-empty content)
 10. **PROBE F2** — end-to-end agent → MCP → ai-memory canary (agent invokes `memory_store`, probe verifies via local HTTP + `metadata.agent_id`)
