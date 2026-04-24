@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-hermes-v0.6.2-patch2-r30-off",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "Risk posture is low with full pass confirming production readiness for non-TLS deployments; customer claims of robust AI memory federation are fully viable. No regressions from prior runs, maintaining stability at v0.6.2. Enables confident scaling to customer environments.",
+  "for_non_technical": "The test confirmed that AI agents can reliably share and recall memories with each other across multiple computers. There were no issues in any of the checked situations. This shows the system works well for agents to remember and access shared information.",
+  "for_sme": "All 35 scenarios passed without failures, covering primitives such as write consistency (S1, S1b, S4), deletion (S10), linking (S11, S37), versioning (S13, S9), partition recovery (S14), hybrid search (S18), bulk ingest (S40), and pubsub (S33). No failure modes observed, no primitives impacted, and no root causes to probe. Testbook identifiers include S22 for auth, S23 for payloads, S24 for byzantine rejection, and S39 for delta queries.",
+  "headline": "Hermes v0.6.2 patch2 passes all 35 scenarios without TLS.",
+  "next_run_change": "none \u2014 keep cadence.",
+  "verdict": "PASS \u2014 35/35 scenarios green.",
+  "what_it_proved": "Results demonstrated full reliability of memory sharing, recall, and advanced operations in a non-TLS federated setup with no failures or skips.",
+  "what_it_tested": "Exercised 35 scenarios covering basic writes, deletions, links, versioning, recovery, hybrid recall, bulk operations, and advanced features across HTTP transport in a 4-node federation mesh, testing primitives like consistency, search, and pubsub."
+}

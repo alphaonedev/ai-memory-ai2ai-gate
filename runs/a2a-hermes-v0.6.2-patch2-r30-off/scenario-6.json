@@ -1,0 +1,1 @@
+{"agent_group": "hermes", "alice_id": "3d94d251-7eff-4e94-9ee9-74f221a24493", "bob_id": "f7453a0f-b313-4183-a1b1-f1d884c31c3e", "charlie_sees_both_memories": true, "charlie_sees_contradicts_link": true, "detect_http_code": 200, "pass": true, "reasons": [], "scenario": "6", "skipped": false, "tls_mode": "off", "topic": "sky-color-8621b8fe"}
