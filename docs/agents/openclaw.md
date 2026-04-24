@@ -1,18 +1,18 @@
-# OpenClaw agent (LEGACY — replaced by IronClaw 2026-04-21)
+# OpenClaw agent
 
-!!! warning "Retired as default agent group"
-    OpenClaw is retained only for historical dispatch reproduction.
-    New campaigns should use **[IronClaw](ironclaw.md)** — the Rust
-    reimplementation with ~10× smaller resource footprint. OpenClaw's
-    install-time memory demand (>8 GB) forced the harness onto DO
-    account-tier-restricted 16 GB droplets. IronClaw fits on the
-    Basic-tier `s-2vcpu-4gb` slug at ~$0.03 per campaign vs openclaw's
-    ~$0.36. See the [IronClaw agent page](ironclaw.md) for the
-    rationale and switch history.
+OpenClaw is a first-class agent framework in the A2A gate alongside
+IronClaw (Rust) and Hermes (Python). On DigitalOcean the 8+ GB
+install-time memory demand constrained the matrix to tier-upgraded
+droplets; as of 2026-04-24 OpenClaw runs as a fully certified cell
+on the **[local Docker mesh](../local-docker-mesh.md)** where each
+openclaw node is allocated 16 GB of container memory on a workstation.
+IronClaw is still the DO default for the Basic-tier 4 GB cost path
+(~$0.03 per campaign).
 
-The A2A gate hosts two OpenClaw agent instances (on `node-1` and
-`node-3`) to demonstrate that ai-memory's A2A semantics work with
-the OpenClaw agent framework's specific MCP client.
+The A2A gate hosts three OpenClaw agent instances (on `node-1`,
+`node-2`, `node-3`) + one memory-only aggregator (`node-4`) to
+demonstrate that ai-memory's A2A semantics work with the OpenClaw
+agent framework's specific MCP client.
 
 ## What OpenClaw brings to the A2A gate
 

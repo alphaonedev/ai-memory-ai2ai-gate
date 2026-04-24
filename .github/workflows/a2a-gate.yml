@@ -26,7 +26,7 @@ on:
           - "false"
           - "true"
       agent_group:
-        description: "Which agent framework to run in this campaign. Every agent droplet in the campaign uses the SAME framework (homogeneous group). ironclaw (Rust, 4GB) and hermes (Python, 4GB) are the supported groups; openclaw (Python, 16GB+) is LEGACY and being retired — kept for historical dispatch reproduction only."
+        description: "Which agent framework to run in this campaign. Every agent droplet in the campaign uses the SAME framework (homogeneous group). ironclaw (Rust, 4GB), hermes (Python, 4GB), and openclaw (Python, 16GB+) are all first-class groups. On DO, ironclaw/hermes run on Basic-tier; openclaw needs the General Purpose tier OR use the local Docker mesh (docs/local-docker-mesh.md) for openclaw."
         required: true
         default: "ironclaw"
         type: choice
@@ -47,7 +47,7 @@ on:
         required: false
         default: "1 1b 2 4 5 6 9 10 11 12 13 14 15 16 17 18 22 23 24 25 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42"
       agent_droplet_size:
-        description: "Agent droplet size. Default s-2vcpu-4gb (Basic 4GB). Sufficient for ironclaw (Rust, ~500MB) AND hermes (Python, ~1GB). Only override for legacy openclaw dispatches (needs >8GB, DO tier upgrade required). Basic-tier only; -intel/-amd suffix variants are NOT needed at 4GB."
+        description: "Agent droplet size. Default s-2vcpu-4gb (Basic 4GB). Sufficient for ironclaw (Rust, ~500MB) AND hermes (Python, ~1GB). Override for openclaw dispatches on DO (needs >8GB, General Purpose tier) — or run openclaw via the local Docker mesh to sidestep the tier bump. Basic-tier only; -intel/-amd suffix variants are NOT needed at 4GB."
         required: false
         default: "s-2vcpu-4gb"
       ironclaw_install_cmd:
@@ -55,7 +55,7 @@ on:
         required: false
         default: ""
       openclaw_install_cmd:
-        description: "Shell command to install OpenClaw on a droplet. Blank = placeholder driver (ai-memory CLI stand-in). LEGACY: openclaw is being retired in favor of ironclaw."
+        description: "Shell command to install OpenClaw on a droplet. Blank = default (upstream openclaw.ai/install.sh via setup_node.sh). Override to pin a specific OpenClaw version during regression chase."
         required: false
         default: ""
       hermes_install_cmd:

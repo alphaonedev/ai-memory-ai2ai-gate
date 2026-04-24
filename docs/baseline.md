@@ -100,7 +100,7 @@ The SHA-256 of every generated config file is committed in `baseline.json.config
 
 No surrogates. No symlinks to another CLI. If we claim to test IronClaw, the binary must be `alphaonedev/ironclaw`. If we claim to test Hermes, the binary must be `NousResearch/hermes-agent`. If we claim to test OpenClaw, the binary must be `openclaw/openclaw`.
 
-As of 2026-04-21, **IronClaw** (Rust, AlphaOne) is the primary a2a-gate agent and replaces OpenClaw for active campaigns. **Hermes** is the second active agent (cross-stack comparison). **OpenClaw** is retained in legacy mode — kept for historical dispatch reproduction (see `docs/incidents.md` for the r9/r22 chain) and for future regression testing — but is no longer run in per-release campaigns.
+As of 2026-04-24, all three frameworks — **IronClaw** (Rust, AlphaOne), **Hermes** (Python, NousResearch), and **OpenClaw** (Python, openclaw.ai) — are first-class agents in active per-release campaigns. IronClaw and Hermes run on DO Basic-tier `s-2vcpu-4gb` droplets. OpenClaw, whose install-time memory demand exceeds 8 GB, runs either on DO General Purpose tier droplets OR on the [local Docker mesh](local-docker-mesh.md) with 16 GB per container — the latter is the reproducibility-first path documented under `runs/a2a-openclaw-*-local-docker-*/`.
 
 ### IronClaw
 
@@ -132,7 +132,7 @@ curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scri
 python3 -m pip install --break-system-packages --quiet python-dotenv==1.0.1
 ```
 
-### OpenClaw (legacy — retained for historical dispatch reproduction)
+### OpenClaw
 
 ```bash
 # Install via the official one-liner (git install method, headless --yes)
@@ -256,7 +256,7 @@ hermes chat -Q --provider xai --model grok-4-fast-non-reasoning -q "<prompt>"
 
 All three frameworks express the same baseline through their own idiomatic config formats. Same substrate, same model, different reasoning scaffolds — **that's the A2A comparison.**
 
-| Aspect | IronClaw | Hermes | OpenClaw (legacy) |
+| Aspect | IronClaw | Hermes | OpenClaw |
 |---|---|---|---|
 | Config location | `~/.ironclaw/.env` + `ironclaw config set` (SQLite-backed) | `~/.hermes/config.yaml` | `~/.openclaw/openclaw.json` |
 | Config format | `.env` + CLI | YAML | JSON |
@@ -396,7 +396,7 @@ The config lockdown (§6b.2 + §6b.3) closes the application-level A2A paths; th
 
 ### 6b.6 Cross-framework communication (future scenario)
 
-Current campaigns are **homogeneous** (all ironclaw or all hermes; openclaw is legacy). Cross-framework (IronClaw ↔ Hermes, or either ↔ legacy OpenClaw on the same VPC) is not in the current scenarios, but is enabled by design: because all frameworks use the same ai-memory substrate with the same schema and the same `agent_id` provenance, any memory written by an agent of one framework is readable by an agent of another without translation. A `mixed` campaign is the next natural evolution.
+Current campaigns are **homogeneous** (all ironclaw, all hermes, or all openclaw). Cross-framework (IronClaw ↔ Hermes ↔ OpenClaw on the same VPC / mesh) is not in the current scenarios, but is enabled by design: because all frameworks use the same ai-memory substrate with the same schema and the same `agent_id` provenance, any memory written by an agent of one framework is readable by an agent of another without translation. A `mixed` campaign is the next natural evolution.
 
 ### 6b.7 Attestation
 

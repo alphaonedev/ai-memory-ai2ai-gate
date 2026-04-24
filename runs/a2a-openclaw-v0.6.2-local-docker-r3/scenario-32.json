@@ -1,0 +1,1 @@
+{"agent_group": "openclaw", "bob_inbox_count": 1, "bob_sees_marker": true, "charlie_inbox_count": 0, "charlie_sees_marker": false, "marker": "inb-d05dce01b3ec42ee82d30accc844bbf5", "notify_http_code": 201, "pass": true, "reasons": [], "scenario": "32", "skipped": false, "tls_mode": "off"}

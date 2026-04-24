@@ -1,0 +1,1 @@
+{"agent_group": "openclaw", "expected_post_recovery": 20, "node3_saw": 20, "partition_target": "node-3", "pass": true, "reasons": [], "scenario": "14", "skipped": false, "tls_mode": "off"}

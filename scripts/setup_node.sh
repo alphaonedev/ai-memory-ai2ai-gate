@@ -23,7 +23,7 @@
 #   ROLE          — "agent" or "memory-only"
 #
 # Agent-only env (when ROLE=agent):
-#   AGENT_TYPE    — "ironclaw" or "hermes" ("openclaw" legacy, being retired)
+#   AGENT_TYPE    — "ironclaw", "hermes", or "openclaw" (all first-class)
 #   AGENT_ID      — "ai:alice" / "ai:bob" / "ai:charlie"
 #
 # Optional env:

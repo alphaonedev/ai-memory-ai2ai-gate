@@ -34,6 +34,16 @@ SSH_OPTS = ["-o", "StrictHostKeyChecking=no", "-o", "ConnectTimeout=10", "-o", "
 # malicious_content_fuzz hit on the oversize payload.
 LARGE_BODY_THRESHOLD = 64 * 1024
 
+# Exec topology:
+#   "ssh"           (default) — DigitalOcean droplet mode; ssh root@node_ip
+#   "local-docker"  — Docker compose mode; docker exec <container>
+#
+# In local-docker mode, NODE<N>_IP is expected to be the CONTAINER NAME
+# (e.g. "a2a-node-1"), not a VPC IP. NODE<N>_PRIV should be the bridge
+# IP (e.g. "10.88.1.11") for inter-container HTTP on 9077. The scenario
+# scripts don't need to care — the shift is contained in this module.
+TOPOLOGY = os.environ.get("TOPOLOGY", "ssh")
+
 
 def log(msg: str) -> None:
     """Write a log line to stderr."""
@@ -120,16 +130,30 @@ class Harness:
 
     def ssh_exec(self, node_ip: str, remote_cmd: str, *, timeout: int = 120,
                  stdin: str | None = None) -> subprocess.CompletedProcess:
-        """Run `remote_cmd` on `node_ip` via ssh. Never raises on non-zero
-        exit or timeout — returncode=124 on timeout (coreutils convention)."""
-        cmd = ["ssh", *SSH_OPTS, f"root@{node_ip}", remote_cmd]
+        """Run `remote_cmd` on `node_ip`. Never raises on non-zero exit or
+        timeout — returncode=124 on timeout (coreutils convention).
+
+        Dispatches on TOPOLOGY env var:
+          * "ssh"          — ssh root@node_ip "remote_cmd"
+          * "local-docker" — docker exec node_ip sh -c "remote_cmd"
+                             (node_ip is the container name)
+        """
+        if TOPOLOGY == "local-docker":
+            cmd = ["docker", "exec", "-i", node_ip, "sh", "-c", remote_cmd]
+        else:
+            cmd = ["ssh", *SSH_OPTS, f"root@{node_ip}", remote_cmd]
         return self._run(cmd, timeout=timeout, stdin=stdin)
 
     def ssh_bash_script(self, node_ip: str, script: str, *args: str,
                         timeout: int = 180) -> subprocess.CompletedProcess:
-        """Pipe a multi-line bash script into a remote `bash -s -- arg1 arg2...`."""
+        """Pipe a multi-line bash script into `bash -s -- arg1 arg2...`.
+
+        Same topology dispatch as [`ssh_exec`]."""
         argv = " ".join(shlex.quote(a) for a in args)
-        cmd = ["ssh", *SSH_OPTS, f"root@{node_ip}", f"bash -s -- {argv}"]
+        if TOPOLOGY == "local-docker":
+            cmd = ["docker", "exec", "-i", node_ip, "bash", "-s", "--", *args]
+        else:
+            cmd = ["ssh", *SSH_OPTS, f"root@{node_ip}", f"bash -s -- {argv}"]
         return self._run(cmd, timeout=timeout, stdin=script)
 
     # -------- curl construction --------

@@ -80,13 +80,19 @@ Four droplets:
 | `node-3` | Agent host | IronClaw — `ai:charlie` | `s-2vcpu-4gb` |
 | `node-4` | ai-memory authoritative | `ai-memory serve --mcp --http` | `s-2vcpu-4gb` |
 
-> **IronClaw replaces OpenClaw** as the primary Rust-stack agent as of
-> 2026-04-21. OpenClaw is retained only in legacy mode for historical
-> dispatch reproduction — its >8 GB install-time memory requirement
-> forced DO account-tier-restricted droplet sizes. IronClaw (~500 MB
-> steady-state) fits on Basic-tier `s-2vcpu-4gb`. See
-> [docs/agents/ironclaw.md](docs/agents/ironclaw.md) for the full
-> rationale.
+> **Three first-class agent frameworks** as of 2026-04-24:
+> **IronClaw** (Rust, `ai:alice`/`ai:charlie`) and **Hermes** (Python)
+> run on DO Basic-tier `s-2vcpu-4gb` droplets. **OpenClaw** (Python,
+> >8 GB install-time) runs either on DO General Purpose tier OR —
+> recommended — on the local Docker mesh (see
+> [docs/local-docker-mesh.md](docs/local-docker-mesh.md)), which
+> allocates 16 GB per openclaw container on a local workstation and
+> produces peer-reviewable run artifacts under `runs/a2a-openclaw-*-local-docker-*/`.
+> All three frameworks share the same ai-memory substrate + scenario
+> harness + passing testbook — see
+> [docs/agents/ironclaw.md](docs/agents/ironclaw.md),
+> [docs/agents/hermes.md](docs/agents/hermes.md),
+> [docs/agents/openclaw.md](docs/agents/openclaw.md).
 
 All four in a DigitalOcean VPC. Agents reach ai-memory via the MCP
 stdio transport plus `/api/v1/` HTTP for batch operations. Between

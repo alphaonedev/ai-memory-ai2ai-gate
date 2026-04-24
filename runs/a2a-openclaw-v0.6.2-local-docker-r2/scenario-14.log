@@ -1,0 +1,8 @@
+suspending ai-memory on node-3 (SIGSTOP)
+  !! ssh timeout (15s): -c pgrep -f 'ai-memory serve' | xargs -r kill -STOP
+settle 2s for process-suspend observe
+writing 10 memories each from alice + bob during node-3 outage
+resuming ai-memory on node-3 (SIGCONT)
+settle 20s for post-partition catchup
+checking node-3 caught up
+  node-3 sees 20 memories in scenario14-partition (expected 20)

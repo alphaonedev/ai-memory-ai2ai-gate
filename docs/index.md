@@ -5,17 +5,17 @@ Reproducible AI-to-AI integration testing for
 [ai-memory-ship-gate](https://github.com/alphaonedev/ai-memory-ship-gate)
 validates the memory system itself, **this repository validates what
 happens when real AI agents use ai-memory to communicate with each
-other** — **IronClaw (Rust)** agents and **Hermes (Python)** agents
-running on separate DigitalOcean droplets, sharing context through a
-central ai-memory authoritative store. (OpenClaw retained as a
-legacy group for historical reproduction; see the
-[switchover rationale](agents/ironclaw.md) for the 2026-04-21
-migration.)
+other** — **IronClaw (Rust)**, **Hermes (Python)**, and **OpenClaw
+(Python)** agents running on separate DigitalOcean droplets (or, for
+the openclaw cell, the [local Docker mesh](local-docker-mesh.md)
+that bypasses the DO General Purpose tier bump), sharing context
+through a central ai-memory authoritative store.
 
 - **[Baseline configuration](baseline.md)** · the hard-gated standard every agent droplet must satisfy before any scenario runs — authentic frameworks, xAI Grok, ai-memory MCP, UFW off, functional probes
 - [Methodology](methodology.md) · every invariant this campaign defends
 - [Topology](topology.md) · 4-node VPC architecture
-- [Agents](agents/ironclaw.md) · IronClaw (primary), Hermes, and OpenClaw (legacy) integration details
+- [Agents](agents/ironclaw.md) · IronClaw (Rust), Hermes (Python), and OpenClaw (Python) integration details
+- [Local Docker mesh](local-docker-mesh.md) · Reproducible 4-node OpenClaw harness on a single workstation (no DO required)
 - [Scenarios](scenarios/1-write-read.md) · 8 test groups covering the full memory surface
 - [Campaign runs](runs/) · live evidence dashboard
 - [v1.0 GA criteria](v1-ga-criteria.md) · the forward-looking contract every 0.6.x/0.7.x/0.8.x release steps toward
@@ -28,9 +28,9 @@ migration.)
 
 A2A-gate certification requires **three consecutive `overall_pass = true` runs at full scenario coverage** (up to 36 scenarios under the [testbook v3.0.0](testbook.md) × [baseline v1.4.0](baseline.md) set — 36 at `mtls`, 35 at `tls`, 34 at `off`). Any single `overall_pass = false` resets the counter; there is no credit for partial green.
 
-**Current best:** `34 / 36` on mtls — held jointly by `a2a-ironclaw-v0.6.2-patch2-r23-mtls` and `a2a-hermes-v0.6.2-patch2-r23c-mtls`, both on `release/v0.6.2` + source-build, v0.6.2 Patch 2 (mTLS proved end-to-end; two scenarios remain: `S18` semantic query expansion, `S39` a2a-gate reliability). Prior best was 23/36 at v3r17; PRs [ai-memory-mcp#363](https://github.com/alphaonedev/ai-memory-mcp/pull/363) (list cap + S34 pending fanout + S40 bulk-fanout verify) and [#364](https://github.com/alphaonedev/ai-memory-mcp/pull/364) (S35 clear-fanout symmetry) cleared 11 scenarios per cell.
+**Current best (as of 2026-04-24): 37/37 on mtls, 35/35 on tls, 35/35 on off — across ironclaw (DO), hermes (DO), and openclaw (local-docker).** Cert-run head commit: `release/v0.6.2 @ 3e018d6` (PRs [ai-memory-mcp#368](https://github.com/alphaonedev/ai-memory-mcp/pull/368) + [#369](https://github.com/alphaonedev/ai-memory-mcp/pull/369) — S40 fanout retry + terminal catchup batch). Prior best was 23/36 at v3r17.
 
-**Consecutive green streak:** 0 / 3.
+**Consecutive green streak: 3 / 3 → v0.6.2 CERTIFIED (2026-04-24).**
 
 Testing is continuous; certification is forward-looking toward v1.0 GA. Every campaign run is published under [`runs/`](runs/) regardless of outcome — a red run is data, not a setback. See [v1.0 GA criteria](v1-ga-criteria.md) for what has to be true across ai-memory-mcp, ship-gate, and this repo for the `1.0` tag to cut.
 
