@@ -1,0 +1,1 @@
+{"agent_group": "hermes", "byzantine_marker": "bz-69e3c5452dc04336b3d7f8a65f77e7e4", "pass": true, "reasons": [], "scenario": "24", "skipped": false, "stored_metadata_agent_id": "REJECTED_BY_SERVER", "sync_push_http_code": "422", "tls_mode": "mtls"}
