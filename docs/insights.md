@@ -58,6 +58,265 @@ three rounds of local-docker cert evidence.
 
 ---
 
+## Why A2A testing matters — value + use, per audience
+
+**Why test Agent-to-Agent memory at all?** Because
+"multi-agent AI" is the next deployment shape — not a chat box
+with one AI, but a group of specialised AIs collaborating. And
+the moment you have two or more agents that need to share
+anything (what the user said, what was already done, what's
+contested), the *substrate* they share becomes the single
+highest-leverage reliability surface in the system. Get the
+substrate right and the agent layer gets easier. Get it wrong
+and no amount of prompt engineering recovers.
+
+The a2a-gate exists to measure that substrate — continuously,
+on real infrastructure, under adversarial conditions — so the
+reliability is *evidenced*, not *asserted*. Here's why that
+matters to each of you.
+
+=== "👤 End users (non-technical) — why care"
+
+    **Why this matters to you**
+
+    You already live with AI that forgets. Ask ChatGPT a question
+    Monday, ask a follow-up Tuesday — it's starting from scratch.
+    Open Claude and then Gemini on the same project — they don't
+    know about each other. That's the status quo, and it's a
+    ceiling on how useful AI can actually be for your day.
+
+    **The value proposition**
+
+    When the apps you use are built on ai-memory, AND when those
+    apps use multiple AI agents under the hood, those agents can
+    finally share context with each other. Your meeting-scheduler
+    AI knows what your email-summariser AI just flagged. Your
+    shopping assistant can fact-check against your calendar
+    assistant. Your code assistant remembers the decision your
+    architecture assistant just locked in three hours ago. One
+    memory, many agents, no repeating yourself.
+
+    **The use proposition**
+
+    Today: you repeat yourself to every AI. You copy-paste between
+    tools. You keep notes because the AI won't.
+
+    With v0.6.2-powered apps: the tools share context by default.
+    "Remember what we decided yesterday" works across agents,
+    across days, across sessions. The evidence that this is
+    *reliable* (not "usually works") is what the certification
+    just proved — three full-battery runs, zero drops.
+
+    **Why you should care**
+
+    Because "AI tools that know what I already told you" is the
+    user-experience difference between AI-as-a-novelty and AI-as-
+    useful. Companies building on ai-memory v0.6.2 can finally
+    ship that experience with receipts. That's a trust upgrade —
+    and trust is scarce in AI infrastructure right now.
+
+=== "💼 C-level decision makers — value + use"
+
+    **Why this matters to you**
+
+    Multi-agent architecture is the direction the industry is
+    heading — agent collectives, not monolithic copilots. The
+    companies that ship this architecture well in 2026 are the
+    companies that win 2027. The hard part is not "build another
+    LLM wrapper"; the hard part is getting the *coordination
+    layer* right — which means getting *shared memory* right.
+
+    That makes ai-memory (and by extension the a2a-gate) a
+    strategic moat, not a plumbing decision.
+
+    **The value proposition**
+
+    1. **Competitive positioning.** Most "agent platforms" today
+       hand-wave coordination. "Our agents talk to each other"
+       is the claim; "via a shared vector DB or a bespoke message
+       queue" is usually the reality — with zero reliability
+       evidence. ai-memory v0.6.2 + the certification artifacts
+       give you a *defensible* version of that claim in every
+       sales conversation, every RFP, every compliance review.
+
+    2. **Cost structure.** One shared memory across N agents
+       means you don't build (or fine-tune, or support) N
+       context-management layers. Every agent writes once, reads
+       once; the substrate handles fanout, consolidation,
+       contradiction-flagging. Engineering headcount curve flattens.
+
+    3. **Audit + compliance posture.** Multi-agent systems are a
+       nightmare to audit post-hoc ("which agent wrote this?
+       which read this? who saw this before that?"). ai-memory
+       stamps every write with the writer's agent identity
+       (Task 1.2 NHI invariant) and preserves it across the
+       round-trip. The a2a-gate scenarios test that invariant
+       under contradiction, consolidation, cross-scope recall.
+       That's audit-ready identity provenance without bolting
+       it on later.
+
+    4. **Risk reduction at release.** A bug in agent coordination
+       is a trust-destroying bug — agents "forgetting" customer
+       data, leaking across permission boundaries, repeating
+       requests, missing hand-offs. The a2a-gate testbook catches
+       these before the release tag. The 499/500 fanout bug we
+       closed in this cert window is a working example: without
+       instrumentation, it would have silently corrupted the
+       "shared memory" claim in production.
+
+    5. **Reproducibility as competitive advantage.** Ship
+       customers evidence they can *reproduce on their own
+       hardware*. The local Docker mesh recipe makes every
+       certification run repeatable on a single workstation in
+       ~15 minutes. That converts "trust us" into "verify us" —
+       a position almost no AI infrastructure vendor can match.
+
+    **The use proposition**
+
+    Deploy ai-memory v0.6.2 as the memory substrate for your
+    multi-agent product. Point every agent framework you support
+    (or plan to support) at its local ai-memory via MCP stdio.
+    The federation quorum + fanout + scope-enforcement machinery
+    now has *cert-grade* evidence backing it across **three
+    different agent frameworks** — your framework choice is no
+    longer a reliability risk.
+
+    For enterprise customers: point them at
+    [the runs dashboard](../runs/) for audit, the
+    [local Docker reproducibility spec](../local-docker-mesh/)
+    for verification, and the
+    [v0.6.2 release](https://github.com/alphaonedev/ai-memory-mcp/releases/tag/v0.6.2)
+    for install. Three URLs, zero slide decks.
+
+    **Why you should care**
+
+    Because in 2026 "my AI product works with multiple agents"
+    is going to separate the serious infrastructure vendors from
+    the demo-ware. ai-memory v0.6.2 puts AlphaOne on the serious
+    side — with evidence, not marketing. That's the certification
+    you commit to as the release-gate floor, and the claim you
+    commit to with customers, and the moat you extend with every
+    subsequent certified release.
+
+=== "🛠 Subject-matter software engineers — value + use"
+
+    **Why this matters to you**
+
+    A2A (Agent-to-Agent) testing is where LLM reliability work
+    collides with distributed-systems reliability work — and
+    neither half can be debugged in isolation. Your MCP tool
+    loop looks clean in unit tests; your federation quorum looks
+    clean in isolation; put them under a burst of 500 writes
+    across 4 nodes with a flaky peer and you get correctness
+    bugs that only surface as "one row went missing and you
+    won't notice for a week." That's the class of bug A2A
+    testing catches.
+
+    **What the testbook actually exercises**
+
+    - **MCP tool dispatch** on three different frameworks
+      (IronClaw, Hermes, OpenClaw) — stdio JSON-RPC, timeouts,
+      transport semantics, `initialize.clientInfo.name`
+      handshake — all talking to the same `ai-memory mcp` subcommand
+    - **Federation quorum writes** (W=2 of N=4) under bursts,
+      partitions, Byzantine peers, clock skew, oversized
+      payloads, partial-apply races, and the post-quorum
+      detached-fanout window
+    - **Agent-identity immutability** — `metadata.agent_id`
+      survives UPSERT, dedup, update, MCP `memory_update`,
+      HTTP `PUT /memories/{id}`, import, sync, consolidate.
+      Task 1.2 NHI invariant
+    - **Scope enforcement matrix** — private / team / unit /
+      org / collective visibility under every
+      (scope, caller_scope) pair (Task 1.5 contract)
+    - **Contradiction detection propagation** — A and B write
+      contradicting memories; C, uninvolved, recalls the topic
+      and sees both plus the `contradicts` link
+    - **Consolidation lineage** — `metadata.consolidated_from_agents`
+      carries the set of source authors across consolidation
+    - **Adversarial content handling** — SQL injection string
+      literalisation, HTML/script stored-not-rendered,
+      1 MB oversize accept-or-reject, unicode + zero-width +
+      RTL byte-for-byte round-trip
+    - **Network security** — TLS 1.3 handshake, mTLS
+      fingerprint-pinning, anonymous-client rejection
+
+    That's the per-scenario breakdown. Every one of these is a
+    Python file under `scripts/scenarios/`, one `h.emit()` call
+    at the end, one JSON blob in `runs/<campaign>/scenario-N.json`.
+    No proprietary test framework, no closed-box "it passes".
+
+    **The value proposition**
+
+    1. **Drop ai-memory v0.6.2 into your multi-agent project
+       and get a cert-backed coordination substrate "for free".**
+       Federation fanout, idempotent sync, agent-id provenance,
+       scope enforcement, contradiction detection, consolidation
+       lineage — all battle-tested across three heterogeneous
+       agent frameworks. You don't have to build this layer.
+
+    2. **Bug classes already eliminated.** The S40 `499/500`
+       fanout bug, the S23 1 MB payload handling, the S20
+       bookkeeping-skip, the S18 embedder-fallthrough, the S35
+       clear-fanout symmetry, the S34 pending-action fanout —
+       all closed behind per-PR regression tests. See
+       [PR table in the SME tab of "What this release means"](#what-this-release-means--to-you)
+       for the full lineage with hyperlinks to each PR diff.
+
+    3. **Observability built in.** `/api/v1/health` carries
+       `embedder_ready` + `federation_enabled`. Prometheus
+       metrics for federation_fanout_dropped_total +
+       federation_fanout_retry_total. Scenario logs in
+       per-run stderr traces you can grep offline. The "why
+       did this break in prod" surface is the same as the
+       "why did S40 fail in r26" surface.
+
+    4. **Reproducibility primitive.** The local Docker mesh is
+       not a CI artifact; it's a *development primitive*. You
+       can iterate on an ai-memory change, run the 35-scenario
+       battery against it in ~10 minutes, and commit the run
+       artifacts alongside your PR as proof your change doesn't
+       regress. The DO matrix runs the same scenarios on real
+       cloud servers as the release-gate check.
+
+    **The use proposition**
+
+    ```text
+    # Day 1: use ai-memory as the MCP server behind your agent.
+    ai-memory serve --host 0.0.0.0 --port 9077 \
+                    --quorum-writes 2 \
+                    --quorum-peers http://peer2:9077,http://peer3:9077,http://peer4:9077
+
+    # Day 2: point your agent's MCP client at localhost:9077.
+    # In your framework config:
+    #   mcpServers.memory.command = "ai-memory"
+    #   mcpServers.memory.args = ["mcp"]
+
+    # Day 3: run the testbook against your integration.
+    TOPOLOGY=local-docker bash docker/run-testbook.sh \
+      a2a-<your-framework>-v0.6.2-r1
+
+    # Day 4: commit the run artifacts to your repo as evidence.
+    ```
+
+    Every step has a committed recipe:
+    [`docs/local-docker-mesh.md`](../local-docker-mesh/) has the
+    Dockerfiles, compose, harness, host firewall workaround, and
+    run aggregator.
+
+    **Why you should care**
+
+    Because if your product has two or more agents sharing
+    state, your team is either about to build a shaky version
+    of ai-memory in-house, or already has. This is the
+    certified version — under AlphaOne ownership, Apache-2.0
+    licensed, with 214 passing scenarios per cert run you can
+    inspect byte-by-byte. You get to focus on the agent layer
+    (the part that's actually your product) while the
+    coordination substrate is already evidenced.
+
+---
+
 ## What this release means — to you
 
 Three audiences. One set of facts. Each view leads with the single
