@@ -1,0 +1,1 @@
+{"agent_group": "openclaw", "clock_offset_seconds": 300, "marker": "ck-09c33da781be49dca7cea56f3be238bd", "pass": true, "reasons": [], "scenario": "25", "seen_on": {"node_1": 1, "node_3": 1}, "skipped": false, "target_node": "node-3", "tls_mode": "mtls"}

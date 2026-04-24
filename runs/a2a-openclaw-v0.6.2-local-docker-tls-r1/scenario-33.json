@@ -1,0 +1,1 @@
+{"agent_group": "openclaw", "m1_delivered": 1, "namespace": "scenario33-pubsub-de26ed", "ns_in_subs_after": false, "ns_in_subs_before": true, "pass": true, "reasons": [], "scenario": "33", "skipped": false, "subscribe_http_code": 201, "subscriptions_after_count": 0, "subscriptions_before_count": 1, "tls_mode": "tls", "unsubscribe_http_code": 200}

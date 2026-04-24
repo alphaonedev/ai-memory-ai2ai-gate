@@ -1,0 +1,7 @@
+shifting node-3 clock +300s (NTP disabled for the duration)
+  node-3 now reports: Fri Apr 24 16:29:16 UTC 2026
+alice writes on node-1 (normal clock); waiting for quorum fanout to skewed node-3
+settle 15s for skewed-peer convergence
+  node-3 (+300s clock) sees marker: 1 (expected >=1)
+  node-1 sees marker: 1 (expected >=1)
+reverting node-3 clock

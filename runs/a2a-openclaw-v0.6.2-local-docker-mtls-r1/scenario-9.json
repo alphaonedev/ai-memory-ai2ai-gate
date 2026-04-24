@@ -1,0 +1,1 @@
+{"agent_group": "openclaw", "charlie_view": {"agent_id": "ai:alice", "content": "v2-56b43b01d8014cd1aacfe7ead9fa93b7"}, "m1_id": "2052b64d-8fc0-4a18-b747-889beefabeaf", "pass": true, "put_http_code": 200, "reasons": [], "scenario": "9", "skipped": false, "tls_mode": "mtls", "v1_uuid": "v1-ba7836f4b0ca41caae1383754cd2f91f", "v2_uuid": "v2-56b43b01d8014cd1aacfe7ead9fa93b7"}

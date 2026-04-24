@@ -46,7 +46,7 @@ services:
       AGENT_TYPE: "openclaw"
       AGENT_ID: "ai:alice"
       PEER_URLS: "http://node-2:9077,http://node-3:9077,http://node-4:9077"
-      TLS_MODE: "off"
+      TLS_MODE: "${TLS_MODE:-off}"
       XAI_API_KEY: "${XAI_API_KEY:?XAI_API_KEY env var required}"
       A2A_GATE_LLM_MODEL: "${A2A_GATE_LLM_MODEL:-grok-4-0709}"
       NODE_OPTIONS: "--max-old-space-size=12288"
@@ -56,8 +56,10 @@ services:
       - node-1-data:/var/lib/ai-memory
       - ./entrypoint.sh:/usr/local/bin/entrypoint.sh:ro
       - ./drive_agent.sh:/root/drive_agent.sh:ro
+      - ./healthcheck.sh:/usr/local/bin/healthcheck.sh:ro
+      - ./tls/node-1:/etc/ai-memory-a2a/tls:ro
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:9077/api/v1/health | grep -q ok"]
+      test: ["CMD", "/usr/local/bin/healthcheck.sh"]
       interval: 10s
       timeout: 5s
       retries: 6
@@ -76,7 +78,7 @@ services:
       AGENT_TYPE: "openclaw"
       AGENT_ID: "ai:bob"
       PEER_URLS: "http://node-1:9077,http://node-3:9077,http://node-4:9077"
-      TLS_MODE: "off"
+      TLS_MODE: "${TLS_MODE:-off}"
       XAI_API_KEY: "${XAI_API_KEY:?XAI_API_KEY env var required}"
       A2A_GATE_LLM_MODEL: "${A2A_GATE_LLM_MODEL:-grok-4-0709}"
       NODE_OPTIONS: "--max-old-space-size=12288"
@@ -86,8 +88,10 @@ services:
       - node-2-data:/var/lib/ai-memory
       - ./entrypoint.sh:/usr/local/bin/entrypoint.sh:ro
       - ./drive_agent.sh:/root/drive_agent.sh:ro
+      - ./healthcheck.sh:/usr/local/bin/healthcheck.sh:ro
+      - ./tls/node-2:/etc/ai-memory-a2a/tls:ro
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:9077/api/v1/health | grep -q ok"]
+      test: ["CMD", "/usr/local/bin/healthcheck.sh"]
       interval: 10s
       timeout: 5s
       retries: 6
@@ -106,7 +110,7 @@ services:
       AGENT_TYPE: "openclaw"
       AGENT_ID: "ai:charlie"
       PEER_URLS: "http://node-1:9077,http://node-2:9077,http://node-4:9077"
-      TLS_MODE: "off"
+      TLS_MODE: "${TLS_MODE:-off}"
       XAI_API_KEY: "${XAI_API_KEY:?XAI_API_KEY env var required}"
       A2A_GATE_LLM_MODEL: "${A2A_GATE_LLM_MODEL:-grok-4-0709}"
       NODE_OPTIONS: "--max-old-space-size=12288"
@@ -116,8 +120,10 @@ services:
       - node-3-data:/var/lib/ai-memory
       - ./entrypoint.sh:/usr/local/bin/entrypoint.sh:ro
       - ./drive_agent.sh:/root/drive_agent.sh:ro
+      - ./healthcheck.sh:/usr/local/bin/healthcheck.sh:ro
+      - ./tls/node-3:/etc/ai-memory-a2a/tls:ro
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:9077/api/v1/health | grep -q ok"]
+      test: ["CMD", "/usr/local/bin/healthcheck.sh"]
       interval: 10s
       timeout: 5s
       retries: 6
@@ -136,15 +142,17 @@ services:
       NODE_INDEX: "4"
       ROLE: "memory-only"
       PEER_URLS: "http://node-1:9077,http://node-2:9077,http://node-3:9077"
-      TLS_MODE: "off"
+      TLS_MODE: "${TLS_MODE:-off}"
     mem_limit: 4g
     memswap_limit: 4g
     volumes:
       - node-4-data:/var/lib/ai-memory
       - ./entrypoint.sh:/usr/local/bin/entrypoint.sh:ro
       - ./drive_agent.sh:/root/drive_agent.sh:ro
+      - ./healthcheck.sh:/usr/local/bin/healthcheck.sh:ro
+      - ./tls/node-4:/etc/ai-memory-a2a/tls:ro
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:9077/api/v1/health | grep -q ok"]
+      test: ["CMD", "/usr/local/bin/healthcheck.sh"]
       interval: 10s
       timeout: 5s
       retries: 6

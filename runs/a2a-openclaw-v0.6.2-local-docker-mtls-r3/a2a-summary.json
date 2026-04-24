@@ -1,0 +1,857 @@
+{
+  "campaign_id": "a2a-openclaw-v0.6.2-local-docker-mtls-r3",
+  "agent_group": "openclaw",
+  "ai_memory_git_ref": "release/v0.6.2",
+  "completed_at": "2026-04-24T17:32:06Z",
+  "overall_pass": true,
+  "scenarios": [
+    {
+      "agent_group": "openclaw",
+      "expected_per_reader": 20,
+      "pass": true,
+      "per_agent": {
+        "ai:alice": {
+          "recall": 20
+        },
+        "ai:bob": {
+          "recall": 20
+        },
+        "ai:charlie": {
+          "recall": 20
+        }
+      },
+      "per_namespace_node4": {
+        "scenario1-ai:alice": {
+          "count": 10,
+          "wrong_agent_id": 0
+        },
+        "scenario1-ai:bob": {
+          "count": 10,
+          "wrong_agent_id": 0
+        },
+        "scenario1-ai:charlie": {
+          "count": 10,
+          "wrong_agent_id": 0
+        }
+      },
+      "reasons": [],
+      "scenario": "1",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "openclaw",
+      "delete_http_code": 200,
+      "m1_id": "70475249-892d-4191-b75f-383ab915b1f6",
+      "pass": true,
+      "post_delete_hits": {
+        "node-2": 0,
+        "node-3": 0,
+        "node-4": 0
+      },
+      "post_delete_still_visible_peers": 0,
+      "pre_delete_visible_peers": 3,
+      "reasons": [],
+      "scenario": "10",
+      "skipped": false,
+      "tls_mode": "mtls",
+      "uuid": "d-f31418f9e1aa46d296648b74319f17cd"
+    },
+    {
+      "agent_group": "openclaw",
+      "charlie_sees_link": 1,
+      "link_http_code": 201,
+      "m1_id": "7dc893a6-9d88-4907-a78a-276bde70e840",
+      "m2_id": "5ffbb9f1-20f3-47a7-bfa2-bad777c1c007",
+      "pass": true,
+      "reasons": [],
+      "relation": "related_to",
+      "scenario": "11",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "openclaw",
+      "pass": true,
+      "peers_see": {
+        "node_2": 1,
+        "node_3": 1,
+        "node_4": 1
+      },
+      "reasons": [],
+      "register_http_code": 201,
+      "registered_agent": "ai:dave-probe-3beae238",
+      "scenario": "12",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "openclaw",
+      "m1_id": "11bd5905-94cd-4fef-8516-9655ee574340",
+      "pass": true,
+      "peer_view": {
+        "node_1": "vb-be4e87dcb813440ba35c5082bfbc836c",
+        "node_2": "vb-be4e87dcb813440ba35c5082bfbc836c",
+        "node_3": "vb-be4e87dcb813440ba35c5082bfbc836c",
+        "node_4": "vb-be4e87dcb813440ba35c5082bfbc836c"
+      },
+      "reasons": [],
+      "scenario": "13",
+      "skipped": false,
+      "submitted": {
+        "v0": "v0-3bb368334cfb4fb3b1f555801e7d1916",
+        "vA_alice": "va-0d5c72a71ec74b70acb0e1d25eae2cac",
+        "vB_bob": "vb-be4e87dcb813440ba35c5082bfbc836c"
+      },
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "openclaw",
+      "expected_post_recovery": 20,
+      "node3_saw": 20,
+      "partition_target": "node-3",
+      "pass": true,
+      "reasons": [],
+      "scenario": "14",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "openclaw",
+      "pass": true,
+      "reasons": [],
+      "scenario": "15",
+      "skipped": false,
+      "tls_mode": "mtls",
+      "uuid": "ryw-1da4262f0702485b80984a0c67caa281",
+      "writer_sees_own_write": 1
+    },
+    {
+      "agent_group": "openclaw",
+      "bob_sees_tier": "long",
+      "m1_id": "418cbd01-2f94-42f4-ba39-49f3ae4c6998",
+      "pass": true,
+      "promote_http_code": 200,
+      "reasons": [],
+      "scenario": "16",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "openclaw",
+      "expected_count": 15,
+      "pass": true,
+      "per_peer": {
+        "node_1": 15,
+        "node_2": 15,
+        "node_3": 15,
+        "node_4": 15
+      },
+      "reasons": [],
+      "scenario": "17",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "openclaw",
+      "diag_list_alice_present": 1,
+      "diag_list_bob_present": 1,
+      "diag_node3_embedding_probe": "dawn-walk|1536|BYTES | ridge-strides|1536|BYTES",
+      "pass": true,
+      "query": "morning outdoor exercise routine",
+      "reasons": [],
+      "recall_mode": "hybrid",
+      "rows_in_recall": 2,
+      "scenario": "18",
+      "skipped": false,
+      "tls_mode": "mtls",
+      "writers": [
+        {
+          "agent": "ai:alice",
+          "marker": "alice-sunrise-334c4d2f",
+          "seen_by_charlie": 1
+        },
+        {
+          "agent": "ai:bob",
+          "marker": "bob-daybreak-bdefad3d",
+          "seen_by_charlie": 1
+        }
+      ]
+    },
+    {
+      "agent_group": "openclaw",
+      "expected_per_reader": 20,
+      "pass": true,
+      "path": "serve-http",
+      "per_agent": {
+        "ai:alice": {
+          "recall": 20
+        },
+        "ai:bob": {
+          "recall": 20
+        },
+        "ai:charlie": {
+          "recall": 20
+        }
+      },
+      "per_namespace_node4": {
+        "scenario1b-ai:alice": {
+          "count": 10,
+          "wrong_agent_id": 0
+        },
+        "scenario1b-ai:bob": {
+          "count": 10,
+          "wrong_agent_id": 0
+        },
+        "scenario1b-ai:charlie": {
+          "count": 10,
+          "wrong_agent_id": 0
+        }
+      },
+      "reasons": [],
+      "scenario": "1b",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "ack_uuid": "a-21b6f35345144a22802f1b2ce9763d9c",
+      "agent_group": "openclaw",
+      "handoff_uuid": "h-ad43d52afcfd4147a591cc129a3a4388",
+      "pass": true,
+      "path": "serve-http",
+      "per_agent": {
+        "ai:alice": {
+          "sees_ack": 1
+        },
+        "ai:bob": {
+          "sees_handoff": 1
+        }
+      },
+      "reasons": [],
+      "scenario": "2",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "openclaw",
+      "marker": "mtls-005280a5e9914b0e960c185f10708d96",
+      "pass": true,
+      "peers_see": {
+        "node_2": 1,
+        "node_3": 1
+      },
+      "reasons": [],
+      "scenario": "20",
+      "skipped": false,
+      "tls_mode": "mtls",
+      "write_http_code": 201
+    },
+    {
+      "agent_group": "openclaw",
+      "anonymous_probe": {
+        "curl_message": "OpenSSL SSL_read: OpenSSL/3.0.13: error:0A00045C:SSL routines::tlsv13 alert certificate required, errno 0",
+        "http_code": "curl: (56) OpenSSL SSL_read: OpenSSL/3.0.13: error:0A00045C:SSL routines::tlsv13 alert certificate required, errno 0\n000"
+      },
+      "namespace_count_after_attempt": 0,
+      "pass": true,
+      "reasons": [],
+      "scenario": "21",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "openclaw",
+      "pass": true,
+      "reasons": [],
+      "scenario": "22",
+      "skipped": false,
+      "tests": {
+        "body_vs_header_conflict": {
+          "acceptable": [
+            "ai:body-wins",
+            "ai:attacker"
+          ],
+          "stored_agent_id": "ai:attacker"
+        },
+        "header_only": {
+          "expected": "ai:alice",
+          "stored_agent_id": "ai:alice"
+        }
+      },
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "openclaw",
+      "pass": true,
+      "payloads": {
+        "html": {
+          "input_bytes": 66,
+          "roundtrip_bytes": 66,
+          "write_http": 201
+        },
+        "oversize": {
+          "input_bytes": 1048576,
+          "roundtrip_bytes": 0,
+          "write_http": 400
+        },
+        "sql": {
+          "input_bytes": 61,
+          "roundtrip_bytes": 61,
+          "write_http": 201
+        },
+        "unicode": {
+          "input_bytes": 19,
+          "roundtrip_bytes": 19,
+          "write_http": 201
+        }
+      },
+      "payloads_note": "accept+faithful OR 4xx reject both acceptable for oversize",
+      "reasons": [],
+      "scenario": "23",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "openclaw",
+      "byzantine_marker": "bz-57b5d476acd049eebda486158946da57",
+      "pass": true,
+      "reasons": [],
+      "scenario": "24",
+      "skipped": false,
+      "stored_metadata_agent_id": "REJECTED_BY_SERVER",
+      "sync_push_http_code": "422",
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "openclaw",
+      "clock_offset_seconds": 300,
+      "marker": "ck-272c177231fa4a84ba81408aa51eb031",
+      "pass": true,
+      "reasons": [],
+      "scenario": "25",
+      "seen_on": {
+        "node_1": 1,
+        "node_3": 1
+      },
+      "skipped": false,
+      "target_node": "node-3",
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "openclaw",
+      "pass": true,
+      "peer_hits": {
+        "node_2": 1,
+        "node_3": 1
+      },
+      "reasons": [],
+      "scenario": "28",
+      "skipped": false,
+      "tls_mode": "mtls",
+      "token": "kwsearch077a16a9fd"
+    },
+    {
+      "agent_group": "openclaw",
+      "archive_http_code": 200,
+      "bob_sees_archived": true,
+      "m1_id": "995c9121-677c-43fe-8aba-08a637b082f8",
+      "node4_active_rows": 1,
+      "pass": true,
+      "reasons": [],
+      "restore_http_code": 200,
+      "scenario": "29",
+      "skipped": false,
+      "stats_shape_ok": true,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "openclaw",
+      "pass": true,
+      "peer_views": {
+        "node_1": {
+          "_path": "/api/v1/capabilities",
+          "features": {
+            "auto_consolidation": false,
+            "auto_tagging": false,
+            "contradiction_analysis": false,
+            "cross_encoder_reranking": false,
+            "embedder_loaded": true,
+            "hybrid_recall": true,
+            "keyword_search": true,
+            "memory_reflection": false,
+            "query_expansion": false,
+            "semantic_search": true
+          },
+          "models": {
+            "cross_encoder": "none",
+            "embedding": "sentence-transformers/all-MiniLM-L6-v2",
+            "embedding_dim": 384,
+            "llm": "none"
+          },
+          "tier": "semantic",
+          "version": "0.6.2"
+        },
+        "node_2": {
+          "_path": "/api/v1/capabilities",
+          "features": {
+            "auto_consolidation": false,
+            "auto_tagging": false,
+            "contradiction_analysis": false,
+            "cross_encoder_reranking": false,
+            "embedder_loaded": true,
+            "hybrid_recall": true,
+            "keyword_search": true,
+            "memory_reflection": false,
+            "query_expansion": false,
+            "semantic_search": true
+          },
+          "models": {
+            "cross_encoder": "none",
+            "embedding": "sentence-transformers/all-MiniLM-L6-v2",
+            "embedding_dim": 384,
+            "llm": "none"
+          },
+          "tier": "semantic",
+          "version": "0.6.2"
+        },
+        "node_3": {
+          "_path": "/api/v1/capabilities",
+          "features": {
+            "auto_consolidation": false,
+            "auto_tagging": false,
+            "contradiction_analysis": false,
+            "cross_encoder_reranking": false,
+            "embedder_loaded": true,
+            "hybrid_recall": true,
+            "keyword_search": true,
+            "memory_reflection": false,
+            "query_expansion": false,
+            "semantic_search": true
+          },
+          "models": {
+            "cross_encoder": "none",
+            "embedding": "sentence-transformers/all-MiniLM-L6-v2",
+            "embedding_dim": 384,
+            "llm": "none"
+          },
+          "tier": "semantic",
+          "version": "0.6.2"
+        },
+        "node_4": {
+          "_path": "/api/v1/capabilities",
+          "features": {
+            "auto_consolidation": false,
+            "auto_tagging": false,
+            "contradiction_analysis": false,
+            "cross_encoder_reranking": false,
+            "embedder_loaded": true,
+            "hybrid_recall": true,
+            "keyword_search": true,
+            "memory_reflection": false,
+            "query_expansion": false,
+            "semantic_search": true
+          },
+          "models": {
+            "cross_encoder": "none",
+            "embedding": "sentence-transformers/all-MiniLM-L6-v2",
+            "embedding_dim": 384,
+            "llm": "none"
+          },
+          "tier": "semantic",
+          "version": "0.6.2"
+        }
+      },
+      "reasons": [],
+      "scenario": "30",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "openclaw",
+      "expected_live": 2,
+      "forget_http_code": 400,
+      "gc_http_code": 200,
+      "live_markers_per_peer": {
+        "node_1": 2,
+        "node_2": 2,
+        "node_3": 2,
+        "node_4": 2
+      },
+      "pass": true,
+      "reasons": [],
+      "scenario": "31",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "openclaw",
+      "bob_inbox_count": 1,
+      "bob_sees_marker": true,
+      "charlie_inbox_count": 0,
+      "charlie_sees_marker": false,
+      "marker": "inb-3d0e4d4e40d5476c8790687d1c91f3ef",
+      "notify_http_code": 201,
+      "pass": true,
+      "reasons": [],
+      "scenario": "32",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "openclaw",
+      "m1_delivered": 1,
+      "namespace": "scenario33-pubsub-1acd89",
+      "ns_in_subs_after": false,
+      "ns_in_subs_before": true,
+      "pass": true,
+      "reasons": [],
+      "scenario": "33",
+      "skipped": false,
+      "subscribe_http_code": 201,
+      "subscriptions_after_count": 0,
+      "subscriptions_before_count": 1,
+      "tls_mode": "mtls",
+      "unsubscribe_http_code": 200
+    },
+    {
+      "agent_group": "openclaw",
+      "approve_http_code": 200,
+      "charlie_sees": {
+        "approved": 1,
+        "rejected": 0
+      },
+      "namespace": "scenario34-pending-7f2ff9",
+      "pass": true,
+      "pending_queue_count": 2,
+      "reasons": [],
+      "reject_http_code": 200,
+      "scenario": "34",
+      "set_standard_http_code": 201,
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "openclaw",
+      "child_ns": "scenario35-parent-7192f8/child",
+      "clear_http_code": 200,
+      "get_standard_http_code": 200,
+      "parent_ns": "scenario35-parent-7192f8",
+      "pass": true,
+      "post_clear_has_child_rule": false,
+      "reasons": [],
+      "scenario": "35",
+      "sees_child_rule": true,
+      "sees_parent_rule": true,
+      "set_child_http_code": 201,
+      "set_parent_http_code": 201,
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "openclaw",
+      "pass": true,
+      "reasons": [],
+      "scenario": "36",
+      "session_id": "bdd70002-5edd-4d6a-9fff-4245f2c590e0",
+      "session_tagged_rows_on_bob": 2,
+      "skipped": false,
+      "start_http_code": 200,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "openclaw",
+      "forward_has_target": true,
+      "m1": "8a9dac0e-b84d-4ce9-84db-3bf3ebe5cd36",
+      "m2": "27f299fa-fce2-4bcd-8ee9-7a1224c6252b",
+      "pass": true,
+      "reasons": [],
+      "reverse_has_source": true,
+      "scenario": "37",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "openclaw",
+      "dst_ns": "scenario38-dst-5b3698",
+      "expected_rows": 5,
+      "export_http_code": 200,
+      "import_http_code": 200,
+      "markers_preserved": 5,
+      "pass": true,
+      "reasons": [],
+      "rows_exported": 5,
+      "rows_in_destination": 5,
+      "scenario": "38",
+      "skipped": false,
+      "src_ns": "scenario38-src-5b3698",
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "openclaw",
+      "checkpoint": "2026-04-24T17:29:50+00:00",
+      "diag_curl_body_head": "{\"count\":6,\"earliest_updated_at\":\"2026-04-24T17:30:22.423107265+00:00\",\"latest_updated_at\":\"2026-04-24T17:30:23.405654725+00:00\",\"limit\":500,\"memories\":[{\"access_count\":0,\"confidence\":1.0,\"content\":\"marker=delta-0-75c2eaff0b494ce3acedccf9d6d749b4\",\"created_at\":\"2026-04-24T17:30:22.423107265+00:00\",\"",
+      "diag_curl_exit": 0,
+      "diag_curl_http_code": 200,
+      "diag_curl_stderr": "",
+      "diag_earliest_updated_at": "2026-04-24T17:30:22.423107265+00:00",
+      "diag_latest_updated_at": "2026-04-24T17:30:23.405654725+00:00",
+      "diag_node3_health_reachable": true,
+      "diag_updated_since": "2026-04-24T17:29:50+00:00",
+      "expected_markers": 6,
+      "markers_present": 6,
+      "namespace": "scenario39-delta-d580e7",
+      "pass": true,
+      "reasons": [],
+      "rows_returned": 6,
+      "rows_returned_raw": 6,
+      "scenario": "39",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "openclaw",
+      "expected_per_agent": 30,
+      "pass": true,
+      "per_agent": {
+        "ai:alice": {
+          "count": 30,
+          "wrong_agent_id": 0
+        },
+        "ai:bob": {
+          "count": 30,
+          "wrong_agent_id": 0
+        },
+        "ai:charlie": {
+          "count": 30,
+          "wrong_agent_id": 0
+        }
+      },
+      "reasons": [],
+      "scenario": "4",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "openclaw",
+      "bulk_http_code": "200",
+      "bulk_size": 500,
+      "namespace": "scenario40-bulk-6aa02c",
+      "pass": true,
+      "per_peer_count": {
+        "node_2": 500,
+        "node_3": 500,
+        "node_4": 500
+      },
+      "reasons": [],
+      "scenario": "40",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "activity_namespace": "scenario41-activity-5bf2ae",
+      "agent_group": "openclaw",
+      "pass": true,
+      "per_peer": {
+        "node_1": {
+          "counters_t0": 8,
+          "counters_t1": 8,
+          "regressed_keys": 0
+        },
+        "node_2": {
+          "counters_t0": 8,
+          "counters_t1": 8,
+          "regressed_keys": 0
+        },
+        "node_3": {
+          "counters_t0": 7,
+          "counters_t1": 7,
+          "regressed_keys": 0
+        }
+      },
+      "reasons": [],
+      "scenario": "41",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "openclaw",
+      "namespaces": [
+        "scenario42-0dfbeb-0",
+        "scenario42-0dfbeb-1",
+        "scenario42-0dfbeb-2"
+      ],
+      "pass": true,
+      "per_peer": {
+        "node_1": {
+          "scenario42-0dfbeb-0": 2,
+          "scenario42-0dfbeb-1": 2,
+          "scenario42-0dfbeb-2": 2
+        },
+        "node_2": {
+          "scenario42-0dfbeb-0": 2,
+          "scenario42-0dfbeb-1": 2,
+          "scenario42-0dfbeb-2": 2
+        },
+        "node_3": {
+          "scenario42-0dfbeb-0": 2,
+          "scenario42-0dfbeb-1": 2,
+          "scenario42-0dfbeb-2": 2
+        },
+        "node_4": {
+          "scenario42-0dfbeb-0": 2,
+          "scenario42-0dfbeb-1": 2,
+          "scenario42-0dfbeb-2": 2
+        }
+      },
+      "reasons": [],
+      "scenario": "42",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "openclaw",
+      "consolidate_http_code": 201,
+      "consolidated_from_agents": [
+        "ai:charlie",
+        "ai:bob",
+        "ai:alice"
+      ],
+      "consolidated_id": "00fa44b2-aee6-4167-acd0-e087ce4f2bc3",
+      "pass": true,
+      "reasons": [],
+      "scenario": "5",
+      "skipped": false,
+      "tls_mode": "mtls"
+    },
+    {
+      "agent_group": "openclaw",
+      "alice_id": "d84eb815-24a1-434a-8420-957bddd9b637",
+      "bob_id": "9bcf001b-c465-454d-b005-f1b85a5ce4e1",
+      "charlie_sees_both_memories": true,
+      "charlie_sees_contradicts_link": true,
+      "detect_http_code": 200,
+      "pass": true,
+      "reasons": [],
+      "scenario": "6",
+      "skipped": false,
+      "tls_mode": "mtls",
+      "topic": "sky-color-02e67678"
+    },
+    {
+      "agent_group": "openclaw",
+      "charlie_view": {
+        "agent_id": "ai:alice",
+        "content": "v2-bc73f450881940e3b6020a215e64b48e"
+      },
+      "m1_id": "1e591aaf-9258-45d7-bf66-6af8d713a2bd",
+      "pass": true,
+      "put_http_code": 200,
+      "reasons": [],
+      "scenario": "9",
+      "skipped": false,
+      "tls_mode": "mtls",
+      "v1_uuid": "v1-22be1324180a4b33b3e55f4103876ba6",
+      "v2_uuid": "v2-bc73f450881940e3b6020a215e64b48e"
+    }
+  ],
+  "reasons": [],
+  "skipped_reports": [],
+  "meta": {
+    "campaign_id": "a2a-openclaw-v0.6.2-local-docker-mtls-r3",
+    "agent_group": "openclaw",
+    "ai_memory_git_ref": "release/v0.6.2",
+    "topology": "local-docker",
+    "infra": {
+      "provider": "local-docker",
+      "host": "pop-os",
+      "mesh_topology": "4-node bridge (3 openclaw agents + 1 memory-only aggregator)",
+      "region": "local-docker",
+      "droplet_size": "n/a (container mem_limit=16g per openclaw agent; 4g for aggregator)",
+      "topology": "4-node Docker bridge network (10.88.1.0/24) \u2014 3 openclaw agent containers + 1 memory-only aggregator",
+      "nodes": [
+        {
+          "index": 1,
+          "role": "agent",
+          "agent_id": "ai:alice",
+          "container": "a2a-node-1",
+          "public_ip": "n/a (container)",
+          "private_ip": "10.88.1.11"
+        },
+        {
+          "index": 2,
+          "role": "agent",
+          "agent_id": "ai:bob",
+          "container": "a2a-node-2",
+          "public_ip": "n/a (container)",
+          "private_ip": "10.88.1.12"
+        },
+        {
+          "index": 3,
+          "role": "agent",
+          "agent_id": "ai:charlie",
+          "container": "a2a-node-3",
+          "public_ip": "n/a (container)",
+          "private_ip": "10.88.1.13"
+        },
+        {
+          "index": 4,
+          "role": "memory-only",
+          "container": "a2a-node-4",
+          "public_ip": "n/a (container)",
+          "private_ip": "10.88.1.14"
+        }
+      ]
+    },
+    "scenarios_requested": [
+      "1",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14",
+      "15",
+      "16",
+      "17",
+      "18",
+      "1b",
+      "2",
+      "20",
+      "21",
+      "22",
+      "23",
+      "24",
+      "25",
+      "28",
+      "29",
+      "30",
+      "31",
+      "32",
+      "33",
+      "34",
+      "35",
+      "36",
+      "37",
+      "38",
+      "39",
+      "4",
+      "40",
+      "41",
+      "42",
+      "5",
+      "6",
+      "9"
+    ],
+    "timing": {
+      "started_at": "2026-04-24T17:21:47Z",
+      "ended_at": "2026-04-24T17:32:06Z",
+      "start": "2026-04-24T17:21:47Z",
+      "end": "2026-04-24T17:32:06Z"
+    },
+    "ci": {
+      "runner": "local-docker",
+      "operator": "AI NHI (Claude Opus 4.7)"
+    },
+    "notes": "Tested on a local Docker mesh (3 openclaw agents + 1 memory-only aggregator on a single workstation). NOT a DigitalOcean campaign \u2014 no DO infrastructure was provisioned. See docs/local-docker-mesh.md for full reproducibility. Every byte of config, build recipe, harness, and scenario is committed in this repo.",
+    "scenario_policy_notes": "S20 mtls_happy_path is mtls-only (it self-gates with 'only runs under tls_mode=mtls'). Appended only under tls_mode=mtls in this runner, matching ai-memory-ai2ai-gate PR #55. S21 mtls_anonymous_rejected is likewise mtls-only. S27 openclaw_legacy runs on every openclaw dispatch."
+  }
+}

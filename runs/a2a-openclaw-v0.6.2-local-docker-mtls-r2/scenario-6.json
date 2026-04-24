@@ -1,0 +1,1 @@
+{"agent_group": "openclaw", "alice_id": "984e6eed-4f62-49e0-b5be-2e55e7f63ecb", "bob_id": "865e671a-192b-450d-981a-1b539ad12dac", "charlie_sees_both_memories": true, "charlie_sees_contradicts_link": true, "detect_http_code": 200, "pass": true, "reasons": [], "scenario": "6", "skipped": false, "tls_mode": "mtls", "topic": "sky-color-17393410"}

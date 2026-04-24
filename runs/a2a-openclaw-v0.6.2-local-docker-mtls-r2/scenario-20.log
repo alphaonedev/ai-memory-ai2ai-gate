@@ -1,0 +1,5 @@
+alice writes HTTPS + client cert on node-1
+  write returned HTTP 201
+settle 12s for W=2/N=4 quorum
+  node-2 sees marker: 1
+  node-3 sees marker: 1

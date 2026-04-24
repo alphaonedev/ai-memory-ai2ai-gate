@@ -32,8 +32,19 @@ log() { printf '[node-%s %s] %s\n' "$NODE_INDEX" "$(date -u +%H:%M:%S)" "$*" >&2
 
 log "container starting: role=$ROLE tls_mode=$TLS_MODE peers=$PEER_URLS"
 
-# Assemble ai-memory serve args — TLS plumbing not yet implemented for
-# the local-docker topology; off-mode only in phase 1.
+# When TLS is enabled the federation mesh speaks https, not http.
+# Rewrite the peer URL scheme here so a single compose file serves
+# all three tls modes by only changing the TLS_MODE env.
+if [ "$TLS_MODE" != "off" ] && [ -n "${PEER_URLS:-}" ]; then
+  PEER_URLS=$(printf '%s' "$PEER_URLS" | sed 's|http://|https://|g')
+  export PEER_URLS
+  log "PEER_URLS rewritten for $TLS_MODE: $PEER_URLS"
+fi
+
+# Assemble ai-memory serve args. TLS_MODE off/tls/mtls all supported;
+# TLS material for non-off modes is expected at /etc/ai-memory-a2a/tls/
+# via bind-mount from docker/tls/node-$NODE_INDEX/ (produced by
+# docker/gen-tls.sh). Matches setup_node.sh line-for-line.
 SERVE_ARGS=(
   --host 0.0.0.0 --port 9077
   --db /var/lib/ai-memory/a2a.db
@@ -41,23 +52,45 @@ SERVE_ARGS=(
   --quorum-peers "$PEER_URLS"
 )
 
+SERVE_SCHEME="http"
+LOCAL_CURL_FLAGS=()
 if [ "$TLS_MODE" != "off" ]; then
-  log "FATAL: tls_mode=$TLS_MODE not yet supported in local-docker topology (Phase 3 scope)"
-  exit 2
+  SERVE_SCHEME="https"
+  TLS_CERT=/etc/ai-memory-a2a/tls/server.pem
+  TLS_KEY=/etc/ai-memory-a2a/tls/server.key
+  TLS_CA=/etc/ai-memory-a2a/tls/ca.pem
+  TLS_ALLOWLIST=/etc/ai-memory-a2a/tls/allowlist.txt
+  TLS_CLIENT_CERT=/etc/ai-memory-a2a/tls/client.pem
+  TLS_CLIENT_KEY=/etc/ai-memory-a2a/tls/client.key
+  for required in "$TLS_CERT" "$TLS_KEY" "$TLS_CA"; do
+    [ -f "$required" ] || { log "FATAL: TLS_MODE=$TLS_MODE but $required missing (bind-mount docker/tls/node-$NODE_INDEX)"; exit 1; }
+  done
+  SERVE_ARGS+=(--tls-cert "$TLS_CERT" --tls-key "$TLS_KEY"
+               --quorum-client-cert "$TLS_CERT" --quorum-client-key "$TLS_KEY"
+               --quorum-ca-cert "$TLS_CA")
+  LOCAL_CURL_FLAGS=(--cacert "$TLS_CA" --resolve "localhost:9077:127.0.0.1")
+  if [ "$TLS_MODE" = "mtls" ]; then
+    [ -f "$TLS_ALLOWLIST" ] || { log "FATAL: TLS_MODE=mtls but $TLS_ALLOWLIST missing"; exit 1; }
+    SERVE_ARGS+=(--mtls-allowlist "$TLS_ALLOWLIST")
+    LOCAL_CURL_FLAGS+=(--cert "$TLS_CLIENT_CERT" --key "$TLS_CLIENT_KEY")
+  fi
+  log "TLS staged: cert=$TLS_CERT ca=$TLS_CA mtls=$([ "$TLS_MODE" = mtls ] && echo yes || echo no)"
 fi
 
 # Start ai-memory serve in the background. The container's PID 1 is
 # the agent framework (or a sleep loop for memory-only nodes); the
 # memory daemon runs as a child so its logs land in the container's
 # stdout via the tee below.
-log "starting ai-memory serve on :9077"
+log "starting ai-memory serve on :9077 scheme=$SERVE_SCHEME"
 ai-memory serve "${SERVE_ARGS[@]}" > /var/log/ai-memory-serve.log 2>&1 &
 SERVE_PID=$!
 
-# Health wait — match setup_node.sh's 30-attempt / 1s pattern.
+# Health wait — match setup_node.sh's 60-attempt / 1s pattern.
+LOCAL_HEALTH_URL="${SERVE_SCHEME}://127.0.0.1:9077/api/v1/health"
+[ "$TLS_MODE" != "off" ] && LOCAL_HEALTH_URL="${SERVE_SCHEME}://localhost:9077/api/v1/health"
 for attempt in $(seq 1 60); do
-  if curl -sSf "http://127.0.0.1:9077/api/v1/health" 2>/dev/null | grep -q '"ok"'; then
-    log "ai-memory serve ready on :9077 (attempt $attempt)"
+  if curl -sSf "${LOCAL_CURL_FLAGS[@]}" "$LOCAL_HEALTH_URL" 2>/dev/null | grep -q '"ok"'; then
+    log "ai-memory serve ready on :9077 (scheme=$SERVE_SCHEME attempt=$attempt)"
     break
   fi
   if ! kill -0 "$SERVE_PID" 2>/dev/null; then
@@ -67,8 +100,8 @@ for attempt in $(seq 1 60); do
   fi
   sleep 1
 done
-curl -sSf "http://127.0.0.1:9077/api/v1/health" 2>/dev/null | grep -q '"ok"' || {
-  log "FATAL: ai-memory serve never came up"
+curl -sSf "${LOCAL_CURL_FLAGS[@]}" "$LOCAL_HEALTH_URL" 2>/dev/null | grep -q '"ok"' || {
+  log "FATAL: ai-memory serve never came up (scheme=$SERVE_SCHEME)"
   tail -n 50 /var/log/ai-memory-serve.log >&2
   exit 1
 }
@@ -106,6 +139,14 @@ log "MCP config written"
 # /etc/ai-memory-a2a/env — consumed by drive_agent.sh (and the S1 MCP
 # path) on the agent node. Matches the DO setup_node.sh contract so the
 # forked harness can run drive_agent-based scenarios unmodified.
+# LOCAL_MEMORY_URL + TLS material paths vary by TLS_MODE. drive_agent.sh
+# reads both and constructs the right curl invocation via its
+# fallback_driver. Keep the paths canonical (matches setup_node.sh).
+if [ "$TLS_MODE" = "off" ]; then
+  LOCAL_MEMORY_URL="http://127.0.0.1:9077"
+else
+  LOCAL_MEMORY_URL="https://localhost:9077"
+fi
 cat > /etc/ai-memory-a2a/env <<EOF
 NODE_INDEX=$NODE_INDEX
 ROLE=$ROLE
@@ -113,7 +154,10 @@ AGENT_TYPE=${AGENT_TYPE:-}
 AGENT_ID=${AGENT_ID:-}
 TLS_MODE=$TLS_MODE
 PEER_URLS=$PEER_URLS
-LOCAL_MEMORY_URL=http://127.0.0.1:9077
+LOCAL_MEMORY_URL=$LOCAL_MEMORY_URL
+TLS_CA=/etc/ai-memory-a2a/tls/ca.pem
+TLS_CLIENT_CERT=/etc/ai-memory-a2a/tls/client.pem
+TLS_CLIENT_KEY=/etc/ai-memory-a2a/tls/client.key
 MCP_CONFIG=/etc/ai-memory-a2a/mcp-config/config.json
 A2A_GATE_LLM_MODEL=${A2A_GATE_LLM_MODEL}
 XAI_API_KEY=${XAI_API_KEY:-}
