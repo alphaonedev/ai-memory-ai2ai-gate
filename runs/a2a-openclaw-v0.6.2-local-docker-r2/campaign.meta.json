@@ -13,29 +13,36 @@
         "role": "agent",
         "agent_id": "ai:alice",
         "container": "a2a-node-1",
-        "private_ip": "10.88.1.11"
+        "private_ip": "10.88.1.11",
+        "public_ip": "n/a (container)"
       },
       {
         "index": 2,
         "role": "agent",
         "agent_id": "ai:bob",
         "container": "a2a-node-2",
-        "private_ip": "10.88.1.12"
+        "private_ip": "10.88.1.12",
+        "public_ip": "n/a (container)"
       },
       {
         "index": 3,
         "role": "agent",
         "agent_id": "ai:charlie",
         "container": "a2a-node-3",
-        "private_ip": "10.88.1.13"
+        "private_ip": "10.88.1.13",
+        "public_ip": "n/a (container)"
       },
       {
         "index": 4,
         "role": "memory-only",
         "container": "a2a-node-4",
-        "private_ip": "10.88.1.14"
+        "private_ip": "10.88.1.14",
+        "public_ip": "n/a (container)"
       }
-    ]
+    ],
+    "region": "local-docker",
+    "droplet_size": "n/a (container mem_limit=16g per openclaw agent; 4g for aggregator)",
+    "topology": "4-node Docker bridge network (10.88.1.0/24) \u2014 3 openclaw agent containers + 1 memory-only aggregator"
   },
   "scenarios_requested": [
     "1",
@@ -76,10 +83,13 @@
   ],
   "timing": {
     "start": "2026-04-24T13:50:20Z",
-    "end": "2026-04-24T14:00:14Z"
+    "end": "2026-04-24T14:00:14Z",
+    "started_at": "2026-04-24T13:50:20Z",
+    "ended_at": "2026-04-24T14:00:14Z"
   },
   "ci": {
     "runner": "local-docker",
     "operator": "AI NHI (Claude Opus 4.7)"
-  }
+  },
+  "notes": "Tested on a local Docker mesh (3 openclaw agents + 1 memory-only aggregator on a single workstation). NOT a DigitalOcean campaign \u2014 no DO infrastructure was provisioned. See docs/local-docker-mesh.md for full reproducibility. Every byte of config, build recipe, harness, and scenario is committed in this repo."
 }

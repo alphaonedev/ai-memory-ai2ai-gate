@@ -63,24 +63,231 @@
         <h2>Infrastructure</h2>
         <dl class="meta">
           <dt>Provider</dt><dd><code>local-docker</code></dd>
-          <dt>Region</dt><dd><code>?</code></dd>
-          <dt>Droplet size</dt><dd><code>?</code></dd>
-          <dt>Topology</dt><dd>?</dd>
-          <dt>Scenarios started</dt><dd>?</dd>
-          <dt>Scenarios ended</dt><dd>?</dd>
+          <dt>Region</dt><dd><code>local-docker</code></dd>
+          <dt>Droplet size</dt><dd><code>n/a (container mem_limit=16g per openclaw agent; 4g for aggregator)</code></dd>
+          <dt>Topology</dt><dd>4-node Docker bridge network (10.88.1.0/24) — 3 openclaw agent containers + 1 memory-only aggregator</dd>
+          <dt>Scenarios started</dt><dd>2026-04-24T13:39:21Z</dd>
+          <dt>Scenarios ended</dt><dd>2026-04-24T13:49:17Z</dd>
           <dt>Dispatched by</dt><dd><code>?</code></dd>
           <dt>Harness SHA</dt><dd><code>?</code></dd>
         </dl>
+        <p class="muted"><em>Tested on a local Docker mesh (3 openclaw agents + 1 memory-only aggregator on a single workstation). NOT a DigitalOcean campaign — no DO infrastructure was provisioned. See docs/local-docker-mesh.md for full reproducibility. Every byte of config, build recipe, harness, and scenario is committed in this repo.</em></p>
         <h3>Node roster</h3>
         <table class="nodes">
           <thead><tr><th>#</th><th>Role</th><th>Agent ID</th><th>Public IP</th><th>Private IP</th></tr></thead>
           <tbody>
-<tr><td>1</td><td>agent</td><td><code>ai:alice</code></td><td><code>null</code></td><td><code>10.88.1.11</code></td></tr>
-<tr><td>2</td><td>agent</td><td><code>ai:bob</code></td><td><code>null</code></td><td><code>10.88.1.12</code></td></tr>
-<tr><td>3</td><td>agent</td><td><code>ai:charlie</code></td><td><code>null</code></td><td><code>10.88.1.13</code></td></tr>
-<tr><td>4</td><td>memory-only</td><td><code>—</code></td><td><code>null</code></td><td><code>10.88.1.14</code></td></tr>
+<tr><td>1</td><td>agent</td><td><code>ai:alice</code></td><td><code>n/a (container)</code></td><td><code>10.88.1.11</code></td></tr>
+<tr><td>2</td><td>agent</td><td><code>ai:bob</code></td><td><code>n/a (container)</code></td><td><code>10.88.1.12</code></td></tr>
+<tr><td>3</td><td>agent</td><td><code>ai:charlie</code></td><td><code>n/a (container)</code></td><td><code>10.88.1.13</code></td></tr>
+<tr><td>4</td><td>memory-only</td><td><code>—</code></td><td><code>n/a (container)</code></td><td><code>10.88.1.14</code></td></tr>
           </tbody>
         </table>
+      </section>
+      <section class="baseline">
+        <h2>Baseline attestation <span class="badge pass">BASELINE OK</span></h2>
+        <p class="muted">Per the <a href="../baseline/">authoritative baseline spec</a>, every agent node must emit a self-attestation before any scenario is permitted to run. This run's attestation:</p>
+        <p class="muted">Spec version: <code>1.4.0</code> — see <a href="../baseline/">authoritative baseline</a>.</p>
+        <table class="nodes">
+          <thead><tr><th>Node</th><th>Agent</th><th>Framework</th><th>Authentic</th><th>MCP ai-memory</th><th>xAI cfg</th><th>xAI default</th><th>Agent ID</th><th>Federation</th><th>UFW off</th><th>iptables</th><th>dead-man</th><th>F1 xAI</th><th>F2a substrate</th><th>F2b agent (non-gating)</th><th>Config SHA</th><th>Pass</th></tr></thead>
+          <tbody>
+<tr><td>node-1</td><td><code>ai:alice</code></td><td><code>openclaw OpenClaw 2026.4.22 (00bd2cf)</code></td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>—</td><td>❌</td><td>✅</td><td>—</td><td><code>—</code></td><td><strong>PASS</strong></td></tr>
+<tr><td>node-2</td><td><code>ai:bob</code></td><td><code>openclaw OpenClaw 2026.4.22 (00bd2cf)</code></td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>—</td><td>❌</td><td>✅</td><td>—</td><td><code>—</code></td><td><strong>PASS</strong></td></tr>
+<tr><td>node-3</td><td><code>ai:charlie</code></td><td><code>openclaw OpenClaw 2026.4.22 (00bd2cf)</code></td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>—</td><td>❌</td><td>✅</td><td>—</td><td><code>—</code></td><td><strong>PASS</strong></td></tr>
+<tr><td>node-4</td><td><code></code></td><td><code>aggregator </code></td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>—</td><td>❌</td><td>✅</td><td>—</td><td><code>—</code></td><td><strong>PASS</strong></td></tr>
+          </tbody>
+        </table>
+        <details><summary>a2a-baseline.json</summary>
+          <pre>
+{
+	"baseline_pass": true,
+	"per_node": [
+		{
+			"spec_version": "1.4.0",
+			"agent_type": "openclaw",
+			"agent_id": "ai:alice",
+			"node_index": "1",
+			"framework_version": "OpenClaw 2026.4.22 (00bd2cf)",
+			"ai_memory_version": "0.6.2",
+			"peer_urls": "http://node-2:9077,http://node-3:9077,http://node-4:9077",
+			"config_attestation": {
+				"framework_is_authentic": true,
+				"mcp_server_ai_memory_registered": true,
+				"llm_backend_is_xai_grok": true,
+				"llm_is_default_provider": true,
+				"mcp_command_is_ai_memory": true,
+				"agent_id_stamped": true,
+				"federation_live": true,
+				"ufw_disabled": true,
+				"iptables_flushed": true,
+				"dead_man_switch_scheduled": "N/A (local-docker)",
+				"topology": "local-docker"
+			},
+			"negative_invariants": {
+				"_description": "Alternative A2A channels must be OFF so a passing scenario is only passing via ai-memory shared memory.",
+				"a2a_protocol_off": true,
+				"sub_agent_or_sessions_spawn_off": true,
+				"alternative_channels_off": true,
+				"tool_allowlist_is_memory_only": true,
+				"a2a_gate_profile_locked": true
+			},
+			"functional_probes": {
+				"substrate_http_canary_f2a": true,
+				"mesh_connectivity_f4": true,
+				"tls_handshake_f6": true,
+				"mtls_enforcement_f7": true,
+				"embedder_loaded_f8": true,
+				"_topology_note": "Local Docker mesh on a single workstation (3 openclaw agent containers + 1 memory-only aggregator). See docs/local-docker-mesh.md for reproducibility."
+			},
+			"baseline_pass": true
+		},
+		{
+			"spec_version": "1.4.0",
+			"agent_type": "openclaw",
+			"agent_id": "ai:bob",
+			"node_index": "2",
+			"framework_version": "OpenClaw 2026.4.22 (00bd2cf)",
+			"ai_memory_version": "0.6.2",
+			"peer_urls": "http://node-1:9077,http://node-3:9077,http://node-4:9077",
+			"config_attestation": {
+				"framework_is_authentic": true,
+				"mcp_server_ai_memory_registered": true,
+				"llm_backend_is_xai_grok": true,
+				"llm_is_default_provider": true,
+				"mcp_command_is_ai_memory": true,
+				"agent_id_stamped": true,
+				"federation_live": true,
+				"ufw_disabled": true,
+				"iptables_flushed": true,
+				"dead_man_switch_scheduled": "N/A (local-docker)",
+				"topology": "local-docker"
+			},
+			"negative_invariants": {
+				"_description": "Alternative A2A channels must be OFF so a passing scenario is only passing via ai-memory shared memory.",
+				"a2a_protocol_off": true,
+				"sub_agent_or_sessions_spawn_off": true,
+				"alternative_channels_off": true,
+				"tool_allowlist_is_memory_only": true,
+				"a2a_gate_profile_locked": true
+			},
+			"functional_probes": {
+				"substrate_http_canary_f2a": true,
+				"mesh_connectivity_f4": true,
+				"tls_handshake_f6": true,
+				"mtls_enforcement_f7": true,
+				"embedder_loaded_f8": true,
+				"_topology_note": "Local Docker mesh on a single workstation (3 openclaw agent containers + 1 memory-only aggregator). See docs/local-docker-mesh.md for reproducibility."
+			},
+			"baseline_pass": true
+		},
+		{
+			"spec_version": "1.4.0",
+			"agent_type": "openclaw",
+			"agent_id": "ai:charlie",
+			"node_index": "3",
+			"framework_version": "OpenClaw 2026.4.22 (00bd2cf)",
+			"ai_memory_version": "0.6.2",
+			"peer_urls": "http://node-1:9077,http://node-2:9077,http://node-4:9077",
+			"config_attestation": {
+				"framework_is_authentic": true,
+				"mcp_server_ai_memory_registered": true,
+				"llm_backend_is_xai_grok": true,
+				"llm_is_default_provider": true,
+				"mcp_command_is_ai_memory": true,
+				"agent_id_stamped": true,
+				"federation_live": true,
+				"ufw_disabled": true,
+				"iptables_flushed": true,
+				"dead_man_switch_scheduled": "N/A (local-docker)",
+				"topology": "local-docker"
+			},
+			"negative_invariants": {
+				"_description": "Alternative A2A channels must be OFF so a passing scenario is only passing via ai-memory shared memory.",
+				"a2a_protocol_off": true,
+				"sub_agent_or_sessions_spawn_off": true,
+				"alternative_channels_off": true,
+				"tool_allowlist_is_memory_only": true,
+				"a2a_gate_profile_locked": true
+			},
+			"functional_probes": {
+				"substrate_http_canary_f2a": true,
+				"mesh_connectivity_f4": true,
+				"tls_handshake_f6": true,
+				"mtls_enforcement_f7": true,
+				"embedder_loaded_f8": true,
+				"_topology_note": "Local Docker mesh on a single workstation (3 openclaw agent containers + 1 memory-only aggregator). See docs/local-docker-mesh.md for reproducibility."
+			},
+			"baseline_pass": true
+		},
+		{
+			"spec_version": "1.4.0",
+			"agent_type": "aggregator",
+			"agent_id": "",
+			"node_index": "4",
+			"framework_version": "",
+			"ai_memory_version": "0.6.2",
+			"peer_urls": "http://node-1:9077,http://node-2:9077,http://node-3:9077",
+			"config_attestation": {
+				"framework_is_authentic": true,
+				"mcp_server_ai_memory_registered": true,
+				"llm_backend_is_xai_grok": true,
+				"llm_is_default_provider": true,
+				"mcp_command_is_ai_memory": true,
+				"agent_id_stamped": true,
+				"federation_live": true,
+				"ufw_disabled": true,
+				"iptables_flushed": true,
+				"dead_man_switch_scheduled": "N/A (local-docker)",
+				"topology": "local-docker"
+			},
+			"negative_invariants": {
+				"_description": "Alternative A2A channels must be OFF so a passing scenario is only passing via ai-memory shared memory.",
+				"a2a_protocol_off": true,
+				"sub_agent_or_sessions_spawn_off": true,
+				"alternative_channels_off": true,
+				"tool_allowlist_is_memory_only": true,
+				"a2a_gate_profile_locked": true
+			},
+			"functional_probes": {
+				"substrate_http_canary_f2a": true,
+				"mesh_connectivity_f4": true,
+				"tls_handshake_f6": true,
+				"mtls_enforcement_f7": true,
+				"embedder_loaded_f8": true,
+				"_topology_note": "Local Docker mesh on a single workstation (3 openclaw agent containers + 1 memory-only aggregator). See docs/local-docker-mesh.md for reproducibility."
+			},
+			"baseline_pass": true
+		}
+	],
+	"_topology": "local-docker",
+	"_topology_note": "Local Docker mesh on a single workstation (3 openclaw agent containers + 1 memory-only aggregator). See docs/local-docker-mesh.md for reproducibility."
+}
+</pre>
+          <p><a href="./a2a-baseline.json">raw file</a></p>
+        </details>
+      </section>
+      <section class="f3">
+        <h2>F3 — peer A2A via shared memory <span class="badge pass">F3 OK</span></h2>
+        <p class="muted">Workflow-level probe answering "can agents communicate through ai-memory?". Writer <code>ai:alice</code> posted canary UUID <code>81406c97-1588-4f12-a484-7882ea7f62b8</code> to namespace <code>_baseline_peer_canary</code> via node-1's local <code>ai-memory</code> serve HTTP. After W=2 fanout settle, probe confirmed the canary on each of the 3 peer nodes via their local <code>GET /api/v1/memories</code>.</p>
+        <details><summary>f3-peer-a2a.json</summary>
+          <pre>
+{
+	"probe": "F3",
+	"name": "peer-a2a-via-shared-memory",
+	"description": "Writer posts a canary via ai-memory HTTP on node-1; verifies propagation to peers (W=2/N=4 quorum).",
+	"canary_uuid": "81406c97-1588-4f12-a484-7882ea7f62b8",
+	"canary_namespace": "_baseline_peer_canary",
+	"writer_agent": "ai:alice",
+	"peers_seen": {
+		"node-2": true,
+		"node-3": true,
+		"node-4": true
+	},
+	"pass": true,
+	"topology": "local-docker"
+}
+</pre>
+          <p><a href="./f3-peer-a2a.json">raw file</a></p>
+        </details>
       </section>
       <section class="ai-insight">
         <h2>AI NHI analysis</h2>
@@ -1544,8 +1751,10 @@ settle 10s for namespace index fanout
     <section>
       <h2>All artifacts</h2>
       <ul>
+        <li><a href="./a2a-baseline.json">a2a-baseline.json</a></li>
         <li><a href="./a2a-summary.json">a2a-summary.json</a></li>
         <li><a href="./campaign.meta.json">campaign.meta.json</a></li>
+        <li><a href="./f3-peer-a2a.json">f3-peer-a2a.json</a></li>
         <li><a href="./scenario-10.json">scenario-10.json</a></li>
         <li><a href="./scenario-11.json">scenario-11.json</a></li>
         <li><a href="./scenario-12.json">scenario-12.json</a></li>
