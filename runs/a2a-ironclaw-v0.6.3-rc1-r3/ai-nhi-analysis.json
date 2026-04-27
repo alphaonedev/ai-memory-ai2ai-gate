@@ -1,0 +1,13 @@
+{
+  "_campaign_id": "a2a-ironclaw-v0.6.3-rc1-r3",
+  "_generated_by": "scripts/analyze_run.py",
+  "_model": "grok-4-0709",
+  "for_c_level": "Core federation stable with low risk for basic sharing claims; advanced KG/entity features not production-ready, posing high deployment risk. Customer-facing viability limited to semantic tier basics; failures indicate regression or incomplete impl in v0.6.3-rc1 vs prior stability expectations. Prioritize fixes to unblock full feature set.",
+  "for_non_technical": "The AI agents can reliably share and remember simple information with each other across the network. However, more advanced ways of organizing, linking, or managing those memories don't work correctly yet. This means the system is okay for basic uses but needs improvements for complex tasks.",
+  "for_sme": "Failures isolate to advanced primitives: S44 taxonomy missing subtree_count and node location; S45 kg_invalidate 400 with no edges; S46 timeline missing add/invalidate events; S47 entity alias resolutions all 404; S48 check_duplicate 422 with no matches/scores; S49 lifecycle ops like promote/expire/archive/restore/purge mostly 404 or ineffective. Probable root cause is incomplete KG/entity/lifecycle support in v0.6.3-rc1 federation mode. Skips S50/51 due to missing sqlcipher and autonomous tier builds.",
+  "headline": "Core memory sharing passes, advanced KG/entity features fail in rc1",
+  "next_run_change": "Apply patches for KG, entity, duplicate, lifecycle, and taxonomy bugs before re-running failed scenarios.",
+  "verdict": "FAIL \u2014 37/45 green, 6 red (S44-49), 2 skipped",
+  "what_it_proved": "Proved reliable basic sharing and recall in 37 scenarios, but exposed bugs in advanced features like taxonomy, KG invalidation, timelines, entity aliases, duplicate detection, and memory lifecycle.",
+  "what_it_tested": "Tested 45 scenarios exercising memory write/read/delete/link/recall/consolidate across HTTP transport in 4-node federation, covering primitives like versioning, promotion, hybrid search, and KG operations."
+}

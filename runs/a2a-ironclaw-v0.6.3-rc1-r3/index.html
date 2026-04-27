@@ -1,0 +1,2449 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Campaign a2a-ironclaw-v0.6.3-rc1-r3 — ai-memory A2A gate</title>
+  <style>
+    :root { --fg:#1a1a1a; --bg:#fff; --muted:#666; --pass:#1a8b3c; --fail:#b32222; --warn:#b36b00; --pass-bg:#e6f6ea; --fail-bg:#fceaea; --warn-bg:#fdf3e0; --border:#e0e0e0; --code-bg:#f7f7f9; --accent:#3952c8; --accent-bg:#eef1fd; }
+    @media (prefers-color-scheme: dark) { :root { --fg:#eaeaea; --bg:#181818; --muted:#a0a0a0; --pass:#4adc76; --fail:#ff6a6a; --warn:#ffb74d; --pass-bg:#153d23; --fail-bg:#401818; --warn-bg:#3a2d10; --border:#2a2a2a; --code-bg:#202028; --accent:#8da3ff; --accent-bg:#1c2140; } }
+    * { box-sizing:border-box; }
+    body { font:15px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; color:var(--fg); background:var(--bg); margin:0; }
+    main { max-width:960px; margin:0 auto; padding:2rem 1.25rem 4rem; }
+    header { border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.5rem; }
+    header p.crumb { color:var(--muted); font-size:13px; margin:0 0 .25rem; }
+    h1 { margin:.25rem 0 .75rem; font-size:1.85rem; }
+    h2 { margin:1.75rem 0 .5rem; font-size:1.2rem; border-bottom:1px solid var(--border); padding-bottom:.25rem; }
+    h3 { margin:1.25rem 0 .4rem; font-size:1rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; font-weight:600; }
+    h4 { margin:.5rem 0 .25rem; font-size:1rem; }
+    dl.meta { display:grid; grid-template-columns:max-content 1fr; gap:.35rem 1rem; margin:0; }
+    dl.meta dt { color:var(--muted); }
+    dl.meta dd { margin:0; }
+    table.nodes { width:100%; border-collapse:collapse; margin-top:.5rem; font-size:14px; }
+    table.nodes th, table.nodes td { border:1px solid var(--border); padding:.35rem .6rem; text-align:left; }
+    table.nodes th { background:var(--code-bg); font-weight:600; }
+    .badge { display:inline-block; padding:.15rem .55rem; border-radius:999px; font-size:12px; font-weight:600; letter-spacing:.03em; text-transform:uppercase; margin-left:.4rem; vertical-align:middle; }
+    .badge.pass { color:var(--pass); background:var(--pass-bg); }
+    .badge.fail { color:var(--fail); background:var(--fail-bg); }
+    .badge.warn { color:var(--warn); background:var(--warn-bg); }
+    .run-focus { background:var(--code-bg); border-left:4px solid var(--accent); padding:1rem 1.25rem; margin:1.5rem 0; border-radius:0 6px 6px 0; }
+    .run-focus h2 { border:none; margin:0 0 .5rem; padding:0; font-size:1.1rem; }
+    .run-focus p.label { color:var(--accent); font-size:12px; text-transform:uppercase; letter-spacing:.06em; font-weight:600; margin:0 0 .25rem; }
+    .ai-insight { background:var(--accent-bg); border-radius:8px; padding:1.25rem 1.5rem; margin:1.5rem 0 2rem; border-left:4px solid var(--accent); }
+    .ai-insight h2 { border:none; padding:0; margin-top:.25rem; }
+    .ai-insight p.tag { color:var(--accent); font-size:12px; text-transform:uppercase; letter-spacing:.08em; font-weight:600; margin:0 0 .25rem; }
+    .ai-insight p.verdict { font-size:1.05rem; margin:.5rem 0 1rem; }
+    .audiences { display:grid; grid-template-columns:1fr; gap:.75rem; margin-top:.5rem; }
+    @media (min-width: 720px) { .audiences { grid-template-columns:repeat(3,1fr); } }
+    .audiences article { background:var(--bg); border:1px solid var(--border); border-radius:6px; padding:.85rem 1rem; }
+    .audiences article h4 { margin-top:0; color:var(--accent); font-size:14px; }
+    details { border:1px solid var(--border); border-radius:6px; padding:.25rem .75rem; margin:.5rem 0; }
+    summary { cursor:pointer; padding:.45rem 0; font-weight:500; }
+    pre { background:var(--code-bg); padding:.75rem; border-radius:6px; overflow-x:auto; font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace; margin:.5rem 0; max-height:480px; }
+    pre.log { max-height:640px; }
+    a { color:var(--accent); } a:hover { text-decoration:underline; }
+    .muted { color:var(--muted); font-size:14px; }
+    footer { color:var(--muted); font-size:12px; border-top:1px solid var(--border); padding-top:1rem; margin-top:3rem; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="crumb"><a href="../">../ runs index</a></p>
+      <h1>Campaign a2a-ironclaw-v0.6.3-rc1-r3 <span class="badge fail">FAIL</span></h1>
+      <dl class="meta">
+        <dt>Agent group</dt><dd><code>ironclaw</code> (homogeneous)</dd>
+        <dt>ai-memory ref</dt><dd><code>release/v0.6.3</code></dd>
+        <dt>Completed at</dt><dd>2026-04-27T17:14:43Z</dd>
+        <dt>Overall pass</dt><dd>false</dd>
+        <dt>Skipped reports</dt><dd>0</dd>
+      </dl>
+    </header>
+      <section class="infra">
+        <h2>Infrastructure</h2>
+        <dl class="meta">
+          <dt>Provider</dt><dd><code>digitalocean</code></dd>
+          <dt>Region</dt><dd><code>nyc3</code></dd>
+          <dt>Droplet size</dt><dd><code>s-2vcpu-4gb</code></dd>
+          <dt>Topology</dt><dd>4-node federation mesh (W=2/N=4)</dd>
+          <dt>Scenarios started</dt><dd>2026-04-27T16:56:30Z</dd>
+          <dt>Scenarios ended</dt><dd>2026-04-27T17:14:42Z</dd>
+          <dt>Dispatched by</dt><dd><code>alphaonedev</code></dd>
+          <dt>Harness SHA</dt><dd><code>1ffd755cee87</code></dd>
+          <dt>Workflow run</dt><dd><a href="https://github.com/alphaonedev/ai-memory-ai2ai-gate/actions/runs/25007946890">https://github.com/alphaonedev/ai-memory-ai2ai-gate/actions/runs/25007946890</a></dd>
+        </dl>
+        <h3>Node roster</h3>
+        <table class="nodes">
+          <thead><tr><th>#</th><th>Role</th><th>Agent ID</th><th>Public IP</th><th>Private IP</th></tr></thead>
+          <tbody>
+<tr><td>1</td><td>agent</td><td><code>ai:alice</code></td><td><code>167.99.58.169</code></td><td><code>10.10.0.3</code></td></tr>
+<tr><td>2</td><td>agent</td><td><code>ai:bob</code></td><td><code>104.131.6.198</code></td><td><code>10.10.0.4</code></td></tr>
+<tr><td>3</td><td>agent</td><td><code>ai:charlie</code></td><td><code>159.89.39.43</code></td><td><code>10.10.0.5</code></td></tr>
+<tr><td>4</td><td>memory-only</td><td><code>—</code></td><td><code>167.71.243.45</code></td><td><code>10.10.0.2</code></td></tr>
+          </tbody>
+        </table>
+      </section>
+      <section class="baseline">
+        <h2>Baseline attestation <span class="badge pass">BASELINE OK</span></h2>
+        <p class="muted">Per the <a href="../baseline/">authoritative baseline spec</a>, every agent node must emit a self-attestation before any scenario is permitted to run. This run's attestation:</p>
+        <p class="muted">Spec version: <code>1.4.0</code> — see <a href="../baseline/">authoritative baseline</a>.</p>
+        <table class="nodes">
+          <thead><tr><th>Node</th><th>Agent</th><th>Framework</th><th>Authentic</th><th>MCP ai-memory</th><th>xAI cfg</th><th>xAI default</th><th>Agent ID</th><th>Federation</th><th>UFW off</th><th>iptables</th><th>dead-man</th><th>F1 xAI</th><th>F2a substrate</th><th>F2b agent (non-gating)</th><th>Config SHA</th><th>Pass</th></tr></thead>
+          <tbody>
+<tr><td>node-1</td><td><code>ai:alice</code></td><td><code>ironclaw ironclaw 0.26.0</code></td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>—</td><td><code>c5747cd50f25</code></td><td><strong>PASS</strong></td></tr>
+<tr><td>node-2</td><td><code>ai:bob</code></td><td><code>ironclaw ironclaw 0.26.0</code></td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>—</td><td><code>7a30e095f432</code></td><td><strong>PASS</strong></td></tr>
+<tr><td>node-3</td><td><code>ai:charlie</code></td><td><code>ironclaw ironclaw 0.26.0</code></td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>—</td><td><code>74e57efa0d1b</code></td><td><strong>PASS</strong></td></tr>
+          </tbody>
+        </table>
+        <details><summary>a2a-baseline.json</summary>
+          <pre>
+{
+	"baseline_pass": true,
+	"per_node": [
+		{
+			"spec_version": "1.4.0",
+			"agent_type": "ironclaw",
+			"agent_id": "ai:alice",
+			"node_index": "1",
+			"framework_version": "ironclaw 0.26.0",
+			"ai_memory_version": "v0.6.3",
+			"peer_urls": "http://10.10.0.4:9077,http://10.10.0.5:9077,http://10.10.0.2:9077",
+			"config_file_sha256": "c5747cd50f25d709ccb1c90dc28b1f3bf9f72dd2f9a31178ec1603848caed9d4",
+			"config_attestation": {
+				"framework_is_authentic": true,
+				"mcp_server_ai_memory_registered": true,
+				"llm_backend_is_xai_grok": true,
+				"llm_is_default_provider": true,
+				"mcp_command_is_ai_memory": true,
+				"agent_id_stamped": true,
+				"federation_live": true,
+				"ufw_disabled": true,
+				"iptables_flushed": true,
+				"dead_man_switch_scheduled": true
+			},
+			"negative_invariants": {
+				"_description": "Alternative A2A channels must be OFF so a passing scenario is only passing via ai-memory shared memory. Any true here = thesis-preserving.",
+				"a2a_protocol_off": true,
+				"sub_agent_or_sessions_spawn_off": true,
+				"alternative_channels_off": true,
+				"tool_allowlist_is_memory_only": true,
+				"a2a_gate_profile_locked": true
+			},
+			"functional_probes": {
+				"xai_grok_chat_reachable": true,
+				"xai_grok_sample_reply": "READY",
+				"substrate_http_canary_f2a": true,
+				"substrate_http_canary_uuid": "48384d73-52a0-4ea0-86c5-7c3ef0766bae",
+				"agent_mcp_canary_f2b": false,
+				"agent_mcp_canary_uuid": "a377718e-d79e-4a3e-acf4-a35d5f143166",
+				"agent_canary_response_head": "error: unrecognized subcommand 'chat'    tip: a similar subcommand exists: 'channels'  Usage: ironclaw [OPTIONS] [COMMAND]  For more information, try '--help'. ",
+				"_f2b_note": "F2b is LLM-dependent and non-blocking. F2a (deterministic HTTP substrate) gates baseline_pass.",
+				"mesh_connectivity_f4": true,
+				"mesh_edges_ok": 3,
+				"mesh_edges_total": 3,
+				"mesh_edges_detail": "10.10.0.4:9077:OK,10.10.0.5:9077:OK,10.10.0.2:9077:OK",
+				"_f4_note": "F4 verifies this local nodes N-1 OUTBOUND mesh edges to every peer via both GET health and POST sync_push dry_run. Aggregator ANDs across N nodes to confirm full N*(N-1) bidirectional reachability. Gates baseline_pass.",
+				"ai_memory_mcp_stdio_f5": true,
+				"ai_memory_mcp_stdio_init_ok": true,
+				"ai_memory_mcp_stdio_tools_ok": true,
+				"ai_memory_mcp_stdio_tools_found": "memory_agent_list,memory_agent_register,memory_archive_list,memory_archive_purge,memory_archive_restore,memory_archive_stats,memory_auto_tag,memory_capabilities,memory_check_duplicate,memory_consolidate,memory_delete,memory_detect_contradiction,memory_entity_get_by_alias,memory_entity_register,memory_expand_query,memory_forget,memory_gc,memory_get,memory_get_links,memory_get_taxonomy,memory_inbox,memory_kg_invalidate,memory_kg_query,memory_kg_timeline,memory_link,memory_list,memory_list_subscriptions,memory_namespace_clear_standard,memory_namespace_get_standard,memory_namespace_set_standard,memory_notify,memory_pending_approve,memory_pending_list,memory_pending_reject,memory_promote,memory_recall,memory_search,memory_session_start,memory_stats,memory_store,memory_subscribe,memory_unsubscribe,memory_update",
+				"_f5_note": "F5 spawns the ai-memory stdio MCP subprocess using the framework-configured invocation and verifies initialize + tools/list return memory_store, memory_recall, memory_list. Deterministic (no LLM). Gates baseline_pass.",
+				"tls_mode": "off",
+				"tls_handshake_f6": true,
+				"tls_handshake_f6_reason": "",
+				"mtls_enforcement_f7": true,
+				"mtls_enforcement_f7_reason": "",
+				"_f6_f7_note": "F6 verifies the TLS 1.3 handshake against the local serve + CA chain. F7 verifies mTLS enforcement — anonymous client rejected, whitelisted client accepted. Both gate baseline_pass when tls_mode != off / mtls respectively.",
+				"embedder_loaded_f8": true,
+				"embedder_loaded_f8_reason": "",
+				"_f8_note": "F8 verifies /api/v1/capabilities reports features.embedder_loaded=true — i.e. the MiniLM embedder initialised at serve startup. Gates baseline_pass unconditionally. Without this, scenario-18 silently black-holes (semantic recall returns 0 rows).",
+				"agent_mcp_ai_memory_canary": true,
+				"canary_uuid": "48384d73-52a0-4ea0-86c5-7c3ef0766bae",
+				"canary_namespace": "_baseline_canary_f2a"
+			},
+			"baseline_pass": true
+		},
+		{
+			"spec_version": "1.4.0",
+			"agent_type": "ironclaw",
+			"agent_id": "ai:bob",
+			"node_index": "2",
+			"framework_version": "ironclaw 0.26.0",
+			"ai_memory_version": "v0.6.3",
+			"peer_urls": "http://10.10.0.3:9077,http://10.10.0.5:9077,http://10.10.0.2:9077",
+			"config_file_sha256": "7a30e095f432296575ecd54f75c2f9fb95e216a20acf8b007db986ca51c0c716",
+			"config_attestation": {
+				"framework_is_authentic": true,
+				"mcp_server_ai_memory_registered": true,
+				"llm_backend_is_xai_grok": true,
+				"llm_is_default_provider": true,
+				"mcp_command_is_ai_memory": true,
+				"agent_id_stamped": true,
+				"federation_live": true,
+				"ufw_disabled": true,
+				"iptables_flushed": true,
+				"dead_man_switch_scheduled": true
+			},
+			"negative_invariants": {
+				"_description": "Alternative A2A channels must be OFF so a passing scenario is only passing via ai-memory shared memory. Any true here = thesis-preserving.",
+				"a2a_protocol_off": true,
+				"sub_agent_or_sessions_spawn_off": true,
+				"alternative_channels_off": true,
+				"tool_allowlist_is_memory_only": true,
+				"a2a_gate_profile_locked": true
+			},
+			"functional_probes": {
+				"xai_grok_chat_reachable": true,
+				"xai_grok_sample_reply": "READY",
+				"substrate_http_canary_f2a": true,
+				"substrate_http_canary_uuid": "21c3c45d-f913-4540-8774-231ccc42315a",
+				"agent_mcp_canary_f2b": false,
+				"agent_mcp_canary_uuid": "14400eea-a38e-44b8-9708-d15182eae2dc",
+				"agent_canary_response_head": "error: unrecognized subcommand 'chat'    tip: a similar subcommand exists: 'channels'  Usage: ironclaw [OPTIONS] [COMMAND]  For more information, try '--help'. ",
+				"_f2b_note": "F2b is LLM-dependent and non-blocking. F2a (deterministic HTTP substrate) gates baseline_pass.",
+				"mesh_connectivity_f4": true,
+				"mesh_edges_ok": 3,
+				"mesh_edges_total": 3,
+				"mesh_edges_detail": "10.10.0.3:9077:OK,10.10.0.5:9077:OK,10.10.0.2:9077:OK",
+				"_f4_note": "F4 verifies this local nodes N-1 OUTBOUND mesh edges to every peer via both GET health and POST sync_push dry_run. Aggregator ANDs across N nodes to confirm full N*(N-1) bidirectional reachability. Gates baseline_pass.",
+				"ai_memory_mcp_stdio_f5": true,
+				"ai_memory_mcp_stdio_init_ok": true,
+				"ai_memory_mcp_stdio_tools_ok": true,
+				"ai_memory_mcp_stdio_tools_found": "memory_agent_list,memory_agent_register,memory_archive_list,memory_archive_purge,memory_archive_restore,memory_archive_stats,memory_auto_tag,memory_capabilities,memory_check_duplicate,memory_consolidate,memory_delete,memory_detect_contradiction,memory_entity_get_by_alias,memory_entity_register,memory_expand_query,memory_forget,memory_gc,memory_get,memory_get_links,memory_get_taxonomy,memory_inbox,memory_kg_invalidate,memory_kg_query,memory_kg_timeline,memory_link,memory_list,memory_list_subscriptions,memory_namespace_clear_standard,memory_namespace_get_standard,memory_namespace_set_standard,memory_notify,memory_pending_approve,memory_pending_list,memory_pending_reject,memory_promote,memory_recall,memory_search,memory_session_start,memory_stats,memory_store,memory_subscribe,memory_unsubscribe,memory_update",
+				"_f5_note": "F5 spawns the ai-memory stdio MCP subprocess using the framework-configured invocation and verifies initialize + tools/list return memory_store, memory_recall, memory_list. Deterministic (no LLM). Gates baseline_pass.",
+				"tls_mode": "off",
+				"tls_handshake_f6": true,
+				"tls_handshake_f6_reason": "",
+				"mtls_enforcement_f7": true,
+				"mtls_enforcement_f7_reason": "",
+				"_f6_f7_note": "F6 verifies the TLS 1.3 handshake against the local serve + CA chain. F7 verifies mTLS enforcement — anonymous client rejected, whitelisted client accepted. Both gate baseline_pass when tls_mode != off / mtls respectively.",
+				"embedder_loaded_f8": true,
+				"embedder_loaded_f8_reason": "",
+				"_f8_note": "F8 verifies /api/v1/capabilities reports features.embedder_loaded=true — i.e. the MiniLM embedder initialised at serve startup. Gates baseline_pass unconditionally. Without this, scenario-18 silently black-holes (semantic recall returns 0 rows).",
+				"agent_mcp_ai_memory_canary": true,
+				"canary_uuid": "21c3c45d-f913-4540-8774-231ccc42315a",
+				"canary_namespace": "_baseline_canary_f2a"
+			},
+			"baseline_pass": true
+		},
+		{
+			"spec_version": "1.4.0",
+			"agent_type": "ironclaw",
+			"agent_id": "ai:charlie",
+			"node_index": "3",
+			"framework_version": "ironclaw 0.26.0",
+			"ai_memory_version": "v0.6.3",
+			"peer_urls": "http://10.10.0.3:9077,http://10.10.0.4:9077,http://10.10.0.2:9077",
+			"config_file_sha256": "74e57efa0d1b430f5895493d8a1ad983a07954d1c6888ed324f22eb98cc6fc3c",
+			"config_attestation": {
+				"framework_is_authentic": true,
+				"mcp_server_ai_memory_registered": true,
+				"llm_backend_is_xai_grok": true,
+				"llm_is_default_provider": true,
+				"mcp_command_is_ai_memory": true,
+				"agent_id_stamped": true,
+				"federation_live": true,
+				"ufw_disabled": true,
+				"iptables_flushed": true,
+				"dead_man_switch_scheduled": true
+			},
+			"negative_invariants": {
+				"_description": "Alternative A2A channels must be OFF so a passing scenario is only passing via ai-memory shared memory. Any true here = thesis-preserving.",
+				"a2a_protocol_off": true,
+				"sub_agent_or_sessions_spawn_off": true,
+				"alternative_channels_off": true,
+				"tool_allowlist_is_memory_only": true,
+				"a2a_gate_profile_locked": true
+			},
+			"functional_probes": {
+				"xai_grok_chat_reachable": true,
+				"xai_grok_sample_reply": "READY",
+				"substrate_http_canary_f2a": true,
+				"substrate_http_canary_uuid": "293c6812-c3d2-40aa-9fe5-b377089b41b5",
+				"agent_mcp_canary_f2b": false,
+				"agent_mcp_canary_uuid": "ad87fa29-451b-496d-8639-92c8f75a30e8",
+				"agent_canary_response_head": "error: unrecognized subcommand 'chat'    tip: a similar subcommand exists: 'channels'  Usage: ironclaw [OPTIONS] [COMMAND]  For more information, try '--help'. ",
+				"_f2b_note": "F2b is LLM-dependent and non-blocking. F2a (deterministic HTTP substrate) gates baseline_pass.",
+				"mesh_connectivity_f4": true,
+				"mesh_edges_ok": 3,
+				"mesh_edges_total": 3,
+				"mesh_edges_detail": "10.10.0.3:9077:OK,10.10.0.4:9077:OK,10.10.0.2:9077:OK",
+				"_f4_note": "F4 verifies this local nodes N-1 OUTBOUND mesh edges to every peer via both GET health and POST sync_push dry_run. Aggregator ANDs across N nodes to confirm full N*(N-1) bidirectional reachability. Gates baseline_pass.",
+				"ai_memory_mcp_stdio_f5": true,
+				"ai_memory_mcp_stdio_init_ok": true,
+				"ai_memory_mcp_stdio_tools_ok": true,
+				"ai_memory_mcp_stdio_tools_found": "memory_agent_list,memory_agent_register,memory_archive_list,memory_archive_purge,memory_archive_restore,memory_archive_stats,memory_auto_tag,memory_capabilities,memory_check_duplicate,memory_consolidate,memory_delete,memory_detect_contradiction,memory_entity_get_by_alias,memory_entity_register,memory_expand_query,memory_forget,memory_gc,memory_get,memory_get_links,memory_get_taxonomy,memory_inbox,memory_kg_invalidate,memory_kg_query,memory_kg_timeline,memory_link,memory_list,memory_list_subscriptions,memory_namespace_clear_standard,memory_namespace_get_standard,memory_namespace_set_standard,memory_notify,memory_pending_approve,memory_pending_list,memory_pending_reject,memory_promote,memory_recall,memory_search,memory_session_start,memory_stats,memory_store,memory_subscribe,memory_unsubscribe,memory_update",
+				"_f5_note": "F5 spawns the ai-memory stdio MCP subprocess using the framework-configured invocation and verifies initialize + tools/list return memory_store, memory_recall, memory_list. Deterministic (no LLM). Gates baseline_pass.",
+				"tls_mode": "off",
+				"tls_handshake_f6": true,
+				"tls_handshake_f6_reason": "",
+				"mtls_enforcement_f7": true,
+				"mtls_enforcement_f7_reason": "",
+				"_f6_f7_note": "F6 verifies the TLS 1.3 handshake against the local serve + CA chain. F7 verifies mTLS enforcement — anonymous client rejected, whitelisted client accepted. Both gate baseline_pass when tls_mode != off / mtls respectively.",
+				"embedder_loaded_f8": true,
+				"embedder_loaded_f8_reason": "",
+				"_f8_note": "F8 verifies /api/v1/capabilities reports features.embedder_loaded=true — i.e. the MiniLM embedder initialised at serve startup. Gates baseline_pass unconditionally. Without this, scenario-18 silently black-holes (semantic recall returns 0 rows).",
+				"agent_mcp_ai_memory_canary": true,
+				"canary_uuid": "293c6812-c3d2-40aa-9fe5-b377089b41b5",
+				"canary_namespace": "_baseline_canary_f2a"
+			},
+			"baseline_pass": true
+		}
+	]
+}
+</pre>
+          <p><a href="./a2a-baseline.json">raw file</a></p>
+        </details>
+      </section>
+      <section class="f3">
+        <h2>F3 — peer A2A via shared memory <span class="badge pass">F3 OK</span></h2>
+        <p class="muted">Workflow-level probe answering "can agents communicate through ai-memory?". Writer <code>ai:alice</code> posted canary UUID <code>0bc79eef-1124-4a3a-a09e-a85e6dbc0346</code> to namespace <code>_baseline_peer_canary</code> via node-1's local <code>ai-memory</code> serve HTTP. After W=2 fanout settle, probe confirmed the canary on each of the 3 peer nodes via their local <code>GET /api/v1/memories</code>.</p>
+        <details><summary>f3-peer-a2a.json</summary>
+          <pre>
+{
+	"probe": "F3",
+	"name": "peer-a2a-via-shared-memory",
+	"description": "Writer agent posts a canary via local ai-memory HTTP on node-1; verifies the row propagates to the 3 peer nodes (W=2/N=4 quorum) before scenarios run.",
+	"canary_uuid": "0bc79eef-1124-4a3a-a09e-a85e6dbc0346",
+	"canary_namespace": "_baseline_peer_canary",
+	"writer_agent": "ai:alice",
+	"pass": true
+}
+</pre>
+          <p><a href="./f3-peer-a2a.json">raw file</a></p>
+        </details>
+      </section>
+      <section class="run-focus">
+        <p class="label">Run focus</p>
+        <h2>Core memory sharing passes, advanced KG/entity features fail in rc1</h2>
+        <p><strong>What this campaign tested:</strong> Tested 45 scenarios exercising memory write/read/delete/link/recall/consolidate across HTTP transport in 4-node federation, covering primitives like versioning, promotion, hybrid search, and KG operations.</p>
+        <p><strong>What it demonstrated:</strong> Proved reliable basic sharing and recall in 37 scenarios, but exposed bugs in advanced features like taxonomy, KG invalidation, timelines, entity aliases, duplicate detection, and memory lifecycle.</p>
+      </section>
+      <section class="ai-insight">
+        <p class="tag">AI NHI analysis &middot; Claude Opus 4.7</p>
+        <h2>Core memory sharing passes, advanced KG/entity features fail in rc1</h2>
+        <p class="verdict">FAIL — 37/45 green, 6 red (S44-49), 2 skipped</p>
+        <h3>For three audiences</h3>
+        <div class="audiences">
+          <article><h4>Non-technical end users</h4><p>The AI agents can reliably share and remember simple information with each other across the network. However, more advanced ways of organizing, linking, or managing those memories don't work correctly yet. This means the system is okay for basic uses but needs improvements for complex tasks.</p></article>
+          <article><h4>C-level decision makers</h4><p>Core federation stable with low risk for basic sharing claims; advanced KG/entity features not production-ready, posing high deployment risk. Customer-facing viability limited to semantic tier basics; failures indicate regression or incomplete impl in v0.6.3-rc1 vs prior stability expectations. Prioritize fixes to unblock full feature set.</p></article>
+          <article><h4>Engineers &amp; architects</h4><p>Failures isolate to advanced primitives: S44 taxonomy missing subtree_count and node location; S45 kg_invalidate 400 with no edges; S46 timeline missing add/invalidate events; S47 entity alias resolutions all 404; S48 check_duplicate 422 with no matches/scores; S49 lifecycle ops like promote/expire/archive/restore/purge mostly 404 or ineffective. Probable root cause is incomplete KG/entity/lifecycle support in v0.6.3-rc1 federation mode. Skips S50/51 due to missing sqlcipher and autonomous tier builds.</p></article>
+        </div>
+        <h3>What changes going into the next campaign</h3>
+        <p>Apply patches for KG, entity, duplicate, lifecycle, and taxonomy bugs before re-running failed scenarios.</p>
+      </section>
+      <section class="tests-performed">
+        <h2>Tests performed in this run</h2>
+        <p class="muted">Every scenario that produced a JSON report in this campaign, in testbook order. Click a row's scenario id to jump to its full report below. See the <a href="../../tests/">Every test performed</a> page for the authoritative catalog.</p>
+        <table class="tests-table">
+          <thead><tr><th>ID</th><th>Title</th><th>Result</th><th>Reason</th></tr></thead>
+          <tbody>
+            <tr><td><a href="#scenario-1">S1</a></td><td>Per-agent write + read (MCP stdio)</td><td><span class="badge pass">PASS</span></td><td></td></tr>
+            <tr><td><a href="#scenario-1b">S1b</a></td><td>Per-agent write + read (HTTP)</td><td><span class="badge pass">PASS</span></td><td></td></tr>
+            <tr><td><a href="#scenario-2">S2</a></td><td>Shared-context handoff</td><td><span class="badge pass">PASS</span></td><td></td></tr>
+            <tr><td><a href="#scenario-4">S4</a></td><td>Federation-aware concurrent writes</td><td><span class="badge pass">PASS</span></td><td></td></tr>
+            <tr><td><a href="#scenario-5">S5</a></td><td>Consolidation + curation</td><td><span class="badge pass">PASS</span></td><td></td></tr>
+            <tr><td><a href="#scenario-6">S6</a></td><td>Contradiction detection</td><td><span class="badge pass">PASS</span></td><td></td></tr>
+            <tr><td><a href="#scenario-9">S9</a></td><td>Mutation round-trip</td><td><span class="badge pass">PASS</span></td><td></td></tr>
+            <tr><td><a href="#scenario-10">S10</a></td><td>Deletion propagation</td><td><span class="badge pass">PASS</span></td><td></td></tr>
+            <tr><td><a href="#scenario-11">S11</a></td><td>Link integrity</td><td><span class="badge pass">PASS</span></td><td></td></tr>
+            <tr><td><a href="#scenario-12">S12</a></td><td>Agent registration</td><td><span class="badge pass">PASS</span></td><td></td></tr>
+            <tr><td><a href="#scenario-13">S13</a></td><td>Concurrent write contention</td><td><span class="badge pass">PASS</span></td><td></td></tr>
+            <tr><td><a href="#scenario-14">S14</a></td><td>Partition tolerance</td><td><span class="badge pass">PASS</span></td><td></td></tr>
+            <tr><td><a href="#scenario-15">S15</a></td><td>Read-your-writes</td><td><span class="badge pass">PASS</span></td><td></td></tr>
+            <tr><td><a href="#scenario-16">S16</a></td><td>Tier promotion</td><td><span class="badge pass">PASS</span></td><td></td></tr>
+            <tr><td><a href="#scenario-17">S17</a></td><td>Stats consistency</td><td><span class="badge pass">PASS</span></td><td></td></tr>
+            <tr><td><a href="#scenario-18">S18</a></td><td>Semantic query expansion</td><td><span class="badge pass">PASS</span></td><td></td></tr>
+            <tr><td><a href="#scenario-22">S22</a></td><td>Identity spoofing resistance</td><td><span class="badge pass">PASS</span></td><td></td></tr>
+            <tr><td><a href="#scenario-23">S23</a></td><td>Malicious content fuzz</td><td><span class="badge pass">PASS</span></td><td></td></tr>
+            <tr><td><a href="#scenario-24">S24</a></td><td>Byzantine peer</td><td><span class="badge pass">PASS</span></td><td></td></tr>
+            <tr><td><a href="#scenario-25">S25</a></td><td>Clock skew tolerance</td><td><span class="badge pass">PASS</span></td><td></td></tr>
+            <tr><td><a href="#scenario-28">S28</a></td><td>memory_search keyword</td><td><span class="badge pass">PASS</span></td><td></td></tr>
+            <tr><td><a href="#scenario-29">S29</a></td><td>memory_archive lifecycle</td><td><span class="badge pass">PASS</span></td><td></td></tr>
+            <tr><td><a href="#scenario-30">S30</a></td><td>memory_capabilities handshake</td><td><span class="badge pass">PASS</span></td><td></td></tr>
+            <tr><td><a href="#scenario-31">S31</a></td><td>memory_gc quiescence</td><td><span class="badge pass">PASS</span></td><td></td></tr>
+            <tr><td><a href="#scenario-32">S32</a></td><td>memory_inbox + notify</td><td><span class="badge pass">PASS</span></td><td></td></tr>
+            <tr><td><a href="#scenario-33">S33</a></td><td>memory_subscribe pub/sub</td><td><span class="badge pass">PASS</span></td><td></td></tr>
+            <tr><td><a href="#scenario-34">S34</a></td><td>memory_pending governance</td><td><span class="badge pass">PASS</span></td><td></td></tr>
+            <tr><td><a href="#scenario-35">S35</a></td><td>memory_namespace standards</td><td><span class="badge pass">PASS</span></td><td></td></tr>
+            <tr><td><a href="#scenario-36">S36</a></td><td>memory_session_start</td><td><span class="badge pass">PASS</span></td><td></td></tr>
+            <tr><td><a href="#scenario-37">S37</a></td><td>memory_get_links bidirectional</td><td><span class="badge pass">PASS</span></td><td></td></tr>
+            <tr><td><a href="#scenario-38">S38</a></td><td>/export + /import</td><td><span class="badge pass">PASS</span></td><td></td></tr>
+            <tr><td><a href="#scenario-39">S39</a></td><td>/sync/since delta</td><td><span class="badge pass">PASS</span></td><td></td></tr>
+            <tr><td><a href="#scenario-40">S40</a></td><td>/memories/bulk</td><td><span class="badge pass">PASS</span></td><td></td></tr>
+            <tr><td><a href="#scenario-41">S41</a></td><td>/metrics Prometheus</td><td><span class="badge pass">PASS</span></td><td></td></tr>
+            <tr><td><a href="#scenario-42">S42</a></td><td>/namespaces enumeration</td><td><span class="badge pass">PASS</span></td><td></td></tr>
+            <tr><td><a href="#scenario-43">S43</a></td><td>scenario-43</td><td><span class="badge pass">PASS</span></td><td></td></tr>
+            <tr><td><a href="#scenario-44">S44</a></td><td>scenario-44</td><td><span class="badge warn">?</span></td><td>could not locate scenario44-9736d6/alphaone in taxonomy response; root node missing subtree_count field — v0.6.3 should expose it</td></tr>
+            <tr><td><a href="#scenario-45">S45</a></td><td>scenario-45</td><td><span class="badge warn">?</span></td><td>kg_invalidate returned HTTP 400; as_of=past missing edges; expected all 3 targets, got 0; as_of=now expected 2 edges, got 0</td></tr>
+            <tr><td><a href="#scenario-46">S46</a></td><td>scenario-46</td><td><span class="badge warn">?</span></td><td>expected &gt;=3 events (2 adds + 1 invalidate), got 0; no edge_added event in timeline; no edge_invalidated event in timeline</td></tr>
+            <tr><td><a href="#scenario-47">S47</a></td><td>scenario-47</td><td><span class="badge warn">?</span></td><td>by-alias('a1-project') HTTP 404; by-alias('alphaone-proj') HTTP 404; by-alias('alpha1-proj') HTTP 404; by-alias('ao-project') HTTP 404</td></tr>
+            <tr><td><a href="#scenario-48">S48</a></td><td>scenario-48</td><td><span class="badge warn">?</span></td><td>check_duplicate returned HTTP 422; check_duplicate returned 0 matches for a near-identical input; original memory (5f913f4e-d905-4199-87d9-7859d5028318) absent from matches; match did not carry a simi</td></tr>
+            <tr><td><a href="#scenario-49">S49</a></td><td>scenario-49</td><td><span class="badge warn">?</span></td><td>access: access_count not incremented; promote: HTTP 404; promote: tier=None, expected 'long'; expire: HTTP 404; archive: M1 not visible in /api/v1/archive listing; restore: HTTP 404; purge: HTTP 404</td></tr>
+            <tr><td><a href="#scenario-50">S50</a></td><td>scenario-50</td><td><span class="badge warn">SKIP</span></td><td>sqlcipher feature not advertised in /api/v1/capabilities — daemon was not built with --features sqlcipher</td></tr>
+            <tr><td><a href="#scenario-51">S51</a></td><td>scenario-51</td><td><span class="badge warn">SKIP</span></td><td>autonomous/smart tier not available on node-1 — tier='semantic' models={'cross_encoder': 'none', 'embedding': 'sentence-transformers/all-MiniLM-L6-v2', 'embedding_dim': 384, 'llm': 'none'}</td></tr>
+          </tbody>
+        </table>
+      </section>
+      <section class="phase" id="scenario-1">
+        <h2>Scenario 1 — Per-agent write + read (MCP stdio) <span class="badge pass">PASS</span></h2>
+        <details><summary>scenario-1.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"expected_per_reader": 20,
+	"pass": true,
+	"per_agent": {
+		"ai:alice": {
+			"recall": 20
+		},
+		"ai:bob": {
+			"recall": 20
+		},
+		"ai:charlie": {
+			"recall": 20
+		}
+	},
+	"per_namespace_node4": {
+		"scenario1-ai:alice": {
+			"count": 10,
+			"wrong_agent_id": 0
+		},
+		"scenario1-ai:bob": {
+			"count": 10,
+			"wrong_agent_id": 0
+		},
+		"scenario1-ai:charlie": {
+			"count": 10,
+			"wrong_agent_id": 0
+		}
+	},
+	"reasons": [],
+	"scenario": "1",
+	"skipped": false,
+	"tls_mode": "off"
+}
+</pre>
+          <p><a href="./scenario-1.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-1.log (console trace)</summary>
+          <pre class="log">phase A: each agent writes 10 memories via MCP
+  ai:alice on 167.99.58.169
+  ai:bob on 104.131.6.198
+  ai:charlie on 159.89.39.43
+settle 15s for W=2/N=4 convergence
+phase B: each agent counts rows in the OTHER two namespaces
+  ai:alice recalled 20 rows from the other two namespaces
+  ai:bob recalled 20 rows from the other two namespaces
+  ai:charlie recalled 20 rows from the other two namespaces
+phase C: cross-cluster identity check on node-4
+  ns=scenario1-ai:alice count=10 wrong_agent_id=0
+  ns=scenario1-ai:bob count=10 wrong_agent_id=0
+  ns=scenario1-ai:charlie count=10 wrong_agent_id=0
+</pre>
+          <p><a href="./scenario-1.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-1b">
+        <h2>Scenario 1b — Per-agent write + read (HTTP) <span class="badge pass">PASS</span></h2>
+        <details><summary>scenario-1b.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"expected_per_reader": 20,
+	"pass": true,
+	"path": "serve-http",
+	"per_agent": {
+		"ai:alice": {
+			"recall": 20
+		},
+		"ai:bob": {
+			"recall": 20
+		},
+		"ai:charlie": {
+			"recall": 20
+		}
+	},
+	"per_namespace_node4": {
+		"scenario1b-ai:alice": {
+			"count": 10,
+			"wrong_agent_id": 0
+		},
+		"scenario1b-ai:bob": {
+			"count": 10,
+			"wrong_agent_id": 0
+		},
+		"scenario1b-ai:charlie": {
+			"count": 10,
+			"wrong_agent_id": 0
+		}
+	},
+	"reasons": [],
+	"scenario": "1b",
+	"skipped": false,
+	"tls_mode": "off"
+}
+</pre>
+          <p><a href="./scenario-1b.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-1b.log (console trace)</summary>
+          <pre class="log">phase A: each agent POSTs 10 memories to local serve
+  ai:alice on 167.99.58.169
+  ai:bob on 104.131.6.198
+  ai:charlie on 159.89.39.43
+settle 15s for W=2/N=4 convergence
+phase B: count rows in other two namespaces via local serve HTTP
+  ai:alice sees 20 rows from the other two namespaces
+  ai:bob sees 20 rows from the other two namespaces
+  ai:charlie sees 20 rows from the other two namespaces
+phase C: cross-cluster identity check on node-4
+  ns=scenario1b-ai:alice count=10 wrong_agent_id=0
+  ns=scenario1b-ai:bob count=10 wrong_agent_id=0
+  ns=scenario1b-ai:charlie count=10 wrong_agent_id=0
+</pre>
+          <p><a href="./scenario-1b.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-2">
+        <h2>Scenario 2 — Shared-context handoff <span class="badge pass">PASS</span></h2>
+        <details><summary>scenario-2.json (report)</summary>
+          <pre>{
+	"ack_uuid": "a-8d81de8f958f4dc28cb97420f1a2786b",
+	"agent_group": "ironclaw",
+	"handoff_uuid": "h-802823b391764aadaba5441bdf76e5c7",
+	"pass": true,
+	"path": "serve-http",
+	"per_agent": {
+		"ai:alice": {
+			"sees_ack": 1
+		},
+		"ai:bob": {
+			"sees_handoff": 1
+		}
+	},
+	"reasons": [],
+	"scenario": "2",
+	"skipped": false,
+	"tls_mode": "off"
+}
+</pre>
+          <p><a href="./scenario-2.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-2.log (console trace)</summary>
+          <pre class="log">phase A: ai:alice writes handoff to ai:bob (uuid=h-802823b391764aadaba5441bdf76e5c7)
+settle 8s for quorum fanout
+phase B: ai:bob reads handoff on node-2
+  ai:bob sees 1 handoff memories from ai:alice
+phase C: ai:bob writes acknowledgement (uuid=a-8d81de8f958f4dc28cb97420f1a2786b)
+settle 8s for reverse-direction fanout
+phase D: ai:alice reads ack on node-1
+  ai:alice sees 1 ack memories from ai:bob
+</pre>
+          <p><a href="./scenario-2.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-4">
+        <h2>Scenario 4 — Federation-aware concurrent writes <span class="badge pass">PASS</span></h2>
+        <details><summary>scenario-4.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"expected_per_agent": 30,
+	"pass": true,
+	"per_agent": {
+		"ai:alice": {
+			"count": 30,
+			"wrong_agent_id": 0
+		},
+		"ai:bob": {
+			"count": 30,
+			"wrong_agent_id": 0
+		},
+		"ai:charlie": {
+			"count": 30,
+			"wrong_agent_id": 0
+		}
+	},
+	"reasons": [],
+	"scenario": "4",
+	"skipped": false,
+	"tls_mode": "off"
+}
+</pre>
+          <p><a href="./scenario-4.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-4.log (console trace)</summary>
+          <pre class="log">phase A: launching concurrent 30-row bursts from 3 agents
+  ai:alice burst ok=30/30
+  ai:bob burst ok=30/30
+  ai:charlie burst ok=30/30
+settle 20s for W=2 fanout convergence
+phase B: querying node-4 aggregator for per-agent counts
+  ai:alice: count=30 (expected 30) wrong_agent_id=0
+  ai:bob: count=30 (expected 30) wrong_agent_id=0
+  ai:charlie: count=30 (expected 30) wrong_agent_id=0
+</pre>
+          <p><a href="./scenario-4.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-5">
+        <h2>Scenario 5 — Consolidation + curation <span class="badge pass">PASS</span></h2>
+        <details><summary>scenario-5.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"consolidate_http_code": 201,
+	"consolidated_from_agents": [
+		"ai:charlie",
+		"ai:bob",
+		"ai:alice"
+	],
+	"consolidated_id": "d49a3b2a-2935-41c7-9e3b-b4bfa9d84e90",
+	"pass": true,
+	"reasons": [],
+	"scenario": "5",
+	"skipped": false,
+	"tls_mode": "off"
+}
+</pre>
+          <p><a href="./scenario-5.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-5.log (console trace)</summary>
+          <pre class="log">phase A: each agent writes 3 related memories
+  ai:alice on 167.99.58.169
+  ai:bob on 104.131.6.198
+  ai:charlie on 159.89.39.43
+settle 8s for quorum fanout
+phase B: collect source ids on node-1, then trigger consolidate
+  source ids (count=9): ['436c7ef4-b00d-4465-aeec-c188744c2874', 'a67c9d6d-8426-43c9-af1a-54bf62aa78e5', 'd367e665-8071-4e3b-846c-8af33691f803', '5e645b00-f47c-4673-bb77-3cef227eb575', '2dd0b253-39f2-49d7-9702-de7ba974c2fb']...
+  consolidate HTTP 201, consolidated_id=d49a3b2a-2935-41c7-9e3b-b4bfa9d84e90
+settle 10s for consolidation fanout
+phase C: verifying consolidated_from_agents on node-4
+  consolidated_from_agents=['ai:charlie', 'ai:bob', 'ai:alice']
+</pre>
+          <p><a href="./scenario-5.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-6">
+        <h2>Scenario 6 — Contradiction detection <span class="badge pass">PASS</span></h2>
+        <details><summary>scenario-6.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"alice_id": "55ff4daf-ab0c-4f66-b592-06377918d1dc",
+	"bob_id": "20f7ac34-c2c1-4fb5-989b-e4a84b006c03",
+	"charlie_sees_both_memories": true,
+	"charlie_sees_contradicts_link": true,
+	"detect_http_code": 200,
+	"pass": true,
+	"reasons": [],
+	"scenario": "6",
+	"skipped": false,
+	"tls_mode": "off",
+	"topic": "sky-color-ab3cf6d7"
+}
+</pre>
+          <p><a href="./scenario-6.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-6.log (console trace)</summary>
+          <pre class="log">alice writes claim: "sky-color-ab3cf6d7 is blue" on node-1
+bob writes contradicting claim: "sky-color-ab3cf6d7 is red" on node-2
+  alice.id=55ff4daf-ab0c-4f66-b592-06377918d1dc bob.id=20f7ac34-c2c1-4fb5-989b-e4a84b006c03
+settle 10s for quorum fanout + contradiction indexing
+charlie queries /api/v1/contradictions on node-3
+  HTTP 200
+  sees both memories: True; sees contradicts link: True
+</pre>
+          <p><a href="./scenario-6.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-9">
+        <h2>Scenario 9 — Mutation round-trip <span class="badge pass">PASS</span></h2>
+        <details><summary>scenario-9.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"charlie_view": {
+		"agent_id": "ai:alice",
+		"content": "v2-d8b1969f865041698d524713a7b3edcf"
+	},
+	"m1_id": "0b8e0103-c7c5-4686-a6e2-bb1fb3af97f0",
+	"pass": true,
+	"put_http_code": 200,
+	"reasons": [],
+	"scenario": "9",
+	"skipped": false,
+	"tls_mode": "off",
+	"v1_uuid": "v1-1c4055e491374a5a8a1138a10f88cdc6",
+	"v2_uuid": "v2-d8b1969f865041698d524713a7b3edcf"
+}
+</pre>
+          <p><a href="./scenario-9.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-9.log (console trace)</summary>
+          <pre class="log">alice writes M1 content=v1-1c4055e491374a5a8a1138a10f88cdc6 on node-1
+  M1 id=0b8e0103-c7c5-4686-a6e2-bb1fb3af97f0
+settle 5s for initial replication
+bob updates M1 content=v2-d8b1969f865041698d524713a7b3edcf on node-2 via PUT
+  PUT returned HTTP 200
+settle 8s for update fanout
+charlie reads M1 on node-3 and checks content + provenance
+  charlie sees content="v2-d8b1969f865041698d524713a7b3edcf" agent_id="ai:alice"
+</pre>
+          <p><a href="./scenario-9.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-10">
+        <h2>Scenario 10 — Deletion propagation <span class="badge pass">PASS</span></h2>
+        <details><summary>scenario-10.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"delete_http_code": 200,
+	"m1_id": "9911ab1c-d512-4c18-8e0a-d983de611011",
+	"pass": true,
+	"post_delete_hits": {
+		"node-2": 0,
+		"node-3": 0,
+		"node-4": 0
+	},
+	"post_delete_still_visible_peers": 0,
+	"pre_delete_visible_peers": 3,
+	"reasons": [],
+	"scenario": "10",
+	"skipped": false,
+	"tls_mode": "off",
+	"uuid": "d-99449ac13a1e433cb00df1ddcdf13b49"
+}
+</pre>
+          <p><a href="./scenario-10.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-10.log (console trace)</summary>
+          <pre class="log">alice writes M1 content=d-99449ac13a1e433cb00df1ddcdf13b49 on node-1
+  created memory id=9911ab1c-d512-4c18-8e0a-d983de611011
+settle 8s for pre-delete fanout
+pre-delete: verifying M1 is visible on all peers
+  pre-delete node-2 sees 1
+  pre-delete node-3 sees 1
+  pre-delete node-4 sees 1
+alice deletes M1 on node-1
+  DELETE returned HTTP 200
+settle 15s for tombstone propagation
+post-delete: verifying M1 is GONE from all peers
+  post-delete node-2 sees 0 (expected 0)
+  post-delete node-3 sees 0 (expected 0)
+  post-delete node-4 sees 0 (expected 0)
+</pre>
+          <p><a href="./scenario-10.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-11">
+        <h2>Scenario 11 — Link integrity <span class="badge pass">PASS</span></h2>
+        <details><summary>scenario-11.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"charlie_sees_link": 1,
+	"link_http_code": 201,
+	"m1_id": "ea1fe68b-5f8d-4fbe-99e2-e38584540eda",
+	"m2_id": "e837ae37-a87f-4ad1-a8a4-b0c884c8b583",
+	"pass": true,
+	"reasons": [],
+	"relation": "related_to",
+	"scenario": "11",
+	"skipped": false,
+	"tls_mode": "off"
+}
+</pre>
+          <p><a href="./scenario-11.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-11.log (console trace)</summary>
+          <pre class="log">alice writes M1 on node-1
+bob writes M2 on node-2
+  M1=ea1fe68b-5f8d-4fbe-99e2-e38584540eda M2=e837ae37-a87f-4ad1-a8a4-b0c884c8b583
+settle 5s for pre-link replication
+alice links M1 -&gt; M2 with relation=related_to
+  link POST returned HTTP 201
+settle 8s for link fanout
+charlie queries links of M1 on node-3
+  charlie sees M1-&gt;M2 link: 1 (expected &gt;=1)
+</pre>
+          <p><a href="./scenario-11.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-12">
+        <h2>Scenario 12 — Agent registration <span class="badge pass">PASS</span></h2>
+        <details><summary>scenario-12.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"pass": true,
+	"peers_see": {
+		"node_2": 1,
+		"node_3": 1,
+		"node_4": 1
+	},
+	"reasons": [],
+	"register_http_code": 201,
+	"registered_agent": "ai:dave-probe-fe0fcfe0",
+	"scenario": "12",
+	"skipped": false,
+	"tls_mode": "off"
+}
+</pre>
+          <p><a href="./scenario-12.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-12.log (console trace)</summary>
+          <pre class="log">alice registers new agent ai:dave-probe-fe0fcfe0 on node-1
+  POST /api/v1/agents returned HTTP 201
+settle 10s for agent-list fanout
+  node-2 sees ai:dave-probe-fe0fcfe0: 1 (expected &gt;=1)
+  node-3 sees ai:dave-probe-fe0fcfe0: 1 (expected &gt;=1)
+  node-4 sees ai:dave-probe-fe0fcfe0: 1 (expected &gt;=1)
+</pre>
+          <p><a href="./scenario-12.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-13">
+        <h2>Scenario 13 — Concurrent write contention <span class="badge pass">PASS</span></h2>
+        <details><summary>scenario-13.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"m1_id": "2e948ea3-3aa6-4766-8534-359f968a8ba0",
+	"pass": true,
+	"peer_view": {
+		"node_1": "va-0582db94426e408baa7ea3b96b5b0534",
+		"node_2": "va-0582db94426e408baa7ea3b96b5b0534",
+		"node_3": "va-0582db94426e408baa7ea3b96b5b0534",
+		"node_4": "va-0582db94426e408baa7ea3b96b5b0534"
+	},
+	"reasons": [],
+	"scenario": "13",
+	"skipped": false,
+	"submitted": {
+		"v0": "v0-3d643be00ae14868bf427e2f761789ae",
+		"vA_alice": "va-0582db94426e408baa7ea3b96b5b0534",
+		"vB_bob": "vb-84726d29b9bb45f598f7442c65753523"
+	},
+	"tls_mode": "off"
+}
+</pre>
+          <p><a href="./scenario-13.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-13.log (console trace)</summary>
+          <pre class="log">alice writes M1 content=v0-3d643be00ae14868bf427e2f761789ae on node-1
+  M1 id=2e948ea3-3aa6-4766-8534-359f968a8ba0
+settle 5s for initial replication
+alice + bob issue concurrent PUTs (vA=va-0582db94426e408baa7ea3b96b5b0534 from alice, vB=vb-84726d29b9bb45f598f7442c65753523 from bob)
+  concurrent PUT results: [(0, {'body': {'access_count': 0, 'confidence': 1.0, 'content': 'va-0582db94426e408baa7ea3b96b5b0534', 'created_at': '2026-04-27T17:02:20.240442423+00:00', 'expires_at': '2026-05-04T17:02:20.240442423+00:00', 'id': '2e948ea3-3aa6-4766-8534-359f968a8ba0', 'metadata': {'agent_id': 'ai:alice', 'scenario': '13'}, 'namespace': 'scenario13-contention', 'priority': 5, 'source': 'api', 'tags': [], 'tier': 'mid', 'title': 'm1', 'updated_at': '2026-04-27T17:02:26.429393618+00:00'}, 'http_code': 200}), (0, {'body': {'access_count': 0, 'confidence': 1.0, 'content': 'vb-84726d29b9bb45f598f7442c65753523', 'created_at': '2026-04-27T17:02:20.240442423+00:00', 'expires_at': '2026-05-04T17:02:20.240442423+00:00', 'id': '2e948ea3-3aa6-4766-8534-359f968a8ba0', 'metadata': {'agent_id': 'ai:alice', 'scenario': '13'}, 'namespace': 'scenario13-contention', 'priority': 5, 'source': 'api', 'tags': [], 'tier': 'mid', 'title': 'm1', 'updated_at': '2026-04-27T17:02:26.405231279+00:00'}, 'http_code': 200})]
+settle 10s for quorum convergence
+  node-1 sees content=va-0582db94426e408baa7ea3b96b5b0534
+  node-2 sees content=va-0582db94426e408baa7ea3b96b5b0534
+  node-3 sees content=va-0582db94426e408baa7ea3b96b5b0534
+  node-4 sees content=va-0582db94426e408baa7ea3b96b5b0534
+</pre>
+          <p><a href="./scenario-13.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-14">
+        <h2>Scenario 14 — Partition tolerance <span class="badge pass">PASS</span></h2>
+        <details><summary>scenario-14.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"expected_post_recovery": 20,
+	"node3_saw": 20,
+	"partition_target": "node-3",
+	"pass": true,
+	"reasons": [],
+	"scenario": "14",
+	"skipped": false,
+	"tls_mode": "off"
+}
+</pre>
+          <p><a href="./scenario-14.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-14.log (console trace)</summary>
+          <pre class="log">suspending ai-memory on node-3 (SIGSTOP)
+  !! ssh timeout (15s): root@159.89.39.43 pgrep -f 'ai-memory serve' | xargs -r kill -STOP
+settle 2s for process-suspend observe
+writing 10 memories each from alice + bob during node-3 outage
+resuming ai-memory on node-3 (SIGCONT)
+settle 20s for post-partition catchup
+checking node-3 caught up
+  node-3 sees 20 memories in scenario14-partition (expected 20)
+</pre>
+          <p><a href="./scenario-14.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-15">
+        <h2>Scenario 15 — Read-your-writes <span class="badge pass">PASS</span></h2>
+        <details><summary>scenario-15.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"pass": true,
+	"reasons": [],
+	"scenario": "15",
+	"skipped": false,
+	"tls_mode": "off",
+	"uuid": "ryw-90980926cb064caca261e2de8313c64a",
+	"writer_sees_own_write": 1
+}
+</pre>
+          <p><a href="./scenario-15.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-15.log (console trace)</summary>
+          <pre class="log">alice writes + immediately reads M1 on node-1 (uuid=ryw-90980926cb064caca261e2de8313c64a)
+  alice sees 1 (expected 1) immediately after write
+</pre>
+          <p><a href="./scenario-15.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-16">
+        <h2>Scenario 16 — Tier promotion <span class="badge pass">PASS</span></h2>
+        <details><summary>scenario-16.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"bob_sees_tier": "long",
+	"m1_id": "c8d3b8ae-0516-4496-b51a-f788cae30203",
+	"pass": true,
+	"promote_http_code": 200,
+	"reasons": [],
+	"scenario": "16",
+	"skipped": false,
+	"tls_mode": "off"
+}
+</pre>
+          <p><a href="./scenario-16.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-16.log (console trace)</summary>
+          <pre class="log">alice writes M1 tier=short on node-1
+  M1 id=c8d3b8ae-0516-4496-b51a-f788cae30203
+settle 5s for pre-promote replication
+alice promotes M1 to tier=long
+  promote returned HTTP 200
+settle 8s for promotion fanout
+  bob sees tier=long (expected long)
+</pre>
+          <p><a href="./scenario-16.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-17">
+        <h2>Scenario 17 — Stats consistency <span class="badge pass">PASS</span></h2>
+        <details><summary>scenario-17.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"expected_count": 15,
+	"pass": true,
+	"per_peer": {
+		"node_1": 15,
+		"node_2": 15,
+		"node_3": 15,
+		"node_4": 15
+	},
+	"reasons": [],
+	"scenario": "17",
+	"skipped": false,
+	"tls_mode": "off"
+}
+</pre>
+          <p><a href="./scenario-17.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-17.log (console trace)</summary>
+          <pre class="log">phase A: each of 3 agents writes 5 memories to scenario17-stats
+  ai:alice on 167.99.58.169
+  ai:bob on 104.131.6.198
+  ai:charlie on 159.89.39.43
+settle 15s for W=2 fanout
+phase B: querying count on every peer
+  node-1 count=15 (expected 15)
+  node-2 count=15 (expected 15)
+  node-3 count=15 (expected 15)
+  node-4 count=15 (expected 15)
+</pre>
+          <p><a href="./scenario-17.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-18">
+        <h2>Scenario 18 — Semantic query expansion <span class="badge pass">PASS</span></h2>
+        <details><summary>scenario-18.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"diag_list_alice_present": 1,
+	"diag_list_bob_present": 1,
+	"diag_node3_embedding_probe": "dawn-walk|1536|BYTES | ridge-strides|1536|BYTES",
+	"pass": true,
+	"query": "morning outdoor exercise routine",
+	"reasons": [],
+	"recall_mode": "hybrid",
+	"rows_in_recall": 2,
+	"scenario": "18",
+	"skipped": false,
+	"tls_mode": "off",
+	"writers": [
+		{
+			"agent": "ai:alice",
+			"marker": "alice-sunrise-000ceb01",
+			"seen_by_charlie": 1
+		},
+		{
+			"agent": "ai:bob",
+			"marker": "bob-daybreak-ba5ef226",
+			"seen_by_charlie": 1
+		}
+	]
+}
+</pre>
+          <p><a href="./scenario-18.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-18.log (console trace)</summary>
+          <pre class="log">alice writes A on node-1
+bob writes B on node-2
+polling node-3 for both writes to propagate (max 30 s)
+  both writes visible after 1 s
+settle 3s for embedder + HNSW catch-up
+  node-3 DB embedding probe: 'dawn-walk|1536|BYTES | ridge-strides|1536|BYTES'
+charlie queries on node-3 with semantically-related prompt
+  recall mode=hybrid returned 2 rows
+  charlie sees alice's memory: 1 (expected &gt;=1)
+  charlie sees bob's memory: 1 (expected &gt;=1)
+</pre>
+          <p><a href="./scenario-18.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-22">
+        <h2>Scenario 22 — Identity spoofing resistance <span class="badge pass">PASS</span></h2>
+        <details><summary>scenario-22.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"pass": true,
+	"reasons": [],
+	"scenario": "22",
+	"skipped": false,
+	"tests": {
+		"body_vs_header_conflict": {
+			"acceptable": [
+				"ai:body-wins",
+				"ai:attacker"
+			],
+			"stored_agent_id": "ai:attacker"
+		},
+		"header_only": {
+			"expected": "ai:alice",
+			"stored_agent_id": "ai:alice"
+		}
+	},
+	"tls_mode": "off"
+}
+</pre>
+          <p><a href="./scenario-22.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-22.log (console trace)</summary>
+          <pre class="log">test 1: header-only X-Agent-Id=ai:alice
+settle 2s for read-settle
+  stored metadata.agent_id for header-only write: ai:alice (expected ai:alice)
+test 2: body.metadata.agent_id=ai:body-wins vs X-Agent-Id=ai:attacker
+settle 2s for read-settle
+  stored metadata.agent_id for body+header conflict: ai:attacker
+</pre>
+          <p><a href="./scenario-22.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-23">
+        <h2>Scenario 23 — Malicious content fuzz <span class="badge pass">PASS</span></h2>
+        <details><summary>scenario-23.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"pass": true,
+	"payloads": {
+		"html": {
+			"input_bytes": 66,
+			"roundtrip_bytes": 66,
+			"write_http": 201
+		},
+		"oversize": {
+			"input_bytes": 1048576,
+			"roundtrip_bytes": 0,
+			"write_http": 400
+		},
+		"sql": {
+			"input_bytes": 61,
+			"roundtrip_bytes": 61,
+			"write_http": 201
+		},
+		"unicode": {
+			"input_bytes": 19,
+			"roundtrip_bytes": 19,
+			"write_http": 201
+		}
+	},
+	"payloads_note": "accept+faithful OR 4xx reject both acceptable for oversize",
+	"reasons": [],
+	"scenario": "23",
+	"skipped": false,
+	"tls_mode": "off"
+}
+</pre>
+          <p><a href="./scenario-23.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-23.log (console trace)</summary>
+          <pre class="log">payload sql: 61 bytes
+payload html: 66 bytes
+payload oversize: 1048576 bytes
+  oversize: server rejected oversize with HTTP 400 (acceptable)
+payload unicode: 19 bytes
+</pre>
+          <p><a href="./scenario-23.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-24">
+        <h2>Scenario 24 — Byzantine peer <span class="badge pass">PASS</span></h2>
+        <details><summary>scenario-24.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"byzantine_marker": "bz-f98a1bc10c854e3e9c79c9ded9e8f87b",
+	"pass": true,
+	"reasons": [],
+	"scenario": "24",
+	"skipped": false,
+	"stored_metadata_agent_id": "REJECTED_BY_SERVER",
+	"sync_push_http_code": "422",
+	"tls_mode": "off"
+}
+</pre>
+          <p><a href="./scenario-24.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-24.log (console trace)</summary>
+          <pre class="log">node-2 sends sync_push to node-3 claiming sender_agent_id=ai:alice
+  sync_push returned HTTP 422
+settle 5s for server-side sync apply
+  node-3 stored metadata.agent_id=ABSENT (declared: ai:alice)
+  sync_push rejected HTTP 422 — stricter-than-spec, acceptable
+</pre>
+          <p><a href="./scenario-24.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-25">
+        <h2>Scenario 25 — Clock skew tolerance <span class="badge pass">PASS</span></h2>
+        <details><summary>scenario-25.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"clock_offset_seconds": 300,
+	"marker": "ck-4640ba743d2e4a559f61e4fa8a4ce9cb",
+	"pass": true,
+	"reasons": [],
+	"scenario": "25",
+	"seen_on": {
+		"node_1": 1,
+		"node_3": 1
+	},
+	"skipped": false,
+	"target_node": "node-3",
+	"tls_mode": "off"
+}
+</pre>
+          <p><a href="./scenario-25.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-25.log (console trace)</summary>
+          <pre class="log">shifting node-3 clock +300s (NTP disabled for the duration)
+  node-3 now reports: Mon Apr 27 17:10:14 UTC 2026
+alice writes on node-1 (normal clock); waiting for quorum fanout to skewed node-3
+settle 15s for skewed-peer convergence
+  node-3 (+300s clock) sees marker: 1 (expected &gt;=1)
+  node-1 sees marker: 1 (expected &gt;=1)
+reverting node-3 clock
+</pre>
+          <p><a href="./scenario-25.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-28">
+        <h2>Scenario 28 — memory_search keyword <span class="badge pass">PASS</span></h2>
+        <details><summary>scenario-28.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"pass": true,
+	"peer_hits": {
+		"node_2": 1,
+		"node_3": 1
+	},
+	"reasons": [],
+	"scenario": "28",
+	"skipped": false,
+	"tls_mode": "off",
+	"token": "kwsearch531fa80feb"
+}
+</pre>
+          <p><a href="./scenario-28.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-28.log (console trace)</summary>
+          <pre class="log">alice writes a row containing unique token=kwsearch531fa80feb
+settle 8s for search index populate + fanout
+bob + charlie call /api/v1/search with the exact token
+  node-2 keyword search returned 1 hits
+  node-3 keyword search returned 1 hits
+</pre>
+          <p><a href="./scenario-28.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-29">
+        <h2>Scenario 29 — memory_archive lifecycle <span class="badge pass">PASS</span></h2>
+        <details><summary>scenario-29.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"archive_http_code": 200,
+	"bob_sees_archived": true,
+	"m1_id": "79fa161d-498b-4d20-9628-42dc0d7e602a",
+	"node4_active_rows": 1,
+	"pass": true,
+	"reasons": [],
+	"restore_http_code": 200,
+	"scenario": "29",
+	"skipped": false,
+	"stats_shape_ok": true,
+	"tls_mode": "off"
+}
+</pre>
+          <p><a href="./scenario-29.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-29.log (console trace)</summary>
+          <pre class="log">alice writes M1 on node-1
+  M1 id=79fa161d-498b-4d20-9628-42dc0d7e602a
+settle 5s for pre-archive replication
+alice archives M1 via POST /api/v1/archive (ai-memory-mcp PR #361)
+  archive (POST) returned HTTP 200
+settle 5s for archive propagation
+bob queries /api/v1/archive on node-2
+  bob sees M1 in archive: True
+charlie restores M1 via /api/v1/archive/{id}/restore on node-3
+  restore returned HTTP 200
+settle 5s for restore propagation
+node-4 aggregator: M1 must be active again
+  node-4 active rows matching marker: 1
+fetch /api/v1/archive/stats on node-4
+</pre>
+          <p><a href="./scenario-29.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-30">
+        <h2>Scenario 30 — memory_capabilities handshake <span class="badge pass">PASS</span></h2>
+        <details><summary>scenario-30.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"pass": true,
+	"peer_views": {
+		"node_1": {
+			"_path": "/api/v1/capabilities",
+			"approval": {
+				"default_timeout_seconds": 30,
+				"pending_requests": 0,
+				"subscribers": 0
+			},
+			"compaction": {
+				"enabled": false,
+				"interval_minutes": null,
+				"last_run_at": null,
+				"last_run_stats": null
+			},
+			"features": {
+				"auto_consolidation": false,
+				"auto_tagging": false,
+				"contradiction_analysis": false,
+				"cross_encoder_reranking": false,
+				"embedder_loaded": true,
+				"hybrid_recall": true,
+				"keyword_search": true,
+				"memory_reflection": false,
+				"query_expansion": false,
+				"semantic_search": true
+			},
+			"hooks": {
+				"by_event": {},
+				"registered_count": 0
+			},
+			"models": {
+				"cross_encoder": "none",
+				"embedding": "sentence-transformers/all-MiniLM-L6-v2",
+				"embedding_dim": 384,
+				"llm": "none"
+			},
+			"permissions": {
+				"active_rules": 0,
+				"mode": "ask",
+				"rule_summary": []
+			},
+			"schema_version": "2",
+			"tier": "semantic",
+			"transcripts": {
+				"enabled": false,
+				"total_count": 0,
+				"total_size_mb": 0
+			},
+			"version": "0.6.3-rc1"
+		},
+		"node_2": {
+			"_path": "/api/v1/capabilities",
+			"approval": {
+				"default_timeout_seconds": 30,
+				"pending_requests": 0,
+				"subscribers": 0
+			},
+			"compaction": {
+				"enabled": false,
+				"interval_minutes": null,
+				"last_run_at": null,
+				"last_run_stats": null
+			},
+			"features": {
+				"auto_consolidation": false,
+				"auto_tagging": false,
+				"contradiction_analysis": false,
+				"cross_encoder_reranking": false,
+				"embedder_loaded": true,
+				"hybrid_recall": true,
+				"keyword_search": true,
+				"memory_reflection": false,
+				"query_expansion": false,
+				"semantic_search": true
+			},
+			"hooks": {
+				"by_event": {},
+				"registered_count": 0
+			},
+			"models": {
+				"cross_encoder": "none",
+				"embedding": "sentence-transformers/all-MiniLM-L6-v2",
+				"embedding_dim": 384,
+				"llm": "none"
+			},
+			"permissions": {
+				"active_rules": 0,
+				"mode": "ask",
+				"rule_summary": []
+			},
+			"schema_version": "2",
+			"tier": "semantic",
+			"transcripts": {
+				"enabled": false,
+				"total_count": 0,
+				"total_size_mb": 0
+			},
+			"version": "0.6.3-rc1"
+		},
+		"node_3": {
+			"_path": "/api/v1/capabilities",
+			"approval": {
+				"default_timeout_seconds": 30,
+				"pending_requests": 0,
+				"subscribers": 0
+			},
+			"compaction": {
+				"enabled": false,
+				"interval_minutes": null,
+				"last_run_at": null,
+				"last_run_stats": null
+			},
+			"features": {
+				"auto_consolidation": false,
+				"auto_tagging": false,
+				"contradiction_analysis": false,
+				"cross_encoder_reranking": false,
+				"embedder_loaded": true,
+				"hybrid_recall": true,
+				"keyword_search": true,
+				"memory_reflection": false,
+				"query_expansion": false,
+				"semantic_search": true
+			},
+			"hooks": {
+				"by_event": {},
+				"registered_count": 0
+			},
+			"models": {
+				"cross_encoder": "none",
+				"embedding": "sentence-transformers/all-MiniLM-L6-v2",
+				"embedding_dim": 384,
+				"llm": "none"
+			},
+			"permissions": {
+				"active_rules": 0,
+				"mode": "ask",
+				"rule_summary": []
+			},
+			"schema_version": "2",
+			"tier": "semantic",
+			"transcripts": {
+				"enabled": false,
+				"total_count": 0,
+				"total_size_mb": 0
+			},
+			"version": "0.6.3-rc1"
+		},
+		"node_4": {
+			"_path": "/api/v1/capabilities",
+			"approval": {
+				"default_timeout_seconds": 30,
+				"pending_requests": 0,
+				"subscribers": 0
+			},
+			"compaction": {
+				"enabled": false,
+				"interval_minutes": null,
+				"last_run_at": null,
+				"last_run_stats": null
+			},
+			"features": {
+				"auto_consolidation": false,
+				"auto_tagging": false,
+				"contradiction_analysis": false,
+				"cross_encoder_reranking": false,
+				"embedder_loaded": true,
+				"hybrid_recall": true,
+				"keyword_search": true,
+				"memory_reflection": false,
+				"query_expansion": false,
+				"semantic_search": true
+			},
+			"hooks": {
+				"by_event": {},
+				"registered_count": 0
+			},
+			"models": {
+				"cross_encoder": "none",
+				"embedding": "sentence-transformers/all-MiniLM-L6-v2",
+				"embedding_dim": 384,
+				"llm": "none"
+			},
+			"permissions": {
+				"active_rules": 0,
+				"mode": "ask",
+				"rule_summary": []
+			},
+			"schema_version": "2",
+			"tier": "semantic",
+			"transcripts": {
+				"enabled": false,
+				"total_count": 0,
+				"total_size_mb": 0
+			},
+			"version": "0.6.3-rc1"
+		}
+	},
+	"reasons": [],
+	"scenario": "30",
+	"skipped": false,
+	"tls_mode": "off"
+}
+</pre>
+          <p><a href="./scenario-30.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-30.log (console trace)</summary>
+          <pre class="log">  node-1 capabilities: ['approval', 'compaction', 'features', 'hooks', 'models', 'permissions', 'schema_version', 'tier', 'transcripts', 'version', '_path']
+  node-2 capabilities: ['approval', 'compaction', 'features', 'hooks', 'models', 'permissions', 'schema_version', 'tier', 'transcripts', 'version', '_path']
+  node-3 capabilities: ['approval', 'compaction', 'features', 'hooks', 'models', 'permissions', 'schema_version', 'tier', 'transcripts', 'version', '_path']
+  node-4 capabilities: ['approval', 'compaction', 'features', 'hooks', 'models', 'permissions', 'schema_version', 'tier', 'transcripts', 'version', '_path']
+</pre>
+          <p><a href="./scenario-30.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-31">
+        <h2>Scenario 31 — memory_gc quiescence <span class="badge pass">PASS</span></h2>
+        <details><summary>scenario-31.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"expected_live": 2,
+	"forget_http_code": 400,
+	"gc_http_code": 200,
+	"live_markers_per_peer": {
+		"node_1": 2,
+		"node_2": 2,
+		"node_3": 2,
+		"node_4": 2
+	},
+	"pass": true,
+	"reasons": [],
+	"scenario": "31",
+	"skipped": false,
+	"tls_mode": "off"
+}
+</pre>
+          <p><a href="./scenario-31.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-31.log (console trace)</summary>
+          <pre class="log">alice writes 4 memories
+settle 6s for pre-gc replication
+alice forgets 2 via /api/v1/forget
+  forget returned HTTP 400
+settle 5s for forget propagation
+bob triggers /api/v1/gc on node-2
+  gc returned HTTP 200
+settle 8s for post-gc settle
+verify remaining 2 markers are still readable on every peer
+  node-1 sees 2/2 live markers
+  node-2 sees 2/2 live markers
+  node-3 sees 2/2 live markers
+  node-4 sees 2/2 live markers
+</pre>
+          <p><a href="./scenario-31.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-32">
+        <h2>Scenario 32 — memory_inbox + notify <span class="badge pass">PASS</span></h2>
+        <details><summary>scenario-32.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"bob_inbox_count": 1,
+	"bob_sees_marker": true,
+	"charlie_inbox_count": 0,
+	"charlie_sees_marker": false,
+	"marker": "inb-6aa83dd038cb40c5be95ebe802717f1d",
+	"notify_http_code": 201,
+	"pass": true,
+	"reasons": [],
+	"scenario": "32",
+	"skipped": false,
+	"tls_mode": "off"
+}
+</pre>
+          <p><a href="./scenario-32.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-32.log (console trace)</summary>
+          <pre class="log">alice calls /api/v1/notify → target=ai:bob
+  notify returned HTTP 201
+settle 6s for notification fanout
+bob queries his inbox on node-2
+  bob inbox has 1 messages; sees marker: True
+charlie queries his inbox on node-3 (must NOT see it)
+  charlie inbox has 0 messages; sees marker: False
+</pre>
+          <p><a href="./scenario-32.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-33">
+        <h2>Scenario 33 — memory_subscribe pub/sub <span class="badge pass">PASS</span></h2>
+        <details><summary>scenario-33.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"m1_delivered": 1,
+	"namespace": "scenario33-pubsub-fb6e70",
+	"ns_in_subs_after": false,
+	"ns_in_subs_before": true,
+	"pass": true,
+	"reasons": [],
+	"scenario": "33",
+	"skipped": false,
+	"subscribe_http_code": 201,
+	"subscriptions_after_count": 0,
+	"subscriptions_before_count": 1,
+	"tls_mode": "off",
+	"unsubscribe_http_code": 200
+}
+</pre>
+          <p><a href="./scenario-33.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-33.log (console trace)</summary>
+          <pre class="log">bob subscribes to namespace scenario33-pubsub-fb6e70 on node-2
+  subscribe returned HTTP 201
+settle 2s for subscription settle
+  bob subscriptions: 1 entries; contains ns: True
+alice writes M1 into the subscribed namespace
+settle 6s for write fanout to subscribers
+  bob sees M1 in subscribed namespace: 1
+bob unsubscribes from scenario33-pubsub-fb6e70
+  unsubscribe returned HTTP 200
+settle 2s for unsubscribe settle
+  bob subscriptions after unsubscribe: ns still present = False
+alice writes M2 post-unsubscribe (may still replicate via federation but subscription list excludes ns)
+settle 5s for post-unsubscribe settle
+</pre>
+          <p><a href="./scenario-33.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-34">
+        <h2>Scenario 34 — memory_pending governance <span class="badge pass">PASS</span></h2>
+        <details><summary>scenario-34.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"approve_http_code": 200,
+	"charlie_sees": {
+		"approved": 1,
+		"rejected": 0
+	},
+	"namespace": "scenario34-pending-a1ab45",
+	"pass": true,
+	"pending_queue_count": 2,
+	"reasons": [],
+	"reject_http_code": 200,
+	"scenario": "34",
+	"set_standard_http_code": 201,
+	"skipped": false,
+	"tls_mode": "off"
+}
+</pre>
+          <p><a href="./scenario-34.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-34.log (console trace)</summary>
+          <pre class="log">alice sets namespace standard on scenario34-pending-a1ab45: write=approve, approver=ai:bob
+  set-standard returned HTTP 201
+settle 2s for standard settle
+alice writes two memories into the governed namespace (should land in pending)
+  p1=7dd19679-a5b1-4ad3-969a-d929bb60ac3b p2=58eb0ca4-8552-450c-9e85-041ae14f9a2e
+settle 4s for pending queue settle
+bob lists pending on node-2
+  pending queue has 2 entries
+bob approves p1, rejects p2
+  approve HTTP 200; reject HTTP 200
+settle 5s for decision fanout
+charlie reads the namespace — expects ONLY approved marker
+  charlie sees approved=1 rejected=0
+</pre>
+          <p><a href="./scenario-34.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-35">
+        <h2>Scenario 35 — memory_namespace standards <span class="badge pass">PASS</span></h2>
+        <details><summary>scenario-35.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"child_ns": "scenario35-parent-e546bf/child",
+	"clear_http_code": 200,
+	"get_standard_http_code": 200,
+	"parent_ns": "scenario35-parent-e546bf",
+	"pass": true,
+	"post_clear_has_child_rule": false,
+	"reasons": [],
+	"scenario": "35",
+	"sees_child_rule": true,
+	"sees_parent_rule": true,
+	"set_child_http_code": 201,
+	"set_parent_http_code": 201,
+	"skipped": false,
+	"tls_mode": "off"
+}
+</pre>
+          <p><a href="./scenario-35.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-35.log (console trace)</summary>
+          <pre class="log">alice writes parent-standard-memory on node-1
+alice sets namespace standard on scenario35-parent-e546bf
+  set-parent returned HTTP 201
+alice writes child-standard-memory on node-1
+alice sets namespace standard on scenario35-parent-e546bf/child with parent=scenario35-parent-e546bf
+  set-child returned HTTP 201
+settle 4s for standard fanout
+bob gets standard for scenario35-parent-e546bf/child on node-2 (expects layered parent+child)
+  get-standard returned HTTP 200
+  parent-rule visible=True; child-rule visible=True
+alice clears standard on scenario35-parent-e546bf/child
+  clear returned HTTP 200
+settle 3s for clear settle
+</pre>
+          <p><a href="./scenario-35.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-36">
+        <h2>Scenario 36 — memory_session_start <span class="badge pass">PASS</span></h2>
+        <details><summary>scenario-36.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"pass": true,
+	"reasons": [],
+	"scenario": "36",
+	"session_id": "f78a549e-db9a-4fdf-9a91-f59fdffc92c2",
+	"session_tagged_rows_on_bob": 2,
+	"skipped": false,
+	"start_http_code": 200,
+	"tls_mode": "off"
+}
+</pre>
+          <p><a href="./scenario-36.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-36.log (console trace)</summary>
+          <pre class="log">alice starts a session on node-1
+  session_start returned HTTP 200, session_id=f78a549e-db9a-4fdf-9a91-f59fdffc92c2
+alice writes 2 memories tagged with session_id
+settle 6s for session-tagged fanout
+bob lists on node-2 filtered by session_id=f78a549e-db9a-4fdf-9a91-f59fdffc92c2
+  bob sees 2 rows tagged session_id=f78a549e-db9a-4fdf-9a91-f59fdffc92c2 (expected 2)
+</pre>
+          <p><a href="./scenario-36.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-37">
+        <h2>Scenario 37 — memory_get_links bidirectional <span class="badge pass">PASS</span></h2>
+        <details><summary>scenario-37.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"forward_has_target": true,
+	"m1": "350ae889-0e69-4047-a2ca-9a61d68f0a79",
+	"m2": "14073db5-738d-4d3f-910a-dc6e42f795a3",
+	"pass": true,
+	"reasons": [],
+	"reverse_has_source": true,
+	"scenario": "37",
+	"skipped": false,
+	"tls_mode": "off"
+}
+</pre>
+          <p><a href="./scenario-37.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-37.log (console trace)</summary>
+          <pre class="log">alice writes M1 + M2 + links M1→M2
+  M1=350ae889-0e69-4047-a2ca-9a61d68f0a79 M2=14073db5-738d-4d3f-910a-dc6e42f795a3
+settle 6s for link fanout
+charlie queries /api/v1/links/M1 (forward)
+charlie queries /api/v1/links/M2 (reverse)
+</pre>
+          <p><a href="./scenario-37.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-38">
+        <h2>Scenario 38 — /export + /import <span class="badge pass">PASS</span></h2>
+        <details><summary>scenario-38.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"dst_ns": "scenario38-dst-a1e900",
+	"expected_rows": 5,
+	"export_http_code": 200,
+	"import_http_code": 200,
+	"markers_preserved": 5,
+	"pass": true,
+	"reasons": [],
+	"rows_exported": 5,
+	"rows_in_destination": 5,
+	"scenario": "38",
+	"skipped": false,
+	"src_ns": "scenario38-src-a1e900",
+	"tls_mode": "off"
+}
+</pre>
+          <p><a href="./scenario-38.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-38.log (console trace)</summary>
+          <pre class="log">alice writes 5 rows into scenario38-src-a1e900
+settle 4s for pre-export replication
+alice exports on node-1 (endpoint has no namespace filter; filter client-side)
+  export returned HTTP 200, total_rows=232
+  rewrote 5 memories from scenario38-src-a1e900 -&gt; scenario38-dst-a1e900
+bob imports the payload into scenario38-dst-a1e900 on node-2
+  import returned HTTP 200
+settle 6s for import + fanout
+verify row counts match on destination
+  scenario38-dst-a1e900 has 5 rows (expected 5)
+  markers preserved in destination: 5/5
+</pre>
+          <p><a href="./scenario-38.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-39">
+        <h2>Scenario 39 — /sync/since delta <span class="badge pass">PASS</span></h2>
+        <details><summary>scenario-39.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"checkpoint": "2026-04-27T17:08:50+00:00",
+	"diag_curl_body_head": "{\"count\":6,\"earliest_updated_at\":\"2026-04-27T17:09:24.168161965+00:00\",\"latest_updated_at\":\"2026-04-27T17:09:31.658992065+00:00\",\"limit\":500,\"memories\":[{\"access_count\":0,\"confidence\":1.0,\"content\":\"marker=delta-0-546ac84b8f9c4ccf9d50eb445030312e\",\"created_at\":\"2026-04-27T17:09:24.168161965+00:00\",\"",
+	"diag_curl_exit": 0,
+	"diag_curl_http_code": 200,
+	"diag_curl_stderr": "",
+	"diag_earliest_updated_at": "2026-04-27T17:09:24.168161965+00:00",
+	"diag_latest_updated_at": "2026-04-27T17:09:31.658992065+00:00",
+	"diag_node3_health_reachable": true,
+	"diag_updated_since": "2026-04-27T17:08:50+00:00",
+	"expected_markers": 6,
+	"markers_present": 6,
+	"namespace": "scenario39-delta-79045a",
+	"pass": true,
+	"reasons": [],
+	"rows_returned": 6,
+	"rows_returned_raw": 6,
+	"scenario": "39",
+	"skipped": false,
+	"tls_mode": "off"
+}
+</pre>
+          <p><a href="./scenario-39.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-39.log (console trace)</summary>
+          <pre class="log">checkpoint = 2026-04-27T17:08:50+00:00
+suspending ai-memory on node-3
+  !! ssh timeout (30s): root@159.89.39.43 pgrep -f 'ai-memory serve' | xargs -r kill -STOP
+alice + bob write 6 rows while node-3 is out
+resuming ai-memory on node-3
+settle 15s for process resume + federation catchup
+  node-3 → node-1 health reachable: True (after 1 probes)
+node-3 asks node-1 /api/v1/sync/since?since=2026-04-27T17:08:50+00:00
+  curl exit=0 http_code=200 body_len=2898 stderr=''
+  /sync/since raw=6 ns-filtered=6; 6/6 match our markers
+  diag: updated_since=2026-04-27T17:08:50+00:00 earliest=2026-04-27T17:09:24.168161965+00:00 latest=2026-04-27T17:09:31.658992065+00:00
+</pre>
+          <p><a href="./scenario-39.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-40">
+        <h2>Scenario 40 — /memories/bulk <span class="badge pass">PASS</span></h2>
+        <details><summary>scenario-40.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"bulk_http_code": "200",
+	"bulk_size": 500,
+	"namespace": "scenario40-bulk-450923",
+	"pass": true,
+	"per_peer_count": {
+		"node_2": 500,
+		"node_3": 500,
+		"node_4": 500
+	},
+	"reasons": [],
+	"scenario": "40",
+	"skipped": false,
+	"tls_mode": "off"
+}
+</pre>
+          <p><a href="./scenario-40.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-40.log (console trace)</summary>
+          <pre class="log">constructing 500-row bulk payload
+staging bulk payload on node-1 /tmp, then POST /api/v1/memories/bulk
+  bulk POST returned HTTP 200
+settle 20s for bulk fanout across 3 peers + aggregator
+  node-2 count=500 (expected 500)
+  node-3 count=500 (expected 500)
+  node-4 count=500 (expected 500)
+</pre>
+          <p><a href="./scenario-40.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-41">
+        <h2>Scenario 41 — /metrics Prometheus <span class="badge pass">PASS</span></h2>
+        <details><summary>scenario-41.json (report)</summary>
+          <pre>{
+	"activity_namespace": "scenario41-activity-73f475",
+	"agent_group": "ironclaw",
+	"pass": true,
+	"per_peer": {
+		"node_1": {
+			"counters_t0": 10,
+			"counters_t1": 10,
+			"regressed_keys": 0
+		},
+		"node_2": {
+			"counters_t0": 10,
+			"counters_t1": 10,
+			"regressed_keys": 0
+		},
+		"node_3": {
+			"counters_t0": 7,
+			"counters_t1": 7,
+			"regressed_keys": 0
+		}
+	},
+	"reasons": [],
+	"scenario": "41",
+	"skipped": false,
+	"tls_mode": "off"
+}
+</pre>
+          <p><a href="./scenario-41.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-41.log (console trace)</summary>
+          <pre class="log">scrape T0
+  node-1 T0 parsed 10 memory counters
+  node-2 T0 parsed 10 memory counters
+  node-3 T0 parsed 7 memory counters
+settle 5s for counter update
+scrape T1
+  node-1 T1 parsed 10 memory counters
+  node-2 T1 parsed 10 memory counters
+  node-3 T1 parsed 7 memory counters
+</pre>
+          <p><a href="./scenario-41.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-42">
+        <h2>Scenario 42 — /namespaces enumeration <span class="badge pass">PASS</span></h2>
+        <details><summary>scenario-42.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"namespaces": [
+		"scenario42-7c2613-0",
+		"scenario42-7c2613-1",
+		"scenario42-7c2613-2"
+	],
+	"pass": true,
+	"per_peer": {
+		"node_1": {
+			"scenario42-7c2613-0": 2,
+			"scenario42-7c2613-1": 2,
+			"scenario42-7c2613-2": 2
+		},
+		"node_2": {
+			"scenario42-7c2613-0": 2,
+			"scenario42-7c2613-1": 2,
+			"scenario42-7c2613-2": 2
+		},
+		"node_3": {
+			"scenario42-7c2613-0": 2,
+			"scenario42-7c2613-1": 2,
+			"scenario42-7c2613-2": 2
+		},
+		"node_4": {
+			"scenario42-7c2613-0": 2,
+			"scenario42-7c2613-1": 2,
+			"scenario42-7c2613-2": 2
+		}
+	},
+	"reasons": [],
+	"scenario": "42",
+	"skipped": false,
+	"tls_mode": "off"
+}
+</pre>
+          <p><a href="./scenario-42.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-42.log (console trace)</summary>
+          <pre class="log">alice writes into 3 distinct namespaces: ['scenario42-7c2613-0', 'scenario42-7c2613-1', 'scenario42-7c2613-2']
+settle 10s for namespace index fanout
+  node-1 sees 3/3 target namespaces, counts: {'scenario42-7c2613-0': 2, 'scenario42-7c2613-1': 2, 'scenario42-7c2613-2': 2}
+  node-2 sees 3/3 target namespaces, counts: {'scenario42-7c2613-0': 2, 'scenario42-7c2613-1': 2, 'scenario42-7c2613-2': 2}
+  node-3 sees 3/3 target namespaces, counts: {'scenario42-7c2613-0': 2, 'scenario42-7c2613-1': 2, 'scenario42-7c2613-2': 2}
+  node-4 sees 3/3 target namespaces, counts: {'scenario42-7c2613-0': 2, 'scenario42-7c2613-1': 2, 'scenario42-7c2613-2': 2}
+</pre>
+          <p><a href="./scenario-42.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-43">
+        <h2>Scenario 43 — scenario-43 <span class="badge pass">PASS</span></h2>
+        <details><summary>scenario-43.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"pass": true,
+	"per_peer": {
+		"node_1": {
+			"missing_v1": [],
+			"missing_v2": [],
+			"responded": true,
+			"schema_version": "2"
+		},
+		"node_2": {
+			"missing_v1": [],
+			"missing_v2": [],
+			"responded": true,
+			"schema_version": "2"
+		},
+		"node_3": {
+			"missing_v1": [],
+			"missing_v2": [],
+			"responded": true,
+			"schema_version": "2"
+		},
+		"node_4": {
+			"missing_v1": [],
+			"missing_v2": [],
+			"responded": true,
+			"schema_version": "2"
+		}
+	},
+	"reasons": [],
+	"scenario": "43",
+	"skipped": false,
+	"tls_mode": "off",
+	"v1_fields": [
+		"tier",
+		"version",
+		"features",
+		"models"
+	],
+	"v2_blocks": [
+		"permissions",
+		"hooks",
+		"compaction",
+		"approval",
+		"transcripts"
+	]
+}
+</pre>
+          <p><a href="./scenario-43.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-43.log (console trace)</summary>
+          <pre class="log">  node-1 schema_version='2' missing_v1=[] missing_v2=[]
+  node-2 schema_version='2' missing_v1=[] missing_v2=[]
+  node-3 schema_version='2' missing_v1=[] missing_v2=[]
+  node-4 schema_version='2' missing_v1=[] missing_v2=[]
+</pre>
+          <p><a href="./scenario-43.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-44">
+        <h2>Scenario 44 — scenario-44 <span class="badge fail">FAIL</span></h2>
+        <p class="muted"><strong>Reasons:</strong> could not locate scenario44-9736d6/alphaone in taxonomy response | root node missing subtree_count field — v0.6.3 should expose it</p>
+        <details><summary>scenario-44.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"children_returned": 0,
+	"memories_written": 30,
+	"pass": false,
+	"reason": "could not locate scenario44-9736d6/alphaone in taxonomy response; root node missing subtree_count field — v0.6.3 should expose it",
+	"reasons": [
+		"could not locate scenario44-9736d6/alphaone in taxonomy response",
+		"root node missing subtree_count field — v0.6.3 should expose it"
+	],
+	"root": "scenario44-9736d6/alphaone",
+	"root_subtree_count": null,
+	"scenario": "44",
+	"skipped": false,
+	"sum_children_counts": 0,
+	"taxonomy_http_code": 200,
+	"tls_mode": "off"
+}
+</pre>
+          <p><a href="./scenario-44.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-44.log (console trace)</summary>
+          <pre class="log">writing 30 memories across 6 subtrees rooted at scenario44-9736d6/alphaone
+  wrote 30/30
+settle 8s for taxonomy index fanout
+GET /api/v1/taxonomy?root=scenario44-9736d6/alphaone&amp;depth=8&amp;limit=20 on node-1
+  HTTP 200
+  root node found: False
+  children returned: 0 (limit was 20)
+  sum(count) over returned children: 0
+  root subtree_count: None
+</pre>
+          <p><a href="./scenario-44.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-45">
+        <h2>Scenario 45 — scenario-45 <span class="badge fail">FAIL</span></h2>
+        <p class="muted"><strong>Reasons:</strong> kg_invalidate returned HTTP 400 | as_of=past missing edges; expected all 3 targets, got 0 | as_of=now expected 2 edges, got 0</p>
+        <details><summary>scenario-45.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"as_of_now": "2026-04-27T17:13:04Z",
+	"as_of_past": "2026-04-27T16:12:51Z",
+	"invalidate_http_code": 400,
+	"m0_id": "993a371b-933e-4f31-a27c-dc0be704fb4e",
+	"now_edges": 0,
+	"now_query_http_code": 200,
+	"pass": false,
+	"past_edges": 0,
+	"past_query_http_code": 200,
+	"reason": "kg_invalidate returned HTTP 400; as_of=past missing edges; expected all 3 targets, got 0; as_of=now expected 2 edges, got 0",
+	"reasons": [
+		"kg_invalidate returned HTTP 400",
+		"as_of=past missing edges; expected all 3 targets, got 0",
+		"as_of=now expected 2 edges, got 0"
+	],
+	"scenario": "45",
+	"skipped": false,
+	"target_ids": [
+		"613bc04d-f22e-4ac5-bb3b-346d19dea59d",
+		"55fad96f-bc23-4570-9120-9f0afd86b600",
+		"0079fef3-687b-4b9d-b313-64f000e6e85c"
+	],
+	"tls_mode": "off"
+}
+</pre>
+          <p><a href="./scenario-45.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-45.log (console trace)</summary>
+          <pre class="log">seed: write M0 + T1/T2/T3 on node-1
+  M0=993a371b-933e-4f31-a27c-dc0be704fb4e targets=['613bc04d-f22e-4ac5-bb3b-346d19dea59d', '55fad96f-bc23-4570-9120-9f0afd86b600', '0079fef3-687b-4b9d-b313-64f000e6e85c']
+settle 4s for seed propagation
+creating 3 edges with valid_from=2026-04-27T16:12:51Z
+  edge M0-&gt;T1 HTTP 400
+  edge M0-&gt;T2 HTTP 400
+  edge M0-&gt;T3 HTTP 400
+settle 4s for edge fanout
+invalidating edge M0-&gt;T2 (target 55fad96f-bc23-4570-9120-9f0afd86b600)
+  invalidate HTTP 400
+settle 4s for invalidation fanout
+kg_query as_of=2026-04-27T16:12:51Z (past) — expecting 3 edges
+  HTTP 200 edge count=0
+kg_query as_of=2026-04-27T17:13:04Z (now) — expecting 2 edges (T2 invalidated)
+  HTTP 200 edge count=0
+</pre>
+          <p><a href="./scenario-45.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-46">
+        <h2>Scenario 46 — scenario-46 <span class="badge fail">FAIL</span></h2>
+        <p class="muted"><strong>Reasons:</strong> expected &gt;=3 events (2 adds + 1 invalidate), got 0 | no edge_added event in timeline | no edge_invalidated event in timeline</p>
+        <details><summary>scenario-46.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"chronological": true,
+	"event_count": 0,
+	"m0_id": "2ba5a97b-815c-4142-8fb1-57c10af73242",
+	"pass": false,
+	"reason": "expected &gt;=3 events (2 adds + 1 invalidate), got 0; no edge_added event in timeline; no edge_invalidated event in timeline",
+	"reasons": [
+		"expected &gt;=3 events (2 adds + 1 invalidate), got 0",
+		"no edge_added event in timeline",
+		"no edge_invalidated event in timeline"
+	],
+	"scenario": "46",
+	"skipped": false,
+	"timeline_http_code": 200,
+	"tls_mode": "off",
+	"types": []
+}
+</pre>
+          <p><a href="./scenario-46.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-46.log (console trace)</summary>
+          <pre class="log">seed: write source M0 + 2 targets on node-1
+  M0=2ba5a97b-815c-4142-8fb1-57c10af73242 T1=908d5d43-6c78-4a47-bebf-46f6b81aec9d T2=9b021768-8343-4c86-88fc-613ba64e0a35
+settle 3s for seed settle
+create edge M0-&gt;T1 (event 1: edge_added)
+create edge M0-&gt;T2 (event 2: edge_added)
+invalidate M0-&gt;T1 (event 3: edge_invalidated)
+settle 4s for timeline indexer
+GET /api/v1/kg/timeline?source_id=2ba5a97b-815c-4142-8fb1-57c10af73242 on node-1
+  HTTP 200
+  0 events, types=[]
+</pre>
+          <p><a href="./scenario-46.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-47">
+        <h2>Scenario 47 — scenario-47 <span class="badge fail">FAIL</span></h2>
+        <p class="muted"><strong>Reasons:</strong> by-alias('a1-project') HTTP 404 | by-alias('alphaone-proj') HTTP 404 | by-alias('alpha1-proj') HTTP 404 | by-alias('ao-project') HTTP 404</p>
+        <details><summary>scenario-47.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"alias_resolutions": {
+		"a1-project": {
+			"entity_id": "",
+			"http_code": 404
+		},
+		"alpha1-proj": {
+			"entity_id": "",
+			"http_code": 404
+		},
+		"alphaone-proj": {
+			"entity_id": "",
+			"http_code": 404
+		},
+		"ao-project": {
+			"entity_id": "",
+			"http_code": 404
+		}
+	},
+	"aliases_on_entity": [
+		"a1-project",
+		"alphaone-proj",
+		"alpha1-proj",
+		"ao-project"
+	],
+	"canonical": "AlphaOne-Project-7188dc",
+	"first_entity_id": "33523935-f76d-45d3-b20e-ac4dd6cdb43f",
+	"first_register_http_code": 201,
+	"namespace": "scenario47-ent-7188dc",
+	"pass": false,
+	"reason": "by-alias('a1-project') HTTP 404; by-alias('alphaone-proj') HTTP 404; by-alias('alpha1-proj') HTTP 404; by-alias('ao-project') HTTP 404",
+	"reasons": [
+		"by-alias('a1-project') HTTP 404",
+		"by-alias('alphaone-proj') HTTP 404",
+		"by-alias('alpha1-proj') HTTP 404",
+		"by-alias('ao-project') HTTP 404"
+	],
+	"scenario": "47",
+	"second_entity_id": "33523935-f76d-45d3-b20e-ac4dd6cdb43f",
+	"second_register_http_code": 200,
+	"skipped": false,
+	"tls_mode": "off"
+}
+</pre>
+          <p><a href="./scenario-47.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-47.log (console trace)</summary>
+          <pre class="log">register canonical='AlphaOne-Project-7188dc' ns=scenario47-ent-7188dc aliases=['a1-project', 'alphaone-proj']
+  HTTP 201 entity_id='33523935-f76d-45d3-b20e-ac4dd6cdb43f'
+register again, same canonical, different aliases=['alpha1-proj', 'ao-project']
+  HTTP 200 entity_id='33523935-f76d-45d3-b20e-ac4dd6cdb43f' aliases-on-entity=['a1-project', 'alphaone-proj', 'alpha1-proj', 'ao-project']
+settle 4s for entity propagation
+  by-alias('a1-project') HTTP 404 -&gt; ''
+  by-alias('alphaone-proj') HTTP 404 -&gt; ''
+  by-alias('alpha1-proj') HTTP 404 -&gt; ''
+  by-alias('ao-project') HTTP 404 -&gt; ''
+</pre>
+          <p><a href="./scenario-47.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-48">
+        <h2>Scenario 48 — scenario-48 <span class="badge fail">FAIL</span></h2>
+        <p class="muted"><strong>Reasons:</strong> check_duplicate returned HTTP 422 | check_duplicate returned 0 matches for a near-identical input | original memory (5f913f4e-d905-4199-87d9-7859d5028318) absent from matches | match did not carry a similarity score field</p>
+        <details><summary>scenario-48.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"check_http_code": 422,
+	"match_count": 0,
+	"original_id": "5f913f4e-d905-4199-87d9-7859d5028318",
+	"original_in_matches": false,
+	"pass": false,
+	"reason": "check_duplicate returned HTTP 422; check_duplicate returned 0 matches for a near-identical input; original memory (5f913f4e-d905-4199-87d9-7859d5028318) absent from matches; match did not carry a similarity score field",
+	"reasons": [
+		"check_duplicate returned HTTP 422",
+		"check_duplicate returned 0 matches for a near-identical input",
+		"original memory (5f913f4e-d905-4199-87d9-7859d5028318) absent from matches",
+		"match did not carry a similarity score field"
+	],
+	"scenario": "48",
+	"similarity_score": null,
+	"skipped": false,
+	"tls_mode": "off"
+}
+</pre>
+          <p><a href="./scenario-48.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-48.log (console trace)</summary>
+          <pre class="log">alice writes the original memory on node-1
+  original id=5f913f4e-d905-4199-87d9-7859d5028318
+settle 6s for indexing + embedding before duplicate check
+alice calls /api/v1/check_duplicate with near-match content
+  HTTP 422
+  matches returned: 0
+  original-as-match found=False score=None
+</pre>
+          <p><a href="./scenario-48.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-49">
+        <h2>Scenario 49 — scenario-49 <span class="badge fail">FAIL</span></h2>
+        <p class="muted"><strong>Reasons:</strong> access: access_count not incremented | promote: HTTP 404 | promote: tier=None, expected 'long' | expire: HTTP 404 | archive: M1 not visible in /api/v1/archive listing | restore: HTTP 404 | purge: HTTP 404</p>
+        <details><summary>scenario-49.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"audit": {
+		"access": {
+			"access_count": 0
+		},
+		"archive": {
+			"http_code": 200,
+			"in_archive_listing": false
+		},
+		"consolidate": {
+			"consolidated_id": "17a26a23-456b-4b76-83c7-44739a8f3e28",
+			"http_code": 201,
+			"sibling_count": 3
+		},
+		"expire": {
+			"http_code": 404,
+			"marker_set": false,
+			"still_visible": true
+		},
+		"promote": {
+			"http_code": 404,
+			"tier_after": null
+		},
+		"purge": {
+			"http_code": 404,
+			"still_in_archive": false
+		},
+		"restore": {
+			"active_after_restore": true,
+			"http_code": 404
+		},
+		"store": {
+			"exists": true,
+			"tier": "mid"
+		}
+	},
+	"m1_id": "0bc09794-45ff-4309-ba53-ac58c1131cf0",
+	"namespace": "scenario49-lifecycle-7f5061",
+	"pass": false,
+	"reason": "access: access_count not incremented; promote: HTTP 404; promote: tier=None, expected 'long'; expire: HTTP 404; archive: M1 not visible in /api/v1/archive listing; restore: HTTP 404; purge: HTTP 404",
+	"reasons": [
+		"access: access_count not incremented",
+		"promote: HTTP 404",
+		"promote: tier=None, expected 'long'",
+		"expire: HTTP 404",
+		"archive: M1 not visible in /api/v1/archive listing",
+		"restore: HTTP 404",
+		"purge: HTTP 404"
+	],
+	"scenario": "49",
+	"skipped": false,
+	"tls_mode": "off"
+}
+</pre>
+          <p><a href="./scenario-49.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-49.log (console trace)</summary>
+          <pre class="log">step 1: store M1 at tier=mid
+  M1=0bc09794-45ff-4309-ba53-ac58c1131cf0
+settle 3s for post-store
+step 2: access M1 (3x to bump counter)
+settle 2s for access counter flush
+step 3: write 2 sibling memories + consolidate
+settle 3s for siblings settle
+settle 4s for consolidation index
+step 4: promote M1 to tier=long
+settle 3s for promote settle
+step 5: expire M1 via /api/v1/memories/{id}/forget
+settle 3s for forget settle
+step 6: archive M1 via POST /api/v1/archive
+settle 4s for archive settle
+step 7: restore M1
+settle 3s for restore settle
+step 8: archive again then hard-purge
+settle 2s for re-archive settle
+settle 3s for purge settle
+</pre>
+          <p><a href="./scenario-49.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-50">
+        <h2>Scenario 50 — scenario-50 <span class="badge warn">UNKNOWN</span></h2>
+        <details><summary>scenario-50.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"capabilities_features": {
+		"auto_consolidation": false,
+		"auto_tagging": false,
+		"contradiction_analysis": false,
+		"cross_encoder_reranking": false,
+		"embedder_loaded": true,
+		"hybrid_recall": true,
+		"keyword_search": true,
+		"memory_reflection": false,
+		"query_expansion": false,
+		"semantic_search": true
+	},
+	"pass": null,
+	"reason": "sqlcipher feature not advertised in /api/v1/capabilities — daemon was not built with --features sqlcipher",
+	"scenario": "50",
+	"skipped": true,
+	"tls_mode": "off"
+}
+</pre>
+          <p><a href="./scenario-50.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-50.log (console trace)</summary>
+          <pre class="log">skipped — sqlcipher feature not advertised in /api/v1/capabilities — daemon was not built with --features sqlcipher
+</pre>
+          <p><a href="./scenario-50.log">raw file</a></p>
+        </details>
+      </section>
+      <section class="phase" id="scenario-51">
+        <h2>Scenario 51 — scenario-51 <span class="badge warn">UNKNOWN</span></h2>
+        <details><summary>scenario-51.json (report)</summary>
+          <pre>{
+	"agent_group": "ironclaw",
+	"capabilities_models": {
+		"cross_encoder": "none",
+		"embedding": "sentence-transformers/all-MiniLM-L6-v2",
+		"embedding_dim": 384,
+		"llm": "none"
+	},
+	"capabilities_tier": "semantic",
+	"pass": null,
+	"reason": "autonomous/smart tier not available on node-1 — tier='semantic' models={'cross_encoder': 'none', 'embedding': 'sentence-transformers/all-MiniLM-L6-v2', 'embedding_dim': 384, 'llm': 'none'}",
+	"scenario": "51",
+	"skipped": true,
+	"tls_mode": "off"
+}
+</pre>
+          <p><a href="./scenario-51.json">raw file</a></p>
+        </details>
+        <details><summary>scenario-51.log (console trace)</summary>
+          <pre class="log">skipped — autonomous/smart tier not available on node-1 — tier='semantic' models={'cross_encoder': 'none', 'embedding': 'sentence-transformers/all-MiniLM-L6-v2', 'embedding_dim': 384, 'llm': 'none'}
+</pre>
+          <p><a href="./scenario-51.log">raw file</a></p>
+        </details>
+      </section>
+    <section>
+      <h2>All artifacts</h2>
+      <ul>
+        <li><a href="./a2a-baseline.json">a2a-baseline.json</a></li>
+        <li><a href="./a2a-summary.json">a2a-summary.json</a></li>
+        <li><a href="./ai-nhi-analysis.json">ai-nhi-analysis.json</a></li>
+        <li><a href="./campaign.meta.json">campaign.meta.json</a></li>
+        <li><a href="./f3-peer-a2a.json">f3-peer-a2a.json</a></li>
+        <li><a href="./scenario-1.json">scenario-1.json</a></li>
+        <li><a href="./scenario-10.json">scenario-10.json</a></li>
+        <li><a href="./scenario-11.json">scenario-11.json</a></li>
+        <li><a href="./scenario-12.json">scenario-12.json</a></li>
+        <li><a href="./scenario-13.json">scenario-13.json</a></li>
+        <li><a href="./scenario-14.json">scenario-14.json</a></li>
+        <li><a href="./scenario-15.json">scenario-15.json</a></li>
+        <li><a href="./scenario-16.json">scenario-16.json</a></li>
+        <li><a href="./scenario-17.json">scenario-17.json</a></li>
+        <li><a href="./scenario-18.json">scenario-18.json</a></li>
+        <li><a href="./scenario-1b.json">scenario-1b.json</a></li>
+        <li><a href="./scenario-2.json">scenario-2.json</a></li>
+        <li><a href="./scenario-22.json">scenario-22.json</a></li>
+        <li><a href="./scenario-23.json">scenario-23.json</a></li>
+        <li><a href="./scenario-24.json">scenario-24.json</a></li>
+        <li><a href="./scenario-25.json">scenario-25.json</a></li>
+        <li><a href="./scenario-28.json">scenario-28.json</a></li>
+        <li><a href="./scenario-29.json">scenario-29.json</a></li>
+        <li><a href="./scenario-30.json">scenario-30.json</a></li>
+        <li><a href="./scenario-31.json">scenario-31.json</a></li>
+        <li><a href="./scenario-32.json">scenario-32.json</a></li>
+        <li><a href="./scenario-33.json">scenario-33.json</a></li>
+        <li><a href="./scenario-34.json">scenario-34.json</a></li>
+        <li><a href="./scenario-35.json">scenario-35.json</a></li>
+        <li><a href="./scenario-36.json">scenario-36.json</a></li>
+        <li><a href="./scenario-37.json">scenario-37.json</a></li>
+        <li><a href="./scenario-38.json">scenario-38.json</a></li>
+        <li><a href="./scenario-39.json">scenario-39.json</a></li>
+        <li><a href="./scenario-4.json">scenario-4.json</a></li>
+        <li><a href="./scenario-40.json">scenario-40.json</a></li>
+        <li><a href="./scenario-41.json">scenario-41.json</a></li>
+        <li><a href="./scenario-42.json">scenario-42.json</a></li>
+        <li><a href="./scenario-43.json">scenario-43.json</a></li>
+        <li><a href="./scenario-44.json">scenario-44.json</a></li>
+        <li><a href="./scenario-45.json">scenario-45.json</a></li>
+        <li><a href="./scenario-46.json">scenario-46.json</a></li>
+        <li><a href="./scenario-47.json">scenario-47.json</a></li>
+        <li><a href="./scenario-48.json">scenario-48.json</a></li>
+        <li><a href="./scenario-49.json">scenario-49.json</a></li>
+        <li><a href="./scenario-5.json">scenario-5.json</a></li>
+        <li><a href="./scenario-50.json">scenario-50.json</a></li>
+        <li><a href="./scenario-51.json">scenario-51.json</a></li>
+        <li><a href="./scenario-6.json">scenario-6.json</a></li>
+        <li><a href="./scenario-9.json">scenario-9.json</a></li>
+        <li><a href="./scenario-1.log">scenario-1.log</a></li>
+        <li><a href="./scenario-10.log">scenario-10.log</a></li>
+        <li><a href="./scenario-11.log">scenario-11.log</a></li>
+        <li><a href="./scenario-12.log">scenario-12.log</a></li>
+        <li><a href="./scenario-13.log">scenario-13.log</a></li>
+        <li><a href="./scenario-14.log">scenario-14.log</a></li>
+        <li><a href="./scenario-15.log">scenario-15.log</a></li>
+        <li><a href="./scenario-16.log">scenario-16.log</a></li>
+        <li><a href="./scenario-17.log">scenario-17.log</a></li>
+        <li><a href="./scenario-18.log">scenario-18.log</a></li>
+        <li><a href="./scenario-1b.log">scenario-1b.log</a></li>
+        <li><a href="./scenario-2.log">scenario-2.log</a></li>
+        <li><a href="./scenario-22.log">scenario-22.log</a></li>
+        <li><a href="./scenario-23.log">scenario-23.log</a></li>
+        <li><a href="./scenario-24.log">scenario-24.log</a></li>
+        <li><a href="./scenario-25.log">scenario-25.log</a></li>
+        <li><a href="./scenario-28.log">scenario-28.log</a></li>
+        <li><a href="./scenario-29.log">scenario-29.log</a></li>
+        <li><a href="./scenario-30.log">scenario-30.log</a></li>
+        <li><a href="./scenario-31.log">scenario-31.log</a></li>
+        <li><a href="./scenario-32.log">scenario-32.log</a></li>
+        <li><a href="./scenario-33.log">scenario-33.log</a></li>
+        <li><a href="./scenario-34.log">scenario-34.log</a></li>
+        <li><a href="./scenario-35.log">scenario-35.log</a></li>
+        <li><a href="./scenario-36.log">scenario-36.log</a></li>
+        <li><a href="./scenario-37.log">scenario-37.log</a></li>
+        <li><a href="./scenario-38.log">scenario-38.log</a></li>
+        <li><a href="./scenario-39.log">scenario-39.log</a></li>
+        <li><a href="./scenario-4.log">scenario-4.log</a></li>
+        <li><a href="./scenario-40.log">scenario-40.log</a></li>
+        <li><a href="./scenario-41.log">scenario-41.log</a></li>
+        <li><a href="./scenario-42.log">scenario-42.log</a></li>
+        <li><a href="./scenario-43.log">scenario-43.log</a></li>
+        <li><a href="./scenario-44.log">scenario-44.log</a></li>
+        <li><a href="./scenario-45.log">scenario-45.log</a></li>
+        <li><a href="./scenario-46.log">scenario-46.log</a></li>
+        <li><a href="./scenario-47.log">scenario-47.log</a></li>
+        <li><a href="./scenario-48.log">scenario-48.log</a></li>
+        <li><a href="./scenario-49.log">scenario-49.log</a></li>
+        <li><a href="./scenario-5.log">scenario-5.log</a></li>
+        <li><a href="./scenario-50.log">scenario-50.log</a></li>
+        <li><a href="./scenario-51.log">scenario-51.log</a></li>
+        <li><a href="./scenario-6.log">scenario-6.log</a></li>
+        <li><a href="./scenario-9.log">scenario-9.log</a></li>
+      </ul>
+    </section>
+    <footer>
+      Generated by <code>scripts/generate_run_html.sh</code>.
+      Methodology: <a href="https://alphaonedev.github.io/ai-memory-ai2ai-gate/methodology/">alphaonedev.github.io/ai-memory-ai2ai-gate/methodology</a>.
+      Analysis source: <code>analysis/run-insights.json</code>.
+    </footer>
+  </main>
+</body>
+</html>

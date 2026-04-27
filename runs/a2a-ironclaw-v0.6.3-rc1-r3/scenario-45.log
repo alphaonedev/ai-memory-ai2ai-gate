@@ -1,0 +1,15 @@
+seed: write M0 + T1/T2/T3 on node-1
+  M0=993a371b-933e-4f31-a27c-dc0be704fb4e targets=['613bc04d-f22e-4ac5-bb3b-346d19dea59d', '55fad96f-bc23-4570-9120-9f0afd86b600', '0079fef3-687b-4b9d-b313-64f000e6e85c']
+settle 4s for seed propagation
+creating 3 edges with valid_from=2026-04-27T16:12:51Z
+  edge M0->T1 HTTP 400
+  edge M0->T2 HTTP 400
+  edge M0->T3 HTTP 400
+settle 4s for edge fanout
+invalidating edge M0->T2 (target 55fad96f-bc23-4570-9120-9f0afd86b600)
+  invalidate HTTP 400
+settle 4s for invalidation fanout
+kg_query as_of=2026-04-27T16:12:51Z (past) — expecting 3 edges
+  HTTP 200 edge count=0
+kg_query as_of=2026-04-27T17:13:04Z (now) — expecting 2 edges (T2 invalidated)
+  HTTP 200 edge count=0

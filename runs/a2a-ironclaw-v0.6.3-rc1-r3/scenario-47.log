@@ -1,0 +1,9 @@
+register canonical='AlphaOne-Project-7188dc' ns=scenario47-ent-7188dc aliases=['a1-project', 'alphaone-proj']
+  HTTP 201 entity_id='33523935-f76d-45d3-b20e-ac4dd6cdb43f'
+register again, same canonical, different aliases=['alpha1-proj', 'ao-project']
+  HTTP 200 entity_id='33523935-f76d-45d3-b20e-ac4dd6cdb43f' aliases-on-entity=['a1-project', 'alphaone-proj', 'alpha1-proj', 'ao-project']
+settle 4s for entity propagation
+  by-alias('a1-project') HTTP 404 -> ''
+  by-alias('alphaone-proj') HTTP 404 -> ''
+  by-alias('alpha1-proj') HTTP 404 -> ''
+  by-alias('ao-project') HTTP 404 -> ''
