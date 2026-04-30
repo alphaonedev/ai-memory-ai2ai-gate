@@ -1,5 +1,14 @@
 # ai-memory A2A gate
 
+<!--
+  Latest release banner is rendered from releases/<highest-semver>/summary.json
+  by the `render_current_release` macro defined in ../main.py. To bump the
+  surfaced release, add a new releases/<vX.Y.Z>/summary.json with verdict
+  "pass" — no edits to this file required. Schema lives in releases/schema.json
+  and is enforced on tag push by .github/workflows/release-summary-gate.yml.
+-->
+{{ render_current_release() }}
+
 Reproducible AI-to-AI integration testing for
 [ai-memory-mcp](https://github.com/alphaonedev/ai-memory-mcp). Where
 [ai-memory-ship-gate](https://github.com/alphaonedev/ai-memory-ship-gate)
@@ -28,13 +37,13 @@ through a central ai-memory authoritative store.
 
 A2A-gate certification requires **three consecutive `overall_pass = true` runs at full scenario coverage** (up to 36 scenarios under the [testbook v3.0.0](testbook.md) × [baseline v1.4.0](baseline.md) set — 36 at `mtls`, 35 at `tls`, 34 at `off`). Any single `overall_pass = false` resets the counter; there is no credit for partial green.
 
-**Current best (as of 2026-04-24): 37/37 on mtls, 35/35 on tls, 35/35 on off — across ironclaw (DO), hermes (DO), and openclaw (local-docker).** Cert-run head commit: `release/v0.6.2 @ 3e018d6` (PRs [ai-memory-mcp#368](https://github.com/alphaonedev/ai-memory-mcp/pull/368) + [#369](https://github.com/alphaonedev/ai-memory-mcp/pull/369) — S40 fanout retry + terminal catchup batch). Prior best was 23/36 at v3r17.
+**Current best (as of 2026-04-27): 48/48 on `ironclaw-mtls` at v0.6.3 — closing S18 (semantic expansion) and S39 (SSH STOP/CONT reliability), the residual blockers at v3r23 / v0.6.2.** Cert-run head commit: `release/v0.6.3 @ 2cfcc18`. Prior best was 37/37 on mtls / 35/35 on tls / 35/35 on off at v0.6.2 across ironclaw (DO), hermes (DO), and openclaw (local-docker).
 
-**Consecutive green streak: 3 / 3 → v0.6.2 CERTIFIED (2026-04-24).**
+**Consecutive green streak: 3 / 3 → v0.6.3 CERTIFIED (2026-04-27)** on `ironclaw-mtls` (campaign run #25021409589). Hermes and openclaw cells continue to publish per-release runs under [`runs/`](runs/); the v0.6.3 banner above tracks the headline ironclaw-mtls cell.
 
 Testing is continuous; certification is forward-looking toward v1.0 GA. Every campaign run is published under [`runs/`](runs/) regardless of outcome — a red run is data, not a setback. See [v1.0 GA criteria](v1-ga-criteria.md) for what has to be true across ai-memory-mcp, ship-gate, and this repo for the `1.0` tag to cut.
 
-This replaces earlier release-notes language on v0.6.0 and v0.6.1. Those releases were *validated against* the A2A-gate (per-release, against live infrastructure) — not *certified by* it. Certification begins the first time three consecutive green runs land at 36/36 on each of the six homogeneous cells.
+This replaces earlier release-notes language on v0.6.0 and v0.6.1. Those releases were *validated against* the A2A-gate (per-release, against live infrastructure) — not *certified by* it. v0.6.2 was the first release to land three consecutive green runs at 36/36 on the headline mtls cells. **v0.6.3 extends that with 48/48 on `ironclaw-mtls`** — the new baseline (35) plus 4 auto-append plus 9 new scenarios introduced for v0.6.3 (capabilities v2, KG, entity, lifecycle).
 
 ---
 
@@ -179,16 +188,35 @@ See [Security](security.md).
 
 ## Current status
 
-Active on `release/v0.6.2` + source-build (v0.6.2 Patch 2, release freeze active).
+Active on `release/v0.6.3` (commit `2cfcc18`, shipped 2026-04-27). The
+`ironclaw-mtls` cell hit **48/48 green** on campaign run #25021409589 —
+closing **S18 (semantic expansion)** and **S39 (SSH STOP/CONT reliability)**
+which were the residual blockers at v3r23 / v0.6.2. Headline banner above
+is regenerated from `releases/v0.6.3/summary.json`.
 
 **Matrix** (2 frameworks × 3 transport modes, updated per campaign):
 
-| | off (34) | tls (34) | mtls (36) |
+| | off | tls | mtls |
 |---|---|---|---|
-| **ironclaw** | 32 / 34 (v3r23) | 32 / 35 (v3r23) | **34 / 36** (v3r23) |
-| **hermes**   | 32 / 34 (v3r23) | 32 / 35 (v3r23) | **34 / 36** (v3r23) |
-| **mixed**    | ⏸ topology       | ⏸ topology        | ⏸ topology         |
-
-6 of 9 cells pass their substrate check under the *release-freeze / framework-agnostic* invariant; the remaining 3 (mixed row) are blocked on terraform topology work in this repo, not on ai-memory-mcp. No cell hits `overall_pass = true` yet — the residual framework-level failure set has shrunk to `S18, S39` (off + mtls) / `S18, S20, S39` (tls), down from 13 at v3r17. Closing any of {S18 semantic expansion, S20 on-tls gating, S39 ssh STOP/CONT reliability} narrows the gap to 36/36 and to the three-consecutive-green streak required for [certification](index.md#certification-threshold).
+| **ironclaw** | tracked under `runs/` | tracked under `runs/` | **48 / 48 (v0.6.3) — CERT** |
+| **hermes**   | tracked under `runs/` | tracked under `runs/` | tracked under `runs/` |
+| **mixed**    | ⏸ topology              | ⏸ topology              | ⏸ topology                  |
 
 Every campaign run — green, red, cancelled — is archived under [`runs/`](runs/). The live [README](https://github.com/alphaonedev/ai-memory-ai2ai-gate) tracks the latest dispatch and any in-flight campaigns.
+
+---
+
+## Release history
+
+Every released `vX.Y.Z` ships a `releases/<version>/summary.json` artifact
+that this page reads at build time. The highest-semver entry is the headline
+banner at the top; the table below lists every published release in
+reverse-chronological order.
+
+{{ render_release_history() }}
+
+The schema for `summary.json` lives in
+[`releases/schema.json`](https://github.com/alphaonedev/ai-memory-ai2ai-gate/blob/main/releases/schema.json).
+Pushing a `v*` tag without a matching `releases/<tag>/summary.json` fails the
+release-blocking [`release-summary-gate`](https://github.com/alphaonedev/ai-memory-ai2ai-gate/actions/workflows/release-summary-gate.yml)
+workflow before any artifact is published.
