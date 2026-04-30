@@ -18,6 +18,11 @@ docker/bin/ai-memory
 # CA private keys + server/client keys must NEVER be committed.
 docker/tls/
 
+# Local mkdocs venv + build output
+.venv/
+venv/
+site/
+
 # Editor / OS noise
 *.swp
 .DS_Store

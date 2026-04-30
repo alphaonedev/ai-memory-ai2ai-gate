@@ -1,0 +1,53 @@
+{
+  "$schema": "../schema.json",
+  "version": "v0.6.3",
+  "campaign_run_id": "25021409589",
+  "date": "2026-04-27",
+  "ai_memory_git_ref": "release/v0.6.3",
+  "ai_memory_commit": "2cfcc18",
+  "agent_group": "ironclaw",
+  "tls_mode": "mtls",
+  "wall_seconds": 1680,
+  "wall_human": "28m",
+  "execution_seconds": 1092,
+  "execution_human": "18m12s",
+  "pass_count": 48,
+  "fail_count": 0,
+  "verdict": "pass",
+  "headline": "v0.6.3 — 48/48 ironclaw-mtls green — 28m wall — 2026-04-27",
+  "cells": [
+    {
+      "cell": "ironclaw-mtls",
+      "agent_group": "ironclaw",
+      "tls_mode": "mtls",
+      "pass": true,
+      "pass_count": 48,
+      "fail_count": 0,
+      "scenario_total": 48,
+      "breakdown": {
+        "baseline_v0_6_0": 35,
+        "auto_append": 4,
+        "new_in_v0_6_3": 9
+      },
+      "wall_seconds": 1680,
+      "wall_human": "28m",
+      "notes": "All 48 scenarios passed. Closed S18 (semantic expansion) and S39 (SSH STOP/CONT reliability) which were the residual blockers at v3r23/v0.6.2."
+    }
+  ],
+  "scenarios_closed": [
+    {"id": "S18", "name": "semantic expansion", "previously": "open at v0.6.2 / v3r23", "now": "resolved in v0.6.3"},
+    {"id": "S39", "name": "SSH STOP/CONT reliability", "previously": "open at v0.6.2 / v3r23", "now": "resolved in v0.6.3"}
+  ],
+  "evidence": {
+    "campaign_dir": "runs/a2a-ironclaw-v0.6.3-rc1-r3",
+    "campaign_summary_json": "runs/a2a-ironclaw-v0.6.3-rc1-r3/a2a-summary.json",
+    "offline_html": "evidence/a2a-ironclaw-v0.6.3-rc1-r3/index.html",
+    "release_notes_url": "https://github.com/alphaonedev/ai-memory-mcp/releases/tag/v0.6.3",
+    "test_hub_url": "https://alphaonedev.github.io/ai-memory-test-hub/releases/v0.6.3/"
+  },
+  "release": {
+    "tag": "v0.6.3",
+    "tag_signed": "gpg",
+    "channels": ["crates.io", "Docker GHCR", "Homebrew", "Fedora COPR"]
+  }
+}
