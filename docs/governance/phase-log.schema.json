@@ -1,0 +1,165 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://alphaonedev.github.io/ai-memory-ai2ai-gate/governance/phase-log.schema.json",
+  "title": "ai-memory A2A NHI per-turn log record (canonical, release-agnostic)",
+  "description": "Canonical, release-agnostic binding schema for every per-turn record emitted by IronClaw or Hermes during Phase 2 (scripted dry run) and Phase 3 (autonomous playbook). Defined in docs/governance/META-GOVERNANCE.md §7. Per-release campaigns instantiate this schema by pinning schema_version (const), release (const), and campaign_id (regex) to release-specific values per docs/governance/instantiation-guide.md. Records that fail validation are rejected by the Orchestrator and the run is marked malformed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "campaign_id",
+    "node_id",
+    "release",
+    "phase",
+    "scenario_id",
+    "control_arm",
+    "run_index",
+    "turn_id",
+    "agent_id",
+    "agent_framework",
+    "timestamp_utc",
+    "llm_model_sku",
+    "system_prompt_sha256",
+    "prompt_sha256",
+    "tools_called",
+    "ai_memory_ops",
+    "claims_made",
+    "claims_grounded",
+    "refusals",
+    "termination_reason",
+    "self_confidence"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^v\\d+\\.\\d+\\.\\d+(\\.\\d+)?-a2a-nhi-\\d+$",
+      "description": "Pinned to a single const at per-release instantiation (e.g., 'v0.6.3.1-a2a-nhi-1'). The canonical schema accepts any well-formed value."
+    },
+    "campaign_id": {
+      "type": "string",
+      "pattern": "^a2a-(ironclaw|hermes)-v\\d+\\.\\d+\\.\\d+(\\.\\d+)?-r[0-9]+$",
+      "description": "Per-release instantiations narrow this regex to their specific release tag (e.g., '^a2a-(ironclaw|hermes)-v0\\.6\\.3\\.1-r[0-9]+$')."
+    },
+    "node_id": {
+      "type": "string",
+      "pattern": "^do-[a-z0-9-]+$",
+      "description": "DigitalOcean droplet identifier. The Orchestrator host is not a node_id; only droplets where agents execute are."
+    },
+    "release": {
+      "type": "string",
+      "pattern": "^v\\d+\\.\\d+\\.\\d+(\\.\\d+)?$",
+      "description": "Pinned to a single const at per-release instantiation (e.g., 'v0.6.3.1'). The canonical schema accepts any well-formed release tag."
+    },
+    "phase": { "type": "integer", "enum": [2, 3] },
+    "scenario_id": {
+      "type": "string",
+      "enum": ["A", "B", "C", "D", "phase2"]
+    },
+    "control_arm": {
+      "type": "string",
+      "enum": ["cold", "isolated", "stubbed", "treatment", "phase2"]
+    },
+    "run_index": { "type": "integer", "enum": [1, 2, 3] },
+    "turn_id": {
+      "type": "string",
+      "pattern": "^(A|B|C|D|phase2)-(cold|isolated|stubbed|treatment|phase2)-r[123]-t[0-9]+$"
+    },
+    "agent_id": { "type": "string", "enum": ["ai:alice", "ai:bob"] },
+    "agent_framework": { "type": "string", "enum": ["ironclaw", "hermes"] },
+    "timestamp_utc": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z?(\\+\\d{2}:\\d{2})?$"
+    },
+    "llm_model_sku": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Exact SKU string as reported by the agent runtime. The pinned default lives in docs/baseline.md; runs that report a different SKU are flagged sku_mismatch and excluded from aggregation."
+    },
+    "system_prompt_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "prompt_sha256":        { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "tools_called": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["tool_name", "args_sha256", "args_size_bytes", "result_sha256", "result_size_bytes", "duration_ms", "ok"],
+        "properties": {
+          "tool_name":          { "type": "string", "minLength": 1 },
+          "args_sha256":        { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "args_size_bytes":    { "type": "integer", "minimum": 0 },
+          "result_sha256":      { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "result_size_bytes":  { "type": "integer", "minimum": 0 },
+          "duration_ms":        { "type": "integer", "minimum": 0 },
+          "ok":                 { "type": "boolean" }
+        }
+      }
+    },
+    "ai_memory_ops": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["op", "namespace", "key_or_query", "scope", "transport", "payload_sha256", "returned_records", "duration_ms", "ok"],
+        "properties": {
+          "op": {
+            "type": "string",
+            "enum": ["write", "recall", "consolidate", "share", "detect_contradiction", "audit_verify"]
+          },
+          "namespace":        { "type": "string", "minLength": 1 },
+          "key_or_query":     { "type": "string", "minLength": 1 },
+          "scope":            { "type": "string", "enum": ["private", "team", "unit", "org", "collective"] },
+          "transport":        { "type": "string", "enum": ["mcp_stdio", "http"] },
+          "payload_sha256":   { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "returned_records": { "type": "integer", "minimum": 0 },
+          "duration_ms":      { "type": "integer", "minimum": 0 },
+          "ok":               { "type": "boolean" }
+        }
+      }
+    },
+    "claims_made": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["claim_id", "text_sha256", "category"],
+        "properties": {
+          "claim_id":    { "type": "string", "minLength": 1 },
+          "text_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "category":    { "type": "string", "enum": ["factual", "rationale", "constraint", "decision"] }
+        }
+      }
+    },
+    "claims_grounded": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["claim_id", "grounded_in_op_index", "grounding_strength"],
+        "properties": {
+          "claim_id":             { "type": "string", "minLength": 1 },
+          "grounded_in_op_index": { "type": "integer", "minimum": 0 },
+          "grounding_strength":   { "type": "string", "enum": ["exact", "paraphrase", "inference"] }
+        }
+      }
+    },
+    "refusals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["reason", "category"],
+        "properties": {
+          "reason":   { "type": "string", "minLength": 1 },
+          "category": { "type": "string", "enum": ["no_context", "policy", "ambiguity", "other"] }
+        }
+      }
+    },
+    "termination_reason": {
+      "type": "string",
+      "enum": ["task_complete", "cap_reached_turns", "cap_reached_ops", "cap_reached_walltime", "refusal", "error"]
+    },
+    "self_confidence": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+    "notes": { "type": "string", "maxLength": 500 }
+  }
+}
