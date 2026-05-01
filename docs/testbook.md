@@ -369,3 +369,26 @@ Reference implementation: `scripts/scenarios/26_mixed_framework.py`.
 - [Methodology](methodology.md) — the philosophy behind the invariants
 - [Reproducing](reproducing.md) — how to dispatch a campaign yourself
 - [Campaign runs](runs/) — live evidence dashboard
+
+---
+
+## 9. Phase 2/3/4/5 inheritance — substrate cert is one layer of a five-phase campaign
+
+The S1–S51 testbook scenarios in this document are **Phase 1 — Substrate cert** in the canonical First-Principles taxonomy. They are not the entire A2A campaign — they are the substrate-cert layer that the upper phases gate on.
+
+Per-release campaigns (`ai-memory-a2a-v<X.Y.Z>`) now run a **five-phase structure**:
+
+| Phase | Layer | Where it lives |
+|---|---|---|
+| 0 | Pre-flight (infrastructure baseline) | `a2a-baseline.json` per [`baseline.md`](baseline.md) |
+| 1 | **Substrate cert (this testbook, S1–S<last>)** | This repo — testbook scenarios |
+| 2 | AI Orchestration Test (scripted bidirectional dry run between IronClaw + Hermes through ai-memory) | Per-release campaign repo, governed by canonical First-Principles |
+| 3 | Autonomous NHI Playbook (four scenarios x four control arms x n=3 = 48 runs) | Per-release campaign repo |
+| 4 | Meta-analysis (third Claude instance, no namespace access, computes grounding rate / cross-layer consistency from Phase 3 logs) | Per-release campaign repo |
+| 5 | Verdict commit + findings sync (publishes substrate verdict and NHI behavioral verdict separately, populates next-patch candidate list) | Per-release campaign repo + ai-memory-mcp umbrella issue |
+
+The canonical governance for Phases 2-5 lives in this repo at [`governance/META-GOVERNANCE.md`](governance/META-GOVERNANCE.md), with the binding §7 JSON log schema at [`governance/phase-log.schema.json`](governance/phase-log.schema.json) and the per-release instantiation procedure at [`governance/instantiation-guide.md`](governance/instantiation-guide.md).
+
+**The S1-S51 substrate scenarios in this testbook are not changed by the upper-phase governance.** The substrate cert layer is the same scripted, binary-evidence layer it has always been; the upper phases run *on top* of a green-or-known-RED substrate. The substrate testbook continues to be the source of truth for what the A2A surfaces are required to do, and substrate-cert evidence remains the bedrock that NHI behavioral evidence sits on top of.
+
+The reference per-release instantiation is the v0.6.3.1 campaign — see https://github.com/alphaonedev/ai-memory-a2a-v0.6.3.1/pull/2 for the pattern, and Appendix C of [`governance/META-GOVERNANCE.md`](governance/META-GOVERNANCE.md) for the list of fields each release must pin.

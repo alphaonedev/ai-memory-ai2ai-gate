@@ -34,6 +34,10 @@ nav:
   - Reproducing:
       - Reproducing (DO): reproducing.md
       - Local Docker mesh: local-docker-mesh.md
+  - Governance (canonical):
+      - Meta-governance (First Principles): governance/META-GOVERNANCE.md
+      - Phase log schema (release-agnostic): governance/phase-log.schema.json
+      - Instantiation guide: governance/instantiation-guide.md
   - Specification:
       - Baseline configuration: baseline.md
       - Test book: testbook.md
